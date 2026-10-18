@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Julio Miranda · Tecnología y Transformación Digital · Líder de Proyectos. Más de 15 años liderando proyectos de software, datos y transformación digital.">
+<meta property="og:title" content="Julio Miranda">
+<meta property="og:description" content="Julio Miranda · Tecnología y Transformación Digital · Líder de Proyectos. Más de 15 años liderando proyectos de software, datos y transformación digital.">
+<meta property="og:type" content="website">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Portfolio Julio Miranda</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an archive of 17 years — counters, a year scrubber with histogram, filterable case files, and a wall of every domain shipped */
+:root{
+  --bg:#0c1316;--surface:#131d21;--raise:#1a272c;--line:#26363d;--ink:#e9f0f2;--muted:#8fa4ab;
+  --accent:#6fb8ff;--warm:#ffb661;--health:#5fd4a8;--gov:#b49cff;--biz:#f08cb6;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"Manrope",ui-sans-serif,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f2f5f6;--surface:#ffffff;--raise:#e9eef0;--line:#d3dde1;--ink:#0f1b1f;--muted:#566b72;--accent:#1d67c9;--warm:#b8600f;--health:#13865e;--gov:#6a4fd1;--biz:#b13f6f;color-scheme:light}}
+:root[data-theme="light"]{--bg:#f2f5f6;--surface:#ffffff;--raise:#e9eef0;--line:#d3dde1;--ink:#0f1b1f;--muted:#566b72;--accent:#1d67c9;--warm:#b8600f;--health:#13865e;--gov:#6a4fd1;--biz:#b13f6f;color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:64px;padding-block:40px 72px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hero{display:grid;gap:22px}
+.hero h1{font-size:clamp(2.3rem,6.4vw,4.6rem);font-weight:800;line-height:1.02}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{max-width:62ch;color:var(--muted);margin:0;font-size:1.06rem}
+.term{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:center;max-width:100%;overflow:hidden;white-space:nowrap}
+.term b{color:var(--health);font-weight:500}
+.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--accent);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stat{background:var(--surface);padding:18px 18px 16px;display:grid;gap:4px}
+.stat b{font-family:var(--display);font-size:2.3rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.stat span{color:var(--muted);font-size:.86rem}
+@media (max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+section{display:grid;gap:22px}
+.sh{display:grid;gap:8px}.sh h2{font-size:clamp(1.6rem,3.6vw,2.3rem)}.sh p{margin:0;color:var(--muted);max-width:64ch}
+/* scrubber */
+.scrub{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:12px}
+.bars{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:4px;align-items:end;height:110px}
+.bar{background:var(--raise);border-radius:4px 4px 0 0;position:relative;cursor:pointer;transition:background .2s}
+.bar.on{background:var(--accent)}
+.bar:hover{background:color-mix(in srgb,var(--accent) 60%,var(--raise))}
+.yrs{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:4px;font-family:var(--mono);font-size:.66rem;color:var(--muted);text-align:center}
+.yrs span:nth-child(odd){visibility:visible}
+@media (max-width:560px){.yrs span:nth-child(even){visibility:hidden}}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.now{font-family:var(--display);font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.now small{font-family:var(--body);font-size:.85rem;font-weight:500;color:var(--muted);margin-left:8px}
+button,.chip{font:inherit;cursor:pointer}
+.btn{background:var(--raise);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:.88rem;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.search{flex:1 1 220px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:999px;color:var(--ink);padding:8px 14px;font:inherit;font-size:.9rem}
+/* cases */
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.case{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:10px;align-content:start;transition:opacity .3s,transform .3s,border-color .2s;text-align:left;color:inherit}
+.case:hover{border-color:color-mix(in srgb,var(--c) 70%,var(--line));transform:translateY(-2px)}
+.case.dim{opacity:.22}
+.case .top{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.case .sec{color:var(--c);letter-spacing:.06em;text-transform:uppercase}
+.case h3{font-size:1.2rem;font-weight:700;line-height:1.2}
+.case p{margin:0;color:var(--muted);font-size:.93rem}
+.case .metric{font-family:var(--display);font-weight:700;color:var(--ink);font-size:.98rem;border-top:1px dashed var(--line);padding-top:10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tags i{font-style:normal;font-family:var(--mono);font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+.case details summary{cursor:pointer;font-size:.84rem;font-weight:700;color:var(--c);list-style:none}
+.case details summary::-webkit-details-marker{display:none}
+.case details p{margin-top:8px}
+/* wall */
+.wall{display:flex;flex-wrap:wrap;gap:6px}
+.dom{font-family:var(--mono);font-size:.8rem;padding:5px 9px;border-radius:7px;background:var(--surface);border:1px solid var(--line);color:var(--ink);transition:opacity .25s,background .25s;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.dom::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:1px}
+.dom.dim{opacity:.15}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
+.note{font-size:.82rem;color:var(--muted);margin:0}
+.counter{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding-top:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:.88rem}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow">Julio Miranda · Archivo de proyectos 2009 – 2026</span>
+  <h1>Diecisiete años de proyectos <em>que salieron a producción</em>.</h1>
+  <p>Del primer diario digital de Catamarca a la gestión tecnológica en salud: portales, apps, plataformas federales, academias online y sistemas de gestión. Cada proyecto cumplió su ciclo y quedó funcionando para quien lo encargó.</p>
+  <div class="term" aria-live="off"><span>›</span><span id="typed">deploy catamarcagrande.com</span><span class="cursor" aria-hidden="true"></span><b id="ok">en línea</b></div>
+</header>
+
+<div class="stats" role="list">
+  <div class="stat" role="listitem"><b data-n="17">17</b><span>años construyendo tecnología</span></div>
+  <div class="stat" role="listitem"><b data-n="27">27</b><span>casos destacados</span></div>
+  <div class="stat" role="listitem"><b data-n="123">123</b><span>sitios y plataformas en el archivo</span></div>
+  <div class="stat" role="listitem"><b data-n="8">8</b><span>sectores, de salud a gobierno</span></div>
+</div>
+
+<section aria-labelledby="t-tl">
+  <div class="sh"><span class="eyebrow">Línea de tiempo</span><h2 id="t-tl">Recorré el archivo año por año</h2><p>Cada barra muestra cuántos proyectos estaban activos ese año. Tocá un año o reproducí la línea completa.</p></div>
+  <div class="scrub">
+    <div class="ctrl"><div class="now" id="now">Todos los años<small id="nowc"></small></div>
+      <div class="filters"><button class="btn" id="play" type="button">▶ Reproducir</button><button class="btn" id="all" type="button">Ver todos</button></div></div>
+    <div class="bars" id="bars" role="group" aria-label="Proyectos activos por año"></div>
+    <div class="yrs" id="yrs"></div>
+  </div>
+  <div class="filters" role="group" aria-label="Filtrar por sector">
+    <div class="filters" id="chips"></div>
+    <input class="search" id="q" type="search" placeholder="Buscar: UBA, app, gremio, salud…" aria-label="Buscar proyectos">
+  </div>
+</section>
+
+<section aria-labelledby="t-cases">
+  <div class="sh"><span class="eyebrow">Casos</span><h2 id="t-cases">Proyectos destacados</h2></div>
+  <span class="counter" id="cc"></span>
+  <div class="cases" id="cases"></div>
+</section>
+
+<section aria-labelledby="t-wall">
+  <div class="sh"><span class="eyebrow">Muro de dominios</span><h2 id="t-wall">Todo lo que pasó por Web y Graf y DEVISEBIT SRL</h2><p>Sitios, portales y plataformas de clientes de distintos rubros, reconstruidos desde el archivo de correo del estudio.</p></div>
+  <div class="legend" id="legend"></div>
+  <span class="counter" id="wc"></span>
+  <div class="wall" id="wall"></div>
+  <p class="note">Los años de cada sitio salen del archivo de correo del estudio, que arranca en 2014; los proyectos anteriores figuran desde su primer registro. Los proyectos del gremio se muestran sin su nombre.</p>
+</section>
+
+<footer><span>Julio Miranda · Tecnología y Transformación Digital · mirandajulioadrian@gmail.com</span><a href="./">Ver perfil completo</a></footer>
+</div>
+<script>
+const CASES=[{"t": "Gestión y tecnología en salud", "c": "MC SALUD SAS", "a": 2024, "b": 2026, "s": "Salud", "d": "Dirigí la gestión administrativa y tecnológica de una residencia de larga estadía, centros de día y la cápita de una obra social. La conducción médica estuvo a cargo de un socio médico.", "m": "4 frentes de salud bajo un mismo modelo", "tags": ["CRM", "WhatsApp con IA", "Tablero de control"], "x": "Padrón único de afiliados, autorizaciones con trazabilidad, asistente de WhatsApp 24 h para turnos, cartilla y credencial, y un tablero de consumo por prestador y costo por afiliado con alertas de desvío."}, {"t": "Prestadora con estructura tecnológica", "c": "SAN PATRICIO SRL", "a": 2025, "b": 2026, "s": "Salud", "d": "Internación domiciliaria y centro de día con procesos digitalizados, facturación ordenada y tablero gerencial.", "m": "Convenios con obras sociales de primer nivel", "tags": ["Gerencia general", "Procesos", "Facturación"], "x": "Dirección integral de la operación asistencial, administrativa y financiera, con equipos profesionales y administrativos a cargo."}, {"t": "Centro Sagrado Corazón", "c": "Merlo, San Luis", "a": 2025, "b": 2026, "s": "Salud", "d": "Centro de día y consultorios: digitalizamos su imagen, la web, el turnero y la gestión tecnológica.", "m": "Imagen, web y turnos online", "tags": ["Identidad", "Web", "Turnero"], "x": null}, {"t": "Canal de cobertura de salud", "c": "EFFI SOLUTIONS SAS", "a": 2024, "b": 2026, "s": "Salud", "d": "Servicio comercial y tecnológico para la venta de cobertura de una prepaga nacional en San Luis, Cuyo y todo el país.", "m": "Call center, ventas y CRM propios", "tags": ["CRM multiusuario", "Embudo", "WhatsApp"], "x": null}, {"t": "Modernización tecnológica de un gremio", "c": "San Luis", "a": 2025, "b": 2026, "s": "Gremios", "d": "Un año completo de trabajo: su área de capacitación pasó a ser una academia online, y digitalizamos padrones internos y la administración de su obra social.", "m": "1 año de trabajo continuo", "tags": ["Academia online", "App", "Credencial digital"], "x": "Web institucional, plataforma de cursos con pagos online, app móvil con credencial digital y marketing en redes."}, {"t": "Academia USL", "c": "Gremio en San Luis", "a": 2025, "b": 2025, "s": "Educación", "d": "Academia online con pagos, app y gestión de cursos.", "m": "Formación online para todo el gremio", "tags": ["LMS", "Pagos online"], "x": null}, {"t": "Academia BA Emprende", "c": "Gobierno de la Ciudad de Buenos Aires", "a": 2021, "b": 2022, "s": "Educación", "d": "Campus de formación para emprendedores de la Ciudad.", "m": "Campus público de formación", "tags": ["LMS", "WordPress"], "x": null}, {"t": "Academia Fundación SODETEC", "c": "Fundación SODETEC", "a": 2022, "b": 2023, "s": "Educación", "d": "Plataforma de capacitación virtual para la fundación.", "m": "Capacitación virtual", "tags": ["LMS"], "x": null}, {"t": "App de beneficios municipal", "c": "Municipio bonaerense", "a": 2022, "b": 2022, "s": "Gobierno", "d": "Rediseño, desarrollo y soporte de la app de beneficios para vecinos y comercios adheridos.", "m": "Proyecto entregado en 2022", "tags": ["App móvil", "Beneficios"], "x": null}, {"t": "Aula Virtual Internacional y Encuentro UBA TIC", "c": "Universidad de Buenos Aires", "a": 2020, "b": 2021, "s": "Educación", "d": "Diseño y armado de aulas y salas virtuales, y de la plataforma del Encuentro UBA TIC.", "m": "Universidad pública más grande del país", "tags": ["Aulas virtuales", "Eventos online"], "x": null}, {"t": "Expo UBA Posgrados", "c": "Universidad de Buenos Aires", "a": 2022, "b": 2023, "s": "Educación", "d": "Plataforma de inscripción y acreditación, con data warehouse y Power BI.", "m": "Inscripción, acreditación y datos", "tags": ["Data warehouse", "Power BI"], "x": null}, {"t": "Tableros de gestión UBA", "c": "Subsecretaría de Modernización", "a": 2021, "b": 2023, "s": "Educación", "d": "Seguimiento de proyectos de modernización y transformación digital con Power BI.", "m": "Proyectos estratégicos medidos", "tags": ["Power BI"], "x": null}, {"t": "Agencia Tributaria Misiones", "c": "Con Think Solutions", "a": 2021, "b": 2021, "s": "Gobierno", "d": "Un año de viajes a Misiones para el gran proyecto tributario: relevamiento y mejora de sus servicios tecnológicos.", "m": "Sistema tributario, data center y mesa de ayuda", "tags": ["Consultoría", "Relevamiento"], "x": null}, {"t": "Centro Metropolitano de Diseño", "c": "Gobierno de la Ciudad de Buenos Aires", "a": 2020, "b": 2023, "s": "Innovación", "d": "Gestión de un predio público de innovación con incubadora, coworking, laboratorio y auditorio.", "m": "14.000 m², 70 boxes, equipo de 30", "tags": ["Gerencia operativa", "Innovación"], "x": null}, {"t": "BA Laboratorio Tecnológico", "c": "Gobierno de la Ciudad de Buenos Aires", "a": 2020, "b": 2023, "s": "Innovación", "d": "Tecnología aplicada a procesos productivos y prototipado para pymes, universidades y centros de I+D.", "m": "Equipo de 8 personas", "tags": ["Prototipado", "I+D"], "x": null}, {"t": "Red de Innovación Abierta", "c": "Gobierno de la Ciudad de Buenos Aires", "a": 2021, "b": 2023, "s": "Innovación", "d": "Plataforma que conecta empresas con desafíos y startups con soluciones.", "m": "Empresas y startups conectadas", "tags": ["Plataforma", "Open innovation"], "x": null}, {"t": "Red Federal de Monitoreo Ambiental", "c": "Ministerio de Ambiente · PNUD", "a": 2016, "b": 2020, "s": "Gobierno", "d": "Sistema web propio con datos de aire y agua y tableros de decisión, implementado y capacitado en todo el país.", "m": "Todas las provincias y países limítrofes", "tags": ["Sistema web", "Tableros", "Scrum"], "x": "Proyecto financiado por Naciones Unidas (PNUD 16/002). Kick off, cronograma de entregables y capacitaciones provincia por provincia: Mendoza, Entre Ríos, Bariloche y muchas más."}, {"t": "GIRO", "c": "Ministerio de Ambiente de la Nación", "a": 2017, "b": 2020, "s": "Gobierno", "d": "Trazabilidad federal de residuos peligrosos, integrada con AFIP, CNRT y SENASA.", "m": "Equipo de 15 personas", "tags": ["Integraciones", "Trazabilidad"], "x": null}, {"t": "Secretaría de Cultura del gremio", "c": "Gremio nacional del turismo y la gastronomía", "a": 2017, "b": 2021, "s": "Gremios", "d": "Web, fan page, newsletter, revista anual y concursos nacionales de fotografía y pintura, más torneos de ajedrez online.", "m": "5 años de comunicación cultural", "tags": ["Web", "Newsletter", "Revista"], "x": null}, {"t": "La Copa", "c": "Torneo nacional de fútbol", "a": 2015, "b": 2016, "s": "Gremios", "d": "Web y app de resultados para un torneo nacional de fútbol de afiliados, con fichas de equipos y fixture.", "m": "Equipos de Tucumán, Rosario, Río Cuarto, Mar del Plata, Tandil y más", "tags": ["Web", "App", "Resultados en vivo"], "x": null}, {"t": "IPLIDO", "c": "Instituto del gremio", "a": 2014, "b": 2017, "s": "Gremios", "d": "Web institucional, app móvil, boletín mensual de efemérides, delegaciones y redes.", "m": "El proyecto con más intercambios del archivo", "tags": ["Web", "App móvil", "Boletín"], "x": null}, {"t": "Web oficial y obra social del gremio", "c": "Gremio nacional del turismo y la gastronomía", "a": 2014, "b": 2019, "s": "Gremios", "d": "Web oficial del gremio, web de su obra social con moderación de contenidos y web de su asociación de personal jerárquico.", "m": "Cinco años de soporte continuo", "tags": ["Web", "Contenidos"], "x": null}, {"t": "Portal de Urología UBA", "c": "Comunidad de urología de la UBA", "a": 2014, "b": 2016, "s": "Salud", "d": "Portal académico con registro de usuarios: el primer proyecto en salud.", "m": "Cerca de 480 usuarios registrados", "tags": ["WordPress", "Registro de usuarios"], "x": null}, {"t": "Catamarca Exporta", "c": "Gobierno de Catamarca", "a": 2014, "b": 2016, "s": "Gobierno", "d": "Web, app y newsletter de la agencia de exportaciones, oferta exportable traducida y webs de ExpoCatamarca, Expolivo y ExpoProductiva.", "m": "La provincia mostrada al mundo", "tags": ["Web", "App", "Newsletter"], "x": null}, {"t": "Primeros diarios digitales de Catamarca", "c": "Web y Graf", "a": 2009, "b": 2018, "s": "Medios", "d": "Portales de noticias pioneros como Catamarcagrande, Datamarca, Nuevo Tiempo Catamarca y CatamarcaInfo.", "m": "Cuando nadie sabía qué era un dominio", "tags": ["Portales", "CMS"], "x": null}, {"t": "Multimedio de TV por cable", "c": "Catamarca", "a": 2009, "b": 2012, "s": "Medios", "d": "Sitio de noticias, videos y redes sociales de un multimedio, cuando todo eso era nuevo.", "m": "El primer trabajo, la primera idea", "tags": ["Web", "Video", "Redes"], "x": null}, {"t": "Web y Graf", "c": "Fundador", "a": 2009, "b": 2021, "s": "Empresas", "d": "Diseño, programación y administración de sitios: de Catamarca a una oficina en San Telmo y un equipo remoto.", "m": "Entre 100 y 150 portales activos", "tags": ["Diseño", "Desarrollo", "Hosting"], "x": null}];
+const WALL=[{"d": "elsuizoturismo.com.ar", "s": "Empresas", "a": 2014, "b": 2021, "n": 658, "sub": "Turismo"}, {"d": "serviviaje.com", "s": "Empresas", "a": 2016, "b": 2021, "n": 158, "sub": "Turismo"}, {"d": "complejoelremansodelrio.com", "s": "Empresas", "a": 2014, "b": 2017, "n": 4, "sub": "Turismo"}, {"d": "departamentosenbuenosaires.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Turismo"}, {"d": "bairesalquileres.com", "s": "Empresas", "a": 2016, "b": 2016, "n": 6, "sub": "Turismo"}, {"d": "israelforyou.net", "s": "Empresas", "a": 2015, "b": 2016, "n": 3, "sub": "Turismo"}, {"d": "todo-rio.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 6, "sub": "Turismo"}, {"d": "emporio-nautico.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Turismo"}, {"d": "taxienbuenosaires.com", "s": "Empresas", "a": 2014, "b": 2020, "n": 5, "sub": "Turismo"}, {"d": "urologiauba.com", "s": "Salud", "a": 2014, "b": 2021, "n": 494, "sub": "Salud"}, {"d": "dralejandroshifman.com", "s": "Salud", "a": 2014, "b": 2017, "n": 11, "sub": "Salud"}, {"d": "dmapsicologia.com", "s": "Salud", "a": 2015, "b": 2015, "n": 1, "sub": "Salud"}, {"d": "osepcatamarca.org", "s": "Salud", "a": 2014, "b": 2014, "n": 2, "sub": "Salud"}, {"d": "filamtex.com", "s": "Empresas", "a": 2015, "b": 2017, "n": 152, "sub": "Industria y pymes"}, {"d": "aislatec.com.ar", "s": "Empresas", "a": 2014, "b": 2018, "n": 122, "sub": "Industria y pymes"}, {"d": "riwelsa.com.ar", "s": "Empresas", "a": 2015, "b": 2016, "n": 142, "sub": "Industria y pymes"}, {"d": "ingetec-argentina.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 45, "sub": "Industria y pymes"}, {"d": "inartec.com.ar", "s": "Empresas", "a": 2015, "b": 2016, "n": 42, "sub": "Industria y pymes"}, {"d": "jvplastificados.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 8, "sub": "Industria y pymes"}, {"d": "masteramoblamientos.com", "s": "Empresas", "a": 2015, "b": 2015, "n": 60, "sub": "Industria y pymes"}, {"d": "renovateya.com.ar", "s": "Empresas", "a": 2015, "b": 2016, "n": 98, "sub": "Industria y pymes"}, {"d": "neuma-tech.com", "s": "Empresas", "a": 2015, "b": 2021, "n": 20, "sub": "Industria y pymes"}, {"d": "biotromsa.com.ar", "s": "Empresas", "a": 2015, "b": 2017, "n": 3, "sub": "Industria y pymes"}, {"d": "diammet.com.ar", "s": "Empresas", "a": 2015, "b": 2017, "n": 9, "sub": "Industria y pymes"}, {"d": "tejasantigranizo.com.ar", "s": "Empresas", "a": 2015, "b": 2016, "n": 3, "sub": "Industria y pymes"}, {"d": "sitecautomatizacion.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Industria y pymes"}, {"d": "aerosolessilva.com", "s": "Empresas", "a": 2016, "b": 2017, "n": 5, "sub": "Industria y pymes"}, {"d": "americacomex.com", "s": "Empresas", "a": 2014, "b": 2016, "n": 8, "sub": "Industria y pymes"}, {"d": "trasandinocomex.com.ar", "s": "Empresas", "a": 2014, "b": 2021, "n": 7, "sub": "Industria y pymes"}, {"d": "nikayonlimpieza.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Industria y pymes"}, {"d": "pisosyrevestimientoslecas.com", "s": "Empresas", "a": 2015, "b": 2015, "n": 1, "sub": "Industria y pymes"}, {"d": "castelbotachocuellosytiras.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 4, "sub": "Industria y pymes"}, {"d": "samigrafica.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 56, "sub": "Industria y pymes"}, {"d": "jiagraf.com", "s": "Empresas", "a": 2014, "b": 2016, "n": 96, "sub": "Industria y pymes"}, {"d": "qbotype.com", "s": "Empresas", "a": 2014, "b": 2021, "n": 37, "sub": "Industria y pymes"}, {"d": "panambicrea.com", "s": "Empresas", "a": 2014, "b": 2017, "n": 11, "sub": "Industria y pymes"}, {"d": "mkmediagroup.com.ar", "s": "Empresas", "a": 2016, "b": 2016, "n": 73, "sub": "Industria y pymes"}, {"d": "buscandoautos.com", "s": "Empresas", "a": 2016, "b": 2016, "n": 18, "sub": "Industria y pymes"}, {"d": "grupofinper.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 23, "sub": "Industria y pymes"}, {"d": "grupofrancia.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 11, "sub": "Industria y pymes"}, {"d": "consultoradelmonte.com.ar", "s": "Empresas", "a": 2015, "b": 2018, "n": 20, "sub": "Servicios profesionales"}, {"d": "consultoraneayasociados.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 3, "sub": "Servicios profesionales"}, {"d": "zarconsultoria.com", "s": "Empresas", "a": 2015, "b": 2015, "n": 1, "sub": "Servicios profesionales"}, {"d": "asnegociosinmobiliarios.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 8, "sub": "Servicios profesionales"}, {"d": "pypsolucionesinmobiliarias.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 3, "sub": "Servicios profesionales"}, {"d": "stellviviendas.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 12, "sub": "Servicios profesionales"}, {"d": "arqamproject.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 10, "sub": "Servicios profesionales"}, {"d": "mhlarquitectura.com", "s": "Empresas", "a": 2015, "b": 2015, "n": 1, "sub": "Servicios profesionales"}, {"d": "arenales1925.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 4, "sub": "Servicios profesionales"}, {"d": "estudioquatraro.com", "s": "Empresas", "a": 2015, "b": 2015, "n": 8, "sub": "Servicios profesionales"}, {"d": "estudiosvicente.com", "s": "Empresas", "a": 2014, "b": 2018, "n": 43, "sub": "Servicios profesionales"}, {"d": "casadeteoma.com.ar", "s": "Empresas", "a": 2015, "b": 2016, "n": 9, "sub": "Servicios profesionales"}, {"d": "diazgiaccio.com", "s": "Empresas", "a": 2014, "b": 2016, "n": 4, "sub": "Servicios profesionales"}, {"d": "lymabogados.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Servicios profesionales"}, {"d": "consultorlegal.net", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Servicios profesionales"}, {"d": "soch.com.ar", "s": "Empresas", "a": 2014, "b": 2019, "n": 97, "sub": "Servicios profesionales"}, {"d": "elisii.com.ar", "s": "Empresas", "a": 2014, "b": 2021, "n": 274, "sub": "Servicios profesionales"}, {"d": "estelafolco.com", "s": "Empresas", "a": 2014, "b": 2016, "n": 49, "sub": "Servicios profesionales"}, {"d": "redisenartecoachingcenter.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Servicios profesionales"}, {"d": "formacionesfamiliares.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 2, "sub": "Servicios profesionales"}, {"d": "myrjoyas.com", "s": "Empresas", "a": 2015, "b": 2015, "n": 1, "sub": "Comercio y gastronomía"}, {"d": "souvenirsoriginales.net", "s": "Empresas", "a": 2014, "b": 2015, "n": 3, "sub": "Comercio y gastronomía"}, {"d": "divinapiel.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 3, "sub": "Comercio y gastronomía"}, {"d": "gisellacameranosalon.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 2, "sub": "Comercio y gastronomía"}, {"d": "peritomorenowines.com.ar", "s": "Empresas", "a": 2015, "b": 2016, "n": 3, "sub": "Comercio y gastronomía"}, {"d": "aromasdebarrica.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Comercio y gastronomía"}, {"d": "lafiestadelapizza.com.ar", "s": "Empresas", "a": 2016, "b": 2017, "n": 4, "sub": "Comercio y gastronomía"}, {"d": "piegrande.com.ar", "s": "Empresas", "a": 2016, "b": 2017, "n": 4, "sub": "Comercio y gastronomía"}, {"d": "el-spiedo.com.ar", "s": "Empresas", "a": 2014, "b": 2014, "n": 2, "sub": "Comercio y gastronomía"}, {"d": "mensajeriasafarimotos.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Comercio y gastronomía"}, {"d": "avifert.com", "s": "Empresas", "a": 2014, "b": 2016, "n": 34, "sub": "Comercio y gastronomía"}, {"d": "eljardindemuriel.com", "s": "Empresas", "a": 2014, "b": 2015, "n": 20, "sub": "Comercio y gastronomía"}, {"d": "dalemaramisky.com", "s": "Empresas", "a": 2015, "b": 2017, "n": 3, "sub": "Comercio y gastronomía"}, {"d": "sideportes.org", "s": "Empresas", "a": 2014, "b": 2018, "n": 140, "sub": "Deporte"}, {"d": "banfieldpongajuego.com.ar", "s": "Empresas", "a": 2014, "b": 2015, "n": 18, "sub": "Deporte"}, {"d": "ligarecreativalifir.com", "s": "Empresas", "a": 2014, "b": 2016, "n": 5, "sub": "Deporte"}, {"d": "rugbycatamarca.com", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Deporte"}, {"d": "basquetcatamarca.com.ar", "s": "Empresas", "a": 2014, "b": 2014, "n": 1, "sub": "Deporte"}, {"d": "rfmarketingdeportivo.com", "s": "Empresas", "a": 2015, "b": 2016, "n": 2, "sub": "Deporte"}, {"d": "catamarcagrande.com", "s": "Medios", "a": 2014, "b": 2014, "n": 5, "sub": "Medios"}, {"d": "datamarca.com", "s": "Medios", "a": 2014, "b": 2018, "n": 164, "sub": "Medios"}, {"d": "nuevotiempocatamarca.com", "s": "Medios", "a": 2014, "b": 2016, "n": 37, "sub": "Medios"}, {"d": "catamarcainfo.com", "s": "Medios", "a": 2014, "b": 2015, "n": 11, "sub": "Medios"}, {"d": "eldiapason.com.ar", "s": "Medios", "a": 2015, "b": 2016, "n": 68, "sub": "Medios"}, {"d": "opinioncatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "envivocatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "catamarcanoticia.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "catamarcacultura.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "paravoscatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "entrevistasgrande.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "fotografiacatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "airevisioncatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "belenalinstante.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "belenteinforma.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "elponchocatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "interiorcatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 2, "sub": "Medios"}, {"d": "socialescatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 2, "sub": "Medios"}, {"d": "catamarcaciudad.com", "s": "Medios", "a": 2014, "b": 2015, "n": 23, "sub": "Medios"}, {"d": "catamarcatelevision.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 2, "sub": "Medios"}, {"d": "elgrupovision.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "jovenesencatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 3, "sub": "Medios"}, {"d": "lasaluddecatamarca.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 3, "sub": "Medios"}, {"d": "deportescatamara.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 3, "sub": "Medios"}, {"d": "radionostalgiafm945.com.ar", "s": "Medios", "a": 2015, "b": 2015, "n": 2, "sub": "Medios"}, {"d": "radiomaxfm1011.com.ar", "s": "Medios", "a": 2015, "b": 2015, "n": 1, "sub": "Medios"}, {"d": "radioazulfm.com.ar", "s": "Medios", "a": 2015, "b": 2015, "n": 1, "sub": "Medios"}, {"d": "spicaradioweb.com.ar", "s": "Medios", "a": 2014, "b": 2014, "n": 1, "sub": "Medios"}, {"d": "mega997.com.ar", "s": "Medios", "a": 2016, "b": 2017, "n": 3, "sub": "Medios"}, {"d": "catamarcaexporta.gob.ar", "s": "Gobierno", "a": 2014, "b": 2017, "n": 74, "sub": "Gobierno"}, {"d": "expoproductiva.com", "s": "Gobierno", "a": 2014, "b": 2016, "n": 36, "sub": "Gobierno"}, {"d": "expo-olivo.com.ar", "s": "Gobierno", "a": 2014, "b": 2014, "n": 5, "sub": "Gobierno"}, {"d": "catamarcaminera.ar", "s": "Gobierno", "a": 2021, "b": 2021, "n": 7, "sub": "Gobierno"}, {"d": "residencialosaleros.org.ar", "s": "Educación", "a": 2015, "b": 2015, "n": 8, "sub": "Educación"}, {"d": "escuelavirtualdidacticaportugues.com", "s": "Educación", "a": 2014, "b": 2014, "n": 3, "sub": "Educación"}, {"d": "Web oficial del gremio", "s": "Gremios", "a": 2014, "b": 2018, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "IPLIDO · web, app y boletín", "s": "Gremios", "a": 2014, "b": 2017, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "Obra social del gremio · web", "s": "Gremios", "a": 2014, "b": 2019, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "Personal jerárquico · web", "s": "Gremios", "a": 2015, "b": 2020, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "La Copa · web y app", "s": "Gremios", "a": 2015, "b": 2016, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "Seccional Catamarca · web", "s": "Gremios", "a": 2014, "b": 2015, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "Seccional Lomas · web", "s": "Gremios", "a": 2015, "b": 2016, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "Secretaría de Cultura · web y newsletter", "s": "Gremios", "a": 2017, "b": 2021, "n": 0, "g": 1, "sub": "Gremios"}, {"d": "Sindicato informático · web", "s": "Gremios", "a": 2015, "b": 2017, "n": 0, "g": 1, "sub": "Gremios"}];
+
+const SECS=[["Todos",null],["Salud","--health"],["Gobierno","--gov"],["Educación","--accent"],["Innovación","--accent"],["Gremios","--warm"],["Medios","--warm"],["Empresas","--biz"]];
+const COL=Object.fromEntries(SECS.filter(s=>s[1]));
+const Y0=2009,Y1=2026;let year=null,sec="Todos",q="",timer=null;
+const $=id=>document.getElementById(id);
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function match(it,txt){return (sec==="Todos"||it.s===sec)&&(year===null||(it.a<=year&&year<=it.b))&&(!q||norm(txt).includes(q))}
+// chips
+SECS.forEach(([n])=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=n;b.setAttribute("aria-pressed",n===sec);b.onclick=()=>{sec=n;document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c.textContent===sec));render()};$("chips").appendChild(b)});
+// legend
+SECS.filter(s=>s[1]&&s[0]!=="Innovación"&&s[0]!=="Medios").forEach(([n,c])=>{const s=document.createElement("span");s.style.setProperty("--c",`var(${c})`);s.textContent=n==="Gremios"?"Gremios y medios":n==="Educación"?"Educación e innovación":n;$("legend").appendChild(s)});
+// cases (newest first)
+CASES.sort((a,b)=>b.b-a.b||b.a-a.a);
+const caseEls=CASES.map(c=>{const el=document.createElement("article");el.className="case";el.style.setProperty("--c",`var(${COL[c.s]})`);
+ const yr=c.a===c.b?c.a:`${c.a} – ${c.b}`;
+ el.innerHTML=`<div class="top"><span class="sec">${c.s}</span><span>${yr}</span></div><h3>${c.t}</h3><div class="counter">${c.c}</div><p>${c.d}</p><div class="tags">${c.tags.map(t=>`<i>${t}</i>`).join("")}</div>${c.x?`<details><summary>Ver detalle +</summary><p>${c.x}</p></details>`:""}<div class="metric">${c.m}</div>`;
+ $("cases").appendChild(el);return [c,el,[c.t,c.c,c.d,c.m,c.s,c.tags.join(" ")].join(" ")]});
+// wall
+WALL.sort((a,b)=>a.a-b.a||a.d.localeCompare(b.d));
+const wallEls=WALL.map(w=>{const el=document.createElement("span");el.className="dom";el.style.setProperty("--c",`var(${COL[w.s]})`);el.textContent=w.d;el.title=`${w.sub} · ${w.a===w.b?w.a:w.a+"–"+w.b}`;$("wall").appendChild(el);return [w,el,w.d+" "+w.sub+" "+w.s]});
+// bars
+const bars=[];for(let y=Y0;y<=Y1;y++){const b=document.createElement("div");b.className="bar";b.tabIndex=0;b.setAttribute("role","button");b.onclick=()=>pick(y);b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(y)}};$("bars").appendChild(b);bars.push(b);const s=document.createElement("span");s.textContent="'"+String(y).slice(2);$("yrs").appendChild(s)}
+function pick(y){stop();year=(year===y)?null:y;render()}
+function render(){
+ let nc=0,nw=0;
+ caseEls.forEach(([c,el,t])=>{const m=match(c,t);el.classList.toggle("dim",!m);if(m)nc++});
+ wallEls.forEach(([w,el,t])=>{const m=match(w,t);el.classList.toggle("dim",!m);if(m)nw++});
+ // order: matching cases first
+ caseEls.slice().sort((x,y)=>x[1].classList.contains("dim")-y[1].classList.contains("dim")).forEach(([,el])=>$("cases").appendChild(el));
+ const counts=[];for(let y=Y0;y<=Y1;y++){counts.push([...CASES,...WALL].filter(it=>(sec==="Todos"||it.s===sec)&&it.a<=y&&y<=it.b).length)}
+ const mx=Math.max(...counts,1);
+ bars.forEach((b,i)=>{const y=Y0+i;b.style.height=Math.max(4,counts[i]/mx*100)+"%";b.classList.toggle("on",year===null||year===y);b.setAttribute("aria-label",`${y}: ${counts[i]} proyectos activos`);b.setAttribute("aria-pressed",year===y)});
+ $("now").firstChild.nodeValue=year===null?"Todos los años":String(year);
+ $("nowc").textContent=` ${nc+nw} proyectos`;
+ $("cc").textContent=`${nc} de ${CASES.length} casos`;$("wc").textContent=`${nw} de ${WALL.length} sitios y plataformas`;
+}
+function stop(){if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Reproducir"}}
+$("play").onclick=()=>{if(timer){stop();return}year=Y0;render();$("play").textContent="❚❚ Pausar";timer=setInterval(()=>{if(year>=Y1){stop();return}year++;render()},850)};
+$("all").onclick=()=>{stop();year=null;sec="Todos";q="";$("q").value="";document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c.textContent==="Todos"));render()};
+$("q").addEventListener("input",e=>{q=norm(e.target.value.trim());render()});
+render();
+// typing terminal
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(!reduce){const doms=["catamarcagrande.com","datamarca.com","catamarcaexporta.gob.ar","iplido.org.ar","urologiauba.com","elsuizoturismo.com.ar","red-federal-monitoreo-ambiental","academia-ba-emprende","expo-uba-posgrados","centro-sagrado-corazon"];let i=0;
+ setInterval(()=>{i=(i+1)%doms.length;const t="deploy "+doms[i];let k=6;$("ok").style.visibility="hidden";const iv=setInterval(()=>{k++;$("typed").textContent=t.slice(0,k);if(k>=t.length){clearInterval(iv);$("ok").style.visibility="visible"}},45)},3200);
+ document.querySelectorAll(".stat b").forEach(b=>{const n=+b.dataset.n;let v=0;const st=performance.now();const f=t=>{const p=Math.min(1,(t-st)/1100);b.textContent=Math.round(n*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
+</script>
+
+</body>
+</html>
