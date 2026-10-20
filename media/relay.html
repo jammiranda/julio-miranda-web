@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><title>relay</title>
+<script>
+addEventListener('message',async e=>{const d=e.data||{};if(!d.relayGet)return;try{const r=await fetch(d.relayGet);const b=await r.arrayBuffer();e.source.postMessage({relayPath:d.relayGet,type:r.headers.get('content-type'),buf:b},'*',[b]);}catch(err){e.source.postMessage({relayPath:d.relayGet,error:String(err)},'*');}});
+parent.postMessage({relayReady:true},'*');
+</script>
