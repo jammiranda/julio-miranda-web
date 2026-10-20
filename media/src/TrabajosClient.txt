@@ -129,7 +129,7 @@ export default function TrabajosClient() {
               ) : (
                 <div className="aspect-[16/10] bg-[#0B0D12] relative overflow-hidden flex flex-col justify-between p-6">
                   <div className="tb-grid absolute inset-0 opacity-50" aria-hidden="true" />
-                  <div className="tb-glow absolute -bottom-24 -right-24 w-72 h-72 rounded-full" aria-hidden="true" />
+                  <div className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full" style={{ background: "radial-gradient(closest-side,rgba(200,35,31,.45),transparent)" }} aria-hidden="true" />
                   <span className="relative text-[#FF6A63] font-mono text-sm">{"<"}{i.c.toLowerCase()}{" />"}</span>
                   <span className="relative text-white text-2xl font-extrabold leading-tight max-w-[90%]">{i.t}</span>
                 </div>
