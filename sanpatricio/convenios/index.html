@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Propuesta de convenio · San Patricio Servicios de Salud</title>
+<meta name="description" content="Internación domiciliaria y gestión de instituciones en San Luis. Propuesta de convenio para empresas, obras sociales y prepagas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--verde:#22A04B;--verde-2:#0B7A3B;--verde-3:#0B5E31;--rojo:#E03A2F;--pizarra:#33414F;--texto:#4F5C69;--niebla:#F3F5F4;--linea:#E1E6E3;--noche:#14211B}
+*{box-sizing:border-box}
+html{background:#DDE3DF}
+body{margin:0;font-family:Montserrat,system-ui,sans-serif;color:var(--pizarra);-webkit-font-smoothing:antialiased;background:#DDE3DF}
+.bar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--linea)}
+.bar a{color:var(--verde-2);font-weight:700;text-decoration:none;font-size:14px}
+.bar button{font:inherit;font-weight:700;font-size:14px;background:var(--verde-2);color:#fff;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+.hoja{width:min(100% - 32px,840px);aspect-ratio:210/297;margin:24px auto;background:#fff;box-shadow:0 20px 50px rgba(20,33,27,.15);border-radius:6px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pad{padding:7% 8%;flex:1;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--verde-2)}
+h1{font-size:clamp(28px,5.4vw,46px);line-height:1.08;margin:0;font-weight:800;color:#fff}
+h2{font-size:clamp(22px,3.6vw,32px);line-height:1.15;margin:0;font-weight:800;color:var(--noche)}
+p{margin:0;line-height:1.6;color:var(--texto);font-size:clamp(13px,1.7vw,15.5px)}
+.pie{display:flex;justify-content:space-between;align-items:center;padding:14px 8%;border-top:1px solid var(--linea);font-size:11px;color:var(--texto);letter-spacing:.08em;text-transform:uppercase}
+.brand{display:flex;align-items:center;gap:10px}.brand b{display:block;letter-spacing:.12em;font-size:15px}.brand small{display:block;letter-spacing:.2em;font-size:9px}
+/* portada */
+.portada{background:var(--noche);color:#fff}
+.portada .foto{position:absolute;inset:0;background:url(f0.jpg) center/cover;opacity:.35}
+.portada .foto:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,33,27,.2),rgba(20,33,27,.95) 70%)}
+.portada .pad{position:relative;justify-content:space-between}
+.portada p{color:#D5E3DA}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.06)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+/* grillas */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:1px solid var(--linea);border-radius:14px;padding:16px;background:#fff}
+.card b{display:block;color:var(--noche);font-size:clamp(13px,1.8vw,16px);margin-bottom:4px}
+.card span{font-size:clamp(12px,1.5vw,13.5px);color:var(--texto);line-height:1.5;display:block}
+.num{font-size:clamp(28px,4.6vw,42px);font-weight:800;color:var(--verde-2);line-height:1}
+.mapa{display:flex;flex-wrap:wrap;gap:8px}
+.mapa span{background:var(--niebla);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600}
+.mapa span.on{background:var(--verde-2);color:#fff}
+.pasos{counter-reset:p;display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.pasos li{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;border-bottom:1px solid var(--linea);padding-bottom:10px}
+.pasos li:before{counter-increment:p;content:"0" counter(p);font-weight:800;color:var(--verde);font-size:22px}
+.pasos b{display:block;color:var(--noche)}
+.fotos{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;height:28%}
+.fotos div{border-radius:12px;background-size:cover;background-position:center}
+.verde{background:var(--verde-2);color:#fff}
+.verde h2,.verde b{color:#fff}.verde p,.verde span{color:#D9EFE1}
+.verde .card{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 18px;border-radius:12px;font-weight:700;text-decoration:none;font-size:14px}
+.btn-w{background:#fff;color:var(--verde-2)}.btn-o{border:1px solid rgba(255,255,255,.5);color:#fff}
+@media (max-width:640px){.hoja{aspect-ratio:auto}.g2{grid-template-columns:1fr}.fotos{height:180px}}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff}
+  .bar{display:none}
+  .hoja{width:210mm;height:297mm;aspect-ratio:auto;margin:0;box-shadow:none;border-radius:0;page-break-after:always;break-after:page}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pad{gap:26px;padding:16mm 16mm}
+  h1{font-size:44px}h2{font-size:32px}p{font-size:16px}
+  .card{padding:20px}.card b{font-size:17px}.card span{font-size:14.5px}
+  .mapa span{font-size:14px;padding:9px 14px}
+  .pasos li{padding-bottom:16px}.pasos b{font-size:18px}.pasos span{font-size:15px}
+  .fotos{height:300px}
+}
+</style>
+</head>
+<body>
+<div class="bar"><a href="/">← San Patricio</a><a href="San-Patricio-Propuesta-de-convenio.pdf" download style="background:var(--verde-2);color:#fff;border-radius:10px;padding:10px 16px">Descargar PDF</a></div>
+
+<!-- 1 · Portada -->
+<section class="hoja portada">
+  <div class="foto" aria-hidden="true"></div>
+  <div class="pad">
+    <div class="brand" style="color:#fff">
+      <svg width="34" height="40" viewBox="28 8 168 194" aria-hidden="true"><g fill="none" stroke-width="26"><path d="M47 98 A28 28 0 0 0 75 126 H104 A28 28 0 0 1 104 182 H44" stroke-linecap="round" stroke="#D7F0DF"/><path d="M47 98 A28 28 0 0 1 75 70 H148 A28 28 0 0 1 148 126 H146" stroke="#FFFFFF"/></g><circle cx="96" cy="30" r="17" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="80 27" transform="rotate(-60 96 30)"/><path d="M92 20h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="#FF5A4E"/></svg>
+      <span><b>SAN PATRICIO</b><small>SERVICIOS DE SALUD</small></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="eyebrow" style="color:#7FD39C">Propuesta de convenio</div>
+      <h1>Cuidado profesional en casa para tu gente, con gestión medible.</h1>
+      <p>Internación domiciliaria, enfermería, kinesiología y control médico en toda la provincia de San Luis. Para empresas, obras sociales, prepagas y mutuales.</p>
+      <div class="chips"><span class="chip">Habilitado por el Ministerio de Salud de San Luis · Res. 676/2026</span><span class="chip">Equipo en 10 localidades</span><span class="chip">Gestión 100% digital</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · Quiénes somos -->
+<section class="hoja">
+  <div class="pad">
+    <div class="eyebrow">Quiénes somos</div>
+    <h2>Un prestador de salud de San Luis, con estructura propia y tecnología.</h2>
+    <p>San Patricio lleva la atención al domicilio del paciente con un equipo coordinado desde nuestra sede en la ciudad de San Luis. Además gerenciamos centros de día y residencias para adultos mayores.</p>
+    <div class="fotos"><div style="background-image:url(f2.jpg)"></div><div style="background-image:url(f3.jpg)"></div></div>
+    <div class="g2">
+      <div class="card"><b>Habilitación provincial</b><span>Ministerio de Salud de San Luis · Res. 676-SDFA-MdeS-2026, vigente hasta 2030.</span></div>
+      <div class="card"><b>Dirección médica</b><span>Director médico con matrícula provincial y equipo de enfermería, kinesiología y médicos.</span></div>
+    </div>
+    <div class="eyebrow" style="margin-top:6px">Dónde llegamos</div>
+    <div class="mapa"><span class="on">San Luis capital</span><span class="on">Villa Mercedes</span><span>Justo Daract</span><span>Quines</span><span>Merlo</span><span>Tilisarao</span><span>Concarán</span><span>La Toma</span><span>La Punta</span><span>San Francisco del Monte de Oro</span></div>
+  </div>
+  <div class="pie"><span>San Patricio Servicios de Salud</span><span>02</span></div>
+</section>
+
+<!-- 3 · Servicios -->
+<section class="hoja">
+  <div class="pad">
+    <div class="eyebrow">Qué ofrecemos</div>
+    <h2>Servicios para tus afiliados o empleados</h2>
+    <div class="g2">
+      <div class="card"><b>Internación domiciliaria</b><span>Módulos según complejidad, con plan de cuidados definido por el equipo médico.</span></div>
+      <div class="card"><b>Enfermería</b><span>Curaciones, medicación, controles y cuidados en el domicilio.</span></div>
+      <div class="card"><b>Kinesiología y fonoaudiología</b><span>Rehabilitación motora y respiratoria en casa.</span></div>
+      <div class="card"><b>Control médico</b><span>Visitas médicas programadas y seguimiento de cada paciente.</span></div>
+      <div class="card"><b>Cuidadores e insumos</b><span>Acompañamiento, insumos y equipamiento coordinados por nosotros.</span></div>
+      <div class="card"><b>Gestión de instituciones</b><span>Gerenciamiento de centros de día y residencias para adultos mayores.</span></div>
+    </div>
+    <p>Para empresas: un canal directo para que el personal y sus familias accedan a atención en casa cuando la necesitan, con un único interlocutor y reportes claros.</p>
+  </div>
+  <div class="pie"><span>San Patricio Servicios de Salud</span><span>03</span></div>
+</section>
+
+<!-- 4 · Cómo trabajamos -->
+<section class="hoja">
+  <div class="pad">
+    <div class="eyebrow">Cómo trabajamos</div>
+    <h2>Del pedido a la primera visita, sin vueltas</h2>
+    <ol class="pasos">
+      <li><span><b>Solicitud</b>La empresa, la familia, el médico o la obra social nos envía la indicación por WhatsApp o correo.</span></li>
+      <li><span><b>Evaluación</b>Nuestro equipo médico define el módulo y el plan de cuidados.</span></li>
+      <li><span><b>Atención en casa</b>Enfermería, kinesiología y médicos con agenda coordinada.</span></li>
+      <li><span><b>Seguimiento y reportes</b>Cada visita queda registrada en nuestro sistema y se informa al financiador.</span></li>
+    </ol>
+    <div class="eyebrow" style="margin-top:6px">Lo que recibe el financiador</div>
+    <div class="g2">
+      <div class="card"><b>Pacientes activos</b><span>Padrón actualizado por módulo y estado.</span></div>
+      <div class="card"><b>Cumplimiento de visitas</b><span>Prestaciones programadas contra realizadas.</span></div>
+      <div class="card"><b>Tiempos de respuesta</b><span>Del pedido a la primera visita.</span></div>
+      <div class="card"><b>Facturación trazable</b><span>Cada prestación respaldada y lista para auditoría.</span></div>
+    </div>
+  </div>
+  <div class="pie"><span>San Patricio Servicios de Salud</span><span>04</span></div>
+</section>
+
+<!-- 5 · Convenio y contacto -->
+<section class="hoja verde">
+  <div class="pad">
+    <div class="eyebrow" style="color:#BDE8CB">Convenio</div>
+    <h2>Armemos un convenio a la medida de tu organización</h2>
+    <div class="g2">
+      <div class="card"><b>1 · Reunión inicial</b><span>Conocemos tu población, la cobertura actual y lo que necesitás.</span></div>
+      <div class="card"><b>2 · Propuesta</b><span>Módulos, alcance territorial, circuito de pedidos y reportes.</span></div>
+      <div class="card"><b>3 · Puesta en marcha</b><span>Canal de derivación, referente asignado y primer reporte.</span></div>
+      <div class="card"><b>4 · Seguimiento</b><span>Reportes periódicos y reunión de revisión.</span></div>
+    </div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:14px">
+      <p style="font-size:16px"><b>WhatsApp y teléfono:</b> +54 9 2665 13-6567<br><b>Correo:</b> sanpatriciosalud23@gmail.com<br><b>Sede:</b> Colón 274, San Luis</p>
+      <div class="cta"><a class="btn btn-w" href="https://wa.me/5492665136567?text=Hola%20San%20Patricio%2C%20quiero%20conocer%20la%20propuesta%20de%20convenio." target="_blank" rel="noopener">Coordinar una reunión</a><a class="btn btn-o" href="mailto:sanpatriciosalud23@gmail.com?subject=Propuesta%20de%20convenio">Escribir un correo</a></div>
+    </div>
+  </div>
+  <div class="pie" style="color:#D9EFE1;border-color:rgba(255,255,255,.2)"><span>San Patricio Servicios de Salud · San Luis</span><span>05</span></div>
+</section>
+</body>
+</html>
