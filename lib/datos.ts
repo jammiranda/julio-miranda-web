@@ -82,7 +82,7 @@ export const ENTIDADES: Record<Entidad, { titulo: string; roles: Usuario["rol"][
       { k: "asignado", n: "Responsable", sin: ["responsable", "asignado"] },
       { k: "notas", n: "Notas", sin: ["notas", "observaciones"] },
     ],
-    sql: "select creado, canal, nombre, telefono, paciente_nombre, obra_social, localidad, motivo, mensaje, estado, asignado, notas from consultas order by creado desc",
+    sql: "select creado, canal, nombre, telefono, paciente_nombre, obra_social, localidad, motivo, mensaje, estado, asignado, notas from consultas where empresa='sanpatricio' order by creado desc",
   },
   historia: {
     titulo: "Historia clínica", roles: ["gerente"], importa: false,

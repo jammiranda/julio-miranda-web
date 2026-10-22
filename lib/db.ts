@@ -155,6 +155,32 @@ create table if not exists adjuntos (
   creado_por_nombre text,
   creado timestamptz not null default now()
 );
+alter table consultas add column if not exists empresa text not null default 'sanpatricio';
+alter table consultas add column if not exists organizacion text;
+alter table consultas add column if not exists email text;
+alter table consultas add column if not exists necesita_humano boolean not null default false;
+create table if not exists wa_chats (
+  empresa text not null,
+  wa_id text not null,
+  nombre text,
+  consulta_id int references consultas(id),
+  bot_pausado_hasta timestamptz,
+  ultimo_entrante timestamptz,
+  actualizado timestamptz not null default now(),
+  primary key (empresa, wa_id)
+);
+create table if not exists wa_mensajes (
+  id bigserial primary key,
+  empresa text not null,
+  wa_id text not null,
+  autor text not null check (autor in ('cliente','bot','equipo')),
+  texto text,
+  tipo text not null default 'text',
+  meta_id text,
+  autor_nombre text,
+  creado timestamptz not null default now()
+);
+create index if not exists wa_mensajes_chat on wa_mensajes(empresa, wa_id, creado);
 create table if not exists auditoria (
   id bigserial primary key,
   usuario_id int, usuario text,
