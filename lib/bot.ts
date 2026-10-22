@@ -200,6 +200,12 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
 
   // Si una persona del equipo tomó el chat, el bot no interviene
   const pausado = chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now() && chat.pausa_motivo === "equipo"
+  const modo = await modoBot(e)
+  if (!pausado && (modo === "nunca" || (modo === "fuera_horario" && enHorario()))) {
+    await q("update consultas set necesita_humano=true where id=$1", [cid])
+    await notificar(roles, `💬 Mensaje en ${red} · ${marca}`, `${perfil ?? "Cliente"}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
+    return
+  }
   if (pausado) {
     await q("update consultas set necesita_humano=true where id=$1", [cid])
     await notificar(roles, `✉️ Te respondieron en ${red} · ${marca}`, `${perfil ?? "Cliente"}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
@@ -241,4 +247,25 @@ export async function responderDesdeCRM(e: Empresa, waId: string, texto: string,
     await q("update wa_chats set bot_pausado_hasta=now() + interval '24 hours', pausa_motivo='equipo' where empresa=$1 and wa_id=$2", [e, waId])
   }
   return env
+}
+
+
+/** Mensaje que el equipo mandó desde la app WhatsApp Business del celular (coexistencia): queda en el CRM y el bot se corre 24 h. */
+export async function ecoDelEquipo(e: Empresa, waId: string, texto: string | null, metaId: string) {
+  if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return
+  await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'equipo',$3,$4,'Desde el celular')", [e, waId, texto, metaId])
+  await q(`insert into wa_chats(empresa,wa_id,bot_pausado_hasta,pausa_motivo) values ($1,$2,now() + interval '24 hours','equipo')
+           on conflict (empresa,wa_id) do update set bot_pausado_hasta=now() + interval '24 hours', pausa_motivo='equipo', actualizado=now()`, [e, waId])
+  await q("update consultas set necesita_humano=false, estado=case when estado='nueva' then 'contactada' else estado end, actualizado=now() where empresa=$1 and chat_id=$2 and estado not in ('ingreso','descartada')", [e, waId])
+}
+
+/** Cuándo responde el bot de cada empresa: siempre, solo fuera del horario de atención, o nunca (solo registra y avisa). */
+export async function modoBot(e: Empresa): Promise<"siempre" | "fuera_horario" | "nunca"> {
+  const r = await one<{ valor: string }>("select valor from config where clave=$1", [`bot_modo_${e}`]).catch(() => null)
+  return (r?.valor as any) ?? "siempre"
+}
+export function enHorario(d = new Date()) {
+  const ar = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }))
+  const dia = ar.getDay(), h = ar.getHours()
+  return dia >= 1 && dia <= 5 && h >= 8 && h < 20
 }

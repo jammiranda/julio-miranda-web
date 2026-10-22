@@ -5,6 +5,7 @@ import { q, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { fechaHora } from "@/lib/consultas"
 import { BOTS } from "@/lib/bots/conocimiento"
+import { modoBot } from "@/lib/bot"
 
 export const dynamic = "force-dynamic"
 
@@ -22,6 +23,16 @@ async function agregar(fd: FormData) {
     await audit(u, "bot_ensenar", "bot", e)
   }
   redirect(`/bot?e=${e}&ok=1`)
+}
+
+async function modo(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const e = empresaDe(u.rol, String(fd.get("e")))
+  const m = String(fd.get("modo"))
+  if (["siempre", "fuera_horario", "nunca"].includes(m)) await q("insert into config(clave,valor) values ($1,$2) on conflict (clave) do update set valor=excluded.valor", [`bot_modo_${e}`, m])
+  await audit(u, "bot_modo", "bot", e, m)
+  redirect(`/bot?e=${e}`)
 }
 
 async function cambiar(fd: FormData) {
@@ -42,6 +53,7 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
   const stats = await q<{ autor: string; n: number }>("select autor, count(*)::int n from wa_mensajes where empresa=$1 and creado > now() - interval '30 days' group by autor", [e])
   const st = Object.fromEntries(stats.map((x) => [x.autor, x.n]))
   const ia = !!process.env.ANTHROPIC_API_KEY
+  const md = await modoBot(e as "sanpatricio")
   return (
     <div className="flex flex-col gap-5 max-w-4xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -64,6 +76,19 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
         <div className="card"><div className="text-xs font-semibold uppercase text-[#4F5C69]">Respondió el equipo</div><div className="text-2xl font-extrabold">{st.equipo ?? 0}</div></div>
         <div className="card"><div className="text-xs font-semibold uppercase text-[#4F5C69]">Inteligencia artificial</div><div className={`text-lg font-extrabold ${ia ? "text-[#0B7A3B]" : "text-amber-700"}`}>{ia ? "Activa" : "Sin activar"}</div></div>
       </div>
+
+      <form action={modo} className="card flex flex-col gap-3">
+        <input type="hidden" name="e" value={e} />
+        <h2 className="m-0 text-base">¿Cuándo responde el bot?</h2>
+        <div className="flex flex-col gap-2 text-sm">
+          {[["siempre", "Siempre", "Responde todos los mensajes al instante. Si alguien del equipo contesta (desde el sistema o desde el celular), el bot se corre 24 h en ese chat."],
+            ["fuera_horario", "Solo fuera del horario de atención", "De lunes a viernes de 8 a 20 h responde el equipo (el bot solo registra y avisa); de noche y fines de semana atiende el bot."],
+            ["nunca", "Nunca (solo registra y avisa)", "No responde: guarda cada conversación en el CRM y manda la notificación."]].map(([v, t, d]) => (
+            <label key={v} className="flex gap-2 items-start"><input type="radio" name="modo" value={v} defaultChecked={md === v} className="mt-1" /><span><strong>{t}</strong><span className="block text-[#4F5C69]">{d}</span></span></label>
+          ))}
+        </div>
+        <div><button className="btn-s">Guardar</button></div>
+      </form>
 
       <form action={agregar} className="card flex flex-col gap-3">
         <input type="hidden" name="e" value={e} />
