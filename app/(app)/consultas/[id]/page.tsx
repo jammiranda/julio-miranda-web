@@ -61,7 +61,19 @@ async function bot(fd: FormData) {
   redirect(`/consultas/${id}`)
 }
 
-export default async function Consulta({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; nueva?: string; env?: string; enverr?: string } }) {
+async function ensenar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const c = await one<any>("select empresa from consultas where id=$1", [id])
+  if (!c || (c.empresa === "devisebit" && u.rol !== "gerente")) redirect(`/consultas/${id}`)
+  const respuesta = s(fd.get("respuesta"))
+  if (respuesta) await q("insert into bot_conocimiento(empresa,pregunta,respuesta,origen,creado_por) values ($1,$2,$3,'conversacion',$4)", [c.empresa, s(fd.get("pregunta")), respuesta, u.nombre])
+  await audit(u, "bot_ensenar", "consulta", id)
+  redirect(`/consultas/${id}?ens=1`)
+}
+
+export default async function Consulta({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; nueva?: string; env?: string; enverr?: string; ens?: string } }) {
   const u = await requerir()
   const id = Number(params.id)
   const c = await one<any>("select * from consultas where id=$1", [id])
@@ -111,12 +123,25 @@ export default async function Consulta({ params, searchParams }: { params: { id:
                 )}
               </div>
               <div className="flex flex-col-reverse gap-2 max-h-[480px] overflow-y-auto bg-[#EEF3EF] rounded-xl p-3">
-                {msgs.map((m: any, i: number) => (
+                {msgs.map((m: any, i: number) => {
+                  const previa = msgs.slice(i + 1).find((x: any) => x.autor === "cliente")
+                  return (
                   <div key={i} className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-line ${m.autor === "cliente" ? "self-start bg-white" : m.autor === "bot" ? "self-end bg-[#DCF3E3]" : "self-end bg-[#0B7A3B] text-white"}`}>
                     {m.texto ?? `(${m.tipo})`}
                     <div className={`text-[10px] mt-1 ${m.autor === "equipo" ? "text-white/80" : "text-[#4F5C69]"}`}>{m.autor === "cliente" ? (m.autor_nombre ?? "Cliente") : m.autor === "bot" ? "Asistente" : m.autor_nombre} · {fechaHora(m.creado)}</div>
+                    {ed && m.autor === "equipo" && m.texto && (
+                      <details className="mt-1 text-[#26323E]">
+                        <summary className="cursor-pointer text-[11px] text-white/90 underline">Enseñar al bot</summary>
+                        <form action={ensenar} className="flex flex-col gap-1 mt-1 bg-white rounded-lg p-2">
+                          <input type="hidden" name="id" value={c.id} />
+                          <input name="pregunta" defaultValue={previa?.texto ?? ""} className="inp py-1 text-xs" placeholder="Cuando pregunten…" />
+                          <textarea name="respuesta" defaultValue={m.texto} rows={3} className="inp py-1 text-xs" />
+                          <button className="btn-p py-1 text-xs">Guardar en el conocimiento del bot</button>
+                        </form>
+                      </details>
+                    )}
                   </div>
-                ))}
+                )})}
               </div>
               {ed && (ventana ? (
                 <form action={responder} className="flex flex-col gap-2">
@@ -128,6 +153,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
                 <p className="m-0 text-xs text-[#4F5C69]">Pasaron más de 24 h desde el último mensaje del cliente: WhatsApp solo permite responder con una plantilla aprobada. Usá el botón de WhatsApp de la derecha.</p>
               ))}
               {searchParams.env && <p className="m-0 text-sm text-[#0B5E31]">Mensaje enviado.</p>}
+              {searchParams.ens && <p className="m-0 text-sm text-[#0B5E31]">Listo: el bot ya lo sabe.</p>}
               {searchParams.enverr && <p className="m-0 text-sm text-rojo">No se pudo enviar: {searchParams.enverr}</p>}
             </section>
           ) : (

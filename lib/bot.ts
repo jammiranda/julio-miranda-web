@@ -38,7 +38,13 @@ function cierre(e: Empresa, d: Record<string, string>) {
   return `¡Muchas gracias${nombre}! ✅ Ya registramos el pedido. Una persona del equipo de San Patricio te contacta por acá (lunes a viernes de 8 a 20 h) para coordinar. Si tenés la orden o indicación médica, podés mandarnos una foto 📷 ☘️`
 }
 
-function sistema(e: Empresa) {
+/** Lo que el equipo le fue enseñando al bot (Sistema → Bot · Conocimiento). */
+export async function aprendido(e: Empresa) {
+  const r = await q<{ pregunta: string | null; respuesta: string }>("select pregunta, respuesta from bot_conocimiento where empresa=$1 and activo order by id desc limit 80", [e])
+  return r.map((x) => (x.pregunta ? `- Si preguntan: "${x.pregunta}" → ${x.respuesta}` : `- ${x.respuesta}`)).join("\n")
+}
+
+function sistema(e: Empresa, extra = "") {
   const b = BOTS[e]
   const objetivo = e === "devisebit"
     ? "Tu objetivo es atender como el mejor vendedor consultivo: entender la necesidad, mostrar cómo DEVISEBIT la resuelve con ejemplos y casos reales, despejar dudas u objeciones, y llevar la conversación a un próximo paso concreto: que deje sus datos para recibir una propuesta, o que reserve una reunión de 30 minutos sin costo. Hacé una pregunta por mensaje y siempre terminá con una pregunta o una invitación a avanzar."
@@ -52,7 +58,7 @@ ${b.presentacion}
 RESPUESTAS MODELO (usalas como base, adaptadas a la conversación):
 ${b.faqs.map((f) => `- ${f.tema}: ${f.respuesta.replace(/\n/g, " ")}`).join("\n")}
 
-MENÚ QUE VE LA PERSONA AL PRINCIPIO (si responde solo con un número, interpretalo según este menú):
+${extra ? `LO QUE EL EQUIPO TE ENSEÑÓ (tiene prioridad sobre lo anterior si hay diferencias; usalo con criterio, adaptado a cada persona):\n${extra}\n\n` : ""}MENÚ QUE VE LA PERSONA AL PRINCIPIO (si responde solo con un número, interpretalo según este menú):
 ${b.saludo}
 
 DATOS A CONSEGUIR, de a uno, de forma natural: ${b.datos.map((d) => d.n).join("; ")}.
@@ -82,7 +88,7 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001", max_tokens: 800, system: sistema(e), messages: msgs }),
+      body: JSON.stringify({ model: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001", max_tokens: 800, system: sistema(e, await aprendido(e).catch(() => "")), messages: msgs }),
     })
     if (!r.ok) return null
     const j = await r.json()

@@ -19,7 +19,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/agenda", t: "Agenda y visitas" },
     ...(u.rol !== "consulta" ? [{ href: "/cierre", t: "Cierre mensual" }, { href: "/importar", t: "Importar planilla" }] : []),
     ...(u.rol !== "consulta" ? [{ href: "/profesionales", t: "Profesionales" }] : []),
+    ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/bot", t: "Bot · Conocimiento" }] : []),
     ...(u.rol === "gerente" ? [{ href: "/usuarios", t: "Usuarios" }, { href: "/auditoria", t: "Auditoría" }] : []),
+    { href: "/ayuda", t: "Ayuda" },
   ]
   return (
     <div className="min-h-screen">

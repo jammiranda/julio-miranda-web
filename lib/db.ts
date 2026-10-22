@@ -183,6 +183,16 @@ create table if not exists wa_mensajes (
   creado timestamptz not null default now()
 );
 create index if not exists wa_mensajes_chat on wa_mensajes(empresa, wa_id, creado);
+create table if not exists bot_conocimiento (
+  id serial primary key,
+  empresa text not null,
+  pregunta text,
+  respuesta text not null,
+  activo boolean not null default true,
+  origen text not null default 'manual',
+  creado_por text,
+  creado timestamptz not null default now()
+);
 create table if not exists auditoria (
   id bigserial primary key,
   usuario_id int, usuario text,
