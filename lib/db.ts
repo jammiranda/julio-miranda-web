@@ -169,6 +169,8 @@ create table if not exists wa_chats (
   actualizado timestamptz not null default now(),
   primary key (empresa, wa_id)
 );
+alter table wa_chats add column if not exists estado jsonb not null default '{}'::jsonb;
+alter table wa_chats add column if not exists pausa_motivo text;
 create table if not exists wa_mensajes (
   id bigserial primary key,
   empresa text not null,

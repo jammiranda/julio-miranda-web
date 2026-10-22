@@ -55,7 +55,7 @@ async function bot(fd: FormData) {
   const c = await one<any>("select empresa, telefono from consultas where id=$1", [id])
   if (!c) redirect("/consultas")
   const pausar = fd.get("a") === "pausar"
-  await q(`update wa_chats set bot_pausado_hasta=${pausar ? "now() + interval '7 days'" : "null"} where empresa=$1 and wa_id=$2`, [c.empresa, String(c.telefono).replace(/\D/g, "")])
+  await q(`update wa_chats set bot_pausado_hasta=${pausar ? "now() + interval '7 days'" : "null"}, pausa_motivo=${pausar ? "'equipo'" : "null"} where empresa=$1 and wa_id=$2`, [c.empresa, String(c.telefono).replace(/\D/g, "")])
   if (!pausar) await q("update consultas set necesita_humano=false where id=$1", [id])
   await audit(u, pausar ? "pausa_bot" : "reactiva_bot", "consulta", id)
   redirect(`/consultas/${id}`)
@@ -71,7 +71,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const chat = waId ? await one<any>("select * from wa_chats where empresa=$1 and wa_id=$2", [c.empresa, waId]) : null
   const msgs = chat ? await q<any>("select autor, texto, tipo, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 order by creado desc limit 100", [c.empresa, waId]) : []
   const ventana = chat?.ultimo_entrante && Date.now() - new Date(chat.ultimo_entrante).getTime() < 24 * 3600e3
-  const botPausado = chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now()
+  const botPausado = chat?.pausa_motivo === "equipo" && chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now()
   const est = ESTADOS.find((e) => e.v === c.estado)!
   const ed = puede.editar(u)
   const tel = c.telefono ? String(c.telefono).replace(/\D/g, "") : null

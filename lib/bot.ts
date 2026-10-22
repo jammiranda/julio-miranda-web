@@ -2,27 +2,66 @@ import { q, one } from "./db"
 import { BOTS, type Empresa } from "./bots/conocimiento"
 import { enviarTexto } from "./whatsapp"
 
-type Resultado = { respuesta: string; datos: Record<string, string | null>; derivar: boolean }
-const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+/** Estado de la conversación guardado por chat (wa_chats.estado). */
+type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
+type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado }
+const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
+
+/** Preguntas de calificación, en orden. Se hacen de a una, como lo haría una persona de atención. */
+const PREGUNTAS: Record<Empresa, { k: string; p: (d: Record<string, string>) => string; omitible?: boolean }[]> = {
+  devisebit: [
+    { k: "motivo", p: () => "Contame en una o dos líneas *qué necesitás resolver* (por ejemplo: un sistema de turnos, un bot como este, un tablero con tus datos…) 👇" },
+    { k: "nombre", p: () => "¡Buenísimo! 🙌 ¿Cómo es tu nombre?" },
+    { k: "organizacion", p: (d) => `Un gusto${d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""}. ¿De qué *empresa u organización* nos escribís?` },
+    { k: "email", p: () => "Última: ¿a qué *email* te mandamos la propuesta? (si preferís seguir solo por WhatsApp, escribí *no*)", omitible: true },
+  ],
+  sanpatricio: [
+    { k: "motivo", p: () => "¿Qué necesita el paciente? Por ejemplo: *enfermería, kinesiología, control médico, internación domiciliaria o equipamiento*." },
+    { k: "paciente_nombre", p: () => "Gracias. ¿Cuál es el *nombre y apellido del paciente*?" },
+    { k: "obra_social", p: () => "¿Qué *cobertura* tiene? (PAMI, otra obra social o particular)" },
+    { k: "localidad", p: () => "¿En qué *localidad* está el paciente?" },
+    { k: "nombre", p: () => "Y por último, ¿tu *nombre*, para saber con quién hablamos? ☘️" },
+  ],
+}
+/** Temas del menú que arrancan la toma de datos (la persona quiere avanzar). */
+const INICIAN: Record<Empresa, string[]> = {
+  devisebit: ["A medida", "WhatsApp IA", "Tableros", "Productos", "Precio"],
+  sanpatricio: ["Pedir atención", "Servicios", "Cobertura", "Zonas"],
+}
+
+function cierre(e: Empresa, d: Record<string, string>) {
+  const nombre = d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""
+  if (e === "devisebit") {
+    const ag = process.env.DB_AGENDA_URL ? `\n\nSi querés ganar tiempo, reservá ya una reunión de 30 minutos sin costo: ${process.env.DB_AGENDA_URL}` : "\n\n¿Preferís que te llamemos o que coordinemos una videollamada de 30 minutos sin costo? Decime día y horario que te queden cómodos 📅"
+    return `¡Listo${nombre}! ✅ Ya tenemos todo para armarte una propuesta a medida, con alcance, fecha y precio fijo por escrito. El equipo te escribe por acá (lunes a viernes de 8 a 20 h).${ag}`
+  }
+  return `¡Muchas gracias${nombre}! ✅ Ya registramos el pedido. Una persona del equipo de San Patricio te contacta por acá (lunes a viernes de 8 a 20 h) para coordinar. Si tenés la orden o indicación médica, podés mandarnos una foto 📷 ☘️`
+}
 
 function sistema(e: Empresa) {
   const b = BOTS[e]
-  return `Sos el asistente de WhatsApp de ${b.nombre}. Respondés consultas de personas reales.
+  const objetivo = e === "devisebit"
+    ? "Tu objetivo es atender como el mejor vendedor consultivo: entender la necesidad, mostrar cómo DEVISEBIT la resuelve con ejemplos y casos reales, despejar dudas u objeciones, y llevar la conversación a un próximo paso concreto: que deje sus datos para recibir una propuesta, o que reserve una reunión de 30 minutos sin costo. Hacé una pregunta por mensaje y siempre terminá con una pregunta o una invitación a avanzar."
+    : "Tu objetivo es atender como la mejor recepcionista de una empresa de salud: con calidez y precisión, entender qué necesita el paciente, explicar cómo trabaja San Patricio y tomar los datos para que coordinación inicie el pedido. Hacé una pregunta por mensaje y siempre terminá con el próximo paso."
+  return `Sos el asistente de WhatsApp de ${b.nombre}. Conversás con personas reales.
+${objetivo}
+
 INFORMACIÓN OFICIAL (lo único que podés afirmar):
 ${b.presentacion}
 
-PREGUNTAS FRECUENTES Y RESPUESTAS MODELO:
+RESPUESTAS MODELO (usalas como base, adaptadas a la conversación):
 ${b.faqs.map((f) => `- ${f.tema}: ${f.respuesta.replace(/\n/g, " ")}`).join("\n")}
 
-DATOS A RECOLECTAR (de a uno o dos por mensaje, sin interrogar): ${b.datos.map((d) => d.n).join("; ")}.
+MENÚ QUE VE LA PERSONA AL PRINCIPIO (si responde solo con un número, interpretalo según este menú):
+${b.saludo}
+
+DATOS A CONSEGUIR, de a uno, de forma natural: ${b.datos.map((d) => d.n).join("; ")}.
 
 REGLAS:
-- Español rioplatense, cálido y profesional. Mensajes cortos (máximo ~500 caracteres), aptos para WhatsApp; podés usar *negrita* y algún emoji.
-- No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. Si no sabés, decí que lo consultás con el equipo y derivá.
-- No des precios. ${e === "sanpatricio" ? "No des consejos médicos, diagnósticos ni dosis. Si describen una urgencia o emergencia, indicá llamar al 107 (emergencias) de inmediato." : ""}
-- Derivá a una persona (derivar=true) si lo piden, si hay una queja, si es un tema sensible o si ya tenés los datos mínimos y la consulta requiere que alguien la tome.
-- Cuando tengas los datos principales, confirmá que una persona del equipo continúa por este mismo chat.
-- Si el mensaje del cliente es solo un número del menú (1 a 5), interpretalo según el menú del saludo: ${b.saludo.replace(/\n/g, " ")}
+- Español rioplatense, cálido, seguro y profesional. Mensajes cortos (2 a 5 líneas), aptos para WhatsApp; podés usar *negrita* y algún emoji con moderación.
+- Nunca dejes a la persona sin respuesta ni le digas solo "te derivo": respondé lo que preguntó y proponé el próximo paso.
+- No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. No des precios: explicá que la propuesta es a medida.
+${e === "sanpatricio" ? "- No des consejos médicos, diagnósticos ni dosis. Ante una urgencia indicá llamar al 107 de inmediato.\n" : ""}- derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, o cuando ya tenés los datos principales y corresponde que el equipo tome el caso (en ese caso confirmá que una persona sigue por este mismo chat, de lunes a viernes de 8 a 20 h).
 
 Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false}
 En "datos" poné solo lo que la persona dijo explícitamente en toda la conversación.`
@@ -38,7 +77,7 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     else msgs.push({ role, content: t })
   }
   while (msgs.length && msgs[0].role !== "user") msgs.shift()
-  if (!msgs.length) return null
+  if (!msgs.length || msgs[msgs.length - 1].role !== "user") return null
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -52,85 +91,135 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     if (!m) return null
     const o = JSON.parse(m[0])
     if (!o.respuesta) return null
-    return { respuesta: String(o.respuesta), datos: o.datos ?? {}, derivar: !!o.derivar }
+    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, estado: {} }
   } catch {
     return null
   }
 }
 
-function sinIA(e: Empresa, texto: string, primero: boolean): Resultado {
-  const b = BOTS[e]
-  const t = norm(texto.trim())
+function buscarFaq(e: Empresa, t: string) {
   let mejor: { r: string; tema: string; peso: number } | null = null
-  for (const f of b.faqs) for (const c of f.claves) {
+  for (const f of BOTS[e].faqs) for (const c of f.claves) {
     const k = norm(c)
     const hit = /^\d$/.test(k) ? t === k : k.length <= 3 ? new RegExp(`(^|[^a-z0-9])${k}([^a-z0-9]|$)`).test(t) : t.includes(k)
     if (hit && (!mejor || k.length > mejor.peso)) mejor = { r: f.respuesta, tema: f.tema, peso: k.length }
   }
-  if (mejor) return { respuesta: mejor.r, datos: {}, derivar: mejor.tema === "Persona" }
-  if (primero || /^(hola|buen[oa]s|buen dia|buenas tardes|buenas noches|hey|que tal)\b/.test(t)) return { respuesta: b.saludo, datos: {}, derivar: false }
-  return { respuesta: `¡Gracias! ${b.derivacion}`, datos: {}, derivar: true }
+  return mejor
+}
+
+/** Conversación guiada sin IA: menú + preguntas de a una hasta tener los datos, y cierre con próximo paso. */
+export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado): Resultado {
+  const b = BOTS[e]
+  const t = norm(texto)
+  const d = { ...(est.datos ?? {}) }
+  const preg = PREGUNTAS[e]
+  const siguiente = (desde: number) => { for (let i = desde; i < preg.length; i++) if (!d[preg[i].k]) return i; return -1 }
+  const out = (respuestas: string[], paso: number | null, extra: Partial<Resultado> = {}): Resultado =>
+    ({ respuestas, datos: d, derivar: false, estado: { ...est, datos: d, paso, noEntendi: 0 }, ...extra })
+  const saludoRe = /^(hola+|buen[oa]s?|buen dia|buenas tardes|buenas noches|hey|que tal|holis)\b/
+
+  // 1) Si estamos tomando datos y no es una opción del menú, la respuesta es el dato pedido
+  const faq = buscarFaq(e, t)
+  const esMenu = /^[1-5]$/.test(t)
+  const pidePersona = !!faq && faq.tema === "Persona" && !/^\d$/.test(t) && t.length < 40
+  if (est.paso != null && est.paso >= 0 && !esMenu && !pidePersona) {
+    const p = preg[est.paso]
+    if (!(p.omitible && /^(no|nop|prefiero no|-)$/.test(t))) d[p.k] = texto.trim().slice(0, 300)
+    else d[p.k] = "-"
+    const sig = siguiente(est.paso + 1)
+    if (sig === -1) return { respuestas: [cierre(e, d)], datos: d, derivar: true, estado: { datos: d, paso: null, noEntendi: 0 } }
+    return out([preg[sig].p(d)], sig)
+  }
+
+  // 2) Opción del menú o pregunta frecuente
+  if (faq) {
+    if (faq.tema === "Persona") {
+      const sig = siguiente(0)
+      return { respuestas: [faq.r], datos: d, derivar: true, pedidoHumano: true, estado: { ...est, datos: d, paso: sig === -1 ? null : sig, noEntendi: 0 } }
+    }
+    if (INICIAN[e].includes(faq.tema)) {
+      const sig = siguiente(0)
+      return out(sig === -1 ? [faq.r, cierre(e, d)] : [faq.r], sig === -1 ? null : sig, { estado: { ...est, datos: d, paso: sig === -1 ? null : sig, tema: faq.tema, noEntendi: 0 } })
+    }
+    return out([faq.r], est.paso ?? null)
+  }
+
+  // 3) Saludo
+  if (primero || saludoRe.test(t)) return out([b.saludo], null)
+
+  // 4) No es una opción: lo tomamos como la necesidad que nos cuenta y seguimos la conversación
+  if (!d.motivo && t.length > 12) {
+    d.motivo = texto.trim().slice(0, 300)
+    const sig = siguiente(0)
+    const intro = e === "devisebit" ? "¡Gracias por contarme! Eso lo resolvemos seguido 💪" : "¡Gracias por contarnos! Te ayudamos a organizarlo ☘️"
+    return out([`${intro}\n${sig === -1 ? "" : preg[sig].p(d)}`.trim()], sig === -1 ? null : sig)
+  }
+  const n = (est.noEntendi ?? 0) + 1
+  const menuCorto = b.saludo.split("\n").filter((l) => /^\d️⃣/.test(l)).join("\n")
+  return { respuestas: [`Perdón, no llegué a entenderte 🙏 Elegí una opción escribiendo el número:\n${menuCorto}${n >= 2 ? "\n\nO contame con tus palabras qué necesitás y te ayudo." : ""}`], datos: d, derivar: false, estado: { ...est, datos: d, noEntendi: n } }
 }
 
 /** Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat). */
 export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string) {
   if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return // reintento de Meta
   await q("insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre) values ($1,$2,'cliente',$3,$4,$5,$6)", [e, waId, texto, tipo, metaId, perfil])
-  const chat = await one<{ consulta_id: number | null; bot_pausado_hasta: string | null; ultimo_entrante: string | null }>(
+  const chat = await one<{ consulta_id: number | null; bot_pausado_hasta: string | null; pausa_motivo: string | null; estado: Estado | null; ultimo_entrante: string | null }>(
     `insert into wa_chats(empresa,wa_id,nombre,ultimo_entrante) values ($1,$2,$3,now())
      on conflict (empresa,wa_id) do update set nombre=coalesce(excluded.nombre,wa_chats.nombre), actualizado=now()
-     returning consulta_id, bot_pausado_hasta, (select ultimo_entrante from wa_chats where empresa=$1 and wa_id=$2) ultimo_entrante`,
+     returning consulta_id, bot_pausado_hasta, pausa_motivo, estado, (select ultimo_entrante from wa_chats where empresa=$1 and wa_id=$2) ultimo_entrante`,
     [e, waId, perfil],
   )
   await q("update wa_chats set ultimo_entrante=now() where empresa=$1 and wa_id=$2", [e, waId])
   const primero = !chat?.ultimo_entrante || Date.now() - new Date(chat.ultimo_entrante).getTime() > 12 * 3600e3
+  let est: Estado = primero ? {} : (chat?.estado ?? {})
 
   // Consulta en el CRM: la abierta de este chat, o una nueva
   let cid = chat?.consulta_id ?? null
   if (cid) {
     const c = await one<{ estado: string }>("select estado from consultas where id=$1", [cid])
-    if (!c || ["ingreso", "descartada"].includes(c.estado)) cid = null
+    if (!c || ["ingreso", "descartada"].includes(c.estado)) { cid = null; est = {} }
   }
   if (!cid) {
-    const n = await one<{ id: number }>(
-      "insert into consultas(empresa,canal,nombre,telefono,mensaje,motivo) values ($1,'whatsapp',$2,$3,$4,null) returning id",
-      [e, perfil, "+" + waId, texto ?? `(${tipo})`],
-    )
+    const n = await one<{ id: number }>("insert into consultas(empresa,canal,nombre,telefono,mensaje) values ($1,'whatsapp',$2,$3,$4) returning id", [e, perfil, "+" + waId, texto ?? `(${tipo})`])
     cid = n!.id
     await q("update wa_chats set consulta_id=$1 where empresa=$2 and wa_id=$3", [cid, e, waId])
   } else {
-    await q("update consultas set actualizado=now(), estado=case when estado='descartada' then 'nueva' else estado end where id=$1", [cid])
+    await q("update consultas set actualizado=now() where id=$1", [cid])
   }
 
-  const pausado = chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now()
+  // Si una persona del equipo tomó el chat, el bot no interviene
+  const pausado = chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now() && chat.pausa_motivo === "equipo"
   if (pausado) { await q("update consultas set necesita_humano=true where id=$1", [cid]); return }
 
   let res: Resultado
   if (tipo !== "text" && !texto) {
-    res = { respuesta: e === "sanpatricio" ? "¡Recibido! 📎 Lo va a ver una persona del equipo. Si me escribís el nombre del paciente y la localidad, lo agilizamos." : "¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?", datos: {}, derivar: false }
+    res = { respuestas: [e === "sanpatricio" ? "¡Recibido! 📎 Lo va a ver una persona del equipo. Si me escribís el nombre del paciente y la localidad, lo agilizamos." : "¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?"], datos: {}, derivar: false, estado: est }
   } else {
     const hist = await q<{ autor: string; texto: string | null }>("select autor, texto from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '3 days' order by creado desc limit 30", [e, waId])
-    res = (await conIA(e, hist.reverse())) ?? sinIA(e, texto ?? "", primero)
+    res = (await conIA(e, hist.reverse())) ?? sinIA(e, texto ?? "", primero, est)
   }
 
   const d = res.datos ?? {}
+  const v = (k: string) => (d[k] && d[k] !== "-" ? String(d[k]) : null)
   await q(
     `update consultas set nombre=coalesce($1,nombre), paciente_nombre=coalesce($2,paciente_nombre), obra_social=coalesce($3,obra_social),
        nro_afiliado=coalesce($4,nro_afiliado), localidad=coalesce($5,localidad), motivo=coalesce($6,motivo), organizacion=coalesce($7,organizacion),
        email=coalesce($8,email), necesita_humano=necesita_humano or $9, actualizado=now() where id=$10`,
-    [d.nombre ?? null, d.paciente_nombre ?? null, d.obra_social ?? null, d.nro_afiliado ?? null, d.localidad ?? null, d.motivo ?? null, d.organizacion ?? null, d.email ?? null, res.derivar, cid],
+    [v("nombre"), v("paciente_nombre"), v("obra_social"), v("nro_afiliado"), v("localidad"), v("motivo"), v("organizacion"), v("email"), res.derivar, cid],
   )
-  const env = await enviarTexto(e, waId, res.respuesta)
-  await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'bot',$3,$4,'Asistente')", [e, waId, env.ok ? res.respuesta : `[no enviado: ${env.error}] ${res.respuesta}`, env.ok ? env.id ?? null : null])
-  if (res.derivar) await q("update wa_chats set bot_pausado_hasta=now() + interval '12 hours' where empresa=$1 and wa_id=$2", [e, waId])
+  await q("update wa_chats set estado=$1 where empresa=$2 and wa_id=$3", [JSON.stringify(res.estado ?? {}), e, waId])
+  for (const r of res.respuestas) {
+    const env = await enviarTexto(e, waId, r)
+    await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'bot',$3,$4,'Asistente')", [e, waId, env.ok ? r : `[no enviado: ${env.error}] ${r}`, env.ok ? env.id ?? null : null])
+  }
 }
 
-/** Respuesta de una persona del equipo desde el CRM: pausa el bot en ese chat. */
+/** Respuesta de una persona del equipo desde el CRM: el bot queda en pausa en ese chat. */
 export async function responderDesdeCRM(e: Empresa, waId: string, texto: string, autor: string) {
   const env = await enviarTexto(e, waId, texto)
   if (env.ok) {
     await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'equipo',$3,$4,$5)", [e, waId, texto, env.id ?? null, autor])
-    await q("update wa_chats set bot_pausado_hasta=now() + interval '24 hours' where empresa=$1 and wa_id=$2", [e, waId])
+    await q("update wa_chats set bot_pausado_hasta=now() + interval '24 hours', pausa_motivo='equipo' where empresa=$1 and wa_id=$2", [e, waId])
   }
   return env
 }
