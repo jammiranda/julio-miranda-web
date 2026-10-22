@@ -64,7 +64,7 @@ function sinIA(e: Empresa, texto: string, primero: boolean): Resultado {
   let mejor: { r: string; tema: string; peso: number } | null = null
   for (const f of b.faqs) for (const c of f.claves) {
     const k = norm(c)
-    const hit = /^\d$/.test(k) ? t === k : t.includes(k)
+    const hit = /^\d$/.test(k) ? t === k : k.length <= 3 ? new RegExp(`(^|[^a-z0-9])${k}([^a-z0-9]|$)`).test(t) : t.includes(k)
     if (hit && (!mejor || k.length > mejor.peso)) mejor = { r: f.respuesta, tema: f.tema, peso: k.length }
   }
   if (mejor) return { respuesta: mejor.r, datos: {}, derivar: mejor.tema === "Persona" }
