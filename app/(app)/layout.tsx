@@ -14,6 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const u = await requerir()
   const items = [
     { href: "/", t: "Tablero" },
+    { href: "/consultas", t: "Consultas · CRM" },
     { href: "/pacientes", t: "Pacientes" },
     { href: "/agenda", t: "Agenda y visitas" },
     ...(u.rol !== "consulta" ? [{ href: "/cierre", t: "Cierre mensual" }, { href: "/importar", t: "Importar planilla" }] : []),

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { requerir, puede } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
 import { datosMes } from "@/lib/tablero"
-import { pesos, fecha, nombrePeriodo, periodoActual, periodosRecientes, s } from "@/lib/util"
+import { pesos, fecha, nombrePeriodo, periodoActual, periodosRecientes, s, MESES } from "@/lib/util"
 
 export const dynamic = "force-dynamic"
 
@@ -12,10 +12,17 @@ async function guardarCierre(fd: FormData) {
   const u = await requerir(["gerente"])
   const p = String(fd.get("p"))
   const fr = s(fd.get("factura_real"))
+  const ff = s(fd.get("fecha_factura"))
+  let cobra = s(fd.get("cobra_en"))
+  if (!cobra && ff) {
+    const [y, m] = ff.split("-").map(Number)
+    const sig = new Date(Date.UTC(y, m, 1))
+    cobra = `${MESES[sig.getUTCMonth()]} ${sig.getUTCFullYear()} (del 22 al 25)`
+  }
   await q(
-    `insert into cierres(periodo,factura_real,cobra_en,notas,cerrado,actualizado) values ($1,$2,$3,$4,$5,now())
-     on conflict (periodo) do update set factura_real=$2, cobra_en=$3, notas=$4, cerrado=$5, actualizado=now()`,
-    [p, fr ? Number(fr.replace(/\./g, "").replace(",", ".")) : null, s(fd.get("cobra_en")), s(fd.get("notas")), fd.get("cerrado") === "on"],
+    `insert into cierres(periodo,factura_real,cobra_en,notas,cerrado,fecha_factura,actualizado) values ($1,$2,$3,$4,$5,$6,now())
+     on conflict (periodo) do update set factura_real=$2, cobra_en=$3, notas=$4, cerrado=$5, fecha_factura=$6, actualizado=now()`,
+    [p, fr ? Number(fr.replace(/\./g, "").replace(",", ".")) : null, cobra, s(fd.get("notas")), fd.get("cerrado") === "on", ff],
   )
   await audit(u, "cierre_mes", "cierre", p)
   redirect(`/cierre?p=${p}&ok=1`)
@@ -71,7 +78,9 @@ export default async function Cierre({ searchParams }: { searchParams: { p?: str
             <h2 className="m-0 col-span-full">Factura del mes <span className="chip bg-amber-50 text-amber-700">Solo gerencia</span></h2>
             <input type="hidden" name="p" value={p} />
             <label className="lbl">Factura emitida a PAMI ($)<input name="factura_real" defaultValue={cierre?.factura_real ?? ""} inputMode="decimal" className="inp" /></label>
-            <label className="lbl">Se cobra en<input name="cobra_en" defaultValue={cierre?.cobra_en ?? ""} placeholder="Ej: Enero 2027" className="inp" /></label>
+            <label className="lbl">Fecha de la factura<input name="fecha_factura" type="date" defaultValue={(cierre as any)?.fecha_factura ? new Date((cierre as any).fecha_factura).toISOString().slice(0, 10) : ""} className="inp" /></label>
+            <label className="lbl col-span-full">Se cobra en<input name="cobra_en" defaultValue={cierre?.cobra_en ?? ""} placeholder="Si lo dejás vacío: mes siguiente a la factura, del 22 al 25" className="inp" /></label>
+            <p className="m-0 col-span-full text-xs text-[#4F5C69]">Circuito: el último día hábil del mes se emite la factura y se cobra el mes siguiente, entre el 22 y el 25.</p>
             <label className="lbl col-span-full">Notas<input name="notas" className="inp" /></label>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="cerrado" defaultChecked={!!cierre?.cerrado} /> Mes cerrado</label>
             <div className="col-span-full"><button className="btn-p">Guardar</button></div>

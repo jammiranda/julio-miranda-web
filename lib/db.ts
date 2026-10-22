@@ -113,6 +113,20 @@ create table if not exists carga_mensual (
   origen text, importado timestamptz not null default now(),
   primary key (periodo, paciente_id)
 );
+create table if not exists consultas (
+  id serial primary key,
+  creado timestamptz not null default now(),
+  canal text not null default 'whatsapp',
+  nombre text, telefono text, paciente_nombre text,
+  obra_social text, nro_afiliado text, localidad text,
+  motivo text, mensaje text,
+  estado text not null default 'nueva' check (estado in ('nueva','contactada','evaluacion','ingreso','descartada')),
+  asignado text, notas text,
+  paciente_id int references pacientes(id),
+  actualizado timestamptz not null default now()
+);
+alter table cierres add column if not exists fecha_factura date;
+update historico set cobra_en='Octubre 2026 (del 22 al 25)' where periodo='2026-09' and cobra_en='Diciembre 2026';
 create table if not exists auditoria (
   id bigserial primary key,
   usuario_id int, usuario text,

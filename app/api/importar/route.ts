@@ -1,15 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { timingSafeEqual } from "crypto"
+import { claveOk } from "@/lib/clave"
 import { usuarioActual } from "@/lib/auth"
 import { importarMes, desdePlanilla } from "@/lib/importar"
 
 export const dynamic = "force-dynamic"
 
-function claveOk(k: string | null) {
-  const env = process.env.IMPORT_KEY
-  if (!env || !k || env.length !== k.length) return false
-  return timingSafeEqual(Buffer.from(env), Buffer.from(k))
-}
 
 /** Recibe { periodo, filas } o { periodo, valores } (la solapa cruda). Lo usa la pantalla Importar y el botón de la planilla de Drive. */
 export async function POST(req: NextRequest) {

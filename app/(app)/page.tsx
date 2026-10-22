@@ -100,7 +100,7 @@ export default async function Tablero({ searchParams }: { searchParams: { p?: st
           <ul className="m-0 pl-5 text-sm leading-relaxed text-[#33414F]">
             <li><strong>48 h hábiles</strong> para activar la OP en el SII desde su emisión.</li>
             <li><strong>Día 15 de N+1</strong>: límite para transmitir consumos en Efectores Web (meta interna: día 12).</li>
-            <li><strong>Último día hábil de N+2</strong>: PAMI publica la liquidación; emitir la factura ese mismo día.</li>
+            <li><strong>Último día hábil de N+2</strong>: se emite la factura con la liquidación de PAMI; se cobra el mes siguiente, entre el 22 y el 25.</li>
             <li><strong>Código 230001</strong>: cargar la suspensión por internación de más de 24 h.</li>
             <li>Visitas sin registro en la APP PAMI Prestadores <strong>no se pagan</strong>.</li>
           </ul>
