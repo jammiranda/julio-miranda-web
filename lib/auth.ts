@@ -51,6 +51,7 @@ export const puede = {
   editar: (u: Usuario) => u.rol === "gerente" || u.rol === "coordinacion",
   registrarVisita: (u: Usuario) => u.rol !== "consulta",
   admin: (u: Usuario) => u.rol === "gerente",
+  verHC: (u: Usuario) => u.rol !== "consulta",
 }
 
 export const ROL_NOMBRE: Record<Rol, string> = {

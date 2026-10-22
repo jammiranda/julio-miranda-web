@@ -15,3 +15,5 @@ body { background: #F3F5F4; color: #26323E; font-family: ui-sans-serif, system-u
 .chip { @apply inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold; }
 h1 { @apply text-2xl font-extrabold text-[#0B5E31]; }
 h2 { @apply text-lg font-bold; }
+
+@media print { header, nav, footer, .no-print { display: none !important; } body { background: #fff; } .card { border: 0; padding: 0; } }

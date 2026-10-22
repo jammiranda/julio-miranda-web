@@ -69,6 +69,7 @@ export default async function Ficha({ params, searchParams }: { params: { id: st
   const eqs = await q<any>("select * from equipamiento where paciente_id=$1 order by fecha_retiro nulls first, fecha_entrega desc", [id])
   const vis = await q<any>("select v.*, pr.nombre prof from visitas v left join profesionales pr on pr.id=v.profesional_id where paciente_id=$1 order by fecha desc, id desc limit 100", [id])
   const ed = puede.editar(u)
+  const nHC = puede.verHC(u) ? (await one<{ n: number }>("select count(*)::int n from hc_registros where paciente_id=$1 and not anulado", [id]))?.n ?? 0 : 0
 
   return (
     <div className="flex flex-col gap-5">
@@ -78,7 +79,10 @@ export default async function Ficha({ params, searchParams }: { params: { id: st
           <h1 className="m-0">{p.apellido_nombre}</h1>
           <p className="m-0 text-sm text-[#4F5C69]">{p.obra_social} {p.nro_afiliado ? `· Afiliado ${p.nro_afiliado}` : ""} {p.localidad ? `· ${p.localidad}` : ""} · <strong>{p.estado}</strong></p>
         </div>
-        {puede.registrarVisita(u) && <Link href={`/agenda/nueva?paciente=${id}`} className="btn-p">+ Registrar visita</Link>}
+        <div className="flex flex-wrap gap-2">
+          {puede.verHC(u) && <Link href={`/pacientes/${id}/historia`} className="btn-s">Historia clínica{nHC ? ` (${nHC})` : ""}</Link>}
+          {puede.registrarVisita(u) && <Link href={`/agenda/nueva?paciente=${id}`} className="btn-p">+ Registrar visita</Link>}
+        </div>
       </div>
       {searchParams.ok && <p className="m-0 text-sm text-[#0B5E31]">Cambios guardados.</p>}
 
@@ -137,8 +141,8 @@ export default async function Ficha({ params, searchParams }: { params: { id: st
                 <tr key={v.id}>
                   <td>{fecha(v.fecha)}</td><td>{TIPO_NOMBRE[v.tipo]}</td><td>{v.prof ?? "—"}</td><td>{v.estado}</td>
                   <td>{v.app_pami ? "Sí" : <span className="text-rojo font-semibold">No</span>}</td>
-                  <td className="text-xs">{[v.ta && `TA ${v.ta}`, v.fc && `FC ${v.fc}`, v.temp && `T ${v.temp}`, v.sat && `Sat ${v.sat}`].filter(Boolean).join(" · ") || "—"}</td>
-                  <td className="text-xs max-w-[320px]">{v.evolucion ?? "—"}</td>
+                  <td className="text-xs">{!puede.verHC(u) ? "—" : [v.ta && `TA ${v.ta}`, v.fc && `FC ${v.fc}`, v.temp && `T ${v.temp}`, v.sat && `Sat ${v.sat}`].filter(Boolean).join(" · ") || "—"}</td>
+                  <td className="text-xs max-w-[320px]">{puede.verHC(u) ? v.evolucion ?? "—" : "—"}</td>
                 </tr>
               ))}
               {!vis.length && <tr><td colSpan={7} className="text-[#4F5C69]">Sin visitas registradas.</td></tr>}

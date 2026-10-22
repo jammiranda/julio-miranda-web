@@ -127,6 +127,23 @@ create table if not exists consultas (
 );
 alter table cierres add column if not exists fecha_factura date;
 update historico set cobra_en='Octubre 2026 (del 22 al 25)' where periodo='2026-09' and cobra_en='Diciembre 2026';
+alter table pacientes add column if not exists antecedentes text;
+alter table pacientes add column if not exists alergias text;
+alter table pacientes add column if not exists medicacion text;
+create table if not exists hc_registros (
+  id serial primary key,
+  paciente_id int not null references pacientes(id) on delete cascade,
+  fecha date not null,
+  tipo text not null check (tipo in ('ingreso','evolucion','indicacion','estudio','interconsulta','epicrisis','nota')),
+  profesional text,
+  texto text not null,
+  creado_por int references usuarios(id),
+  creado_por_nombre text,
+  creado timestamptz not null default now(),
+  anulado boolean not null default false,
+  anulado_motivo text
+);
+create index if not exists hc_pac on hc_registros(paciente_id, fecha desc);
 create table if not exists auditoria (
   id bigserial primary key,
   usuario_id int, usuario text,
