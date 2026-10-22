@@ -6,10 +6,10 @@ import { procesar } from "@/lib/bot"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-/** Verificación del webhook (Meta llama con hub.challenge). */
+/** Verificación del webhook (Meta llama con hub.challenge). El token de verificación no es secreto: la seguridad real es la firma de cada POST (WA_APP_SECRETS). */
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams
-  if (p.get("hub.mode") === "subscribe" && p.get("hub.verify_token") && p.get("hub.verify_token") === process.env.WA_VERIFY_TOKEN) {
+  if (p.get("hub.mode") === "subscribe" && p.get("hub.verify_token") === (process.env.WA_VERIFY_TOKEN || "sistema-sanpatricio-webhook")) {
     return new NextResponse(p.get("hub.challenge") ?? "", { status: 200 })
   }
   return new NextResponse("forbidden", { status: 403 })
