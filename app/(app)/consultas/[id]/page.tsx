@@ -79,6 +79,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const c = await one<any>("select * from consultas where id=$1", [id])
   if (!c) notFound()
   if (c.empresa === "devisebit" && u.rol !== "gerente") notFound()
+  const contacto = c.empresa === "devisebit" ? await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [c.id]).catch(() => null) : null
   const waId = c.chat_id ?? (c.telefono ? String(c.telefono).replace(/\D/g, "") : "")
   const chat = waId ? await one<any>("select * from wa_chats where empresa=$1 and wa_id=$2", [c.empresa, waId]) : null
   const msgs = chat ? await q<any>("select autor, texto, tipo, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 order by creado desc limit 100", [c.empresa, waId]) : []
@@ -180,6 +181,10 @@ export default async function Consulta({ params, searchParams }: { params: { id:
             <Link href={`/pacientes/${c.paciente_id}`} className="btn-s">Ver ficha del paciente</Link>
           ) : ed && c.empresa === "sanpatricio" && (
             <form action={aPaciente}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">Pasar a paciente</button></form>
+          )}
+          {c.empresa === "devisebit" && u.rol === "gerente" && (
+            contacto ? <Link href={`/devisebit/contactos/${contacto.id}`} className="btn-s">Ver en el CRM de DEVISEBIT</Link>
+              : <Link href={`/devisebit/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>
           )}
           {ed ? (
             <form action={actualizar} className="card flex flex-col gap-3">

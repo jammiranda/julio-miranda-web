@@ -24,6 +24,8 @@ export async function avisos(u: Usuario): Promise<Aviso[]> {
       if (u.rol === "gerente") {
         const db = await one<{ n: number }>("select count(*)::int n from consultas where empresa='devisebit' and estado in ('nueva') ")
         if (db?.n) out.push({ t: "Consultas de DEVISEBIT", d: "Leads nuevos del WhatsApp de DEVISEBIT", href: "/consultas?e=devisebit", nivel: "media", n: db.n })
+        const px = await one<{ n: number }>("select count(*)::int n from db_contactos where etapa not in ('ganado','perdido') and proximo_fecha <= (now() at time zone 'America/Argentina/Buenos_Aires')::date").catch(() => null)
+        if (px?.n) out.push({ t: "Seguimientos DEVISEBIT para hoy", d: "Contactos con próximo paso vencido o de hoy", href: "/devisebit", nivel: "media", n: px.n })
       }
     }
     if (u.rol !== "consulta") {
