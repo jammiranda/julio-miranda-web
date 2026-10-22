@@ -39,10 +39,10 @@ async function responder(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("id"))
-  const c = await one<any>("select empresa, telefono from consultas where id=$1", [id])
+  const c = await one<any>("select empresa, telefono, chat_id from consultas where id=$1", [id])
   const texto = s(fd.get("texto"))
   if (!c || !texto || (c.empresa === "devisebit" && u.rol !== "gerente")) redirect(`/consultas/${id}`)
-  const r = await responderDesdeCRM(c.empresa as Empresa, String(c.telefono).replace(/\D/g, ""), texto!, u.nombre)
+  const r = await responderDesdeCRM(c.empresa as Empresa, c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto!, u.nombre)
   await q("update consultas set necesita_humano=false, asignado=coalesce(asignado,$1), estado=case when estado='nueva' then 'contactada' else estado end, actualizado=now() where id=$2", [u.nombre, id])
   await audit(u, "responde_whatsapp", "consulta", id)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
@@ -52,10 +52,10 @@ async function bot(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("id"))
-  const c = await one<any>("select empresa, telefono from consultas where id=$1", [id])
+  const c = await one<any>("select empresa, telefono, chat_id from consultas where id=$1", [id])
   if (!c) redirect("/consultas")
   const pausar = fd.get("a") === "pausar"
-  await q(`update wa_chats set bot_pausado_hasta=${pausar ? "now() + interval '7 days'" : "null"}, pausa_motivo=${pausar ? "'equipo'" : "null"} where empresa=$1 and wa_id=$2`, [c.empresa, String(c.telefono).replace(/\D/g, "")])
+  await q(`update wa_chats set bot_pausado_hasta=${pausar ? "now() + interval '7 days'" : "null"}, pausa_motivo=${pausar ? "'equipo'" : "null"} where empresa=$1 and wa_id=$2`, [c.empresa, c.chat_id ?? String(c.telefono).replace(/\D/g, "")])
   if (!pausar) await q("update consultas set necesita_humano=false where id=$1", [id])
   await audit(u, pausar ? "pausa_bot" : "reactiva_bot", "consulta", id)
   redirect(`/consultas/${id}`)
@@ -79,7 +79,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const c = await one<any>("select * from consultas where id=$1", [id])
   if (!c) notFound()
   if (c.empresa === "devisebit" && u.rol !== "gerente") notFound()
-  const waId = c.telefono ? String(c.telefono).replace(/\D/g, "") : ""
+  const waId = c.chat_id ?? (c.telefono ? String(c.telefono).replace(/\D/g, "") : "")
   const chat = waId ? await one<any>("select * from wa_chats where empresa=$1 and wa_id=$2", [c.empresa, waId]) : null
   const msgs = chat ? await q<any>("select autor, texto, tipo, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 order by creado desc limit 100", [c.empresa, waId]) : []
   const ventana = chat?.ultimo_entrante && Date.now() - new Date(chat.ultimo_entrante).getTime() < 24 * 3600e3
@@ -113,7 +113,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           {chat ? (
             <section className="card flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="m-0">Conversación de WhatsApp</h2>
+                <h2 className="m-0">Conversación de {String(waId).startsWith("ig:") ? "Instagram" : "WhatsApp"}</h2>
                 {ed && (
                   <form action={bot} className="flex items-center gap-2 text-sm">
                     <input type="hidden" name="id" value={c.id} /><input type="hidden" name="a" value={botPausado ? "activar" : "pausar"} />
@@ -146,8 +146,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
               {ed && (ventana ? (
                 <form action={responder} className="flex flex-col gap-2">
                   <input type="hidden" name="id" value={c.id} />
-                  <textarea name="texto" rows={3} required className="inp" placeholder="Escribí la respuesta: sale por WhatsApp y el bot queda en pausa en este chat" />
-                  <div><button className="btn-p">Enviar por WhatsApp</button></div>
+                  <textarea name="texto" rows={3} required className="inp" placeholder="Escribí la respuesta: sale por el mismo canal y el bot queda en pausa en este chat" />
+                  <div><button className="btn-p">Enviar{String(waId).startsWith("ig:") ? " por Instagram" : " por WhatsApp"}</button></div>
                 </form>
               ) : (
                 <p className="m-0 text-xs text-[#4F5C69]">Pasaron más de 24 h desde el último mensaje del cliente: WhatsApp solo permite responder con una plantilla aprobada. Usá el botón de WhatsApp de la derecha.</p>

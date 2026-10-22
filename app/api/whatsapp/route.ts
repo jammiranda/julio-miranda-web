@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { waitUntil } from "@vercel/functions"
-import { empresaPorPhoneId, firmaValida, marcarLeido } from "@/lib/whatsapp"
+import { empresaPorPhoneId, empresaPorIG, firmaValida, marcarLeido, perfilIG } from "@/lib/whatsapp"
 import { procesar } from "@/lib/bot"
 
 export const dynamic = "force-dynamic"
@@ -22,6 +22,21 @@ export async function POST(req: NextRequest) {
   let j: any
   try { j = JSON.parse(cuerpo) } catch { return new NextResponse("ok") }
   const tareas: Promise<unknown>[] = []
+  // Instagram: mensajes directos
+  if (j.object === "instagram") {
+    for (const entry of j.entry ?? []) {
+      const e = empresaPorIG(String(entry.id))
+      if (!e) continue
+      for (const ev of entry.messaging ?? []) {
+        const m = ev.message
+        if (!m || m.is_echo || !ev.sender?.id || ev.sender.id === String(entry.id)) continue
+        const texto = m.text ?? (m.attachments?.length ? null : null)
+        tareas.push(perfilIG(e, ev.sender.id).then((nombre) => procesar(e, `ig:${ev.sender.id}`, nombre, texto, m.text ? "text" : "archivo", `ig_${m.mid}`, "instagram")).catch((err) => console.error("bot ig", err)))
+      }
+    }
+    waitUntil(Promise.all(tareas))
+    return new NextResponse("ok")
+  }
   for (const entry of j.entry ?? []) for (const ch of entry.changes ?? []) {
     const v = ch.value ?? {}
     const e = empresaPorPhoneId(v.metadata?.phone_number_id)

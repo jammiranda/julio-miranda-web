@@ -1,6 +1,7 @@
 import { q, one } from "./db"
 import { BOTS, type Empresa } from "./bots/conocimiento"
 import { enviarTexto } from "./whatsapp"
+import { notificar } from "./push"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
 type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
@@ -166,7 +167,10 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado):
 }
 
 /** Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat). */
-export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string) {
+export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp") {
+  const roles = e === "devisebit" ? ["gerente"] : ["gerente", "coordinacion"]
+  const marca = e === "devisebit" ? "DEVISEBIT" : "San Patricio"
+  const red = canal === "instagram" ? "Instagram" : "WhatsApp"
   if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return // reintento de Meta
   await q("insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre) values ($1,$2,'cliente',$3,$4,$5,$6)", [e, waId, texto, tipo, metaId, perfil])
   const chat = await one<{ consulta_id: number | null; bot_pausado_hasta: string | null; pausa_motivo: string | null; estado: Estado | null; ultimo_entrante: string | null }>(
@@ -186,8 +190,9 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     if (!c || ["ingreso", "descartada"].includes(c.estado)) { cid = null; est = {} }
   }
   if (!cid) {
-    const n = await one<{ id: number }>("insert into consultas(empresa,canal,nombre,telefono,mensaje) values ($1,'whatsapp',$2,$3,$4) returning id", [e, perfil, "+" + waId, texto ?? `(${tipo})`])
+    const n = await one<{ id: number }>("insert into consultas(empresa,canal,nombre,telefono,mensaje,chat_id) values ($1,$2,$3,$4,$5,$6) returning id", [e, canal, perfil, canal === "whatsapp" ? "+" + waId : null, texto ?? `(${tipo})`, waId])
     cid = n!.id
+    await notificar(roles, `💬 Nueva consulta por ${red} · ${marca}`, `${perfil ?? (canal === "whatsapp" ? "+" + waId : "Instagram")}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
     await q("update wa_chats set consulta_id=$1 where empresa=$2 and wa_id=$3", [cid, e, waId])
   } else {
     await q("update consultas set actualizado=now() where id=$1", [cid])
@@ -195,7 +200,11 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
 
   // Si una persona del equipo tomó el chat, el bot no interviene
   const pausado = chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now() && chat.pausa_motivo === "equipo"
-  if (pausado) { await q("update consultas set necesita_humano=true where id=$1", [cid]); return }
+  if (pausado) {
+    await q("update consultas set necesita_humano=true where id=$1", [cid])
+    await notificar(roles, `✉️ Te respondieron en ${red} · ${marca}`, `${perfil ?? "Cliente"}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
+    return
+  }
 
   let res: Resultado
   if (tipo !== "text" && !texto) {
@@ -214,6 +223,10 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     [v("nombre"), v("paciente_nombre"), v("obra_social"), v("nro_afiliado"), v("localidad"), v("motivo"), v("organizacion"), v("email"), res.derivar, cid],
   )
   await q("update wa_chats set estado=$1 where empresa=$2 and wa_id=$3", [JSON.stringify(res.estado ?? {}), e, waId])
+  if (res.derivar) {
+    const quien = v("nombre") ?? perfil ?? "Cliente"
+    await notificar(roles, res.pedidoHumano ? `🙋 Pide hablar con una persona · ${marca}` : `✅ Consulta lista para seguir · ${marca}`, `${quien}${v("motivo") ? ` — ${v("motivo")}` : ""}${v("organizacion") ? ` (${v("organizacion")})` : ""}`, `/consultas/${cid}`)
+  }
   for (const r of res.respuestas) {
     const env = await enviarTexto(e, waId, r)
     await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'bot',$3,$4,'Asistente')", [e, waId, env.ok ? r : `[no enviado: ${env.error}] ${r}`, env.ok ? env.id ?? null : null])

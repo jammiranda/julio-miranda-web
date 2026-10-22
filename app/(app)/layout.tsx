@@ -4,6 +4,7 @@ import { requerir, cerrarSesion, ROL_NOMBRE } from "@/lib/auth"
 import { one } from "@/lib/db"
 import { avisos } from "@/lib/avisos"
 import Avatar from "@/components/Avatar"
+import ActivarAvisos from "@/components/ActivarAvisos"
 import Marca from "@/components/Marca"
 
 async function salir() {
@@ -51,6 +52,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                   ))}
                   {!av.length && <li className="px-4 py-6 text-center text-sm text-[#4F5C69]">✅ Todo al día. No hay avisos pendientes.</li>}
                 </ul>
+                <div className="px-4 py-3 border-t border-[#E1E6E3] bg-[#F7FAF8]"><ActivarAvisos compacto /></div>
               </div>
             </details>
             <details className="relative">

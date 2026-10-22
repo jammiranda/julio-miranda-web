@@ -194,6 +194,15 @@ create table if not exists bot_conocimiento (
   creado_por text,
   creado timestamptz not null default now()
 );
+alter table consultas add column if not exists chat_id text;
+create table if not exists config (clave text primary key, valor text not null);
+create table if not exists push_subs (
+  id serial primary key,
+  usuario_id int not null references usuarios(id) on delete cascade,
+  endpoint text unique not null,
+  p256dh text not null, auth text not null,
+  creado timestamptz not null default now()
+);
 create table if not exists auditoria (
   id bigserial primary key,
   usuario_id int, usuario text,

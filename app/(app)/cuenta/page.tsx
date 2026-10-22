@@ -4,6 +4,7 @@ import { requerir, ROL_NOMBRE } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import FotoPerfil from "@/components/FotoPerfil"
+import ActivarAvisos from "@/components/ActivarAvisos"
 
 export const dynamic = "force-dynamic"
 
@@ -50,6 +51,11 @@ export default async function Cuenta({ searchParams }: { searchParams: { ok?: st
       {searchParams.ok === "clave" && <p role="status" className="m-0 text-sm text-[#0B5E31]">Listo, tu clave quedó cambiada.</p>}
       {searchParams.ok === "datos" && <p role="status" className="m-0 text-sm text-[#0B5E31]">Datos guardados.</p>}
       {searchParams.ok === "foto" && <p role="status" className="m-0 text-sm text-[#0B5E31]">Foto actualizada.</p>}
+      <section className="card flex flex-col gap-3">
+        <h2 className="m-0 text-base">Notificaciones</h2>
+        <p className="m-0 text-sm text-[#4F5C69]">Te avisamos al celular o a la compu, aunque no tengas el sistema abierto, cuando entra una consulta nueva por WhatsApp o Instagram, cuando alguien pide hablar con una persona y cuando escriben en un chat que está atendiendo el equipo. Activalo en cada dispositivo que uses.</p>
+        <ActivarAvisos />
+      </section>
       <section className="card flex flex-col gap-3">
         <h2 className="m-0 text-base">Tu foto</h2>
         <FotoPerfil accion={foto} actual={d?.foto} />
