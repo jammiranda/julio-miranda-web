@@ -4,6 +4,8 @@ import { requerir, puede } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { TIPO_NOMBRE, fecha, hoyISO, s } from "@/lib/util"
 import Imprimir from "@/components/Imprimir"
+import SubirDocumento from "@/components/SubirDocumento"
+import { iaActiva } from "@/lib/ia"
 
 export const dynamic = "force-dynamic"
 
@@ -29,7 +31,14 @@ async function agregar(fd: FormData) {
     "insert into hc_registros(paciente_id,fecha,tipo,profesional,texto,creado_por,creado_por_nombre) values ($1,$2,$3,$4,$5,$6,$7) returning id",
     [id, s(fd.get("fecha")) ?? hoyISO(), tipo, s(fd.get("profesional")), texto, u.id, u.nombre],
   )
-  await audit(u, "alta_hc", "hc_registro", r!.id, `paciente ${id} · ${tipo}`)
+  const adj = Number(fd.get("adjunto") || 0)
+  if (adj) await q("update adjuntos set hc_id=$1 where id=$2 and paciente_id=$3", [r!.id, adj, id])
+  if (fd.get("aplicar_resumen")) {
+    const p = await one<any>("select diagnostico, antecedentes, alergias, medicacion from pacientes where id=$1", [id])
+    const junta = (viejo: string | null, nuevo: string | null) => (!nuevo ? viejo : !viejo ? nuevo : viejo.includes(nuevo) ? viejo : `${viejo}\n${nuevo}`)
+    await q("update pacientes set diagnostico=$1, antecedentes=$2, alergias=$3, medicacion=$4 where id=$5", [junta(p?.diagnostico, s(fd.get("r_diagnostico"))), junta(p?.antecedentes, s(fd.get("r_antecedentes"))), junta(p?.alergias, s(fd.get("r_alergias"))), junta(p?.medicacion, s(fd.get("r_medicacion"))), id])
+  }
+  await audit(u, "alta_hc", "hc_registro", r!.id, `paciente ${id} · ${tipo}${adj ? " · con documento" : ""}`)
   redirect(`/pacientes/${id}/historia?ok=1`)
 }
 
@@ -61,14 +70,15 @@ export default async function Historia({ params, searchParams }: { params: { id:
   if (!p) notFound()
   await audit(u, "ver_historia_clinica", "paciente", id)
   const t = searchParams.t ?? "todo"
-  const regs = await q<any>("select * from hc_registros where paciente_id=$1 order by fecha desc, id desc", [id])
+  const regs = await q<any>("select h.*, (select min(a.id) from adjuntos a where a.hc_id=h.id) adjunto from hc_registros h where paciente_id=$1 order by fecha desc, id desc", [id])
+  const sueltos = await q<any>("select id, nombre, creado, creado_por_nombre from adjuntos where paciente_id=$1 and hc_id is null order by creado desc", [id])
   const vis = await q<any>(
     "select v.id, v.fecha, v.tipo, v.evolucion, v.ta, v.fc, v.temp, v.sat, pr.nombre prof from visitas v left join profesionales pr on pr.id=v.profesional_id where v.paciente_id=$1 and v.estado='realizada' and (v.evolucion is not null or v.ta is not null) order by v.fecha desc",
     [id],
   )
-  type Item = { k: string; fecha: any; tipo: string; titulo: string; prof?: string | null; texto: string; meta?: string; anulado?: boolean; motivo?: string; regId?: number }
+  type Item = { k: string; fecha: any; tipo: string; titulo: string; prof?: string | null; texto: string; meta?: string; anulado?: boolean; motivo?: string; regId?: number; adjunto?: number | null }
   const items: Item[] = [
-    ...regs.map((r) => ({ k: `r${r.id}`, fecha: r.fecha, tipo: r.tipo, titulo: TIPOS_HC.find((x) => x.v === r.tipo)?.n ?? r.tipo, prof: r.profesional, texto: r.texto, meta: `Cargado por ${r.creado_por_nombre ?? "—"} el ${new Date(r.creado).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })}`, anulado: r.anulado, motivo: r.anulado_motivo, regId: r.id })),
+    ...regs.map((r) => ({ k: `r${r.id}`, fecha: r.fecha, tipo: r.tipo, titulo: TIPOS_HC.find((x) => x.v === r.tipo)?.n ?? r.tipo, prof: r.profesional, texto: r.texto, meta: `Cargado por ${r.creado_por_nombre ?? "—"} el ${new Date(r.creado).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })}`, anulado: r.anulado, motivo: r.anulado_motivo, regId: r.id, adjunto: r.adjunto })),
     ...vis.map((v) => ({ k: `v${v.id}`, fecha: v.fecha, tipo: "visita", titulo: `Visita de ${TIPO_NOMBRE[v.tipo] ?? v.tipo}`, prof: v.prof, texto: [[v.ta && `TA ${v.ta}`, v.fc && `FC ${v.fc}`, v.temp && `T ${v.temp}`, v.sat && `Sat ${v.sat}`].filter(Boolean).join(" · "), v.evolucion].filter(Boolean).join("\n") })),
   ]
     .filter((i) => t === "todo" || i.tipo === t)
@@ -110,8 +120,17 @@ export default async function Historia({ params, searchParams }: { params: { id:
       </section>
 
       {puedeCargar && (
+        <section className="card no-print flex flex-col gap-2">
+          <h2 className="m-0 text-base">Cargar desde un documento</h2>
+          <p className="m-0 text-sm text-[#4F5C69]">Sacale una foto a la evolución, indicación o informe (o subí el PDF) y se transcribe solo.</p>
+          <SubirDocumento paciente={id} accion={agregar} ia={iaActiva()} hoy={hoyISO()} profesional={u.rol === "profesional" ? u.nombre : ""} />
+          {sueltos.length > 0 && <p className="m-0 text-xs text-[#4F5C69]">Documentos subidos sin registro: {sueltos.map((a: any, k: number) => <span key={a.id}>{k ? " · " : ""}<a className="underline" href={`/api/adjuntos/${a.id}`} target="_blank">{a.nombre ?? `#${a.id}`}</a></span>)}</p>}
+        </section>
+      )}
+
+      {puedeCargar && (
         <details className="card no-print" open={!items.length}>
-          <summary className="cursor-pointer font-bold text-[#0B7A3B]">+ Nuevo registro en la historia clínica</summary>
+          <summary className="cursor-pointer font-bold text-[#0B7A3B]">+ Escribir un registro a mano</summary>
           <form action={agregar} className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
             <input type="hidden" name="id" value={id} />
             <label className="lbl">Tipo<select name="tipo" className="inp">{TIPOS_HC.map((x) => <option key={x.v} value={x.v}>{x.n}</option>)}</select></label>
@@ -146,6 +165,7 @@ export default async function Historia({ params, searchParams }: { params: { id:
                 {i.meta && <span className="text-xs text-[#4F5C69]">{i.meta}</span>}
               </div>
               <p className={`m-0 text-[15px] whitespace-pre-line ${i.anulado ? "line-through" : ""}`}>{i.texto}</p>
+              {i.adjunto && <a href={`/api/adjuntos/${i.adjunto}`} target="_blank" className="text-sm underline text-[#0B7A3B] no-print">📎 Ver documento original</a>}
               {i.anulado && <p className="m-0 text-xs text-rojo">Motivo de anulación: {i.motivo}</p>}
               {!i.anulado && i.regId && puede.editar(u) && (
                 <details className="no-print">

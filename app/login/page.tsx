@@ -29,7 +29,7 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
         <label className="lbl">Usuario<input name="usuario" required autoComplete="username" className="inp" /></label>
         <label className="lbl">Clave<input name="clave" type="password" required autoComplete="current-password" className="inp" /></label>
         <button className="btn-p">Ingresar</button>
-        <a href="/primer-ingreso" className="text-xs text-[#4F5C69] underline text-center">Primer ingreso de gerencia</a>
+        <a href="/recuperar" className="text-sm text-[#0B7A3B] underline text-center">¿Olvidaste tu clave?</a>
       </form>
     </main>
   )

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
-const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/_next", "/favicon"]
+const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/importar", "/api/consultas", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon"]
 export function middleware(req: NextRequest) {
   const p = req.nextUrl.pathname
   if (PUBLIC.some((x) => p.startsWith(x))) return NextResponse.next()

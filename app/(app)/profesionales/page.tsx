@@ -3,6 +3,8 @@ import { requerir, puede } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
 import { LOCALIDADES, s } from "@/lib/util"
 
+import BarraDatos from "@/components/BarraDatos"
+
 export const dynamic = "force-dynamic"
 
 async function guardar(fd: FormData) {
@@ -27,7 +29,7 @@ export default async function Profesionales() {
   )
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="m-0">Profesionales</h1>
+      <div className="flex flex-wrap items-end justify-between gap-3"><h1 className="m-0">Profesionales</h1><BarraDatos ent="profesionales" /></div>
       <div className="card p-0 overflow-x-auto">
         <table className="tbl">
           <thead><tr><th>Nombre</th><th>Especialidad</th><th>Matrícula</th><th>Teléfono</th><th>Localidad</th><th>Visitas del mes</th><th></th></tr></thead>

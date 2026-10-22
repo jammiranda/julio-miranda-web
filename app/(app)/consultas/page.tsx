@@ -3,6 +3,8 @@ import { requerir, puede } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { ESTADOS, CANAL, hace, fechaHora } from "@/lib/consultas"
 
+import BarraDatos from "@/components/BarraDatos"
+
 export const dynamic = "force-dynamic"
 
 const VISTAS = [
@@ -34,7 +36,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
           <h1 className="m-0">Consultas · CRM</h1>
           <p className="m-0 text-sm text-[#4F5C69]">Todo lo que entra por WhatsApp, la web, teléfono o derivaciones, hasta que se convierte en paciente.</p>
         </div>
-        {ed && <Link href="/consultas/nueva" className="btn-p">+ Nueva consulta</Link>}
+        {ed && <div className="flex flex-wrap gap-2 items-start"><BarraDatos ent="consultas" /><Link href="/consultas/nueva" className="btn-p">+ Nueva consulta</Link></div>}
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

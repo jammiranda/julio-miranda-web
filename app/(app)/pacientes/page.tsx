@@ -3,6 +3,8 @@ import { requerir, puede } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { fecha } from "@/lib/util"
 
+import BarraDatos from "@/components/BarraDatos"
+
 export const dynamic = "force-dynamic"
 const EST: Record<string, string> = { activo: "bg-[#E3F2E8] text-[#0B5E31]", alta: "bg-slate-100 text-slate-600", fallecido: "bg-slate-200 text-slate-700", suspendido: "bg-amber-50 text-amber-700" }
 
@@ -24,7 +26,7 @@ export default async function Pacientes({ searchParams }: { searchParams: { b?: 
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="m-0">Pacientes</h1>
-        {puede.editar(u) && <Link href="/pacientes/nuevo" className="btn-p">+ Nuevo paciente</Link>}
+        {puede.editar(u) && <div className="flex flex-wrap gap-2 items-start"><BarraDatos ent="pacientes" /><BarraDatos ent="ordenes" etiqueta="OP" /><Link href="/pacientes/nuevo" className="btn-p">+ Nuevo paciente</Link></div>}
       </div>
       <form className="card flex flex-wrap gap-3 items-end">
         <label className="lbl flex-1 min-w-[200px]">Buscar<input name="b" defaultValue={b} placeholder="Nombre, DNI o N.º de afiliado" className="inp" /></label>

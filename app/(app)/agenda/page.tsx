@@ -4,6 +4,8 @@ import { requerir, puede } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
 import { TIPO_NOMBRE, fecha, hoyISO } from "@/lib/util"
 
+import BarraDatos from "@/components/BarraDatos"
+
 export const dynamic = "force-dynamic"
 
 async function marcar(fd: FormData) {
@@ -38,7 +40,7 @@ export default async function Agenda({ searchParams }: { searchParams: { d?: str
           <h1 className="m-0">Agenda y visitas</h1>
           <p className="m-0 text-sm text-[#4F5C69]">{new Date(d + "T12:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
         </div>
-        {ed && <Link href={`/agenda/nueva?fecha=${d}`} className="btn-p">+ Programar o registrar visita</Link>}
+        <div className="flex flex-wrap gap-2 items-start">{puede.editar(u) && <BarraDatos ent="visitas" />}{ed && <Link href={`/agenda/nueva?fecha=${d}`} className="btn-p">+ Programar o registrar visita</Link>}</div>
       </div>
       <form className="flex flex-wrap gap-2 items-center">
         <Link href={`/agenda?d=${sumar(d, -1)}`} className="btn-s">← Día anterior</Link>
