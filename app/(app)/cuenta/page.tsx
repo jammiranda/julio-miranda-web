@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import { requerir, ROL_NOMBRE } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
+import FotoPerfil from "@/components/FotoPerfil"
 
 export const dynamic = "force-dynamic"
 
@@ -28,19 +29,34 @@ async function datos(fd: FormData) {
   redirect("/cuenta?ok=datos")
 }
 
-const ERR: Record<string, string> = { actual: "La clave actual no es correcta.", nueva: "La clave nueva debe tener al menos 8 caracteres y coincidir en los dos campos.", email: "El email no es válido." }
+async function foto(fd: FormData) {
+  "use server"
+  const u = await requerir()
+  const f = String(fd.get("foto") ?? "")
+  if (fd.get("quitar")) await q("update usuarios set foto=null where id=$1", [u.id])
+  else if (/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(f) && f.length < 400000) await q("update usuarios set foto=$1 where id=$2", [f, u.id])
+  else redirect("/cuenta?e=foto")
+  redirect("/cuenta?ok=foto")
+}
+
+const ERR: Record<string, string> = { actual: "La clave actual no es correcta.", nueva: "La clave nueva debe tener al menos 8 caracteres y coincidir en los dos campos.", email: "El email no es válido.", foto: "No se pudo guardar la foto. Probá con otra imagen." }
 
 export default async function Cuenta({ searchParams }: { searchParams: { ok?: string; e?: string } }) {
   const u = await requerir()
-  const d = await one<{ email: string | null; telefono: string | null }>("select email, telefono from usuarios where id=$1", [u.id])
+  const d = await one<{ email: string | null; telefono: string | null; foto: string | null }>("select email, telefono, foto from usuarios where id=$1", [u.id])
   return (
     <div className="flex flex-col gap-4 max-w-2xl">
       <div><h1 className="m-0">Mi cuenta</h1><p className="m-0 text-sm text-[#4F5C69]">Usuario <strong>{u.usuario}</strong> · {ROL_NOMBRE[u.rol]}</p></div>
       {searchParams.ok === "clave" && <p role="status" className="m-0 text-sm text-[#0B5E31]">Listo, tu clave quedó cambiada.</p>}
       {searchParams.ok === "datos" && <p role="status" className="m-0 text-sm text-[#0B5E31]">Datos guardados.</p>}
+      {searchParams.ok === "foto" && <p role="status" className="m-0 text-sm text-[#0B5E31]">Foto actualizada.</p>}
+      <section className="card flex flex-col gap-3">
+        <h2 className="m-0 text-base">Tu foto</h2>
+        <FotoPerfil accion={foto} actual={d?.foto} />
+      </section>
       {searchParams.e && <p role="alert" className="m-0 text-sm text-rojo">{ERR[searchParams.e]}</p>}
 
-      <form action={cambiarClave} className="card flex flex-col gap-3">
+      <form id="clave" action={cambiarClave} className="card flex flex-col gap-3 scroll-mt-28">
         <h2 className="m-0 text-base">Cambiar contraseña</h2>
         <label className="lbl">Clave actual<input name="actual" type="password" required autoComplete="current-password" className="inp" /></label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

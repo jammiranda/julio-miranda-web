@@ -129,6 +129,7 @@ alter table cierres add column if not exists fecha_factura date;
 update historico set cobra_en='Octubre 2026 (del 22 al 25)' where periodo='2026-09' and cobra_en='Diciembre 2026';
 alter table usuarios add column if not exists email text;
 alter table usuarios add column if not exists telefono text;
+alter table usuarios add column if not exists foto text;
 alter table pacientes add column if not exists antecedentes text;
 alter table pacientes add column if not exists alergias text;
 alter table pacientes add column if not exists medicacion text;
