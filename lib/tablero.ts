@@ -16,13 +16,24 @@ export type PacMes = {
   sin_app: number
   equipos: number
   sub: number
+  estado_obs?: string | null
 }
 
 /** Pacientes con OP activa en el período + sus visitas realizadas. */
 export async function datosMes(periodo: string) {
   const { ini, fin } = rangoPeriodo(periodo)
   const tar = Object.fromEntries((await q<{ clave: string; valor: string }>("select clave, valor from tarifas")).map((t) => [t.clave, Number(t.valor)]))
-  const rows = await q<PacMes>(
+  const nCarga = (await one<{ n: number }>("select count(*)::int n from carga_mensual where periodo=$1", [periodo]))?.n ?? 0
+  const fuente: "planilla" | "sistema" = nCarga > 0 ? "planilla" : "sistema"
+  const rows = fuente === "planilla"
+    ? await q<PacMes>(
+        `select p.id, p.apellido_nombre, p.localidad, p.estado, c.modulo, null::text op_estado, null::date fecha_vencimiento,
+           c.enf, c.kin, c.med, (c.fono + c.cuidador) otras, 0 sin_app,
+           coalesce(array_length(string_to_array(nullif(c.equipos,''), ','), 1), 0) equipos, c.estado_obs
+         from carga_mensual c join pacientes p on p.id=c.paciente_id where c.periodo=$1 order by p.apellido_nombre`,
+        [periodo],
+      )
+    : await q<PacMes>(
     `with op as (
        select distinct on (paciente_id) paciente_id, modulo, estado, fecha_vencimiento
        from ordenes
@@ -47,15 +58,15 @@ export async function datosMes(periodo: string) {
      left join v on v.paciente_id=p.id left join e on e.paciente_id=p.id
      order by p.apellido_nombre`,
     [ini, fin],
-  )
+      )
   for (const r of rows) r.sub = r.enf * (tar.enfermeria ?? 0) + r.kin * (tar.kinesiologia ?? 0) + r.med * (tar.medico ?? 0)
   const cierre = await one<{ factura_real: string | null; cobra_en: string | null; cerrado: boolean }>("select * from cierres where periodo=$1", [periodo])
   const hist = await one<{ padron: number; facturacion: string; enf: number; kin: number; med: number; cobra_en: string }>("select * from historico where periodo=$1", [periodo])
-  return { rows, tarifas: tar, cierre, hist }
+  return { rows, tarifas: tar, cierre, hist, fuente }
 }
 
 export async function resumen(periodo: string) {
-  const { rows, tarifas, cierre, hist } = await datosMes(periodo)
+  const { rows, tarifas, cierre, hist, fuente } = await datosMes(periodo)
   const hoy = hoyISO()
   const en7 = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10)
   const tot = rows.reduce(
@@ -67,7 +78,7 @@ export async function resumen(periodo: string) {
   const visitas = usarHist ? hist!.enf + hist!.kin + hist!.med : tot.enf + tot.kin + tot.med + tot.otras
   const mix: Record<string, number> = {}
   for (const r of rows) mix[r.modulo ?? "—"] = (mix[r.modulo ?? "—"] ?? 0) + 1
-  const factura = cierre?.factura_real != null ? Number(cierre.factura_real) : usarHist ? Number(hist!.facturacion) : null
+  const factura = cierre?.factura_real != null ? Number(cierre.factura_real) : hist ? Number(hist.facturacion) : null
   const vencen = await q<{ id: number; apellido_nombre: string; modulo: string; fecha_vencimiento: string }>(
     `select p.id, p.apellido_nombre, o.modulo, o.fecha_vencimiento from ordenes o join pacientes p on p.id=o.paciente_id
      where o.estado='vigente' and p.estado='activo' and o.fecha_vencimiento between $1 and $2 order by o.fecha_vencimiento`,
@@ -96,7 +107,7 @@ export async function resumen(periodo: string) {
     periodo, rows, tarifas, padron, visitas, tot: usarHist ? { ...tot, enf: hist!.enf, kin: hist!.kin, med: hist!.med } : tot,
     mix, factura, estimado: tot.sub, cobraEn: cierre?.cobra_en ?? hist?.cobra_en ?? null, cerrado: !!cierre?.cerrado,
     vencen, vencidas, sinVisita, hoyAgenda: hoyAgenda ?? { prog: 0, real: 0 }, porLocalidad, desdeHistorico: !!usarHist,
-    appPct: visitas > 0 && !usarHist ? Math.round(((visitas - tot.sinApp) / visitas) * 100) : null,
+    fuente, appPct: visitas > 0 && !usarHist && fuente === "sistema" ? Math.round(((visitas - tot.sinApp) / visitas) * 100) : null,
   }
 }
 

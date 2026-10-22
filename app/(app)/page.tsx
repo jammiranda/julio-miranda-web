@@ -30,7 +30,7 @@ export default async function Tablero({ searchParams }: { searchParams: { p?: st
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="m-0">Tablero de control</h1>
-          <p className="m-0 text-sm text-[#4F5C69]">Internación domiciliaria · {nombrePeriodo(periodo)}{r.desdeHistorico ? " · datos de la carga mensual histórica" : ""}</p>
+          <p className="m-0 text-sm text-[#4F5C69]">Internación domiciliaria · {nombrePeriodo(periodo)}{r.desdeHistorico ? " · datos de la carga mensual histórica" : r.fuente === "planilla" ? " · datos importados de la planilla de Drive" : " · datos cargados en el sistema"}</p>
         </div>
         <form className="flex items-center gap-2">
           <select name="p" defaultValue={periodo} className="inp w-auto">

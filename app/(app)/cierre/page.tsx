@@ -51,17 +51,17 @@ export default async function Cierre({ searchParams }: { searchParams: { p?: str
       {tot.sinApp > 0 && <p className="m-0 text-sm text-rojo font-semibold">Hay {tot.sinApp} visitas realizadas sin marcar como registradas en la APP PAMI.</p>}
       <div className="card p-0 overflow-x-auto">
         <table className="tbl">
-          <thead><tr><th>#</th><th>Paciente</th><th>Mód.</th><th>Vence OP</th><th>Enf.</th><th>Kin.</th><th>Méd.</th><th>Otras</th><th>Equip.</th><th>Sin APP</th>{fin && <th className="text-right">Submód. $</th>}</tr></thead>
+          <thead><tr><th>#</th><th>Paciente</th><th>Mód.</th><th>Vence OP</th><th>Enf.</th><th>Kin.</th><th>Méd.</th><th>Otras</th><th>Equip.</th><th>Sin APP</th><th>Observación</th>{fin && <th className="text-right">Submód. $</th>}</tr></thead>
           <tbody>
             {rows.map((r, i) => (
               <tr key={r.id}>
                 <td>{i + 1}</td><td><Link href={`/pacientes/${r.id}`} className="font-semibold hover:underline">{r.apellido_nombre}</Link></td>
                 <td>{r.modulo}</td><td>{fecha(r.fecha_vencimiento)}</td><td>{r.enf}</td><td>{r.kin}</td><td>{r.med}</td><td>{r.otras}</td><td>{r.equipos || "—"}</td>
-                <td className={r.sin_app ? "text-rojo font-semibold" : ""}>{r.sin_app || "—"}</td>{fin && <td className="text-right">{pesos(r.sub)}</td>}
+                <td className={r.sin_app ? "text-rojo font-semibold" : ""}>{r.sin_app || "—"}</td><td className="text-xs">{r.estado_obs ?? ""}</td>{fin && <td className="text-right">{pesos(r.sub)}</td>}
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={11} className="text-center text-[#4F5C69] py-6">Sin pacientes con OP en el mes.</td></tr>}
-            {rows.length > 0 && <tr className="font-bold bg-[#F3F5F4]"><td></td><td>Total ({rows.length} pacientes)</td><td></td><td></td><td>{tot.enf}</td><td>{tot.kin}</td><td>{tot.med}</td><td></td><td></td><td>{tot.sinApp || "—"}</td>{fin && <td className="text-right">{pesos(tot.sub)}</td>}</tr>}
+            {!rows.length && <tr><td colSpan={12} className="text-center text-[#4F5C69] py-6">Sin pacientes con OP en el mes.</td></tr>}
+            {rows.length > 0 && <tr className="font-bold bg-[#F3F5F4]"><td></td><td>Total ({rows.length} pacientes)</td><td></td><td></td><td>{tot.enf}</td><td>{tot.kin}</td><td>{tot.med}</td><td></td><td></td><td>{tot.sinApp || "—"}</td><td></td>{fin && <td className="text-right">{pesos(tot.sub)}</td>}</tr>}
           </tbody>
         </table>
       </div>

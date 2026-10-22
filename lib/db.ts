@@ -103,6 +103,16 @@ create table if not exists historico (
 );
 insert into historico(periodo,padron,facturacion,enf,kin,med,cobra_en) values ('2026-09',65,20000000,703,165,61,'Diciembre 2026')
   on conflict do nothing;
+create table if not exists carga_mensual (
+  periodo text not null,
+  paciente_id int not null references pacientes(id) on delete cascade,
+  modulo text,
+  enf int not null default 0, kin int not null default 0, med int not null default 0,
+  fono int not null default 0, cuidador int not null default 0, insumos int not null default 0,
+  equipos text, estado_obs text,
+  origen text, importado timestamptz not null default now(),
+  primary key (periodo, paciente_id)
+);
 create table if not exists auditoria (
   id bigserial primary key,
   usuario_id int, usuario text,

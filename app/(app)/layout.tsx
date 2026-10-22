@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/", t: "Tablero" },
     { href: "/pacientes", t: "Pacientes" },
     { href: "/agenda", t: "Agenda y visitas" },
-    ...(u.rol !== "consulta" ? [{ href: "/cierre", t: "Cierre mensual" }] : []),
+    ...(u.rol !== "consulta" ? [{ href: "/cierre", t: "Cierre mensual" }, { href: "/importar", t: "Importar planilla" }] : []),
     ...(u.rol !== "consulta" ? [{ href: "/profesionales", t: "Profesionales" }] : []),
     ...(u.rol === "gerente" ? [{ href: "/usuarios", t: "Usuarios" }, { href: "/auditoria", t: "Auditoría" }] : []),
   ]
