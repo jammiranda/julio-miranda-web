@@ -2,6 +2,7 @@ import { q, one } from "./db"
 import { BOTS, type Empresa } from "./bots/conocimiento"
 import { enviarTexto } from "./whatsapp"
 import { notificar } from "./push"
+import { desdeTexto, limpiarRef, type Origen } from "./origen"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
 type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
@@ -156,7 +157,9 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado):
 }
 
 /** Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat). */
-export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp") {
+export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp", origen: Origen | null = null) {
+  const og = origen ?? desdeTexto(texto) ?? { fuente: canal === "instagram" ? "Instagram directo" : "WhatsApp directo" }
+  texto = limpiarRef(texto)
   const roles = ["gerente", "coordinacion"]
   const marca = "DEVISEBIT"
   const red = canal === "instagram" ? "Instagram" : "WhatsApp"
@@ -179,12 +182,13 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     if (!c || c.estado === "descartada") { cid = null; est = {} }
   }
   if (!cid) {
-    const n = await one<{ id: number }>("insert into consultas(empresa,canal,nombre,telefono,mensaje,chat_id) values ($1,$2,$3,$4,$5,$6) returning id", [e, canal, perfil, canal === "whatsapp" ? "+" + waId : null, texto ?? `(${tipo})`, waId])
+    const n = await one<{ id: number }>("insert into consultas(empresa,canal,nombre,telefono,mensaje,chat_id,fuente,campania,origen_detalle) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", [e, canal, perfil, canal === "whatsapp" ? "+" + waId : null, texto ?? `(${tipo})`, waId, og.fuente, og.campania ?? null, og.detalle ? JSON.stringify(og.detalle) : null])
     cid = n!.id
     await notificar(roles, `💬 Nueva consulta por ${red} · ${marca}`, `${perfil ?? (canal === "whatsapp" ? "+" + waId : "Instagram")}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
     await q("update wa_chats set consulta_id=$1 where empresa=$2 and wa_id=$3", [cid, e, waId])
   } else {
     await q("update consultas set actualizado=now() where id=$1", [cid])
+    if (origen) await q("update consultas set fuente=$1, campania=coalesce($2,campania), origen_detalle=coalesce($3,origen_detalle) where id=$4 and coalesce(fuente,'') not in ('Google Ads','Meta Ads')", [og.fuente, og.campania ?? null, og.detalle ? JSON.stringify(og.detalle) : null, cid])
   }
 
   // Si una persona del equipo tomó el chat, el bot no interviene
@@ -251,8 +255,8 @@ export function enHorario(d = new Date()) {
 }
 
 /** Cuando el bot ya tiene nombre y algo más (organización, motivo o email), crea o completa el contacto en el CRM comercial. */
-async function alCRM(cid: number, canal: string) {
-  const k = await one<any>("select nombre, organizacion, email, telefono, motivo, mensaje from consultas where id=$1", [cid])
+export async function alCRM(cid: number, canal: string) {
+  const k = await one<any>("select nombre, organizacion, email, telefono, motivo, mensaje, fuente, campania from consultas where id=$1", [cid])
   if (!k?.nombre || !(k.organizacion || k.motivo || k.email)) return
   const ya = await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [cid])
   const notas = [k.motivo && `Motivo: ${k.motivo}`, k.mensaje && `Primer mensaje: ${k.mensaje}`].filter(Boolean).join("\n")
@@ -260,8 +264,8 @@ async function alCRM(cid: number, canal: string) {
     await q("update db_contactos set organizacion=coalesce(organizacion,$1), email=coalesce(email,$2), notas=coalesce(notas,$3), actualizado=now() where id=$4", [k.organizacion, k.email, notas || null, ya.id])
   } else {
     await q(
-      "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date)",
-      [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : "WhatsApp (bot)", notas || null, cid],
+      "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha,fuente,campania) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date,$8,$9) on conflict (lower(email)) where email is not null do update set consulta_id=coalesce(db_contactos.consulta_id,excluded.consulta_id), etapa=case when db_contactos.etapa='base' then 'nuevo' else db_contactos.etapa end, fuente=coalesce(db_contactos.fuente,excluded.fuente), actualizado=now()",
+      [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : canal === "web" ? "Web (formulario)" : "WhatsApp (bot)", notas || null, cid, k.fuente, k.campania],
     )
   }
 }

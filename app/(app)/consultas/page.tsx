@@ -65,7 +65,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
         </div>
         <div className="overflow-x-auto">
           <table className="tbl">
-            <thead><tr><th>Entró</th><th>Estado</th><th>Quién consulta</th><th>Organización</th><th>Motivo</th><th>Canal</th><th>Responsable</th><th></th></tr></thead>
+            <thead><tr><th>Entró</th><th>Estado</th><th>Quién consulta</th><th>Organización</th><th>Motivo</th><th>Canal y origen</th><th>Responsable</th><th></th></tr></thead>
             <tbody>
               {rows.map((c) => {
                 const est = ESTADOS.find((e) => e.v === c.estado)!
@@ -77,7 +77,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
                     <td><Link href={`/consultas/${c.id}`} className="hover:underline">{c.nombre ?? "Sin nombre"}</Link><div className="text-xs font-normal text-[#4A515C]">{c.telefono ?? ""}</div></td>
                     <td>{c.organizacion ?? "—"}<div className="text-xs font-normal text-[#4A515C]">{c.email ?? ""}</div></td>
                     <td className="font-normal">{c.motivo ?? "—"}</td>
-                    <td className="font-normal">{CANAL[c.canal] ?? c.canal}</td>
+                    <td className="font-normal">{CANAL[c.canal] ?? c.canal}{c.fuente && <div className={`text-xs ${/Ads/.test(c.fuente) ? "text-[#C8231F] font-semibold" : "text-[#4A515C]"}`}>{c.fuente}{c.campania ? ` · ${c.campania}` : ""}</div>}</td>
                     <td className="font-normal">{c.asignado ?? <span className="text-[#4A515C]">Sin asignar</span>}</td>
                     <td><Link href={`/consultas/${c.id}`} className="btn-s py-1 px-3 text-xs">Abrir</Link></td>
                   </tr>

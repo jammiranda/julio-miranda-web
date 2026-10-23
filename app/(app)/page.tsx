@@ -5,8 +5,9 @@ import { fecha, hoyISO, pesos } from "@/lib/util"
 
 export const dynamic = "force-dynamic"
 
-export default async function Resumen() {
-  const [cuenta, proximos, activos, sinPasar] = await Promise.all([
+export default async function Resumen({ searchParams }: { searchParams: { dias?: string } }) {
+  const dias = [30, 90, 365].includes(Number(searchParams.dias)) ? Number(searchParams.dias) : 30
+  const [cuenta, proximos, activos, sinPasar, fuentes] = await Promise.all([
     q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos group by etapa"),
     q<any>("select id, nombre, organizacion, etapa, proximo, proximo_fecha from db_contactos where etapa not in ('ganado','perdido') and (proximo is not null or proximo_fecha is not null) order by proximo_fecha nulls last limit 12"),
     q<any>(`select p.id, p.nombre, p.estado, p.entrega, p.monto, c.organizacion, c.nombre contacto
@@ -15,7 +16,17 @@ export default async function Resumen() {
     q<any>(`select k.id, k.nombre, k.organizacion, k.motivo, k.creado from consultas k
             where k.empresa='devisebit' and k.estado not in ('descartada') and not exists (select 1 from db_contactos c where c.consulta_id=k.id)
             order by k.creado desc limit 8`),
+    q<{ fuente: string; leads: number; atendidas: number; contactos: number; ganados: number; campanias: string | null }>(
+      `select coalesce(k.fuente,'Sin dato') fuente, count(*)::int leads,
+              count(*) filter (where k.estado <> 'nueva')::int atendidas,
+              count(c.id)::int contactos,
+              count(c.id) filter (where c.etapa='ganado')::int ganados,
+              string_agg(distinct k.campania, ' · ') campanias
+       from consultas k left join db_contactos c on c.consulta_id=k.id
+       where k.creado > now() - make_interval(days => $1)
+       group by 1 order by leads desc`, [dias]),
   ])
+  const totLeads = fuentes.reduce((a, f) => a + f.leads, 0)
   const n = Object.fromEntries(cuenta.map((c) => [c.etapa, c.n]))
   const hoy = hoyISO()
   const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : null)
@@ -30,6 +41,29 @@ export default async function Resumen() {
             <span className="text-3xl font-extrabold text-[#0E1116]">{n[e.v] ?? 0}</span>
           </Link>
         ))}
+      </section>
+
+      <section className="card flex flex-col gap-3" aria-label="De dónde llegan los clientes">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div><h2 className="m-0 text-base">De dónde llegan</h2><p className="m-0 text-xs text-[#4A515C]">Consultas por origen: publicidad (Google Ads, Meta Ads), orgánico y directo.</p></div>
+          <div className="flex gap-1">{[30, 90, 365].map((d) => <Link key={d} href={`/?dias=${d}`} className={`chip text-xs px-3 py-1 border ${dias === d ? "bg-[#0E1116] text-white border-[#0E1116]" : "bg-white border-[#C3C8D1]"}`}>{d === 365 ? "12 meses" : `${d} días`}</Link>)}</div>
+        </div>
+        {fuentes.length ? (
+          <div className="overflow-x-auto">
+            <table className="tbl">
+              <thead><tr><th>Origen</th><th className="text-right">Consultas</th><th>Participación</th><th className="text-right">Atendidas</th><th className="text-right">Al CRM</th><th className="text-right">Ganadas</th><th>Campañas</th></tr></thead>
+              <tbody>{fuentes.map((f) => (
+                <tr key={f.fuente}>
+                  <td className={`font-semibold ${/Ads/.test(f.fuente) ? "text-[#C8231F]" : ""}`}>{f.fuente}</td>
+                  <td className="text-right font-semibold">{f.leads}</td>
+                  <td className="min-w-[120px]"><div className="h-2 rounded-full bg-[#EEF0F3] overflow-hidden"><div className="h-full bg-[#C8231F]" style={{ width: `${totLeads ? (100 * f.leads) / totLeads : 0}%` }} /></div></td>
+                  <td className="text-right">{f.atendidas}</td><td className="text-right">{f.contactos}</td><td className="text-right">{f.ganados}</td>
+                  <td className="text-xs text-[#4A515C] max-w-[260px] truncate" title={f.campanias ?? ""}>{f.campanias ?? "—"}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        ) : <p className="m-0 text-sm text-[#4A515C]">Todavía no entraron consultas en este período.</p>}
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

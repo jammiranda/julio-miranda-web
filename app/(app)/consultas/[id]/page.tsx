@@ -90,7 +90,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           <section className="card">
             <h2 className="mt-0">Datos</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 m-0 text-sm">
-              {[["Quién consulta", c.nombre], ["Teléfono", c.telefono], ["Organización", c.organizacion], ["Email", c.email], ["Motivo", c.motivo]].map(([k, v]) => (
+              {[["Quién consulta", c.nombre], ["Teléfono", c.telefono], ["Organización", c.organizacion], ["Email", c.email], ["Motivo", c.motivo], ["Llegó por", [c.fuente, c.campania].filter(Boolean).join(" · ")], ...(c.utm_source ? [["UTM", [c.utm_source, c.utm_medium, c.utm_campaign].filter(Boolean).join(" / ")]] : [])].map(([k, v]) => (
                 <div key={k}><dt className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">{k}</dt><dd className="m-0">{v || "—"}</dd></div>
               ))}
             </dl>

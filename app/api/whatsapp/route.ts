@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { waitUntil } from "@vercel/functions"
 import { empresaPorPhoneId, empresaPorIG, firmaValida, marcarLeido, perfilIG } from "@/lib/whatsapp"
 import { procesar } from "@/lib/bot"
+import { desdeReferral } from "@/lib/origen"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
         const m = ev.message
         if (!m || m.is_echo || !ev.sender?.id || ev.sender.id === String(entry.id)) continue
         const texto = m.text ?? (m.attachments?.length ? null : null)
-        tareas.push(perfilIG(e, ev.sender.id).then((nombre) => procesar(e, `ig:${ev.sender.id}`, nombre, texto, m.text ? "text" : "archivo", `ig_${m.mid}`, "instagram")).catch((err) => console.error("bot ig", err)))
+        tareas.push(perfilIG(e, ev.sender.id).then((nombre) => procesar(e, `ig:${ev.sender.id}`, nombre, texto, m.text ? "text" : "archivo", `ig_${m.mid}`, "instagram", desdeReferral(m.referral ?? ev.referral, "instagram"))).catch((err) => console.error("bot ig", err)))
       }
     }
     waitUntil(Promise.all(tareas))
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     for (const m of v.messages ?? []) {
       const texto = m.type === "text" ? m.text?.body : m.type === "button" ? m.button?.text : m.type === "interactive" ? (m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title) : (m[m.type]?.caption ?? null)
       tareas.push(marcarLeido(e, m.id))
-      tareas.push(procesar(e, m.from, perfiles[m.from] ?? null, texto ?? null, m.type === "interactive" || m.type === "button" ? "text" : m.type, m.id).catch((err) => console.error("bot", err)))
+      tareas.push(procesar(e, m.from, perfiles[m.from] ?? null, texto ?? null, m.type === "interactive" || m.type === "button" ? "text" : m.type, m.id, "whatsapp", desdeReferral(m.referral, "whatsapp")).catch((err) => console.error("bot", err)))
     }
   }
   waitUntil(Promise.all(tareas))

@@ -122,6 +122,15 @@ alter table db_contactos add column if not exists interacciones int;
 alter table db_contactos drop constraint if exists db_contactos_etapa_check;
 alter table db_contactos add constraint db_contactos_etapa_check check (etapa in ('base','nuevo','conversando','reunion','propuesta','ganado','perdido'));
 create unique index if not exists db_contactos_email on db_contactos (lower(email)) where email is not null;
+alter table consultas add column if not exists fuente text;
+alter table consultas add column if not exists campania text;
+alter table consultas add column if not exists utm_source text;
+alter table consultas add column if not exists utm_medium text;
+alter table consultas add column if not exists utm_campaign text;
+alter table consultas add column if not exists gclid text;
+alter table consultas add column if not exists origen_detalle jsonb;
+alter table db_contactos add column if not exists fuente text;
+alter table db_contactos add column if not exists campania text;
 insert into db_servicios(nombre,categoria,descripcion) values
   ('Sistema web a medida','A medida','Sistemas de gestión web conectados a lo que el cliente ya usa'),
   ('App iOS y Android','A medida','Apps móviles a medida'),
