@@ -2,12 +2,13 @@ import Link from "next/link"
 import { q } from "@/lib/db"
 import { ETAPAS, etapa, estadoProy } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
+import { local, calendarioConectado } from "@/lib/agenda"
 
 export const dynamic = "force-dynamic"
 
 export default async function Resumen({ searchParams }: { searchParams: { dias?: string } }) {
   const dias = [30, 90, 365].includes(Number(searchParams.dias)) ? Number(searchParams.dias) : 30
-  const [cuenta, proximos, activos, sinPasar, fuentes] = await Promise.all([
+  const [cuenta, proximos, activos, sinPasar, fuentes, reuniones] = await Promise.all([
     q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos group by etapa"),
     q<any>("select id, nombre, organizacion, etapa, proximo, proximo_fecha from db_contactos where etapa not in ('ganado','perdido') and (proximo is not null or proximo_fecha is not null) order by proximo_fecha nulls last limit 12"),
     q<any>(`select p.id, p.nombre, p.estado, p.entrega, p.monto, c.organizacion, c.nombre contacto
@@ -25,6 +26,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
        from consultas k left join db_contactos c on c.consulta_id=k.id
        where k.creado > now() - make_interval(days => $1)
        group by 1 order by leads desc`, [dias]),
+    q<any>("select r.*, k.organizacion from db_reuniones r left join consultas k on k.id=r.consulta_id where r.estado='confirmada' and r.fin > now() order by r.inicio limit 10"),
   ])
   const totLeads = fuentes.reduce((a, f) => a + f.leads, 0)
   const n = Object.fromEntries(cuenta.map((c) => [c.etapa, c.n]))
@@ -41,6 +43,18 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
             <span className="text-3xl font-extrabold text-[#0E1116]">{n[e.v] ?? 0}</span>
           </Link>
         ))}
+      </section>
+
+      <section className="card flex flex-col gap-3" aria-label="Próximas reuniones">
+        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base">📅 Próximas reuniones</h2>{!calendarioConectado() && <span className="text-xs text-[#4A515C]">Google Calendar sin conectar: las reuniones se ven acá y en los avisos.</span>}</div>
+        {reuniones.length ? (
+          <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">{reuniones.map((r: any) => (
+            <li key={r.id} className="py-2 flex flex-wrap items-center justify-between gap-2">
+              <div><Link href={`/consultas/${r.consulta_id}`} className="font-semibold hover:underline first-letter:uppercase">{local(new Date(r.inicio)).texto}</Link><div className="text-sm text-[#4A515C]">{r.nombre ?? "Cliente"}{r.organizacion ? ` · ${r.organizacion}` : ""} · {r.modalidad}</div></div>
+              {r.link && <a href={r.link} target="_blank" rel="noopener noreferrer" className="btn-s py-1 px-3 text-xs">Entrar</a>}
+            </li>
+          ))}</ul>
+        ) : <p className="m-0 text-sm text-[#4A515C]">No hay reuniones agendadas. El bot las ofrece en cada conversación y el cliente las reserva solo.</p>}
       </section>
 
       <section className="card flex flex-col gap-3" aria-label="De dónde llegan los clientes">

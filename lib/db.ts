@@ -154,6 +154,31 @@ insert into db_servicios(nombre,categoria,descripcion) values
   ('Votación y control de acceso','Producto','Elecciones y acreditación'),
   ('Gestor documental con firma digital','Producto','Expedientes, circuitos y firma')
   on conflict do nothing;
+create table if not exists db_reuniones (
+  id serial primary key,
+  consulta_id int references consultas(id), contacto_id int references db_contactos(id),
+  nombre text, email text, telefono text,
+  inicio timestamptz not null, fin timestamptz not null,
+  modalidad text not null default 'videollamada', link text, calendar_id text,
+  estado text not null default 'confirmada' check (estado in ('confirmada','realizada','cancelada','no_asistio')),
+  notas text, creado timestamptz not null default now()
+);
+create index if not exists db_reuniones_inicio on db_reuniones(inicio);
+insert into db_servicios(nombre,categoria,descripcion) values ('Tienda online','A medida','Venta por web con catálogo, carrito, Mercado Pago y envíos') on conflict do nothing;
+update db_servicios set precio_desde=v.d, precio_hasta=v.h, plazo=coalesce(db_servicios.plazo,v.p), descripcion=case when v.x<>'' then db_servicios.descripcion||' · '||v.x else db_servicios.descripcion end from (values
+  ('Sitio web',600,2500,'2 a 5 semanas',''),
+  ('Tienda online',1200,5000,'3 a 8 semanas','más plataforma y hosting mensual'),
+  ('Sistema web a medida',3500,25000,'6 a 20 semanas, por etapas',''),
+  ('App iOS y Android',5000,30000,'2 a 5 meses',''),
+  ('Asistente de WhatsApp con IA',1500,6000,'3 a 8 semanas','más costo mensual de WhatsApp, IA y hosting (USD 70 a 180)'),
+  ('Tableros e indicadores',1000,6000,'2 a 6 semanas',''),
+  ('Sistema para clínicas e internación domiciliaria',3000,12000,'4 a 10 semanas','más abono mensual de soporte'),
+  ('CRM de afiliados',3000,12000,'4 a 10 semanas',''),
+  ('App y credencial digital',3000,12000,'4 a 10 semanas',''),
+  ('Academia online',1500,6000,'3 a 6 semanas',''),
+  ('Votación y control de acceso',1500,8000,'3 a 8 semanas',''),
+  ('Gestor documental con firma digital',3000,12000,'6 a 12 semanas','')
+) as v(n,d,h,p,x) where db_servicios.nombre=v.n and db_servicios.precio_desde is null;
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 

@@ -4,10 +4,11 @@ import { enviarTexto } from "./whatsapp"
 import { notificar } from "./push"
 import { desdeTexto, limpiarRef, type Origen } from "./origen"
 import { catalogo, linkBrief } from "./brief"
+import { sugerencias, reservar, deLocal, linkAgenda } from "./agenda"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
 type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
-type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado }
+type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado; reunion?: string | null }
 const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
 
 /** Preguntas de calificación, en orden. Se hacen de a una, como lo haría una persona de atención. */
@@ -24,9 +25,9 @@ const INICIAN: Record<Empresa, string[]> = {
   devisebit: ["A medida", "WhatsApp IA", "Tableros", "Productos", "Precio"],
 }
 
-function cierre(e: Empresa, d: Record<string, string>, brief?: string | null) {
+function cierre(e: Empresa, d: Record<string, string>, brief?: string | null, agenda?: string | null) {
   const nombre = d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""
-  const ag = process.env.DB_AGENDA_URL ? `\n\n📅 Si querés avanzar ya, elegí día y hora para una videollamada de 30 minutos sin costo: ${process.env.DB_AGENDA_URL}` : "\n\n📅 ¿Qué día y horario te queda cómodo para una videollamada de 30 minutos sin costo?"
+  const ag = agenda ? `\n\n📅 Y si querés avanzar ya, elegí día y hora para una videollamada de 30 minutos sin costo: ${agenda} (o decime acá qué día y horario te queda cómodo).` : "\n\n📅 ¿Qué día y horario te queda cómodo para una videollamada de 30 minutos sin costo?"
   const br = brief ? `\n\n📝 Para darte una *propuesta preliminar con alcance, plazo y rango de inversión en 48 h hábiles*, completá este brief de 3 minutos: ${brief}` : ""
   return `¡Gracias${nombre}! ✅ Ya tengo lo principal.${br}${ag}\n\nMientras tanto podés ver proyectos que hicimos: www.devisebit.com/trabajos`
 }
@@ -60,11 +61,13 @@ REGLAS:
 - Español rioplatense, cálido, seguro y profesional. Mensajes cortos (2 a 5 líneas), aptos para WhatsApp; podés usar *negrita* y algún emoji con moderación.
 - Nunca dejes a la persona sin respuesta ni le digas solo "te derivo": respondé lo que preguntó y proponé el próximo paso.
 - No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. Solo podés mencionar los RANGOS DE REFERENCIA del catálogo, siempre como "proyectos de este tipo suelen ir de X a Y según alcance; el precio final es fijo y por escrito". Si un servicio no tiene rango, no des números.
-- CIERRE DE VENTA: apenas sepas qué necesita y el nombre, no te quedes en "el equipo te escribe". Dale valor y un próximo paso concreto en el mismo mensaje: 1) el rango de referencia si existe para ese servicio, 2) el link del brief de 3 minutos para recibir una propuesta preliminar en 48 h hábiles, 3) si hay link de agenda, invitá a reservar la videollamada, y 4) un link de casos o del servicio que se relacione (www.devisebit.com/trabajos, www.devisebit.com/productos o el link del servicio). Usá urgencia amable (por ejemplo: "si lo completás hoy, el lunes tenés la propuesta"). Preguntá cuál de las opciones prefiere.
+- CIERRE DE VENTA: apenas sepas qué necesita y el nombre, no te quedes en "el equipo te escribe". Dale valor y un próximo paso concreto en el mismo mensaje: 1) el rango de referencia si existe para ese servicio, 2) el link del brief de 3 minutos para recibir una propuesta preliminar en 48 h hábiles, 3) invitá a reservar la videollamada: ofrecé 2 o 3 horarios de la lista HORARIOS LIBRES o el link de agenda, y preguntá qué día y hora le queda mejor, y 4) un link de casos o del servicio que se relacione (www.devisebit.com/trabajos, www.devisebit.com/productos o el link del servicio). Usá urgencia amable (por ejemplo: "si lo completás hoy, el lunes tenés la propuesta"). Preguntá cuál de las opciones prefiere.
 - Objeciones típicas: "es caro" → explicá que se puede arrancar por una primera etapa (MVP) y crecer; "lo tengo que pensar" → ofrecé el brief para que tenga una propuesta concreta para decidir; "ya tengo proveedor" → ofrecé una segunda opinión sin costo.
 - derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, o cuando ya tenés los datos principales y corresponde que el equipo tome el caso (en ese caso confirmá que una persona sigue por este mismo chat, de lunes a viernes de 8 a 20 h).
 
-Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false}
+- AGENDA: cuando la persona elija un horario que esté EXACTAMENTE en HORARIOS LIBRES, poné su clave en "reunion" (por ejemplo "2026-10-27T10:00") y en "respuesta" solo una línea de confirmación (el sistema agrega fecha, link y recordatorio). Si pide un día u hora que no está, ofrecé los más cercanos de la lista o el link de agenda. Nunca inventes horarios.
+
+Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false,"reunion":null}
 En "datos" poné solo lo que la persona dijo explícitamente en toda la conversación.`
 }
 
@@ -92,7 +95,7 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     if (!m) return null
     const o = JSON.parse(m[0])
     if (!o.respuesta) return null
-    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, estado: {} }
+    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, estado: {}, reunion: typeof o.reunion === "string" ? o.reunion : null }
   } catch {
     return null
   }
@@ -109,7 +112,7 @@ function buscarFaq(e: Empresa, t: string) {
 }
 
 /** Conversación guiada sin IA: menú + preguntas de a una hasta tener los datos, y cierre con próximo paso. */
-export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, brief: string | null = null): Resultado {
+export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, brief: string | null = null, agenda: string | null = null): Resultado {
   const b = BOTS[e]
   const t = norm(texto)
   const d = { ...(est.datos ?? {}) }
@@ -128,7 +131,7 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, 
     if (!(p.omitible && /^(no|nop|prefiero no|-)$/.test(t))) d[p.k] = texto.trim().slice(0, 300)
     else d[p.k] = "-"
     const sig = siguiente(est.paso + 1)
-    if (sig === -1) return { respuestas: [cierre(e, d, brief)], datos: d, derivar: true, estado: { datos: d, paso: null, noEntendi: 0 } }
+    if (sig === -1) return { respuestas: [cierre(e, d, brief, agenda)], datos: d, derivar: true, estado: { datos: d, paso: null, noEntendi: 0 } }
     return out([preg[sig].p(d)], sig)
   }
 
@@ -140,7 +143,7 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, 
     }
     if (INICIAN[e].includes(faq.tema)) {
       const sig = siguiente(0)
-      return out(sig === -1 ? [faq.r, cierre(e, d, brief)] : [faq.r], sig === -1 ? null : sig, { estado: { ...est, datos: d, paso: sig === -1 ? null : sig, tema: faq.tema, noEntendi: 0 } })
+      return out(sig === -1 ? [faq.r, cierre(e, d, brief, agenda)] : [faq.r], sig === -1 ? null : sig, { estado: { ...est, datos: d, paso: sig === -1 ? null : sig, tema: faq.tema, noEntendi: 0 } })
     }
     return out([faq.r], est.paso ?? null)
   }
@@ -217,11 +220,22 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     const brief = await linkBrief(cid).catch(() => null)
     const ya = await one<{ brief_en: string | null }>("select brief_en from consultas where id=$1", [cid])
     const cat = await catalogo().catch(() => [])
+    const tok = (await one<{ brief_token: string | null }>("select brief_token from consultas where id=$1", [cid]))?.brief_token
+    const agenda = tok ? linkAgenda(tok) : null
+    const libres = await sugerencias(8).catch(() => [])
+    const yaReunion = await one<{ inicio: Date }>("select inicio from db_reuniones where consulta_id=$1 and estado='confirmada' and inicio > now() order by inicio limit 1", [cid])
     const ctx = `CATÁLOGO CON RANGOS DE REFERENCIA, PLAZOS Y LINKS (solo estos números):
 ${cat.map((s) => `- ${s.nombre}${s.rango ? `: ${s.rango}` : ""}${s.plazo ? ` · plazo típico ${s.plazo}` : ""}${s.link ? ` · ${s.link}` : ""}`).join("\n")}
-Casos y trabajos: www.devisebit.com/trabajos · Productos: www.devisebit.com/productos${process.env.DB_AGENDA_URL ? `\nAgenda para la videollamada: ${process.env.DB_AGENDA_URL}` : ""}
+Casos y trabajos: www.devisebit.com/trabajos · Productos: www.devisebit.com/productos
+${yaReunion ? `Esta persona YA tiene una reunión agendada (${new Date(yaReunion.inicio).toISOString()}): no ofrezcas otra salvo que pida cambiarla.` : `HORARIOS LIBRES (clave → cómo decirlo): ${libres.map((s) => `${s.clave} → ${s.texto}`).join(" | ")}${agenda ? `\nLink de agenda de ESTA persona (para que elija otro horario): ${agenda}` : ""}`}
 ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; confirmale que la propuesta preliminar llega en 48 h hábiles y ofrecé la videollamada." : brief ? `Link del brief de ESTA persona (usalo tal cual): ${brief}` : ""}`
-    res = (await conIA(e, hist.reverse(), ctx)) ?? sinIA(e, texto ?? "", primero, est, brief)
+    res = (await conIA(e, hist.reverse(), ctx)) ?? sinIA(e, texto ?? "", primero, est, brief, agenda)
+    if (res.reunion && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(res.reunion)) {
+      const [f, h] = res.reunion.split("T")
+      const rv = await reservar(cid, deLocal(f, h), { nombre: res.datos?.nombre ?? null, email: res.datos?.email ?? null }).catch(() => null)
+      if (rv?.ok) res.respuestas = [rv.confirmacion]
+      else res.respuestas = [`Uy, ese horario se acaba de ocupar 🙈 Elegí otro acá: ${agenda ?? "o decime otro día y horario"}`]
+    }
   }
 
   const d = res.datos ?? {}

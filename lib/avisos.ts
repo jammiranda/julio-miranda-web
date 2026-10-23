@@ -21,6 +21,8 @@ export async function avisos(u: Usuario): Promise<Aviso[]> {
     if (px?.n) out.push({ t: "Seguimientos para hoy", d: "Contactos con próximo paso vencido o de hoy", href: "/", nivel: "media", n: px.n })
     const pr = await one<{ n: number }>("select count(*)::int n from db_proyectos where estado in ('planificado','en_curso') and entrega < (now() at time zone 'America/Argentina/Buenos_Aires')::date")
     if (pr?.n) out.push({ t: "Proyectos con entrega vencida", d: "Revisá fechas o estado", href: "/proyectos", nivel: "alta", n: pr.n })
+    const rh = await one<{ n: number }>("select count(*)::int n from db_reuniones where estado='confirmada' and inicio between now() and now() + interval '24 hours'")
+    if (rh?.n) out.push({ t: "Reuniones en las próximas 24 h", d: "Revisá el brief y la propuesta antes de entrar", href: "/", nivel: "alta", n: rh.n })
   } catch {}
   return out
 }

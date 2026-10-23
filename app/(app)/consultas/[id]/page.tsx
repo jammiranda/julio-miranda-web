@@ -7,6 +7,7 @@ import { ESTADOS, CANAL, hace, fechaHora } from "@/lib/consultas"
 import { responderDesdeCRM } from "@/lib/bot"
 import type { Empresa } from "@/lib/bots/conocimiento"
 import { linkBrief } from "@/lib/brief"
+import { linkAgenda, local } from "@/lib/agenda"
 import { generarPropuesta } from "@/lib/propuesta"
 import Copiar from "@/components/Copiar"
 
@@ -62,6 +63,19 @@ async function mandarBrief(fd: FormData) {
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
 
+async function mandarAgenda(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const c = await one<any>("select nombre, telefono, chat_id from consultas where id=$1", [id])
+  if (!c) redirect("/consultas")
+  await linkBrief(id)
+  const tok = (await one<{ brief_token: string }>("select brief_token from consultas where id=$1", [id]))!.brief_token
+  const texto = `${c.nombre ? `${c.nombre.split(" ")[0]}, ` : ""}elegí acá el día y horario para la videollamada de 30 minutos (sin costo): ${linkAgenda(tok)}`
+  const r = await responderDesdeCRM("devisebit", c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto, u.nombre)
+  redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
+}
+
 async function rehacerPropuesta(fd: FormData) {
   "use server"
   await requerir(["gerente", "coordinacion"])
@@ -88,6 +102,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const c = await one<any>("select * from consultas where id=$1", [id])
   if (!c) notFound()
   const contacto = await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [c.id])
+  const reunion = await one<any>("select * from db_reuniones where consulta_id=$1 and estado='confirmada' and fin > now() order by inicio limit 1", [c.id])
   const waId = c.chat_id ?? (c.telefono ? String(c.telefono).replace(/\D/g, "") : "")
   const chat = waId ? await one<any>("select * from wa_chats where empresa=$1 and wa_id=$2", [c.empresa, waId]) : null
   const msgs = chat ? await q<any>("select autor, texto, tipo, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 order by creado desc limit 100", [c.empresa, waId]) : []
@@ -204,6 +219,9 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           {tel && (
             <a href={`https://wa.me/${tel.startsWith("54") ? tel : "549" + tel}`} target="_blank" rel="noopener noreferrer" className="btn-p">Responder por WhatsApp</a>
           )}
+          {reunion ? (
+            <section className="card text-sm flex flex-col gap-1 border-2 border-[#C8231F]"><strong className="first-letter:uppercase">📅 {local(new Date(reunion.inicio)).texto}</strong><span>{reunion.modalidad}{reunion.calendar_id ? " · en Google Calendar" : ""}</span>{reunion.link && <a href={reunion.link} target="_blank" rel="noopener noreferrer" className="underline">Entrar a la videollamada</a>}</section>
+          ) : ed && c.chat_id && <form action={mandarAgenda}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📅 Mandarle el link para agendar</button></form>}
           {ed && !c.brief && c.chat_id && <form action={mandarBrief}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📝 Mandarle el brief por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button></form>}
           {contacto ? <Link href={`/contactos/${contacto.id}`} className="btn-s">Ver contacto en el CRM</Link>
             : ed && <Link href={`/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>}

@@ -7,6 +7,7 @@ import { alCRM } from "@/lib/bot"
 import { enviarTexto } from "@/lib/whatsapp"
 import { notificar } from "@/lib/push"
 import { generarPropuesta } from "@/lib/propuesta"
+import { linkAgenda } from "@/lib/agenda"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -37,7 +38,7 @@ async function enviar(fd: FormData) {
     await q("update db_contactos set etapa=case when etapa in ('base','nuevo','conversando') then 'reunion' else etapa end, proximo='Enviar propuesta preliminar (brief recibido)', proximo_fecha=(now() at time zone 'America/Argentina/Buenos_Aires')::date + 2, actualizado=now() where consulta_id=$1", [c.id]).catch(() => {})
     await notificar(["gerente", "coordinacion"], "📝 Brief completo · lista para propuesta", `${brief.nombre ?? c.nombre ?? "Cliente"}${brief.organizacion ? ` (${brief.organizacion})` : ""}: ${brief.tipo.join(", ")}${brief.inversion ? ` · ${brief.inversion}` : ""}`, `/consultas/${c.id}`)
     if (c.chat_id) {
-      const msg = `¡Recibimos tu brief${brief.nombre ? `, ${brief.nombre.split(" ")[0]}` : ""}! ✅ Con esto te armamos una *propuesta preliminar con alcance, plazo e inversión* y te la mandamos en 48 h hábiles.${process.env.DB_AGENDA_URL ? `\n\nSi querés, reservá ya la videollamada de 30 minutos para repasarla juntos: ${process.env.DB_AGENDA_URL}` : ""}`
+      const msg = `¡Recibimos tu brief${brief.nombre ? `, ${brief.nombre.split(" ")[0]}` : ""}! ✅ Con esto te armamos una *propuesta preliminar con alcance, plazo e inversión* y te la mandamos en 48 h hábiles.\n\nSi querés, reservá ya la videollamada de 30 minutos para repasarla juntos: ${linkAgenda(tok)}`
       const env = await enviarTexto("devisebit", c.chat_id, msg).catch(() => ({ ok: false }))
       if (env.ok) await q("insert into wa_mensajes(empresa,wa_id,autor,texto,autor_nombre) values ('devisebit',$1,'bot',$2,'Asistente')", [c.chat_id, msg]).catch(() => {})
     }
@@ -56,7 +57,7 @@ const Pill = ({ name, v, type = "checkbox", def = false }: { name: string; v: st
 export default async function Brief({ params, searchParams }: { params: { token: string }; searchParams: { ok?: string } }) {
   const c = await one<any>("select nombre, organizacion, email, motivo, brief_en from consultas where brief_token=$1", [params.token])
   if (!c) notFound()
-  const agenda = process.env.DB_AGENDA_URL
+  const agenda = linkAgenda(params.token)
   const Encabezado = (
     <header className="bg-[#0E1116] text-white">
       <div className="max-w-3xl mx-auto px-4 py-8">
@@ -74,7 +75,7 @@ export default async function Brief({ params, searchParams }: { params: { token:
           <section className="card flex flex-col gap-3">
             <h2 className="m-0">Qué sigue</h2>
             <ol className="m-0 pl-5 flex flex-col gap-1.5 text-[15px]"><li>Revisamos tu brief y armamos la propuesta preliminar.</li><li>Te la mandamos por WhatsApp o email en 48 h hábiles.</li><li>La repasamos juntos en una videollamada de 30 minutos y la ajustamos.</li><li>Recibís la propuesta final con alcance, fecha y precio fijo por escrito.</li></ol>
-            {agenda && <a href={agenda} target="_blank" rel="noopener noreferrer" className="btn-p self-start">📅 Reservar la videollamada ahora</a>}
+            <a href={agenda} className="btn-p self-start">📅 Reservar la videollamada ahora</a>
           </section>
           <section className="card flex flex-col gap-2">
             <h2 className="m-0 text-base">Mientras tanto</h2>
