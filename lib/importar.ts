@@ -21,6 +21,7 @@ export const COLUMNAS: Record<string, Col[]> = {
     { k: "interacciones", n: "Interacciones", sin: ["interacciones", "mails intercambiados", "mensajes"] },
     { k: "consentimiento", n: "Consentimiento", sin: ["consentimiento", "consent", "acepta comunicaciones"] },
     { k: "notas", n: "Notas", sin: ["notas", "nota", "observaciones", "comentarios", "notes"] },
+    { k: "tags", n: "Etiquetas", sin: ["etiquetas", "etiqueta", "tags", "listas", "lista", "segmento email"] },
   ],
   servicios: [
     { k: "nombre", n: "Servicio", sin: ["servicio", "nombre", "producto"] },
@@ -108,6 +109,7 @@ export async function importar(ent: string, filas: unknown[][]) {
       sector: txt(g(r, "sector"), 60), categoria: txt(g(r, "categoria"), 80), etapa: etapaDe(g(r, "etapa")), origen: txt(g(r, "origen"), 80) ?? "Importación",
       proximo: txt(g(r, "proximo"), 200), proximo_fecha: fechaISO(g(r, "proximo_fecha")), ultimo_contacto: fechaISO(g(r, "ultimo_contacto")),
       interacciones: Number.isFinite(n) && n > 0 ? n : null, consentimiento: txt(g(r, "consentimiento"), 60), notas: txt(g(r, "notas"), 2000),
+      tags: String(g(r, "tags") ?? "").split(/[,;|]/).map((x) => norm(x).replace(/ /g, "-")).filter(Boolean).slice(0, 10),
     }
   }).filter((x) => {
     if (!x.nombre) { omitidos++; return false }
@@ -115,9 +117,9 @@ export async function importar(ent: string, filas: unknown[][]) {
     if (vistos.has(k)) { omitidos++; return false }
     vistos.add(k); return true
   })
-  const rec = `x(nombre text, email text, organizacion text, cargo text, telefono text, sector text, categoria text, etapa text, origen text, proximo text, proximo_fecha date, ultimo_contacto date, interacciones int, consentimiento text, notas text)`
-  const cols = "nombre,email,organizacion,cargo,telefono,sector,categoria,etapa,origen,proximo,proximo_fecha,ultimo_contacto,interacciones,consentimiento,notas"
-  const sel = "nombre,email,organizacion,cargo,telefono,sector,categoria,coalesce(etapa,'base'),origen,proximo,proximo_fecha,ultimo_contacto,interacciones,consentimiento,notas"
+  const rec = `x(nombre text, email text, organizacion text, cargo text, telefono text, sector text, categoria text, etapa text, origen text, proximo text, proximo_fecha date, ultimo_contacto date, interacciones int, consentimiento text, notas text, tags text[])`
+  const cols = "nombre,email,organizacion,cargo,telefono,sector,categoria,etapa,origen,proximo,proximo_fecha,ultimo_contacto,interacciones,consentimiento,notas,tags"
+  const sel = "nombre,email,organizacion,cargo,telefono,sector,categoria,coalesce(etapa,'base'),origen,proximo,proximo_fecha,ultimo_contacto,interacciones,consentimiento,notas,coalesce(tags,'{}')"
   const conMail = rows.filter((x) => x.email), sinMail = rows.filter((x) => !x.email)
   let creados = 0, actualizados = 0
   for (let i = 0; i < conMail.length; i += 500) {
@@ -131,6 +133,7 @@ export async function importar(ent: string, filas: unknown[][]) {
          proximo=coalesce(excluded.proximo,db_contactos.proximo), proximo_fecha=coalesce(excluded.proximo_fecha,db_contactos.proximo_fecha),
          ultimo_contacto=greatest(excluded.ultimo_contacto,db_contactos.ultimo_contacto), interacciones=coalesce(excluded.interacciones,db_contactos.interacciones),
          consentimiento=coalesce(excluded.consentimiento,db_contactos.consentimiento),
+         tags=(select array(select distinct unnest(db_contactos.tags || excluded.tags))),
          notas=case when excluded.notas is null or db_contactos.notas like '%'||excluded.notas||'%' then db_contactos.notas else concat_ws(E'\\n',db_contactos.notas,excluded.notas) end,
          actualizado=now()
        returning (xmax = 0) nuevo`,

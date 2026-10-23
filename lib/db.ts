@@ -180,6 +180,32 @@ update db_servicios set precio_desde=v.d, precio_hasta=v.h, plazo=coalesce(db_se
   ('Gestor documental con firma digital',3000,12000,'6 a 12 semanas','')
 ) as v(n,d,h,p,x) where db_servicios.nombre=v.n and db_servicios.precio_desde is null;
 update db_servicios set link='https://sistema.devisebit.com/fichas/'||v.s from (values ('Sitio web','sitio-web'),('Tienda online','tienda-online'),('Sistema web a medida','sistema-a-medida'),('App iOS y Android','app'),('Asistente de WhatsApp con IA','asistente-whatsapp-ia'),('Tableros e indicadores','tableros'),('Academia online','academia-online'),('Sistema para clínicas e internación domiciliaria','sistema-clinicas'),('CRM de afiliados','crm-afiliados'),('App y credencial digital','credencial-digital'),('Votación y control de acceso','votacion-acceso'),('Gestor documental con firma digital','gestor-documental')) as v(n,s) where db_servicios.nombre=v.n and db_servicios.link is null;
+alter table db_contactos add column if not exists email_estado text not null default 'activo';
+alter table db_contactos add column if not exists email_token text;
+alter table db_contactos add column if not exists tags text[] not null default '{}';
+alter table db_contactos add column if not exists suscrito_en timestamptz;
+alter table db_contactos add column if not exists baja_en timestamptz;
+alter table db_contactos alter column email_token set default md5(random()::text || clock_timestamp()::text);
+create unique index if not exists db_contactos_email_token on db_contactos(email_token) where email_token is not null;
+update db_contactos set email_token=md5(random()::text || id::text || clock_timestamp()::text) where email_token is null;
+create table if not exists em_campanias (
+  id serial primary key,
+  asunto text not null, preheader text, contenido text not null default '',
+  segmento jsonb not null default '{}'::jsonb,
+  estado text not null default 'borrador' check (estado in ('borrador','enviando','enviada','pausada')),
+  creado_por text, creado timestamptz not null default now(), lanzada timestamptz, terminada timestamptz
+);
+create table if not exists em_envios (
+  id bigserial primary key,
+  campania_id int not null references em_campanias(id) on delete cascade,
+  contacto_id int references db_contactos(id), email text not null,
+  estado text not null default 'pendiente' check (estado in ('pendiente','enviado','error','omitido')),
+  error text, proveedor_id text,
+  enviado_en timestamptz, abierto_en timestamptz, aperturas int not null default 0, clic_en timestamptz, clics int not null default 0, baja boolean not null default false,
+  unique (campania_id, email)
+);
+create index if not exists em_envios_cola on em_envios(estado, campania_id);
+create table if not exists em_log (id bigserial primary key, tipo text not null, email text, creado timestamptz not null default now());
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 
