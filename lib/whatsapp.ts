@@ -3,12 +3,10 @@ import type { Empresa } from "./bots/conocimiento"
 
 /** Credenciales por empresa (variables de entorno en Vercel). */
 export function cuenta(e: Empresa) {
-  const p = e === "sanpatricio" ? "WA_SP" : "WA_DB"
-  return { phoneId: process.env[`${p}_PHONE_ID`] ?? "", token: process.env[`${p}_TOKEN`] ?? "" }
+  return { phoneId: process.env.WA_SP_PHONE_ID ?? "", token: process.env.WA_SP_TOKEN ?? "" }
 }
 export function empresaPorPhoneId(id: string): Empresa | null {
   if (id && id === process.env.WA_SP_PHONE_ID) return "sanpatricio"
-  if (id && id === process.env.WA_DB_PHONE_ID) return "devisebit"
   return null
 }
 
@@ -26,12 +24,10 @@ export function firmaValida(cuerpo: string, firma: string | null) {
 
 /** Instagram (mensajes directos): cuenta profesional conectada por empresa. */
 export function cuentaIG(e: Empresa) {
-  const p = e === "sanpatricio" ? "IG_SP" : "IG_DB"
-  return { userId: process.env[`${p}_USER_ID`] ?? "", token: process.env[`${p}_TOKEN`] ?? "" }
+  return { userId: process.env.IG_SP_USER_ID ?? "", token: process.env.IG_SP_TOKEN ?? "" }
 }
 export function empresaPorIG(id: string): Empresa | null {
   if (id && id === process.env.IG_SP_USER_ID) return "sanpatricio"
-  if (id && id === process.env.IG_DB_USER_ID) return "devisebit"
   return null
 }
 export async function perfilIG(e: Empresa, igsid: string) {
@@ -57,12 +53,11 @@ async function enviarIG(e: Empresa, igsid: string, texto: string) {
 
 /** YCloud (coexistencia con la app WhatsApp Business del celular). */
 export function cuentaYC(e: Empresa) {
-  const p = e === "sanpatricio" ? "YC_SP" : "YC_DB"
-  return { apiKey: process.env[`${p}_API_KEY`] ?? "", from: (process.env[`${p}_FROM`] ?? "").replace(/[^\d+]/g, "") }
+  return { apiKey: process.env.YC_SP_API_KEY ?? "", from: (process.env.YC_SP_FROM ?? "").replace(/[^\d+]/g, "") }
 }
 export function empresaPorYC(to: string): Empresa | null {
   const d = (x: string) => x.replace(/\D/g, "")
-  for (const e of ["sanpatricio", "devisebit"] as Empresa[]) { const c = cuentaYC(e); if (c.from && d(c.from) === d(to)) return e }
+  for (const e of ["sanpatricio"] as Empresa[]) { const c = cuentaYC(e); if (c.from && d(c.from) === d(to)) return e }
   return null
 }
 async function enviarYC(e: Empresa, to: string, texto: string) {

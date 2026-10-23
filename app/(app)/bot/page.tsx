@@ -9,8 +9,8 @@ import { modoBot } from "@/lib/bot"
 
 export const dynamic = "force-dynamic"
 
-function empresaDe(rol: string, pedida?: string) {
-  return rol === "gerente" && pedida === "devisebit" ? "devisebit" : "sanpatricio"
+function empresaDe(_rol?: string, _pedida?: string) {
+  return "sanpatricio" as const
 }
 
 async function agregar(fd: FormData) {
@@ -61,13 +61,6 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
           <h1 className="m-0">Bot · Conocimiento</h1>
           <p className="m-0 text-sm text-[#4F5C69]">Todo lo que el equipo le enseña al asistente de WhatsApp de {BOTS[e as "sanpatricio"].nombre}. Lo usa en cada respuesta.</p>
         </div>
-        {u.rol === "gerente" && (
-          <div className="flex gap-2">
-            {[{ v: "sanpatricio", n: "San Patricio" }, { v: "devisebit", n: "DEVISEBIT" }].map((x) => (
-              <Link key={x.v} href={`/bot?e=${x.v}`} className={`chip text-sm px-3 py-1 border ${e === x.v ? "bg-[#26323E] text-white border-[#26323E]" : "bg-white border-[#C9D3CD]"}`}>{x.n}</Link>
-            ))}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

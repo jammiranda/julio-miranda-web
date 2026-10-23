@@ -26,7 +26,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ...(u.rol !== "consulta" ? [{ href: "/cierre", t: "Cierre mensual" }, { href: "/importar", t: "Importar planilla" }] : []),
     ...(u.rol !== "consulta" ? [{ href: "/profesionales", t: "Profesionales" }] : []),
     ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/bot", t: "Bot · Conocimiento" }] : []),
-    ...(u.rol === "gerente" ? [{ href: "/devisebit", t: "DEVISEBIT · CRM" }] : []),
     ...(u.rol === "gerente" ? [{ href: "/usuarios", t: "Usuarios" }, { href: "/auditoria", t: "Auditoría" }] : []),
     { href: "/ayuda", t: "Ayuda" },
   ]

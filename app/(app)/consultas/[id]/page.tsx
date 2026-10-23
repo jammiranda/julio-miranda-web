@@ -41,7 +41,7 @@ async function responder(fd: FormData) {
   const id = Number(fd.get("id"))
   const c = await one<any>("select empresa, telefono, chat_id from consultas where id=$1", [id])
   const texto = s(fd.get("texto"))
-  if (!c || !texto || (c.empresa === "devisebit" && u.rol !== "gerente")) redirect(`/consultas/${id}`)
+  if (!c || !texto) redirect(`/consultas/${id}`)
   const r = await responderDesdeCRM(c.empresa as Empresa, c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto!, u.nombre)
   await q("update consultas set necesita_humano=false, asignado=coalesce(asignado,$1), estado=case when estado='nueva' then 'contactada' else estado end, actualizado=now() where id=$2", [u.nombre, id])
   await audit(u, "responde_whatsapp", "consulta", id)
@@ -66,7 +66,7 @@ async function ensenar(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("id"))
   const c = await one<any>("select empresa from consultas where id=$1", [id])
-  if (!c || (c.empresa === "devisebit" && u.rol !== "gerente")) redirect(`/consultas/${id}`)
+  if (!c) redirect(`/consultas/${id}`)
   const respuesta = s(fd.get("respuesta"))
   if (respuesta) await q("insert into bot_conocimiento(empresa,pregunta,respuesta,origen,creado_por) values ($1,$2,$3,'conversacion',$4)", [c.empresa, s(fd.get("pregunta")), respuesta, u.nombre])
   await audit(u, "bot_ensenar", "consulta", id)
@@ -77,9 +77,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const u = await requerir()
   const id = Number(params.id)
   const c = await one<any>("select * from consultas where id=$1", [id])
+  if (c?.empresa && c.empresa !== "sanpatricio") notFound()
   if (!c) notFound()
-  if (c.empresa === "devisebit" && u.rol !== "gerente") notFound()
-  const contacto = c.empresa === "devisebit" ? await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [c.id]).catch(() => null) : null
   const waId = c.chat_id ?? (c.telefono ? String(c.telefono).replace(/\D/g, "") : "")
   const chat = waId ? await one<any>("select * from wa_chats where empresa=$1 and wa_id=$2", [c.empresa, waId]) : null
   const msgs = chat ? await q<any>("select autor, texto, tipo, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 order by creado desc limit 100", [c.empresa, waId]) : []
@@ -93,7 +92,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <Link href={c.empresa === "devisebit" ? "/consultas?e=devisebit" : "/consultas"} className="text-sm text-[#4F5C69]">← Consultas{c.empresa === "devisebit" ? " DEVISEBIT" : ""}</Link>
+          <Link href="/consultas" className="text-sm text-[#4F5C69]">← Consultas</Link>
           <h1 className="m-0">{c.nombre ?? "Sin nombre"}</h1>
           <p className="m-0 text-sm text-[#4F5C69]">Consulta #{c.id} · {CANAL[c.canal] ?? c.canal} · entró el {fechaHora(c.creado)} ({hace(c.creado)})</p>
         </div>
@@ -106,7 +105,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           <section className="card">
             <h2 className="mt-0">Datos</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 m-0 text-sm">
-              {(c.empresa === "devisebit" ? [["Quién consulta", c.nombre], ["Teléfono", c.telefono], ["Organización", c.organizacion], ["Email", c.email], ["Motivo", c.motivo]] : [["Quién consulta", c.nombre], ["Teléfono", c.telefono], ["Paciente", c.paciente_nombre], ["Cobertura", c.obra_social], ["N.º de afiliado", c.nro_afiliado], ["Localidad", c.localidad], ["Motivo", c.motivo]]).map(([k, v]) => (
+              {[["Quién consulta", c.nombre], ["Teléfono", c.telefono], ["Paciente", c.paciente_nombre], ["Cobertura", c.obra_social], ["N.º de afiliado", c.nro_afiliado], ["Localidad", c.localidad], ["Motivo", c.motivo]].map(([k, v]) => (
                 <div key={k}><dt className="text-xs font-semibold uppercase tracking-wider text-[#4F5C69]">{k}</dt><dd className="m-0">{v || "—"}</dd></div>
               ))}
             </dl>
@@ -179,12 +178,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           )}
           {c.paciente_id ? (
             <Link href={`/pacientes/${c.paciente_id}`} className="btn-s">Ver ficha del paciente</Link>
-          ) : ed && c.empresa === "sanpatricio" && (
+          ) : ed && (
             <form action={aPaciente}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">Pasar a paciente</button></form>
-          )}
-          {c.empresa === "devisebit" && u.rol === "gerente" && (
-            contacto ? <Link href={`/devisebit/contactos/${contacto.id}`} className="btn-s">Ver en el CRM de DEVISEBIT</Link>
-              : <Link href={`/devisebit/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>
           )}
           {ed ? (
             <form action={actualizar} className="card flex flex-col gap-3">

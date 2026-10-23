@@ -16,8 +16,8 @@ const VISTAS = [
 
 export default async function Consultas({ searchParams }: { searchParams: { v?: string; b?: string; e?: string } }) {
   const u = await requerir()
-  const emp = u.rol === "gerente" && searchParams.e === "devisebit" ? "devisebit" : "sanpatricio"
-  const qs = (x: Record<string, string>) => "?" + new URLSearchParams({ ...(emp === "devisebit" ? { e: emp } : {}), ...x }).toString()
+  const emp = "sanpatricio"
+  const qs = (x: Record<string, string>) => "?" + new URLSearchParams(x).toString()
   const cuenta = await q<{ estado: string; n: number }>("select estado, count(*)::int n from consultas where empresa=$1 group by estado", [emp])
   const n = Object.fromEntries(cuenta.map((c) => [c.estado, c.n]))
   const total = (est: string[]) => est.reduce((a, e) => a + (n[e] ?? 0), 0)
@@ -41,13 +41,6 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
         {ed && <div className="flex flex-wrap gap-2 items-start"><BarraDatos ent="consultas" /><Link href="/consultas/nueva" className="btn-p">+ Nueva consulta</Link></div>}
       </div>
 
-      {u.rol === "gerente" && (
-        <div className="flex gap-2">
-          {[{ v: "sanpatricio", n: "San Patricio" }, { v: "devisebit", n: "DEVISEBIT" }].map((x) => (
-            <Link key={x.v} href={x.v === "devisebit" ? "/consultas?e=devisebit" : "/consultas"} className={`chip text-sm px-3 py-1 border ${emp === x.v ? "bg-[#26323E] text-white border-[#26323E]" : "bg-white border-[#C9D3CD]"}`}>{x.n}</Link>
-          ))}
-        </div>
-      )}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {VISTAS.map((x) => {
           const activa = vista?.v === x.v
@@ -65,7 +58,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-[#E1E6E3]">
           <h2 className="m-0 text-base">{vista ? vista.n : "Todas las consultas"} <span className="text-[#4F5C69] font-normal">· {rows.length}</span></h2>
           <form className="flex gap-2 items-center">
-            {vista && <input type="hidden" name="v" value={vista.v} />}{emp === "devisebit" && <input type="hidden" name="e" value="devisebit" />}
+            {vista && <input type="hidden" name="v" value={vista.v} />}
             <input name="b" defaultValue={b} placeholder="Buscar nombre, paciente o teléfono" className="inp py-1.5 w-64" />
             <button className="btn-s py-1.5">Buscar</button>
             {vista && <Link href={`/consultas${qs({ v: "todas" })}`} className="text-sm underline text-[#4F5C69] whitespace-nowrap">Ver todas</Link>}
@@ -73,7 +66,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
         </div>
         <div className="overflow-x-auto">
           <table className="tbl">
-            <thead><tr><th>Entró</th><th>Estado</th><th>Quién consulta</th><th>{emp === "devisebit" ? "Organización" : "Paciente"}</th><th>Motivo</th><th>Canal</th><th>Responsable</th><th></th></tr></thead>
+            <thead><tr><th>Entró</th><th>Estado</th><th>Quién consulta</th><th>Paciente</th><th>Motivo</th><th>Canal</th><th>Responsable</th><th></th></tr></thead>
             <tbody>
               {rows.map((c) => {
                 const est = ESTADOS.find((e) => e.v === c.estado)!
@@ -83,7 +76,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
                     <td className="whitespace-nowrap">{fechaHora(c.creado)}<div className={`text-xs font-normal ${demora ? "text-rojo font-semibold" : "text-[#4F5C69]"}`}>{hace(c.creado)}</div></td>
                     <td><span className={`chip ${est.c}`}>{est.n}</span>{c.necesita_humano && !["ingreso", "descartada"].includes(c.estado) && <div><span className="chip bg-red-600 text-white mt-1">Quiere una persona</span></div>}</td>
                     <td><Link href={`/consultas/${c.id}`} className="hover:underline">{c.nombre ?? "Sin nombre"}</Link><div className="text-xs font-normal text-[#4F5C69]">{c.telefono ?? ""}</div></td>
-                    <td>{(emp === "devisebit" ? c.organizacion : c.paciente_nombre) ?? "—"}<div className="text-xs font-normal text-[#4F5C69]">{(emp === "devisebit" ? [c.email] : [c.obra_social, c.localidad]).filter(Boolean).join(" · ")}</div></td>
+                    <td>{c.paciente_nombre ?? "—"}<div className="text-xs font-normal text-[#4F5C69]">{[c.obra_social, c.localidad].filter(Boolean).join(" · ")}</div></td>
                     <td className="font-normal">{c.motivo ?? "—"}</td>
                     <td className="font-normal">{CANAL[c.canal] ?? c.canal}</td>
                     <td className="font-normal">{c.asignado ?? <span className="text-[#4F5C69]">Sin asignar</span>}</td>

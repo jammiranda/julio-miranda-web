@@ -21,12 +21,6 @@ export async function avisos(u: Usuario): Promise<Aviso[]> {
       if (c?.humano) out.push({ t: "Piden hablar con una persona", d: "Consultas de WhatsApp esperando respuesta del equipo", href: "/consultas?v=bandeja", nivel: "alta", n: c.humano })
       if (c?.demoradas) out.push({ t: "Consultas sin atender hace más de 4 h", d: "Respondelas antes de que se enfríen", href: "/consultas?v=bandeja", nivel: "alta", n: c.demoradas })
       else if (c?.nuevas) out.push({ t: "Consultas nuevas", d: "Entraron y todavía nadie respondió", href: "/consultas?v=bandeja", nivel: "media", n: c.nuevas })
-      if (u.rol === "gerente") {
-        const db = await one<{ n: number }>("select count(*)::int n from consultas where empresa='devisebit' and estado in ('nueva') ")
-        if (db?.n) out.push({ t: "Consultas de DEVISEBIT", d: "Leads nuevos del WhatsApp de DEVISEBIT", href: "/consultas?e=devisebit", nivel: "media", n: db.n })
-        const px = await one<{ n: number }>("select count(*)::int n from db_contactos where etapa not in ('ganado','perdido') and proximo_fecha <= (now() at time zone 'America/Argentina/Buenos_Aires')::date").catch(() => null)
-        if (px?.n) out.push({ t: "Seguimientos DEVISEBIT para hoy", d: "Contactos con próximo paso vencido o de hoy", href: "/devisebit", nivel: "media", n: px.n })
-      }
     }
     if (u.rol !== "consulta") {
       const op = await one<{ venc: number; prox: number }>(

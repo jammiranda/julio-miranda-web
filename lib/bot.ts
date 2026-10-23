@@ -10,12 +10,6 @@ const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCa
 
 /** Preguntas de calificación, en orden. Se hacen de a una, como lo haría una persona de atención. */
 const PREGUNTAS: Record<Empresa, { k: string; p: (d: Record<string, string>) => string; omitible?: boolean }[]> = {
-  devisebit: [
-    { k: "motivo", p: () => "Contame en una o dos líneas *qué necesitás resolver* (por ejemplo: un sistema de turnos, un bot como este, un tablero con tus datos…) 👇" },
-    { k: "nombre", p: () => "¡Buenísimo! 🙌 ¿Cómo es tu nombre?" },
-    { k: "organizacion", p: (d) => `Un gusto${d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""}. ¿De qué *empresa u organización* nos escribís?` },
-    { k: "email", p: () => "Última: ¿a qué *email* te mandamos la propuesta? (si preferís seguir solo por WhatsApp, escribí *no*)", omitible: true },
-  ],
   sanpatricio: [
     { k: "motivo", p: () => "¿Qué necesita el paciente? Por ejemplo: *enfermería, kinesiología, control médico, internación domiciliaria o equipamiento*." },
     { k: "paciente_nombre", p: () => "Gracias. ¿Cuál es el *nombre y apellido del paciente*?" },
@@ -26,16 +20,11 @@ const PREGUNTAS: Record<Empresa, { k: string; p: (d: Record<string, string>) => 
 }
 /** Temas del menú que arrancan la toma de datos (la persona quiere avanzar). */
 const INICIAN: Record<Empresa, string[]> = {
-  devisebit: ["A medida", "WhatsApp IA", "Tableros", "Productos", "Precio"],
   sanpatricio: ["Pedir atención", "Servicios", "Cobertura", "Zonas"],
 }
 
 function cierre(e: Empresa, d: Record<string, string>) {
   const nombre = d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""
-  if (e === "devisebit") {
-    const ag = process.env.DB_AGENDA_URL ? `\n\nSi querés ganar tiempo, reservá ya una reunión de 30 minutos sin costo: ${process.env.DB_AGENDA_URL}` : "\n\n¿Preferís que te llamemos o que coordinemos una videollamada de 30 minutos sin costo? Decime día y horario que te queden cómodos 📅"
-    return `¡Listo${nombre}! ✅ Ya tenemos todo para armarte una propuesta a medida, con alcance, fecha y precio fijo por escrito. El equipo te escribe por acá (lunes a viernes de 8 a 20 h).${ag}`
-  }
   return `¡Muchas gracias${nombre}! ✅ Ya registramos el pedido. Una persona del equipo de San Patricio te contacta por acá (lunes a viernes de 8 a 20 h) para coordinar. Si tenés la orden o indicación médica, podés mandarnos una foto 📷 ☘️`
 }
 
@@ -47,9 +36,7 @@ export async function aprendido(e: Empresa) {
 
 function sistema(e: Empresa, extra = "") {
   const b = BOTS[e]
-  const objetivo = e === "devisebit"
-    ? "Tu objetivo es atender como el mejor vendedor consultivo: entender la necesidad, mostrar cómo DEVISEBIT la resuelve con ejemplos y casos reales, despejar dudas u objeciones, y llevar la conversación a un próximo paso concreto: que deje sus datos para recibir una propuesta, o que reserve una reunión de 30 minutos sin costo. Hacé una pregunta por mensaje y siempre terminá con una pregunta o una invitación a avanzar."
-    : "Tu objetivo es atender como la mejor recepcionista de una empresa de salud: con calidez y precisión, entender qué necesita el paciente, explicar cómo trabaja San Patricio y tomar los datos para que coordinación inicie el pedido. Hacé una pregunta por mensaje y siempre terminá con el próximo paso."
+  const objetivo = "Tu objetivo es atender como la mejor recepcionista de una empresa de salud: con calidez y precisión, entender qué necesita el paciente, explicar cómo trabaja San Patricio y tomar los datos para que coordinación inicie el pedido. Hacé una pregunta por mensaje y siempre terminá con el próximo paso."
   return `Sos el asistente de WhatsApp de ${b.nombre}. Conversás con personas reales.
 ${objetivo}
 
@@ -68,7 +55,8 @@ REGLAS:
 - Español rioplatense, cálido, seguro y profesional. Mensajes cortos (2 a 5 líneas), aptos para WhatsApp; podés usar *negrita* y algún emoji con moderación.
 - Nunca dejes a la persona sin respuesta ni le digas solo "te derivo": respondé lo que preguntó y proponé el próximo paso.
 - No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. No des precios: explicá que la propuesta es a medida.
-${e === "sanpatricio" ? "- No des consejos médicos, diagnósticos ni dosis. Ante una urgencia indicá llamar al 107 de inmediato.\n" : ""}- derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, o cuando ya tenés los datos principales y corresponde que el equipo tome el caso (en ese caso confirmá que una persona sigue por este mismo chat, de lunes a viernes de 8 a 20 h).
+- No des consejos médicos, diagnósticos ni dosis. Ante una urgencia indicá llamar al 107 de inmediato.
+- derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, o cuando ya tenés los datos principales y corresponde que el equipo tome el caso (en ese caso confirmá que una persona sigue por este mismo chat, de lunes a viernes de 8 a 20 h).
 
 Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false}
 En "datos" poné solo lo que la persona dijo explícitamente en toda la conversación.`
@@ -158,7 +146,7 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado):
   if (!d.motivo && t.length > 12) {
     d.motivo = texto.trim().slice(0, 300)
     const sig = siguiente(0)
-    const intro = e === "devisebit" ? "¡Gracias por contarme! Eso lo resolvemos seguido 💪" : "¡Gracias por contarnos! Te ayudamos a organizarlo ☘️"
+    const intro = "¡Gracias por contarnos! Te ayudamos a organizarlo ☘️"
     return out([`${intro}\n${sig === -1 ? "" : preg[sig].p(d)}`.trim()], sig === -1 ? null : sig)
   }
   const n = (est.noEntendi ?? 0) + 1
@@ -168,8 +156,8 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado):
 
 /** Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat). */
 export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp") {
-  const roles = e === "devisebit" ? ["gerente"] : ["gerente", "coordinacion"]
-  const marca = e === "devisebit" ? "DEVISEBIT" : "San Patricio"
+  const roles = ["gerente", "coordinacion"]
+  const marca = "San Patricio"
   const red = canal === "instagram" ? "Instagram" : "WhatsApp"
   if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return // reintento de Meta
   await q("insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre) values ($1,$2,'cliente',$3,$4,$5,$6)", [e, waId, texto, tipo, metaId, perfil])
@@ -214,7 +202,7 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
 
   let res: Resultado
   if (tipo !== "text" && !texto) {
-    res = { respuestas: [e === "sanpatricio" ? "¡Recibido! 📎 Lo va a ver una persona del equipo. Si me escribís el nombre del paciente y la localidad, lo agilizamos." : "¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?"], datos: {}, derivar: false, estado: est }
+    res = { respuestas: ["¡Recibido! 📎 Lo va a ver una persona del equipo. Si me escribís el nombre del paciente y la localidad, lo agilizamos."], datos: {}, derivar: false, estado: est }
   } else {
     const hist = await q<{ autor: string; texto: string | null }>("select autor, texto from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '3 days' order by creado desc limit 30", [e, waId])
     res = (await conIA(e, hist.reverse())) ?? sinIA(e, texto ?? "", primero, est)
@@ -228,7 +216,6 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
        email=coalesce($8,email), necesita_humano=necesita_humano or $9, actualizado=now() where id=$10`,
     [v("nombre"), v("paciente_nombre"), v("obra_social"), v("nro_afiliado"), v("localidad"), v("motivo"), v("organizacion"), v("email"), res.derivar, cid],
   )
-  if (e === "devisebit") await alCRM(cid, canal).catch(() => {})
   await q("update wa_chats set estado=$1 where empresa=$2 and wa_id=$3", [JSON.stringify(res.estado ?? {}), e, waId])
   if (res.derivar) {
     const quien = v("nombre") ?? perfil ?? "Cliente"
@@ -271,18 +258,3 @@ export function enHorario(d = new Date()) {
   return dia >= 1 && dia <= 5 && h >= 8 && h < 20
 }
 
-/** DEVISEBIT: cuando el bot ya tiene nombre y algo más (organización, motivo o email), crea o completa el contacto en el CRM comercial. */
-async function alCRM(cid: number, canal: string) {
-  const k = await one<any>("select nombre, organizacion, email, telefono, motivo, mensaje from consultas where id=$1", [cid])
-  if (!k?.nombre || !(k.organizacion || k.motivo || k.email)) return
-  const ya = await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [cid])
-  const notas = [k.motivo && `Motivo: ${k.motivo}`, k.mensaje && `Primer mensaje: ${k.mensaje}`].filter(Boolean).join("\n")
-  if (ya) {
-    await q("update db_contactos set organizacion=coalesce(organizacion,$1), email=coalesce(email,$2), notas=coalesce(notas,$3), actualizado=now() where id=$4", [k.organizacion, k.email, notas || null, ya.id])
-  } else {
-    await q(
-      "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date)",
-      [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : "WhatsApp (bot)", notas || null, cid],
-    )
-  }
-}
