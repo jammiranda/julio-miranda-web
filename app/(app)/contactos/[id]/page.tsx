@@ -16,13 +16,13 @@ async function guardar(fd: FormData) {
   if (!nombre) redirect(`/contactos/${id ?? "nuevo"}?err=nombre`)
   const et = String(fd.get("etapa") ?? "nuevo")
   const v = [nombre, s(fd.get("organizacion")), s(fd.get("cargo")), s(fd.get("email")), s(fd.get("telefono")), s(fd.get("sector")),
-    ETAPAS.some((e) => e.v === et) ? et : "nuevo", s(fd.get("origen")), s(fd.get("notas")), s(fd.get("proximo")), s(fd.get("proximo_fecha"))]
+    ETAPAS.some((e) => e.v === et) ? et : "nuevo", s(fd.get("origen")), s(fd.get("notas")), s(fd.get("proximo")), s(fd.get("proximo_fecha")), s(fd.get("categoria")), s(fd.get("consentimiento"))]
   let cid: number
   if (id) {
-    await q("update db_contactos set nombre=$1,organizacion=$2,cargo=$3,email=$4,telefono=$5,sector=$6,etapa=$7,origen=$8,notas=$9,proximo=$10,proximo_fecha=$11,actualizado=now() where id=$12", [...v, Number(id)])
+    await q("update db_contactos set nombre=$1,organizacion=$2,cargo=$3,email=$4,telefono=$5,sector=$6,etapa=$7,origen=$8,notas=$9,proximo=$10,proximo_fecha=$11,categoria=$12,consentimiento=$13,actualizado=now() where id=$14", [...v, Number(id)])
     cid = Number(id)
   } else {
-    const r = await one<{ id: number }>("insert into db_contactos(nombre,organizacion,cargo,email,telefono,sector,etapa,origen,notas,proximo,proximo_fecha,consulta_id) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning id", [...v, s(fd.get("consulta_id")) ? Number(fd.get("consulta_id")) : null])
+    const r = await one<{ id: number }>("insert into db_contactos(nombre,organizacion,cargo,email,telefono,sector,etapa,origen,notas,proximo,proximo_fecha,categoria,consentimiento,consulta_id) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id", [...v, s(fd.get("consulta_id")) ? Number(fd.get("consulta_id")) : null])
     cid = r!.id
   }
   await audit(u, id ? "edita_contacto_db" : "crea_contacto_db", "db_contacto", cid, et)
@@ -60,13 +60,16 @@ export default async function Contacto({ params, searchParams }: { params: { id:
         <label className="lbl">Nombre y apellido *<input name="nombre" required defaultValue={c.nombre ?? ""} className="inp" /></label>
         <label className="lbl">Organización<input name="organizacion" defaultValue={c.organizacion ?? ""} className="inp" /></label>
         <label className="lbl">Cargo<input name="cargo" defaultValue={c.cargo ?? ""} className="inp" /></label>
-        <label className="lbl">Sector<select name="sector" defaultValue={c.sector ?? ""} className="inp"><option value="">—</option>{SECTORES.map((x) => <option key={x}>{x}</option>)}</select></label>
+        <label className="lbl">Sector<select name="sector" defaultValue={c.sector ?? ""} className="inp"><option value="">—</option>{[...SECTORES, ...(c.sector && !SECTORES.includes(c.sector) ? [c.sector] : [])].map((x) => <option key={x}>{x}</option>)}</select></label>
+        <label className="lbl">Categoría<input name="categoria" defaultValue={c.categoria ?? ""} placeholder="Cliente, aliado, proveedor, red…" className="inp" /></label>
         <label className="lbl">Email<input name="email" type="email" defaultValue={c.email ?? ""} className="inp" /></label>
         <label className="lbl">Teléfono<input name="telefono" type="tel" defaultValue={c.telefono ?? ""} className="inp" /></label>
         <label className="lbl">Etapa<select name="etapa" defaultValue={c.etapa ?? "nuevo"} className="inp">{ETAPAS.map((e) => <option key={e.v} value={e.v}>{e.n}</option>)}</select></label>
         <label className="lbl">Cómo llegó<input name="origen" defaultValue={c.origen ?? ""} placeholder="WhatsApp, LinkedIn, referido…" className="inp" /></label>
         <label className="lbl">Próximo paso<input name="proximo" defaultValue={c.proximo ?? ""} placeholder="Ej.: enviar propuesta" className="inp" /></label>
         <label className="lbl">Fecha<input name="proximo_fecha" type="date" defaultValue={iso(c.proximo_fecha)} className="inp" /></label>
+        <label className="lbl">Consentimiento para comunicaciones<select name="consentimiento" defaultValue={c.consentimiento ?? ""} className="inp"><option value="">No relevado</option><option>Sí</option><option>No</option></select></label>
+        <div className="text-sm text-[#4A515C] self-end pb-2">{c.ultimo_contacto ? `Último contacto: ${new Date(c.ultimo_contacto).toLocaleDateString("es-AR")}` : ""}{c.interacciones ? ` · ${c.interacciones} mails` : ""}</div>
         <label className="lbl md:col-span-2">Notas<textarea name="notas" rows={6} defaultValue={c.notas ?? ""} className="inp" /></label>
         <div className="md:col-span-2 flex gap-2 flex-wrap">
           <button className="btn-p">Guardar</button>

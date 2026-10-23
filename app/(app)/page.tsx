@@ -23,7 +23,7 @@ export default async function Resumen() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4">
       <div><h1 className="m-0">Resumen comercial</h1><p className="m-0 text-sm text-[#4A515C]">Embudo, próximos pasos y proyectos en curso.</p></div>
-      <section aria-label="Embudo comercial" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <section aria-label="Embudo comercial" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {ETAPAS.map((e) => (
           <Link key={e.v} href={`/contactos?etapa=${e.v}`} className="card flex flex-col gap-1 hover:border-[#C3C8D1]">
             <span className={`chip self-start ${e.c}`}>{e.n}</span>

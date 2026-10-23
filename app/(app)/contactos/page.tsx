@@ -2,6 +2,7 @@ import Link from "next/link"
 import { q } from "@/lib/db"
 import { ETAPAS, etapa } from "@/lib/crm"
 import { fecha } from "@/lib/util"
+import Importar from "@/components/Importar"
 
 export const dynamic = "force-dynamic"
 
@@ -26,7 +27,7 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
         </div>
         <div className="flex gap-2 items-center">
           <form className="flex gap-2">{et && <input type="hidden" name="etapa" value={et} />}<input name="b" defaultValue={b} placeholder="Buscar" className="inp py-1.5 w-48" /><button className="btn-s py-1.5">Buscar</button></form>
-          <a href="/api/contactos?formato=csv" className="btn-s py-1.5">Exportar</a>
+          <Importar ent="contactos" ayuda="Reconozco las columnas por su nombre (Nombre, Email, Organización, Cargo, Teléfono, Sector, Etapa, Notas…). Si el email ya existe, se completa el contacto; si no, se crea. Lo que no traiga etapa queda como «En la base»." /><a href="/api/crm/contactos?formato=csv" className="btn-s py-1.5">Exportar</a>
           <Link href="/contactos/nuevo" className="btn-p py-1.5">+ Nuevo</Link>
         </div>
       </div>

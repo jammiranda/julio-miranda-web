@@ -115,6 +115,13 @@ create table if not exists db_proyectos (
   trello_board text, trello_url text, notas text,
   creado timestamptz not null default now(), actualizado timestamptz not null default now()
 );
+alter table db_contactos add column if not exists categoria text;
+alter table db_contactos add column if not exists consentimiento text;
+alter table db_contactos add column if not exists ultimo_contacto date;
+alter table db_contactos add column if not exists interacciones int;
+alter table db_contactos drop constraint if exists db_contactos_etapa_check;
+alter table db_contactos add constraint db_contactos_etapa_check check (etapa in ('base','nuevo','conversando','reunion','propuesta','ganado','perdido'));
+create unique index if not exists db_contactos_email on db_contactos (lower(email)) where email is not null;
 insert into db_servicios(nombre,categoria,descripcion) values
   ('Sistema web a medida','A medida','Sistemas de gestión web conectados a lo que el cliente ya usa'),
   ('App iOS y Android','A medida','Apps móviles a medida'),

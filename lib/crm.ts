@@ -1,6 +1,7 @@
 /** CRM básico de DEVISEBIT: contactos (embudo), servicios y proyectos, con Trello opcional. */
 
 export const ETAPAS = [
+  { v: "base", n: "En la base", c: "bg-slate-100 text-slate-700" },
   { v: "nuevo", n: "Nuevo", c: "bg-red-50 text-rojo" },
   { v: "conversando", n: "Conversando", c: "bg-amber-50 text-amber-700" },
   { v: "reunion", n: "Reunión", c: "bg-sky-50 text-sky-700" },
@@ -17,9 +18,9 @@ export const ESTADOS_PROY = [
   { v: "cancelado", n: "Cancelado", c: "bg-slate-100 text-slate-500" },
 ] as const
 
-export const SECTORES = ["Salud", "Estado", "Universidad", "Gremio / mutual", "Empresa", "Otro"]
+export const SECTORES = ["Salud", "Gobierno", "Educación", "Gremial", "Empresa", "Tecnología", "Finanzas", "Medios", "Otro"]
 
-export const etapa = (v: string) => ETAPAS.find((e) => e.v === v) ?? ETAPAS[0]
+export const etapa = (v: string) => ETAPAS.find((e) => e.v === v) ?? ETAPAS[1]
 export const estadoProy = (v: string) => ESTADOS_PROY.find((e) => e.v === v) ?? ESTADOS_PROY[0]
 
 // ── Trello (opcional): TRELLO_KEY y TRELLO_TOKEN en Vercel ──

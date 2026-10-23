@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache"
 import { requerir } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
 import { s } from "@/lib/util"
+import Importar from "@/components/Importar"
 
 export const dynamic = "force-dynamic"
 
@@ -23,7 +24,7 @@ export default async function Servicios() {
   const rows = await q<any>(`select s.*, (select count(*)::int from db_proyectos p where p.servicio_id=s.id) usos from db_servicios s order by s.activo desc, s.categoria nulls last, s.nombre`)
   return (
     <div className="flex flex-col gap-4">
-      <div><h1 className="m-0">Servicios</h1><p className="m-0 text-sm text-[#4A515C]">Lo que vende DEVISEBIT. El precio de referencia es interno: no se muestra en el bot ni en la web.</p></div>
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="m-0">Servicios</h1><p className="m-0 text-sm text-[#4A515C]">Lo que vende DEVISEBIT. El precio de referencia es interno: no se muestra en el bot ni en la web.</p></div><Importar ent="servicios" /></div>
       <div className="flex flex-col gap-2">
         {rows.map((x) => (
           <form key={x.id} action={guardar} className={`card py-3 grid grid-cols-1 md:grid-cols-12 gap-2 items-end ${x.activo ? "" : "opacity-60"}`}>

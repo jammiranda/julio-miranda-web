@@ -20,7 +20,7 @@ export default async function Proyectos({ searchParams }: { searchParams: { cerr
       <div><h1 className="m-0">Proyectos</h1><p className="m-0 text-sm text-[#4A515C]">Lo vendido, en ejecución y entregado.</p></div>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Link href={searchParams.cerrados ? "/proyectos" : "/proyectos?cerrados=1"} className="text-sm underline text-[#4A515C]">{searchParams.cerrados ? "Ocultar cancelados" : "Ver también cancelados"}</Link>
-        <div className="flex gap-2"><a href="/api/proyectos?formato=csv" className="btn-s py-1.5">Exportar</a><Link href="/proyectos/nuevo" className="btn-p py-1.5">+ Nuevo proyecto</Link></div>
+        <div className="flex gap-2"><a href="/api/crm/proyectos?formato=csv" className="btn-s py-1.5">Exportar</a><Link href="/proyectos/nuevo" className="btn-p py-1.5">+ Nuevo proyecto</Link></div>
       </div>
       <div className="grid grid-flow-col auto-cols-[minmax(240px,1fr)] gap-3 overflow-x-auto pb-2">
         {ver.map((e) => {
