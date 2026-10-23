@@ -16,4 +16,4 @@ body { background: #F5F6F8; color: #0E1116; font-family: Inter, ui-sans-serif, s
 h1 { @apply text-2xl font-extrabold tracking-tight text-[#0E1116]; }
 h2 { @apply text-lg font-bold; }
 
-@media print { header, nav, footer, .no-print { display: none !important; } body { background: #fff; } .card { border: 0; padding: 0; } }
+@media print { header:not(.ficha-head), nav, footer, .no-print { display: none !important; } body { background: #fff; } main:not(.ficha) .card { border: 0; padding: 0; } .ficha .card { break-inside: avoid; } @page { margin: 12mm; } }

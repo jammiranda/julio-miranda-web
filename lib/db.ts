@@ -179,6 +179,7 @@ update db_servicios set precio_desde=v.d, precio_hasta=v.h, plazo=coalesce(db_se
   ('Votación y control de acceso',1500,8000,'3 a 8 semanas',''),
   ('Gestor documental con firma digital',3000,12000,'6 a 12 semanas','')
 ) as v(n,d,h,p,x) where db_servicios.nombre=v.n and db_servicios.precio_desde is null;
+update db_servicios set link='https://sistema.devisebit.com/fichas/'||v.s from (values ('Sitio web','sitio-web'),('Tienda online','tienda-online'),('Sistema web a medida','sistema-a-medida'),('App iOS y Android','app'),('Asistente de WhatsApp con IA','asistente-whatsapp-ia'),('Tableros e indicadores','tableros'),('Academia online','academia-online'),('Sistema para clínicas e internación domiciliaria','sistema-clinicas'),('CRM de afiliados','crm-afiliados'),('App y credencial digital','credencial-digital'),('Votación y control de acceso','votacion-acceso'),('Gestor documental con firma digital','gestor-documental')) as v(n,s) where db_servicios.nombre=v.n and db_servicios.link is null;
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 
