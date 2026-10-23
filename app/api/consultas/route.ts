@@ -13,7 +13,22 @@ const t = (v: unknown, n = 500) => (v == null || String(v).trim() === "" ? null 
  * Cuerpo: { nombre, email, telefono?, organizacion?, motivo?, mensaje?, canal?, utm_source?, utm_medium?, utm_campaign?, gclid?, fbclid?, landing?, referrer? }
  * Con x-api-key (CONSULTAS_KEY) no tiene límites; sin clave exige email válido y limita a 5 por IP por hora.
  */
+const ORIGENES = ["https://www.devisebit.com", "https://devisebit.com"]
+function cors(req: NextRequest): Record<string, string> {
+  const o = req.headers.get("origin") ?? ""
+  return ORIGENES.includes(o) ? { "Access-Control-Allow-Origin": o, "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", Vary: "Origin" } : {}
+}
+export function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, { status: 204, headers: cors(req) })
+}
+
 export async function POST(req: NextRequest) {
+  const res = await alta(req)
+  for (const [k, v] of Object.entries(cors(req))) res.headers.set(k, v)
+  return res
+}
+
+async function alta(req: NextRequest) {
   const b = await req.json().catch(() => ({}))
   if (b.website) return NextResponse.json({ ok: true }) // trampa para bots
   const nombre = t(b.nombre, 120), email = t(b.email, 160)
