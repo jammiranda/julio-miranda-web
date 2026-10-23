@@ -206,6 +206,22 @@ create table if not exists em_envios (
 );
 create index if not exists em_envios_cola on em_envios(estado, campania_id);
 create table if not exists em_log (id bigserial primary key, tipo text not null, email text, creado timestamptz not null default now());
+create table if not exists am_guias (
+  id serial primary key, slug text unique not null, titulo text not null, bajada text, categoria text, contenido text not null default '',
+  exclusiva boolean not null default false, publicada boolean not null default false, destacada boolean not null default false,
+  vistas int not null default 0, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists am_productos (
+  id serial primary key, slug text unique not null, titulo text not null, bajada text, descripcion text not null default '',
+  precio numeric, moneda text not null default 'ARS', estado text not null default 'lista_espera' check (estado in ('venta','lista_espera','oculto')),
+  archivo_url text, creado timestamptz not null default now()
+);
+create table if not exists am_ordenes (
+  id serial primary key, producto_id int references am_productos(id), email text not null, nombre text,
+  monto numeric, moneda text, estado text not null default 'pendiente' check (estado in ('pendiente','pagada','cancelada')),
+  mp_preferencia text, mp_pago text, token text not null default md5(random()::text || clock_timestamp()::text), fuente text,
+  creado timestamptz not null default now(), pagada_en timestamptz
+);
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 

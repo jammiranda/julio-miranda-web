@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/contactos", t: "Contactos" },
     { href: "/proyectos", t: "Proyectos" },
     { href: "/servicios", t: "Servicios" },
-    ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/email", t: "Email marketing" }] : []),
+    ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/email", t: "Email marketing" }, { href: "/academia-admin", t: "Academia" }] : []),
     ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/bot", t: "Bot · Conocimiento" }] : []),
     ...(u.rol === "gerente" ? [{ href: "/usuarios", t: "Usuarios" }, { href: "/auditoria", t: "Auditoría" }] : []),
     { href: "/ayuda", t: "Ayuda" },

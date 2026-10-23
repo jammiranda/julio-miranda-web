@@ -2,12 +2,15 @@
 const nextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: [
-      { key: "X-Frame-Options", value: "DENY" },
-      { key: "X-Content-Type-Options", value: "nosniff" },
-      { key: "Referrer-Policy", value: "same-origin" },
-      { key: "X-Robots-Tag", value: "noindex, nofollow" },
-    ] }]
+    return [
+      { source: "/:path*", headers: [
+        { key: "X-Frame-Options", value: "DENY" },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      ] },
+      // El sistema no se indexa; la academia sí
+      { source: "/:path*", missing: [{ type: "host", value: "academia.devisebit.com" }], headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+    ]
   },
 }
 export default nextConfig
