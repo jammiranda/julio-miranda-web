@@ -228,6 +228,7 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
        email=coalesce($8,email), necesita_humano=necesita_humano or $9, actualizado=now() where id=$10`,
     [v("nombre"), v("paciente_nombre"), v("obra_social"), v("nro_afiliado"), v("localidad"), v("motivo"), v("organizacion"), v("email"), res.derivar, cid],
   )
+  if (e === "devisebit") await alCRM(cid, canal).catch(() => {})
   await q("update wa_chats set estado=$1 where empresa=$2 and wa_id=$3", [JSON.stringify(res.estado ?? {}), e, waId])
   if (res.derivar) {
     const quien = v("nombre") ?? perfil ?? "Cliente"
@@ -268,4 +269,20 @@ export function enHorario(d = new Date()) {
   const ar = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }))
   const dia = ar.getDay(), h = ar.getHours()
   return dia >= 1 && dia <= 5 && h >= 8 && h < 20
+}
+
+/** DEVISEBIT: cuando el bot ya tiene nombre y algo más (organización, motivo o email), crea o completa el contacto en el CRM comercial. */
+async function alCRM(cid: number, canal: string) {
+  const k = await one<any>("select nombre, organizacion, email, telefono, motivo, mensaje from consultas where id=$1", [cid])
+  if (!k?.nombre || !(k.organizacion || k.motivo || k.email)) return
+  const ya = await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [cid])
+  const notas = [k.motivo && `Motivo: ${k.motivo}`, k.mensaje && `Primer mensaje: ${k.mensaje}`].filter(Boolean).join("\n")
+  if (ya) {
+    await q("update db_contactos set organizacion=coalesce(organizacion,$1), email=coalesce(email,$2), notas=coalesce(notas,$3), actualizado=now() where id=$4", [k.organizacion, k.email, notas || null, ya.id])
+  } else {
+    await q(
+      "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date)",
+      [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : "WhatsApp (bot)", notas || null, cid],
+    )
+  }
 }
