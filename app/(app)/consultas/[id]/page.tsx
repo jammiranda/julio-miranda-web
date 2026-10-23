@@ -6,6 +6,9 @@ import { s } from "@/lib/util"
 import { ESTADOS, CANAL, hace, fechaHora } from "@/lib/consultas"
 import { responderDesdeCRM } from "@/lib/bot"
 import type { Empresa } from "@/lib/bots/conocimiento"
+import { linkBrief } from "@/lib/brief"
+import { generarPropuesta } from "@/lib/propuesta"
+import Copiar from "@/components/Copiar"
 
 export const dynamic = "force-dynamic"
 
@@ -44,6 +47,27 @@ async function bot(fd: FormData) {
   if (!pausar) await q("update consultas set necesita_humano=false where id=$1", [id])
   await audit(u, pausar ? "pausa_bot" : "reactiva_bot", "consulta", id)
   redirect(`/consultas/${id}`)
+}
+
+async function mandarBrief(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const c = await one<any>("select nombre, telefono, chat_id from consultas where id=$1", [id])
+  if (!c) redirect("/consultas")
+  const link = await linkBrief(id)
+  const texto = `${c.nombre ? `${c.nombre.split(" ")[0]}, ` : ""}para armarte una *propuesta preliminar con alcance, plazo e inversión en 48 h hábiles*, completá este brief de 3 minutos: ${link}`
+  const r = await responderDesdeCRM("devisebit", c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto, u.nombre)
+  await audit(u, "envia_brief", "consulta", id)
+  redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
+}
+
+async function rehacerPropuesta(fd: FormData) {
+  "use server"
+  await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  await generarPropuesta(id)
+  redirect(`/consultas/${id}#propuesta`)
 }
 
 async function ensenar(fd: FormData) {
@@ -147,6 +171,25 @@ export default async function Consulta({ params, searchParams }: { params: { id:
               <p className="m-0 whitespace-pre-line text-[15px]">{c.mensaje || "Sin mensaje."}</p>
             </section>
           )}
+          {c.brief && (
+            <section className="card flex flex-col gap-2">
+              <h2 className="m-0">Brief del cliente <span className="text-sm font-normal text-[#4A515C]">· {fechaHora(c.brief_en)}</span></h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 m-0 text-sm">
+                {[["Rubro", c.brief.rubro], ["Necesita", (c.brief.tipo ?? []).join(", ")], ["Objetivo", c.brief.objetivo], ["Funciones", (c.brief.funciones ?? []).join(", ")], ["Ya tiene", (c.brief.tiene ?? []).join(", ")], ["Integraciones", c.brief.integraciones], ["Referencias", c.brief.referencias], ["Plazo", c.brief.plazo], ["Inversión pensada", c.brief.inversion], ["Más", c.brief.extra]].filter(([, v]) => v).map(([k, v]) => (
+                  <div key={k as string}><dt className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">{k}</dt><dd className="m-0 whitespace-pre-line">{v as string}</dd></div>
+                ))}
+              </dl>
+            </section>
+          )}
+          {(c.brief || c.propuesta) && (
+            <section id="propuesta" className="card flex flex-col gap-3 scroll-mt-28">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="m-0">Propuesta preliminar <span className="text-sm font-normal text-[#4A515C]">· borrador de la IA, revisalo antes de mandarlo</span></h2>
+                <div className="flex gap-2">{c.propuesta && <Copiar texto={c.propuesta} />}{ed && <form action={rehacerPropuesta}><input type="hidden" name="id" value={c.id} /><button className="btn-s py-1 px-3 text-xs">{c.propuesta ? "Rehacer" : "Generar"}</button></form>}</div>
+              </div>
+              {c.propuesta ? <pre className="m-0 whitespace-pre-wrap font-[inherit] text-[15px] leading-relaxed bg-[#F8F9FB] rounded-xl p-4">{c.propuesta}</pre> : <p className="m-0 text-sm text-[#4A515C]">Se está generando; recargá en un minuto.</p>}
+            </section>
+          )}
           {otras.length > 0 && (
             <section className="card">
               <h2 className="mt-0">Otras consultas de este teléfono</h2>
@@ -161,6 +204,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           {tel && (
             <a href={`https://wa.me/${tel.startsWith("54") ? tel : "549" + tel}`} target="_blank" rel="noopener noreferrer" className="btn-p">Responder por WhatsApp</a>
           )}
+          {ed && !c.brief && c.chat_id && <form action={mandarBrief}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📝 Mandarle el brief por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button></form>}
           {contacto ? <Link href={`/contactos/${contacto.id}`} className="btn-s">Ver contacto en el CRM</Link>
             : ed && <Link href={`/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>}
           {ed ? (

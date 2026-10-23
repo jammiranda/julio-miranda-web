@@ -131,6 +131,16 @@ alter table consultas add column if not exists gclid text;
 alter table consultas add column if not exists origen_detalle jsonb;
 alter table db_contactos add column if not exists fuente text;
 alter table db_contactos add column if not exists campania text;
+alter table consultas add column if not exists brief_token text;
+alter table consultas add column if not exists brief jsonb;
+alter table consultas add column if not exists brief_en timestamptz;
+alter table consultas add column if not exists propuesta text;
+create unique index if not exists consultas_brief_token on consultas(brief_token) where brief_token is not null;
+alter table db_servicios add column if not exists precio_desde numeric;
+alter table db_servicios add column if not exists precio_hasta numeric;
+alter table db_servicios add column if not exists moneda text not null default 'USD';
+alter table db_servicios add column if not exists plazo text;
+alter table db_servicios add column if not exists link text;
 insert into db_servicios(nombre,categoria,descripcion) values
   ('Sistema web a medida','A medida','Sistemas de gestión web conectados a lo que el cliente ya usa'),
   ('App iOS y Android','A medida','Apps móviles a medida'),
