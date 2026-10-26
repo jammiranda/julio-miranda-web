@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const g = await one<any>("select titulo, bajada from am_guias where slug=$1 and publicada", [params.slug]).catch(() => null)
-  return g ? { title: g.titulo, description: g.bajada, openGraph: { title: g.titulo, description: g.bajada } } : {}
+  return g ? { title: g.titulo, description: g.bajada, openGraph: { title: g.titulo, description: g.bajada, siteName: "Academia DEVISEBIT", locale: "es_AR", type: "article", images: [{ url: "https://desarrollo.devisebit.com/og/og-academia.jpg", width: 1200, height: 630 }] } } : {}
 }
 
 export default async function Guia({ params }: { params: { slug: string } }) {

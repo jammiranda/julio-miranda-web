@@ -1,11 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+const OG_ACADEMIA = "https://desarrollo.devisebit.com/og/og-academia.jpg"
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://academia.devisebit.com"),
   title: { default: "Academia DEVISEBIT · IA y tecnología aplicada para pymes e instituciones", template: "%s · Academia DEVISEBIT" },
   description: "Guías prácticas, gratis y en castellano para usar inteligencia artificial, automatizar tareas y digitalizar tu organización. Hechas por el equipo de DEVISEBIT, desde 2009.",
-  openGraph: { siteName: "Academia DEVISEBIT", locale: "es_AR", type: "website" },
+  openGraph: { siteName: "Academia DEVISEBIT", locale: "es_AR", type: "website", images: [{ url: OG_ACADEMIA, width: 1200, height: 630, alt: "Academia DEVISEBIT: IA y tecnología aplicada, explicada simple" }] },
+  twitter: { card: "summary_large_image", images: [OG_ACADEMIA] },
   robots: { index: true, follow: true },
 }
 
