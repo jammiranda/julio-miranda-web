@@ -209,7 +209,8 @@ create table if not exists auditoria (
   accion text not null, entidad text, entidad_id text, detalle text,
   ts timestamptz not null default now()
 );
-insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente'),('debora','Débora','coordinacion'),('luciano','Luciano','consulta')
+update usuarios set usuario='administrador', nombre='Administrador' where usuario='julio' and not exists (select 1 from usuarios where usuario='administrador');
+insert into usuarios(usuario,nombre,rol) values ('administrador','Administrador','gerente'),('debora','Débora','coordinacion'),('luciano','Luciano','consulta')
   on conflict do nothing;
 `
 
