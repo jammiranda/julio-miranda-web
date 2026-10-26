@@ -1,4 +1,5 @@
 import { q, one } from "./db"
+import { LOTE_2026_10, GUIAS_2026_10 } from "./academia-lote-2026-10"
 
 /** Academia DEVISEBIT (academia.devisebit.com): guías gratis, newsletter y productos digitales. */
 export const URL_ACADEMIA = process.env.ACADEMIA_URL ?? "https://academia.devisebit.com"
@@ -49,7 +50,7 @@ export async function crearPreferencia(o: { orden: number; titulo: string; preci
 /** Carga inicial de guías y del primer producto (solo si no hay nada). */
 export async function sembrar() {
   const hay = await one<{ n: number }>("select count(*)::int n from am_guias")
-  if ((hay?.n ?? 0) > 0) return
+  if ((hay?.n ?? 0) > 0) return sembrarLote(LOTE_2026_10, GUIAS_2026_10)
   for (const g of GUIAS) await q("insert into am_guias(slug,titulo,bajada,categoria,contenido,exclusiva,publicada,destacada) values ($1,$2,$3,$4,$5,$6,true,$7) on conflict do nothing", [g.slug, g.titulo, g.bajada, g.categoria, g.contenido, !!g.exclusiva, !!g.destacada])
   await q(`insert into am_productos(slug,titulo,bajada,descripcion,estado) values ($1,$2,$3,$4,'lista_espera') on conflict do nothing`, [
     "kit-ia-pymes", "Kit IA para pymes", "50 prompts listos para usar y 10 automatizaciones paso a paso para tu negocio.",
@@ -254,3 +255,10 @@ Lunes 9 h, 15 minutos: se mira el tablero y se define una acción por indicador.
 [[Pedí un diagnóstico de seguridad|https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20quiero%20un%20diagn%C3%B3stico%20de%20seguridad]]`,
   },
 ]
+
+/** Carga un lote de guías una sola vez (queda anotado en am_semillas; si después se borra una guía, no vuelve). */
+async function sembrarLote(lote: string, guias: G[]) {
+  const nuevo = await one<{ lote: string }>("insert into am_semillas(lote) values ($1) on conflict do nothing returning lote", [lote])
+  if (!nuevo) return
+  for (const g of guias) await q("insert into am_guias(slug,titulo,bajada,categoria,contenido,exclusiva,publicada,destacada) values ($1,$2,$3,$4,$5,$6,true,$7) on conflict do nothing", [g.slug, g.titulo, g.bajada, g.categoria, g.contenido, !!g.exclusiva, !!g.destacada])
+}

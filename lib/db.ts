@@ -211,6 +211,7 @@ create table if not exists am_guias (
   exclusiva boolean not null default false, publicada boolean not null default false, destacada boolean not null default false,
   vistas int not null default 0, creado timestamptz not null default now(), actualizado timestamptz not null default now()
 );
+create table if not exists am_semillas (lote text primary key, creado timestamptz not null default now());
 create table if not exists am_productos (
   id serial primary key, slug text unique not null, titulo text not null, bajada text, descripcion text not null default '',
   precio numeric, moneda text not null default 'ARS', estado text not null default 'lista_espera' check (estado in ('venta','lista_espera','oculto')),
