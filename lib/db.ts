@@ -223,6 +223,12 @@ create table if not exists am_ordenes (
   mp_preferencia text, mp_pago text, token text not null default md5(random()::text || clock_timestamp()::text), fuente text,
   creado timestamptz not null default now(), pagada_en timestamptz
 );
+create table if not exists avisos_estado (
+  usuario_id int not null, clave text not null,
+  estado text not null check (estado in ('leido','borrado')),
+  n int not null default 0, dia date not null,
+  primary key (usuario_id, clave)
+);
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 
