@@ -10,6 +10,8 @@ import { linkBrief } from "@/lib/brief"
 import { linkAgenda, local } from "@/lib/agenda"
 import { generarPropuesta } from "@/lib/propuesta"
 import Copiar from "@/components/Copiar"
+import { MATERIALES, material } from "@/lib/materiales"
+import { enviarTexto } from "@/lib/whatsapp"
 
 export const dynamic = "force-dynamic"
 
@@ -73,6 +75,22 @@ async function mandarAgenda(fd: FormData) {
   const tok = (await one<{ brief_token: string }>("select brief_token from consultas where id=$1", [id]))!.brief_token
   const texto = `${c.nombre ? `${c.nombre.split(" ")[0]}, ` : ""}elegí acá el día y horario para la videollamada de 30 minutos (sin costo): ${linkAgenda(tok)}`
   const r = await responderDesdeCRM("devisebit", c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto, u.nombre)
+  redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
+}
+
+/** Manda material comercial (brochure, lista de precios, landing, datos de pago…) sin pausar al bot. */
+async function mandarMaterial(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const m = material(String(fd.get("k") ?? ""))
+  const c = await one<any>("select nombre, telefono, chat_id from consultas where id=$1", [id])
+  if (!c || !m) redirect(`/consultas/${id}`)
+  const waId = c.chat_id ?? String(c.telefono).replace(/\D/g, "")
+  const texto = m!.texto(c.nombre)
+  const r = await enviarTexto("devisebit", waId, texto)
+  if (r.ok) await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ('devisebit',$1,'equipo',$2,$3,$4)", [waId, texto, r.id ?? null, u.nombre])
+  await audit(u, "envia_material", "consulta", id, m!.k)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
 
@@ -222,6 +240,15 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           {reunion ? (
             <section className="card text-sm flex flex-col gap-1 border-2 border-[#C8231F]"><strong className="first-letter:uppercase">📅 {local(new Date(reunion.inicio)).texto}</strong><span>{reunion.modalidad}{reunion.calendar_id ? " · en Google Calendar" : ""}</span>{reunion.link && <a href={reunion.link} target="_blank" rel="noopener noreferrer" className="underline">Entrar a la videollamada</a>}</section>
           ) : ed && c.chat_id && <form action={mandarAgenda}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📅 Mandarle el link para agendar</button></form>}
+          {ed && c.chat_id && (
+            <form action={mandarMaterial} className="card flex flex-col gap-2">
+              <h2 className="m-0 text-base">📎 Mandar material</h2>
+              <input type="hidden" name="id" value={c.id} />
+              <select name="k" className="inp" defaultValue="brochure">{MATERIALES.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</select>
+              <button className="btn-s">Enviar por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button>
+              <p className="m-0 text-xs text-[#4A515C]">Sale con un mensaje listo y el bot sigue activo. El bot también los manda solo cuando se los piden.</p>
+            </form>
+          )}
           {ed && !c.brief && c.chat_id && <form action={mandarBrief}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📝 Mandarle el brief por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button></form>}
           {contacto ? <Link href={`/contactos/${contacto.id}`} className="btn-s">Ver contacto en el CRM</Link>
             : ed && <Link href={`/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>}

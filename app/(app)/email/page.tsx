@@ -1,15 +1,33 @@
 import Link from "next/link"
 import { requerir } from "@/lib/auth"
 import { q, one } from "@/lib/db"
-import { brevoConfigurado, enviadosHoy, LIMITE_DIARIO, REMITENTE } from "@/lib/email"
+import { revalidatePath } from "next/cache"
+import { brevoConfigurado, enviadosHoy, LIMITE_DIARIO, REMITENTE, diagnosticoBrevo, procesarCola } from "@/lib/email"
+import { audit } from "@/lib/db"
 import { fechaHora } from "@/lib/consultas"
 
 export const dynamic = "force-dynamic"
+export const maxDuration = 300
 
 const EST: Record<string, string> = { borrador: "bg-slate-100 text-slate-700", enviando: "bg-amber-50 text-amber-700", enviada: "bg-emerald-50 text-emerald-700", pausada: "bg-slate-100 text-slate-500" }
 
+async function enviarAhora(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  if (fd.get("op") === "reintentar") await q("update em_envios e set estado='pendiente', error=null from em_campanias k where k.id=e.campania_id and e.estado='error' and k.estado in ('enviando','enviada')")
+  await q("update em_campanias k set estado='enviando', terminada=null where estado='enviada' and exists (select 1 from em_envios e where e.campania_id=k.id and e.estado='pendiente')")
+  const r = await procesarCola(60)
+  await audit(u, "email_enviar_ahora", "em_envios", undefined, `${r.enviados} enviados · ${r.motivo}`)
+  revalidatePath("/email")
+}
+
 export default async function Email() {
   await requerir(["gerente", "coordinacion"])
+  const [diag, errores] = await Promise.all([
+    diagnosticoBrevo(),
+    q<{ error: string; n: number }>("select coalesce(error,'(sin detalle)') error, count(*)::int n from em_envios where estado='error' group by 1 order by 2 desc limit 5"),
+  ])
+  const enCola = (await one<{ n: number }>("select count(*)::int n from em_envios where estado='pendiente'"))?.n ?? 0
   const [camps, base, hoy] = await Promise.all([
     q<any>(`select k.*, count(e.id)::int total, count(e.id) filter (where e.estado='enviado')::int enviados, count(e.id) filter (where e.estado='pendiente')::int pendientes,
               count(e.abierto_en)::int abiertos, count(e.clic_en)::int clics, count(*) filter (where e.baja)::int bajas
@@ -29,6 +47,19 @@ export default async function Email() {
         <Link href="/email/nueva" className="btn-p">+ Nueva campaña</Link>
       </div>
       {!brevoConfigurado() && <p className="m-0 card border-2 border-amber-300 text-sm">⚠️ Falta conectar Brevo (variable <code>BREVO_API_KEY</code> en Vercel). Podés armar campañas y verlas, pero no se envían hasta conectarlo.</p>}
+      <section className={`card flex flex-col gap-2 border-2 ${diag.ok ? "border-emerald-200" : "border-red-300"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="m-0 text-base">{diag.ok ? "✅ Envío de correos funcionando" : "⚠️ Los correos no pueden salir"}</h2>
+          <form action={enviarAhora} className="flex gap-2">
+            {errores.length > 0 && <button name="op" value="reintentar" className="btn-s py-1.5 text-sm">Reintentar los que fallaron</button>}
+            {enCola > 0 && <button name="op" value="enviar" className="btn-p py-1.5 text-sm">Enviar ahora ({Math.min(enCola, 60)})</button>}
+          </form>
+        </div>
+        {diag.problemas.map((p, i) => <p key={i} className="m-0 text-sm text-red-700">• {p}</p>)}
+        {diag.info.map((p, i) => <p key={i} className="m-0 text-xs text-[#4A515C]">{p}</p>)}
+        {enCola > 0 && <p className="m-0 text-xs text-[#4A515C]">{enCola} correos en cola. Salen solos todos los días a las 10 h, o ahora con el botón.</p>}
+        {errores.length > 0 && <div className="text-xs"><strong>Errores de envío:</strong><ul className="m-0 pl-5">{errores.map((e, i) => <li key={i}>{e.n} × {e.error}</li>)}</ul></div>}
+      </section>
       <section className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[["Con email activo", base?.activos], ["Suscriptos al newsletter", base?.suscriptos], ["Bajas", base?.bajas], ["Rebotados", base?.rebotados], [`Enviados hoy (máx. ${LIMITE_DIARIO})`, hoy]].map(([t, n]) => (
           <div key={t as string} className="card flex flex-col gap-1"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">{t}</span><span className="text-3xl font-extrabold">{(n as number) ?? 0}</span></div>

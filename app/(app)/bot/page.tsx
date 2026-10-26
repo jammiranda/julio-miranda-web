@@ -75,7 +75,7 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
         <h2 className="m-0 text-base">¿Cuándo responde el bot?</h2>
         <div className="flex flex-col gap-2 text-sm">
           {[["siempre", "Siempre", "Responde todos los mensajes al instante. Si alguien del equipo contesta (desde el sistema o desde el celular), el bot se corre 24 h en ese chat."],
-            ["fuera_horario", "Solo fuera del horario de atención", "De lunes a viernes de 8 a 20 h responde el equipo (el bot solo registra y avisa); de noche y fines de semana atiende el bot."],
+            ["fuera_horario", "Solo fuera del horario de atención", "De lunes a viernes de 8 a 18 h responde el equipo (el bot solo registra y avisa); de noche y fines de semana atiende el bot."],
             ["nunca", "Nunca (solo registra y avisa)", "No responde: guarda cada conversación en el CRM y manda la notificación."]].map(([v, t, d]) => (
             <label key={v} className="flex gap-2 items-start"><input type="radio" name="modo" value={v} defaultChecked={md === v} className="mt-1" /><span><strong>{t}</strong><span className="block text-[#4A515C]">{d}</span></span></label>
           ))}

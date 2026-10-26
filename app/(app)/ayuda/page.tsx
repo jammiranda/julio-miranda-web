@@ -46,7 +46,7 @@ const SECCIONES: Sec[] = [
     id: "bot", t: "Bot · Conocimiento", para: ["gerente", "coordinacion"], link: "/bot",
     pasos: [
       "Acá ves lo que el equipo le enseñó al asistente y podés agregar, editar o desactivar respuestas.",
-      "*Modo del bot*: siempre, solo fuera de horario (lunes a viernes de 8 a 20 h atiende el equipo) o nunca (solo registra y avisa).",
+      "*Modo del bot*: siempre, solo fuera de horario (lunes a viernes de 8 a 18 h atiende el equipo) o nunca (solo registra y avisa).",
     ],
   },
   {

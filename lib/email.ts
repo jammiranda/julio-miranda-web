@@ -126,8 +126,35 @@ export async function procesarCola(max = LIMITE_DIARIO) {
     const r = await enviarBrevo({ email: x.email, name: x.nombre }, x.asunto.replace(/\{\{nombre\}\}/g, x.nombre ? x.nombre.split(" ")[0] : "").trim(), html, baja)
     await q("update em_envios set estado=$1, error=$2, proveedor_id=$3, enviado_en=case when $1='enviado' then now() else enviado_en end where id=$4", [r.ok ? "enviado" : "error", r.ok ? null : r.error, r.ok ? r.id ?? null : null, x.id])
     if (r.ok) enviados++
-    else if (/key|unauthorized|forbidden|limit|quota/i.test(r.error ?? "")) break
+    else if (/key|unauthorized|forbidden|limit|quota|sender|not valid|activat|blocked|suspend/i.test(r.error ?? "")) break
   }
   await q(`update em_campanias k set estado='enviada', terminada=now() where estado='enviando' and not exists (select 1 from em_envios e where e.campania_id=k.id and e.estado='pendiente')`)
   return { enviados, motivo: lote.length < cupo ? "Cola vacía" : "Sigue mañana" }
+}
+
+/** Diagnóstico de Brevo: cuenta, créditos y si el remitente está validado. */
+export async function diagnosticoBrevo(): Promise<{ ok: boolean; problemas: string[]; info: string[] }> {
+  const key = process.env.BREVO_API_KEY
+  if (!key) return { ok: false, problemas: ["Falta la clave de Brevo (BREVO_API_KEY) en Vercel."], info: [] }
+  const h = { "api-key": key, accept: "application/json" }
+  const problemas: string[] = [], info: string[] = []
+  try {
+    const a = await fetch("https://api.brevo.com/v3/account", { headers: h, cache: "no-store" })
+    if (a.status === 401) return { ok: false, problemas: ["Brevo rechaza la clave (BREVO_API_KEY inválida o revocada). Generá una nueva en Brevo → SMTP y API → Claves API y cargala en Vercel."], info }
+    const ja = await a.json().catch(() => ({}))
+    const planes = (ja.plan ?? []) as { type: string; credits: number; creditsType: string }[]
+    for (const pl of planes) info.push(`Plan ${pl.type}: ${pl.credits} ${pl.creditsType === "sendLimit" ? "envíos disponibles" : "créditos"}`)
+    if (planes.length && planes.every((pl) => Number(pl.credits) <= 0)) problemas.push("La cuenta de Brevo no tiene créditos de envío disponibles.")
+    if (ja.relay && ja.relay.enabled === false) problemas.push("El envío transaccional (SMTP) de Brevo no está activado en la cuenta: hay que pedir la activación en Brevo → SMTP y API.")
+  } catch (e) { problemas.push("No se pudo consultar la cuenta de Brevo: " + (e as Error).message) }
+  try {
+    const r = await fetch("https://api.brevo.com/v3/senders", { headers: h, cache: "no-store" })
+    const j = await r.json().catch(() => ({}))
+    const lista = (j.senders ?? []) as { email: string; active: boolean }[]
+    const s = lista.find((x) => x.email.toLowerCase() === REMITENTE.email.toLowerCase())
+    if (!s) problemas.push(`El remitente ${REMITENTE.email} no está cargado en Brevo. Agregalo en Brevo → Remitentes, dominio e IP, o usá uno validado${lista.length ? ` (validados: ${lista.filter((x) => x.active).map((x) => x.email).join(", ") || "ninguno"})` : ""}.`)
+    else if (!s.active) problemas.push(`El remitente ${REMITENTE.email} está cargado en Brevo pero sin validar: confirmá el correo de verificación o autenticá el dominio devisebit.com.`)
+    else info.push(`Remitente ${REMITENTE.email} validado.`)
+  } catch {}
+  return { ok: problemas.length === 0, problemas, info }
 }

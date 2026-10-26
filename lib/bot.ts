@@ -1,5 +1,7 @@
 import { q, one } from "./db"
-import { BOTS, type Empresa } from "./bots/conocimiento"
+import { BOTS, EQUIPO, NOMBRE_BOT, type Empresa } from "./bots/conocimiento"
+import { preciosParaBot } from "./precios"
+import { MATERIALES } from "./materiales"
 import { enviarTexto } from "./whatsapp"
 import { notificar } from "./push"
 import { desdeTexto, limpiarRef, type Origen } from "./origen"
@@ -8,7 +10,7 @@ import { sugerencias, reservar, deLocal, linkAgenda } from "./agenda"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
 type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
-type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado; reunion?: string | null }
+type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado; reunion?: string | null; area?: string | null }
 const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
 
 /** Preguntas de calificación, en orden. Se hacen de a una, como lo haría una persona de atención. */
@@ -22,14 +24,14 @@ const PREGUNTAS: Record<Empresa, { k: string; p: (d: Record<string, string>) => 
 }
 /** Temas del menú que arrancan la toma de datos (la persona quiere avanzar). */
 const INICIAN: Record<Empresa, string[]> = {
-  devisebit: ["A medida", "WhatsApp IA", "Tableros", "Productos", "Precio"],
+  devisebit: ["A medida", "WhatsApp IA", "Redes", "Productos", "Precio", "Tableros"],
 }
 
 function cierre(e: Empresa, d: Record<string, string>, brief?: string | null, agenda?: string | null) {
   const nombre = d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""
   const ag = agenda ? `\n\n📅 Y si querés avanzar ya, elegí día y hora para una videollamada de 30 minutos sin costo: ${agenda} (o decime acá qué día y horario te queda cómodo).` : "\n\n📅 ¿Qué día y horario te queda cómodo para una videollamada de 30 minutos sin costo?"
   const br = brief ? `\n\n📝 Para darte una *propuesta preliminar con alcance, plazo y rango de inversión en 48 h hábiles*, completá este brief de 3 minutos: ${brief}` : ""
-  return `¡Gracias${nombre}! ✅ Ya tengo lo principal.${br}${ag}\n\nMientras tanto podés ver proyectos que hicimos: www.devisebit.com/trabajos`
+  return `¡Gracias${nombre}! ✅ Ya tengo lo principal.${br}${ag}\n\nMientras tanto podés ver proyectos que hicimos: www.devisebit.com/casos-de-exito`
 }
 
 /** Lo que el equipo le fue enseñando al bot (Sistema → Bot · Conocimiento). */
@@ -38,11 +40,21 @@ export async function aprendido(e: Empresa) {
   return r.map((x) => (x.pregunta ? `- Si preguntan: "${x.pregunta}" → ${x.respuesta}` : `- ${x.respuesta}`)).join("\n")
 }
 
-function sistema(e: Empresa, extra = "", ctx = "") {
+function sistema(e: Empresa, extra = "", ctx = "", lista = "") {
   const b = BOTS[e]
   const objetivo = "Tu objetivo es atender como el mejor vendedor consultivo: entender la necesidad, mostrar cómo DEVISEBIT la resuelve con ejemplos y casos reales, despejar dudas u objeciones, y llevar la conversación a un próximo paso concreto: que deje sus datos para recibir una propuesta, o que reserve una reunión de 30 minutos sin costo. Hacé una pregunta por mensaje y siempre terminá con una pregunta o una invitación a avanzar."
-  return `Sos el asistente de WhatsApp de ${b.nombre}. Conversás con personas reales.
+  return `Sos ${NOMBRE_BOT}, el asistente con inteligencia artificial de WhatsApp de ${b.nombre}. Conversás con personas reales.
 ${objetivo}
+
+IDENTIDAD: te llamás ${NOMBRE_BOT}. Si te preguntan tu nombre o si sos una persona, decí que sos ${NOMBRE_BOT}, el asistente con IA de DEVISEBIT, y que del otro lado hay un equipo. Nunca digas que sos una persona ni firmes con el nombre de alguien del equipo.
+
+EQUIPO (para derivar al que corresponde y nombrarlo: "te paso con Bárbara, de coordinación"):
+${EQUIPO.map((x) => `- ${x.nombre} (${x.rol}): ${x.cuando}. area="${x.area}"`).join("\n")}
+
+${lista ? `LISTA DE PRECIOS VIGENTE (pesos argentinos, finales; podés y debés informarlos cuando pregunten o cuando sirva para avanzar):\n${lista}\n` : ""}
+MATERIAL PARA MANDAR (mandá el link apenas lo pidan o cuando ayude a decidir; no hace falta que lo pidan):
+${MATERIALES.filter((m) => m.link).map((m) => `- ${m.n}: ${m.link}`).join("\n")}
+- Datos de pago: transferencia a DEVISEBIT SRL, alias *devisebitsrl* (10% de descuento). Mandalos cuando la persona quiera pagar o señar.
 
 INFORMACIÓN OFICIAL (lo único que podés afirmar):
 ${b.presentacion}
@@ -60,14 +72,16 @@ DATOS A CONSEGUIR, de a uno, de forma natural: ${b.datos.map((d) => d.n).join(";
 REGLAS:
 - Español rioplatense, cálido, seguro y profesional. Mensajes cortos (2 a 5 líneas), aptos para WhatsApp; podés usar *negrita* y algún emoji con moderación.
 - Nunca dejes a la persona sin respuesta ni le digas solo "te derivo": respondé lo que preguntó y proponé el próximo paso.
-- No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. Solo podés mencionar los RANGOS DE REFERENCIA del catálogo, siempre como "proyectos de este tipo suelen ir de X a Y según alcance; el precio final es fijo y por escrito". Si un servicio no tiene rango, no des números.
+- No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. Para los paquetes usá los precios exactos de la LISTA DE PRECIOS. Para proyectos a medida podés mencionar los RANGOS DE REFERENCIA del catálogo, como "proyectos de este tipo suelen ir de X a Y según alcance; el precio final es fijo y por escrito". Nunca inventes descuentos.
+- Cuando pidan información, brochure, precios, ejemplos, cómo pagar, cómo agendar o el brief, mandá el link correspondiente en ese mismo mensaje.
+- Si la persona quiere contratar: confirmá el paquete y el precio, pedí nombre o razón social, CUIT y email para el contrato, mandá el alias para la seña y avisá que el contrato llega por este chat para firmar desde el celular. Marcá derivar=true con area="coordinacion".
 - CIERRE DE VENTA: apenas sepas qué necesita y el nombre, no te quedes en "el equipo te escribe". Dale valor y un próximo paso concreto en el mismo mensaje: 1) el rango de referencia si existe para ese servicio, 2) el link del brief de 3 minutos para recibir una propuesta preliminar en 48 h hábiles, 3) invitá a reservar la videollamada: ofrecé 2 o 3 horarios de la lista HORARIOS LIBRES o el link de agenda, y preguntá qué día y hora le queda mejor, y 4) un link de casos o del servicio que se relacione (www.devisebit.com/trabajos, www.devisebit.com/productos o el link del servicio). Usá urgencia amable (por ejemplo: "si lo completás hoy, el lunes tenés la propuesta"). Preguntá cuál de las opciones prefiere.
 - Objeciones típicas: "es caro" → explicá que se puede arrancar por una primera etapa (MVP) y crecer; "lo tengo que pensar" → ofrecé el brief para que tenga una propuesta concreta para decidir; "ya tengo proveedor" → ofrecé una segunda opinión sin costo.
-- derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, o cuando ya tenés los datos principales y corresponde que el equipo tome el caso (en ese caso confirmá que una persona sigue por este mismo chat, de lunes a viernes de 8 a 20 h).
+- derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, si quiere contratar o cuando ya tenés los datos principales y corresponde que el equipo tome el caso. En "area" poné a quién va según EQUIPO y nombralo en la respuesta ("te escribe Bárbara, de coordinación, por este mismo chat"). Horario del equipo: lunes a viernes de 8 a 18 h; fuera de horario aclaralo y seguí ayudando vos.
 
 - AGENDA: cuando la persona elija un horario que esté EXACTAMENTE en HORARIOS LIBRES, poné su clave en "reunion" (por ejemplo "2026-10-27T10:00") y en "respuesta" solo una línea de confirmación (el sistema agrega fecha, link y recordatorio). Si pide un día u hora que no está, ofrecé los más cercanos de la lista o el link de agenda. Nunca inventes horarios.
 
-Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false,"reunion":null}
+Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false,"area":null,"reunion":null}
 En "datos" poné solo lo que la persona dijo explícitamente en toda la conversación.`
 }
 
@@ -86,7 +100,7 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001", max_tokens: 800, system: sistema(e, await aprendido(e).catch(() => ""), ctx), messages: msgs }),
+      body: JSON.stringify({ model: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001", max_tokens: 1000, system: sistema(e, await aprendido(e).catch(() => ""), ctx, await preciosParaBot().catch(() => "")), messages: msgs }),
     })
     if (!r.ok) return null
     const j = await r.json()
@@ -95,7 +109,7 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     if (!m) return null
     const o = JSON.parse(m[0])
     if (!o.respuesta) return null
-    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, estado: {}, reunion: typeof o.reunion === "string" ? o.reunion : null }
+    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, area: typeof o.area === "string" ? o.area : null, estado: {}, reunion: typeof o.reunion === "string" ? o.reunion : null }
   } catch {
     return null
   }
@@ -249,11 +263,13 @@ ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; c
   await q("update wa_chats set estado=$1 where empresa=$2 and wa_id=$3", [JSON.stringify(res.estado ?? {}), e, waId])
   if (res.derivar) {
     const quien = v("nombre") ?? perfil ?? "Cliente"
-    await notificar(roles, res.pedidoHumano ? `🙋 Pide hablar con una persona · ${marca}` : `✅ Consulta lista para seguir · ${marca}`, `${quien}${v("motivo") ? ` — ${v("motivo")}` : ""}${v("organizacion") ? ` (${v("organizacion")})` : ""}`, `/consultas/${cid}`)
+    const resp = EQUIPO.find((x) => x.area === res.area)
+    if (resp) await q("update consultas set asignado=coalesce(asignado,$1) where id=$2", [resp.nombre, cid])
+    await notificar(roles, res.pedidoHumano ? `🙋 Pide hablar con una persona · ${marca}` : `✅ Consulta lista para seguir · ${marca}`, `${resp ? `Para ${resp.nombre} · ` : ""}${quien}${v("motivo") ? ` — ${v("motivo")}` : ""}${v("organizacion") ? ` (${v("organizacion")})` : ""}`, `/consultas/${cid}`)
   }
   for (const r of res.respuestas) {
     const env = await enviarTexto(e, waId, r)
-    await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'bot',$3,$4,'Asistente')", [e, waId, env.ok ? r : `[no enviado: ${env.error}] ${r}`, env.ok ? env.id ?? null : null])
+    await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'bot',$3,$4,'Bit (asistente IA)')", [e, waId, env.ok ? r : `[no enviado: ${env.error}] ${r}`, env.ok ? env.id ?? null : null])
   }
 }
 
@@ -276,7 +292,7 @@ export async function modoBot(e: Empresa): Promise<"siempre" | "fuera_horario" |
 export function enHorario(d = new Date()) {
   const ar = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }))
   const dia = ar.getDay(), h = ar.getHours()
-  return dia >= 1 && dia <= 5 && h >= 8 && h < 20
+  return dia >= 1 && dia <= 5 && h >= 8 && h < 18
 }
 
 /** Cuando el bot ya tiene nombre y algo más (organización, motivo o email), crea o completa el contacto en el CRM comercial. */
