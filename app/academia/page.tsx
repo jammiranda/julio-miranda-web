@@ -1,3 +1,4 @@
+import { ultimosVideos, YT_URL, YT_SUSCRIBIR } from "@/lib/youtube"
 import Link from "next/link"
 import { q, one } from "@/lib/db"
 import { sembrar } from "@/lib/academia"
@@ -6,6 +7,7 @@ import Suscribir from "@/components/Suscribir"
 export const dynamic = "force-dynamic"
 
 export default async function Academia() {
+  const videos = await ultimosVideos(6)
   await sembrar()
   const [guias, kit, subs] = await Promise.all([
     q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 12"),
@@ -57,6 +59,31 @@ export default async function Academia() {
           </div>
         </section>
       )}
+
+      <section id="videos" className="max-w-6xl mx-auto px-4 pb-14 scroll-mt-20">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+          <div><h2 className="m-0 text-3xl font-extrabold">Videos</h2><p className="m-0 mt-1 text-[#4A515C]">Guías en video, casos reales y tips rápidos de IA para tu organización.</p></div>
+          <a href={YT_SUSCRIBIR} target="_blank" rel="noopener noreferrer" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17]">▶ Suscribirme al canal</a>
+        </div>
+        {videos.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {videos.map((v) => (
+              <div key={v.id} className="rounded-2xl overflow-hidden bg-white border border-[#E2E5EA]">
+                <div className={v.corto ? "aspect-[9/16] max-h-[520px] mx-auto bg-black" : "aspect-video bg-black"}>
+                  <iframe src={`https://www.youtube-nocookie.com/embed/${v.id}`} title={v.titulo} loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen className="w-full h-full border-0" />
+                </div>
+                <p className="m-0 p-4 font-semibold">{v.titulo}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <a href={YT_URL} target="_blank" rel="noopener noreferrer" className="block rounded-3xl bg-[#0E1116] text-white p-8 sm:p-10 no-underline">
+            <p className="m-0 text-xs font-semibold uppercase tracking-[0.2em] text-[#FF6A63]">Nuevo canal</p>
+            <p className="m-0 mt-2 text-2xl font-extrabold">Los primeros videos se están publicando</p>
+            <p className="m-0 mt-2 text-white/75">Suscribite en YouTube para verlos apenas salen: guías, casos de éxito y demos de agentes de WhatsApp con IA.</p>
+          </a>
+        )}
+      </section>
 
       <section className="max-w-6xl mx-auto px-4 pb-16 grid grid-cols-1 md:grid-cols-3 gap-4">
         {[["Para pymes e instituciones", "Ejemplos reales de Argentina, con herramientas que podés usar mañana."], ["Hecho por quienes lo implementan", "Somos DEVISEBIT: desde 2009 desarrollamos software e IA en producción."], ["¿Preferís que lo hagamos nosotros?", "Te armamos la solución con alcance, fecha y precio fijo."]].map(([t, d], i) => (

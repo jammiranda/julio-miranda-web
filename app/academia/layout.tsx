@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
-const OG_ACADEMIA = "https://desarrollo.devisebit.com/og/og-academia.jpg"
+import { YT_URL, YT_SUSCRIBIR } from "@/lib/youtube"
+
+const OG_ACADEMIA = "https://sistema.devisebit.com/marca/og-academia.jpg"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://academia.devisebit.com"),
@@ -25,6 +27,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
           </Link>
           <nav aria-label="Academia" className="flex items-center gap-1 text-sm">
             <Link href="/guias" className="px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Guías</Link>
+            <a href="/#videos" className="px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Videos</a>
             <Link href="/productos/kit-ia-pymes" className="hidden sm:inline-block px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Kit IA</Link>
             <a href="https://www.devisebit.com/servicios" className="hidden md:inline-block px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Servicios</a>
             <a href="/#suscribirme" className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] py-2">Suscribirme</a>
@@ -35,7 +38,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
       <footer className="ficha-head bg-[#0E1116] text-white/70 text-sm">
         <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div><p className="m-0 text-white font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="font-semibold text-white/60 tracking-[0.2em] text-xs uppercase">Academia</span></p><p className="m-0 mt-2">IA y tecnología aplicada, explicada simple. Desde 2009 haciendo software para salud, gobierno, universidades, gremios y empresas.</p></div>
-          <div className="flex flex-col gap-1"><span className="text-white font-semibold">Aprender</span><Link href="/guias" className="hover:text-white">Todas las guías</Link><Link href="/productos/kit-ia-pymes" className="hover:text-white">Kit IA para pymes</Link><a href="/#suscribirme" className="hover:text-white">Newsletter</a></div>
+          <div className="flex flex-col gap-1"><span className="text-white font-semibold">Aprender</span><Link href="/guias" className="hover:text-white">Todas las guías</Link><Link href="/productos/kit-ia-pymes" className="hover:text-white">Kit IA para pymes</Link><a href="/#suscribirme" className="hover:text-white">Newsletter</a><a href={YT_URL} className="hover:text-white">Canal de YouTube</a><a href={YT_SUSCRIBIR} className="hover:text-white">Suscribirme en YouTube</a></div>
           <div className="flex flex-col gap-1"><span className="text-white font-semibold">DEVISEBIT SRL</span><a href="https://www.devisebit.com" className="hover:text-white">devisebit.com</a><a href={WA} className="hover:text-white">WhatsApp +54 9 11 7346-6490</a><a href="https://www.devisebit.com/privacidad" className="hover:text-white">Privacidad</a></div>
         </div>
       </footer>
