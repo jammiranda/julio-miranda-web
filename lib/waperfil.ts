@@ -47,7 +47,9 @@ async function gj(url: string, init?: RequestInit) {
 async function ids(token: string) {
   const d = await gj(`${G}/debug_token?input_token=${token}&access_token=${token}`)
   const data = d.j?.data ?? {}
-  const waba = (data.granular_scopes ?? []).find((s: any) => s.scope === "whatsapp_business_management")?.target_ids?.[0] ?? null
+  const sc = (data.granular_scopes ?? []) as any[]
+  const guardado = await one<{ valor: string }>("select valor from config where clave='wa_waba'").catch(() => null)
+  const waba = process.env.WA_WABA_ID || sc.find((s) => s.scope === "whatsapp_business_management")?.target_ids?.[0] || sc.find((s) => s.scope === "whatsapp_business_messaging")?.target_ids?.[0] || guardado?.valor || null
   return { app: data.app_id as string | undefined, waba: waba as string | null }
 }
 
@@ -66,7 +68,8 @@ export async function asegurarPerfil(forzar = false) {
   const { phoneId, token } = cuenta()
   if (!phoneId || !token) return { ok: false, error: "WhatsApp no configurado" }
   const hecho = await one<{ valor: string }>("select valor from config where clave='wa_perfil'").catch(() => null)
-  if (!forzar && hecho?.valor === PERFIL_VERSION) return { ok: true, ya: true }
+  const wabaConocida = !!(await one("select 1 from config where clave='wa_waba'").catch(() => null)) || !!process.env.WA_WABA_ID
+  if (!forzar && (hecho?.valor === PERFIL_VERSION + ":t" || (hecho?.valor === PERFIL_VERSION && !wabaConocida))) return { ok: true, ya: true }
   await q("insert into config(clave,valor) values ('wa_perfil',$1) on conflict (clave) do update set valor=excluded.valor", [PERFIL_VERSION])
   const out: Record<string, unknown> = {}
   const { app, waba } = await ids(token)
@@ -93,6 +96,7 @@ export async function asegurarPerfil(forzar = false) {
     out.plantillas = pl
   } else out.plantillas = "sin cuenta de WhatsApp Business en el token"
   if (out.perfil !== "ok") await q("delete from config where clave='wa_perfil'")
+  else if (waba) await q("update config set valor=$1 where clave='wa_perfil'", [PERFIL_VERSION + ":t"])
   await q("insert into config(clave,valor) values ('wa_perfil_resultado',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify({ ...out, cuando: new Date().toISOString() })])
   return { ok: out.perfil === "ok", ...out }
 }

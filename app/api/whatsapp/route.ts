@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { waitUntil } from "@vercel/functions"
 import { empresaPorPhoneId, empresaPorIG, firmaValida, marcarLeido, perfilIG } from "@/lib/whatsapp"
 import { procesar } from "@/lib/bot"
+import { q } from "@/lib/db"
 import { desdeReferral } from "@/lib/origen"
 
 export const dynamic = "force-dynamic"
@@ -42,6 +43,8 @@ export async function POST(req: NextRequest) {
     const v = ch.value ?? {}
     const e = empresaPorPhoneId(v.metadata?.phone_number_id)
     if (!e) continue
+    // El id de la entrada es la cuenta de WhatsApp Business: hace falta para cargar las plantillas
+    if (entry.id) tareas.push(q("insert into config(clave,valor) values ('wa_waba',$1) on conflict (clave) do update set valor=excluded.valor where config.valor <> excluded.valor", [String(entry.id)]).catch(() => {}))
     const perfiles: Record<string, string> = Object.fromEntries((v.contacts ?? []).map((c: any) => [c.wa_id, c.profile?.name]))
     for (const m of v.messages ?? []) {
       const texto = m.type === "text" ? m.text?.body : m.type === "button" ? m.button?.text : m.type === "interactive" ? (m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title) : (m[m.type]?.caption ?? null)
