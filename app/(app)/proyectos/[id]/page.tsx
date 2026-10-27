@@ -216,7 +216,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
           {searchParams.herr && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.herr === "titulo" ? "Falta el título de la novedad." : searchParams.herr === "url" ? "El link tiene que empezar con https://" : searchParams.herr}</p>}
           <FaseBarra fase={p.fase} terminado={p.estado === "terminado"} detalle />
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-            <form action={nuevoHito} className="lg:col-span-2 flex flex-col gap-2 rounded-xl bg-[#F8F9FB] p-4 content-start">
+            <form key={searchParams.hok ?? "nuevo"} action={nuevoHito} className="lg:col-span-2 flex flex-col gap-2 rounded-xl bg-[#F8F9FB] p-4 content-start">
               <input type="hidden" name="id" value={p.id} />
               <h3 className="m-0 text-sm font-bold">Nueva novedad</h3>
               <label className="lbl">Tipo<select name="tipo" className="inp" defaultValue="avance">{TIPOS_HITO.filter((t) => !["cliente", "sistema"].includes(t.v)).map((t) => <option key={t.v} value={t.v}>{t.n}</option>)}</select></label>

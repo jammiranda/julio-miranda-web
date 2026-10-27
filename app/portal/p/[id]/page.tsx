@@ -84,7 +84,7 @@ export default async function ProyectoCliente({ params, searchParams }: { params
       </div>
 
       {searchParams.ok && (
-        <p role="status" className="m-0 card py-3 text-sm bg-emerald-50 border-emerald-200">
+        <p role="status" className="m-0 card py-3 text-sm !bg-emerald-50 !border-emerald-200">
           {searchParams.ok === "aprobado" ? "¡Gracias! Quedó registrada tu aprobación y el equipo ya fue avisado." : searchParams.ok === "cambios" ? "Recibimos tu pedido de cambios. El equipo te responde a la brevedad." : "Mensaje enviado. Te respondemos a la brevedad."}
         </p>
       )}
@@ -105,7 +105,7 @@ export default async function ProyectoCliente({ params, searchParams }: { params
       </section>
 
       {aprobar.length > 0 && (
-        <section id="aprobar" aria-labelledby="t-apr" className="card border-[#C8231F] flex flex-col gap-3">
+        <section id="aprobar" aria-labelledby="t-apr" className="card !border-[#C8231F] flex flex-col gap-3">
           <h2 id="t-apr" className="m-0 text-base">Para revisar y aprobar ({aprobar.length})</h2>
           {searchParams.falta && <p role="alert" className="m-0 text-sm text-rojo">Contanos qué cambios necesitás para poder ajustarlo.</p>}
           {aprobar.map((h) => (

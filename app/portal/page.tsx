@@ -27,7 +27,7 @@ export default async function Portal() {
       </div>
 
       {pendientes > 0 && (
-        <div role="status" className="card border-[#C8231F] bg-[#FDECEB] flex flex-wrap items-center justify-between gap-3">
+        <div role="status" className="card !border-[#C8231F] !bg-[#FDECEB] flex flex-wrap items-center justify-between gap-3">
           <span><strong>Tenés {pendientes} {pendientes === 1 ? "cosa" : "cosas"} para revisar y aprobar.</strong> <span className="text-sm text-[#4A515C]">Tu aprobación nos permite avanzar sin demoras.</span></span>
           {proyectos.find((p) => p.pendientes) && <Link href={`/portal/p/${proyectos.find((p) => p.pendientes)!.id}#aprobar`} className="btn-p py-1.5">Revisar</Link>}
         </div>
