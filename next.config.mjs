@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // Fotos del perfil de WhatsApp y archivos chicos desde formularios
+  experimental: { serverActions: { bodySizeLimit: "5mb" } },
   async headers() {
     return [
       { source: "/:path*", headers: [

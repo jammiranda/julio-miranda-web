@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { one } from "@/lib/db"
 import { diagnosticoBrevo } from "@/lib/email"
 import { asegurarPerfil, estadoPerfil } from "@/lib/waperfil"
+import { gcalConfig, probarGcal } from "@/lib/agenda"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -18,6 +19,8 @@ export async function GET() {
     // Perfil de WhatsApp: se carga una sola vez por versión (después solo informa el estado)
     await asegurarPerfil().catch(() => null)
     const wa = await estadoPerfil().catch(() => null)
+    const gc = await gcalConfig().catch(() => null)
+    const gcPrueba = gc?.url ? await probarGcal().catch(() => null) : null
     return NextResponse.json({
       ok: true, db_ms: Date.now() - t0,
       email: { cola: em?.pend ?? null, errores: em?.err ?? null, enviados: em?.env ?? null, ultimo_error: ultErr?.error ?? null, brevo_ok: brevo?.ok ?? null, brevo_problemas: brevo?.problemas ?? [] },
@@ -25,6 +28,7 @@ export async function GET() {
       horas_desde_ultima_respuesta_bot: b?.h != null ? Math.round(b.h) : null,
       whatsapp_configurado: !!(process.env.WA_PHONE_ID || process.env.WA_DB_PHONE_ID) && !!(process.env.WA_TOKEN || process.env.WA_DB_TOKEN),
       whatsapp_perfil: wa ? { perfil: wa.perfil ?? null, foto: wa.foto ?? null, plantillas: wa.plantillas ?? null } : null,
+      google_calendar: { url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null },
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
       firma_webhook_configurada: !!process.env.WA_APP_SECRETS,

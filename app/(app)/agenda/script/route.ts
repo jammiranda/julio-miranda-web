@@ -13,7 +13,7 @@ function doPost(e) {
   if (b.accion === 'ocupado') {
     const evs = cal.getEvents(new Date(b.desde), new Date(b.hasta));
     const ocupado = evs
-      .filter(function (ev) { return !ev.isAllDayEvent() && ev.getTransparency && String(ev.getTransparency()) !== 'TRANSPARENT'; })
+      .filter(function (ev) { return !ev.isAllDayEvent() && (!ev.getTransparency || String(ev.getTransparency()) !== 'TRANSPARENT'); })
       .map(function (ev) { return [ev.getStartTime().toISOString(), ev.getEndTime().toISOString()]; });
     return json({ ocupado: ocupado });
   }

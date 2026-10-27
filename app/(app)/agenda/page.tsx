@@ -3,7 +3,6 @@ import { revalidatePath } from "next/cache"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { horario, guardarHorario, gcalConfig, guardarGcalUrl, probarGcal, turnosLibres, leerFranjas, type HorarioAgenda } from "@/lib/agenda"
-import { asegurarPerfil, estadoPerfil, PERFIL } from "@/lib/waperfil"
 import { URL_SISTEMA } from "@/lib/brief"
 import Copiar from "@/components/Copiar"
 
@@ -41,23 +40,14 @@ async function conectarGcal(fd: FormData) {
   redirect(t.ok ? "/agenda?ok=" + encodeURIComponent("Google Calendar conectado") : "/agenda?e=" + encodeURIComponent(`Google no respondió bien (${t.error}). Revisá que la implementación sea "Cualquier persona" y que hayas autorizado el calendario.`))
 }
 
-async function cargarPerfilWA() {
-  "use server"
-  const u = await requerir(["gerente", "coordinacion"])
-  const r = await asegurarPerfil(true)
-  await audit(u, "perfil_whatsapp", "config", 0, JSON.stringify(r).slice(0, 300))
-  redirect(r.ok ? "/agenda?ok=" + encodeURIComponent("Perfil de WhatsApp actualizado") : "/agenda?e=" + encodeURIComponent("WhatsApp: " + JSON.stringify(r)))
-}
-
 export default async function Agenda({ searchParams }: { searchParams: { ok?: string; e?: string } }) {
   await requerir(["gerente", "coordinacion"])
-  const [h, av, prox, libres, gc, wa] = await Promise.all([
+  const [h, av, prox, libres, gc] = await Promise.all([
     horario(),
     one<{ valor: string }>("select valor from config where clave='avisos_email'"),
     q<any>("select r.inicio, r.modalidad, c.nombre, c.organizacion, c.id cid from db_reuniones r left join consultas c on c.id=r.consulta_id where r.estado='confirmada' and r.inicio > now() order by r.inicio limit 8"),
     turnosLibres(3),
     gcalConfig(),
-    estadoPerfil(),
   ])
   const link = `${URL_SISTEMA}/agendar`
   const gcal = !!gc.url
@@ -118,14 +108,8 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
           </form>
         </div>
       </section>
-      <section className="card text-sm flex flex-col gap-2">
-        <h2 className="m-0 text-base">Perfil de WhatsApp Business</h2>
-        <p className="m-0 text-[#4A515C]">Foto, descripción, dirección, email y webs que ve el cliente al abrir el contacto de DEVISEBIT. Se carga solo; si cambiás algo, tocá «Volver a cargar».</p>
-        <p className="m-0"><strong>Info:</strong> {PERFIL.about}</p>
-        <p className="m-0 whitespace-pre-line"><strong>Descripción:</strong> {PERFIL.description}</p>
-        <p className="m-0"><strong>Webs:</strong> {PERFIL.websites.join(" · ")} · <strong>Email:</strong> {PERFIL.email}</p>
-        {wa && <p className="m-0 text-xs text-[#4A515C]">Última carga: {fmt(wa.cuando)} · perfil {String(wa.perfil)} · foto {String(wa.foto ?? "—")} · plantillas {wa.plantillas && typeof wa.plantillas === "object" ? Object.entries(wa.plantillas).map(([k, v]) => `${k}: ${v}`).join(", ") : String(wa.plantillas)}</p>}
-        <form action={cargarPerfilWA}><button className="btn-s">Volver a cargar</button></form>
+      <section className="card text-sm flex flex-wrap items-center justify-between gap-2">
+        <span>El perfil de WhatsApp (foto, descripción, webs) se edita en <a href="/whatsapp-business" className="underline font-semibold">WhatsApp Business</a>.</span>
       </section>
     </div>
   )

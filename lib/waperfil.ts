@@ -10,7 +10,8 @@ const V = process.env.WA_GRAPH_VERSION ?? "v23.0"
 const G = `https://graph.facebook.com/${V}`
 export const PERFIL_VERSION = "2026-10-27b"
 
-export const PERFIL = {
+export type Perfil = { about: string; description: string; address: string; email: string; websites: string[]; vertical: string }
+export const PERFIL: Perfil = {
   about: "IA, webs y sistemas a medida · Te atiende Bit 24 h",
   description:
     "DEVISEBIT SRL · Software e inteligencia artificial desde 2009.\n" +
@@ -37,6 +38,31 @@ export const PLANTILLAS = [
   },
 ]
 
+/** Datos del perfil: los editados en el sistema (Sistema → WhatsApp Business) o los de arriba. */
+export async function perfilActual(): Promise<Perfil> {
+  const r = await one<{ valor: string }>("select valor from config where clave='wa_perfil_datos'").catch(() => null)
+  try { return { ...PERFIL, ...(r ? JSON.parse(r.valor) : {}) } } catch { return PERFIL }
+}
+export async function guardarPerfilDatos(p: Perfil) {
+  await q("insert into config(clave,valor) values ('wa_perfil_datos',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify(p)])
+}
+export async function guardarFoto(f: { t: string; d: string } | null) {
+  if (!f) { await q("delete from config where clave='wa_perfil_foto'"); return }
+  await q("insert into config(clave,valor) values ('wa_perfil_foto',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify(f)])
+}
+export async function fotoActual(): Promise<{ t: string; d: string } | null> {
+  const r = await one<{ valor: string }>("select valor from config where clave='wa_perfil_foto'").catch(() => null)
+  try { return r ? JSON.parse(r.valor) : null } catch { return null }
+}
+/** Lee el perfil tal como lo tiene hoy WhatsApp. */
+export async function perfilEnWhatsApp() {
+  const { phoneId, token } = cuenta()
+  if (!phoneId || !token) return null
+  const r = await gj(`${G}/${phoneId}/whatsapp_business_profile?fields=about,address,description,email,profile_picture_url,websites,vertical&access_token=${token}`)
+  const n = await gj(`${G}/${phoneId}?fields=verified_name,display_phone_number,quality_rating,name_status&access_token=${token}`)
+  return { ...(r.j?.data?.[0] ?? {}), ...(n.ok ? n.j : {}) }
+}
+
 async function gj(url: string, init?: RequestInit) {
   const r = await fetch(url, init)
   const j = await r.json().catch(() => ({}))
@@ -54,10 +80,15 @@ async function ids(token: string) {
 }
 
 async function subirFoto(app: string, token: string) {
-  const img = await fetch(`${URL_SISTEMA}/wa-perfil.jpg`)
-  if (!img.ok) return { error: `foto ${img.status}` }
-  const buf = Buffer.from(await img.arrayBuffer())
-  const s = await gj(`${G}/${app}/uploads?file_length=${buf.length}&file_type=image/jpeg&access_token=${token}`, { method: "POST" })
+  const propia = await fotoActual()
+  let buf: Buffer, tipo = "image/jpeg"
+  if (propia) { buf = Buffer.from(propia.d, "base64"); tipo = propia.t }
+  else {
+    const img = await fetch(`${URL_SISTEMA}/wa-perfil.jpg`)
+    if (!img.ok) return { error: `foto ${img.status}` }
+    buf = Buffer.from(await img.arrayBuffer())
+  }
+  const s = await gj(`${G}/${app}/uploads?file_length=${buf.length}&file_type=${tipo}&access_token=${token}`, { method: "POST" })
   if (!s.j?.id) return { error: s.j?.error?.message ?? "no se pudo iniciar la subida" }
   const u = await gj(`${G}/${s.j.id}`, { method: "POST", headers: { Authorization: `OAuth ${token}`, file_offset: "0" }, body: buf })
   return u.j?.h ? { h: u.j.h as string } : { error: u.j?.error?.message ?? "no se pudo subir la foto" }
@@ -77,7 +108,7 @@ export async function asegurarPerfil(forzar = false) {
   if (app) { const f = await subirFoto(app, token); if ("h" in f) foto = f.h; else out.foto = f.error } else out.foto = "sin app id"
   const p = await gj(`${G}/${phoneId}/whatsapp_business_profile`, {
     method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ messaging_product: "whatsapp", ...PERFIL, ...(foto ? { profile_picture_handle: foto } : {}) }),
+    body: JSON.stringify({ messaging_product: "whatsapp", ...(await perfilActual()), ...(foto ? { profile_picture_handle: foto } : {}) }),
   })
   out.perfil = p.ok ? "ok" : p.j?.error?.message
   if (foto) out.foto = p.ok ? "ok" : out.perfil
