@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { one } from "@/lib/db"
+import { diagnosticoBrevo } from "@/lib/email"
 
 export const dynamic = "force-dynamic"
 
@@ -9,8 +10,12 @@ export async function GET() {
   try {
     const r = await one<{ h: number | null }>("select extract(epoch from now() - max(creado))/3600 h from wa_mensajes where autor='cliente'")
     const b = await one<{ h: number | null }>("select extract(epoch from now() - max(creado))/3600 h from wa_mensajes where autor='bot'")
+    const em = await one<{ pend: number; err: number; env: number }>("select count(*) filter (where estado='pendiente')::int pend, count(*) filter (where estado='error')::int err, count(*) filter (where estado='enviado')::int env from em_envios").catch(() => null)
+    const ultErr = await one<{ error: string }>("select error from em_envios where estado='error' and error is not null order by id desc limit 1").catch(() => null)
+    const brevo = await diagnosticoBrevo().catch(() => null)
     return NextResponse.json({
       ok: true, db_ms: Date.now() - t0,
+      email: { cola: em?.pend ?? null, errores: em?.err ?? null, enviados: em?.env ?? null, ultimo_error: ultErr?.error ?? null, brevo_ok: brevo?.ok ?? null, brevo_problemas: brevo?.problemas ?? [] },
       horas_desde_ultimo_mensaje_cliente: r?.h != null ? Math.round(r.h) : null,
       horas_desde_ultima_respuesta_bot: b?.h != null ? Math.round(b.h) : null,
       whatsapp_configurado: !!(process.env.WA_PHONE_ID || process.env.WA_DB_PHONE_ID) && !!(process.env.WA_TOKEN || process.env.WA_DB_TOKEN),
