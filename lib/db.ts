@@ -237,6 +237,27 @@ create table if not exists pv_visitas (
   primary key (dia, host, path, ref, disp)
 );
 insert into am_productos(slug,titulo,bajada,descripcion,precio,moneda,estado) values ('prueba-de-pago','Pago de prueba','Producto de prueba para verificar el cobro con Mercado Pago.','## Pago de prueba\nEste producto sirve solo para probar que el cobro con Mercado Pago funciona de punta a punta: pago, aviso y página de gracias.',100,'ARS','venta') on conflict (slug) do nothing;
+alter table db_proyectos add column if not exists fase text not null default 'inicio';
+create table if not exists db_hitos (
+  id serial primary key,
+  proyecto_id int not null references db_proyectos(id) on delete cascade,
+  tipo text not null default 'avance',
+  titulo text not null, detalle text, url text,
+  fecha timestamptz not null default now(),
+  visible boolean not null default true,
+  requiere_ok boolean not null default false,
+  ok_en timestamptz, ok_comentario text,
+  autor text, creado timestamptz not null default now()
+);
+create index if not exists db_hitos_proy on db_hitos(proyecto_id, fecha desc);
+create table if not exists portal_accesos (
+  id serial primary key,
+  contacto_id int not null references db_contactos(id) on delete cascade,
+  token_hash text unique not null, expira timestamptz not null, usado timestamptz,
+  motivo text not null default 'ingreso',
+  creado timestamptz not null default now()
+);
+alter table db_contactos add column if not exists portal_ultimo timestamptz;
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 

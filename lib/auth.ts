@@ -10,7 +10,7 @@ export type Usuario = { id: number; usuario: string; nombre: string; rol: Rol }
 const COOKIE = "db_sesion"
 /** Clave para firmar las sesiones: AUTH_SECRET si está en Vercel; si no, una propia generada al azar la primera vez y guardada en la base. */
 let _secret: Uint8Array | null = null
-async function secret() {
+export async function secret() {
   if (_secret) return _secret
   let s = process.env.AUTH_SECRET
   if (!s || s.length < 32) {

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
-const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/consultas", "/api/whatsapp", "/api/crm", "/api/salud", "/api/visita", "/api/panel", "/v.js", "/brief", "/agendar", "/fichas", "/api/e/", "/baja", "/api/suscribir", "/api/cron", "/api/academia", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon", "/sw.js", "/robots.txt", "/sitemap.xml", "/descarga", "/gracias", "/lista-precios", "/wa-perfil.jpg", "/marca/"]
+const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/consultas", "/api/whatsapp", "/api/crm", "/api/salud", "/api/visita", "/api/panel", "/v.js", "/brief", "/agendar", "/fichas", "/api/e/", "/baja", "/api/suscribir", "/api/cron", "/api/academia", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon", "/sw.js", "/robots.txt", "/sitemap.xml", "/descarga", "/gracias", "/lista-precios", "/portal", "/wa-perfil.jpg", "/marca/"]
 export function middleware(req: NextRequest) {
   const p = req.nextUrl.pathname
   const host = (req.headers.get("host") ?? "").toLowerCase()
@@ -8,6 +8,13 @@ export function middleware(req: NextRequest) {
     if (p.startsWith("/api") || p.startsWith("/_next") || p.startsWith("/academia") || /\.(png|ico|txt|xml|webmanifest)$/.test(p)) return NextResponse.next()
     const u = req.nextUrl.clone()
     u.pathname = "/academia" + (p === "/" ? "" : p)
+    return NextResponse.rewrite(u)
+  }
+  // portal.devisebit.com: portal de clientes (vive en /portal, maneja su propia sesión)
+  if (host.startsWith("portal.")) {
+    if (p.startsWith("/_next") || p.startsWith("/portal") || /\.(png|ico|txt|xml|webmanifest|js|jpg)$/.test(p)) return NextResponse.next()
+    const u = req.nextUrl.clone()
+    u.pathname = "/portal" + (p === "/" ? "" : p)
     return NextResponse.rewrite(u)
   }
   if (PUBLIC.some((x) => p.startsWith(x)) || p === "/academia" || p.startsWith("/academia/")) return NextResponse.next()

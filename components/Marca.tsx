@@ -1,4 +1,4 @@
-export default function Marca({ chico = false }: { chico?: boolean }) {
+export default function Marca({ chico = false, sub = "SISTEMA COMERCIAL" }: { chico?: boolean; sub?: string }) {
   return (
     <div className="flex items-center gap-2.5">
       <div className={`${chico ? "w-9 h-9" : "w-12 h-12"} rounded-xl bg-[#0E1116] flex items-center justify-center`} aria-hidden="true">
@@ -6,7 +6,7 @@ export default function Marca({ chico = false }: { chico?: boolean }) {
       </div>
       <div className="leading-tight">
         <div className={`${chico ? "text-[17px]" : "text-xl"} font-extrabold tracking-[0.04em] text-[#0E1116]`}>DEVISE<span className="text-[#C8231F]">BIT</span></div>
-        <div className="text-[10px] font-semibold tracking-[0.25em] text-[#4A515C]">SISTEMA COMERCIAL</div>
+        <div className="text-[10px] font-semibold tracking-[0.25em] text-[#4A515C]">{sub}</div>
       </div>
     </div>
   )
