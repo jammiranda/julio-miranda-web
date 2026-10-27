@@ -63,6 +63,7 @@ export default async function WhatsAppBusiness({ searchParams }: { searchParams:
         <label className="lbl md:col-span-2">Dirección<input name="address" defaultValue={p.address} maxLength={256} className="inp" /></label>
         <label className="lbl">Email<input name="email" type="email" defaultValue={p.email} className="inp" /></label>
         <label className="lbl">Rubro<select name="vertical" defaultValue={p.vertical} className="inp">{RUBROS.map(([k, n]) => <option key={k} value={k}>{n}</option>)}</select></label>
+        <p className="m-0 text-xs text-[#4A515C] md:col-span-2">WhatsApp permite hasta 2 links. La dirección es opcional: dejala vacía para que no se muestre.</p>
         <label className="lbl">Web 1<input name="web1" defaultValue={p.websites[0] ?? ""} className="inp" /></label>
         <label className="lbl">Web 2<input name="web2" defaultValue={p.websites[1] ?? ""} className="inp" /></label>
         <label className="lbl">Cambiar foto (JPG o PNG cuadrada, mínimo 640×640)<input name="foto" type="file" accept="image/jpeg,image/png" className="inp" /></label>

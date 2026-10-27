@@ -8,20 +8,18 @@ import { URL_SISTEMA } from "./brief"
  */
 const V = process.env.WA_GRAPH_VERSION ?? "v23.0"
 const G = `https://graph.facebook.com/${V}`
-export const PERFIL_VERSION = "2026-10-27b"
+export const PERFIL_VERSION = "2026-10-27c"
 
 export type Perfil = { about: string; description: string; address: string; email: string; websites: string[]; vertical: string }
 export const PERFIL: Perfil = {
   about: "IA, webs y sistemas a medida · Te atiende Bit 24 h",
   description:
-    "DEVISEBIT SRL · Software e inteligencia artificial desde 2009.\n" +
-    "Páginas web, agentes de WhatsApp con IA, redes y anuncios, sistemas y plataformas para comunidades y gremios.\n" +
-    "Webs: devisebit.com/webs · WhatsApp IA: devisebit.com/whatsapp · Redes: devisebit.com/redes · Sistemas: devisebit.com/sistemas · Comunidades: devisebit.com/comunidad\n" +
-    "Precios: sistema.devisebit.com/lista-precios · Agendá una reunión: sistema.devisebit.com/agendar\n" +
-    "Atención del equipo de lunes a viernes de 8 a 18 h.",
-  address: "Circular Cowork · Av. de los Lagos 7008, Nordelta, Tigre, Buenos Aires",
+    "DEVISEBIT SRL\nSoftware e inteligencia artificial desde 2009.\n\n" +
+    "• Páginas web\n• Agentes de WhatsApp con IA\n• Redes y anuncios\n• Sistemas a medida\n• Plataformas para comunidades y gremios\n• ACADEMIA DEVISEBIT\n\n" +
+    "Atención del equipo: lunes a viernes de 8 a 18 h.\nBit, nuestro asistente, responde las 24 h.",
+  address: "",
   email: "info@devisebit.com",
-  websites: ["https://www.devisebit.com", "https://sistema.devisebit.com/agendar"],
+  websites: ["https://www.devisebit.com", "https://academia.devisebit.com"],
   vertical: "PROF_SERVICES",
 }
 
