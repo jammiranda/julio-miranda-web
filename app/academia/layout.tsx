@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Script from "next/script"
 
 import { YT_URL, YT_SUSCRIBIR } from "@/lib/youtube"
 
@@ -35,6 +36,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
         </div>
       </header>
       <div className="flex-1">{children}</div>
+      <Script src="https://sistema.devisebit.com/v.js" strategy="afterInteractive" />
       <footer className="ficha-head bg-[#0E1116] text-white/70 text-sm">
         <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div><p className="m-0 text-white font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="font-semibold text-white/60 tracking-[0.2em] text-xs uppercase">Academia</span></p><p className="m-0 mt-2">IA y tecnología aplicada, explicada simple. Desde 2009 haciendo software para salud, gobierno, universidades, gremios y empresas.</p></div>
