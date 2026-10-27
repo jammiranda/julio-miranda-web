@@ -43,6 +43,11 @@ export const PRECIOS_INICIALES: Inicial[] = [
 
 export const PAGO = {
   alias: process.env.DB_ALIAS_PAGO ?? "devisebitsrl",
+  titular: "DEVISEBIT SRL",
+  cuit: "30-71770834-9",
+  banco: "Banco Santander",
+  cuenta: "Cuenta corriente en pesos 558-002508/3",
+  cbu: "0720558320000000250836",
   texto: "Transferencia a la cuenta de DEVISEBIT SRL con 10% de descuento, o tarjeta hasta 3 cuotas sin interés (6 a 12 con el interés de tu banco). Proyectos: 50% de seña y el resto contra entrega. Todo con contrato y factura de DEVISEBIT SRL.",
 }
 

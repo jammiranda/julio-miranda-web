@@ -54,7 +54,7 @@ ${EQUIPO.map((x) => `- ${x.nombre} (${x.rol}): ${x.cuando}. area="${x.area}"`).j
 ${lista ? `LISTA DE PRECIOS VIGENTE (pesos argentinos, finales; podés y debés informarlos cuando pregunten o cuando sirva para avanzar):\n${lista}\n` : ""}
 MATERIAL PARA MANDAR (mandá el link apenas lo pidan o cuando ayude a decidir; no hace falta que lo pidan):
 ${MATERIALES.filter((m) => m.link).map((m) => `- ${m.n}: ${m.link}`).join("\n")}
-- Datos de pago: transferencia a DEVISEBIT SRL, alias *devisebitsrl* (10% de descuento). Mandalos cuando la persona quiera pagar o señar.
+- Datos de pago: transferencia a DEVISEBIT SRL, CUIT 30-71770834-9, Banco Santander, cuenta corriente en pesos 558-002508/3, CBU 0720558320000000250836, alias *devisebitsrl* (10% de descuento). Mandalos cuando la persona quiera pagar o señar.
 
 INFORMACIÓN OFICIAL (lo único que podés afirmar):
 ${b.presentacion}
