@@ -3,6 +3,7 @@ import { q, one } from "@/lib/db"
 import { aHtml, plantilla, enviarBrevo } from "@/lib/email"
 import { URL_ACADEMIA } from "@/lib/academia"
 import { notificar } from "@/lib/push"
+import { pagoMPCobro } from "@/lib/pagos"
 export const dynamic = "force-dynamic"
 
 /** Aviso de Mercado Pago: se consulta el pago a la API (no se confía en el cuerpo) y, si está aprobado, se entrega el producto. */
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
   const r = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(String(id))}`, { headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` } })
   if (!r.ok) return NextResponse.json({ ok: true })
   const p = await r.json()
+  if (String(p.external_reference ?? "").startsWith("cobro:")) { await pagoMPCobro(p).catch((e) => console.error("mp cobro", e)); return NextResponse.json({ ok: true }) }
   const orden = Number(p.external_reference)
   if (!orden || p.status !== "approved") return NextResponse.json({ ok: true })
   const o = await one<any>("update am_ordenes set estado='pagada', mp_pago=$1, pagada_en=now() where id=$2 and estado<>'pagada' returning *", [String(p.id), orden])

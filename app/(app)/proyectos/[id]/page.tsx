@@ -5,6 +5,8 @@ import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
 import { FASES, TIPOS_HITO, tipoHito, registrarHito, avisarNovedad, enviarAcceso, urlPortal, fase as faseDe, type Hito } from "@/lib/portal"
 import FaseBarra from "@/components/FaseBarra"
+import { TIPOS_COBRO, tipoCobro, plata, cobrosDe, generarAbonos } from "@/lib/cobros"
+import { registrarPago } from "@/lib/pagos"
 import { ESTADOS_PROY, estadoProy, trelloActivo, trelloCrearTablero, trelloIdDeUrl, trelloResumen, trelloTarjeta, type TrelloResumen } from "@/lib/crm"
 
 export const dynamic = "force-dynamic"
@@ -35,6 +37,7 @@ async function guardar(fd: FormData) {
     pid = r!.id
     await registrarHito(pid, { tipo: "sistema", titulo: "Arrancamos el proyecto", detalle: "Proyecto dado de alta. Desde acá vas a poder seguir cada etapa.", autor: u.nombre })
   }
+  await q("update db_proyectos set moneda=$1 where id=$2", [s(fd.get("moneda_proy")) === "ARS" ? "ARS" : "USD", pid])
   // Trazabilidad automática para el cliente
   if (antes) {
     if (antes.fase !== faseOk) await registrarHito(pid, { tipo: "sistema", titulo: `Pasamos a la etapa: ${faseDe(faseOk).n}`, detalle: faseDe(faseOk).d, autor: u.nombre })
@@ -122,9 +125,55 @@ async function invitar(fd: FormData) {
   redirect(`/proyectos/${id}?${r.ok ? "invitado=1" : `herr=${encodeURIComponent(r.error ?? "error")}`}#portal`)
 }
 
+async function abono(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const monto = num(s(fd.get("abono_monto")))
+  await q("update db_proyectos set abono_monto=$1, abono_moneda=$2, abono_dia=$3, abono_desde=$4, abono_hasta=$5, actualizado=now() where id=$6",
+    [monto, s(fd.get("abono_moneda")) === "USD" ? "USD" : "ARS", Math.min(28, Math.max(1, Number(fd.get("abono_dia")) || 10)), s(fd.get("abono_desde")), s(fd.get("abono_hasta")), id])
+  if (monto) await generarAbonos()
+  await audit(u, "proyecto_abono", "db_proyecto", id, monto ? String(monto) : "sin abono")
+  redirect(`/proyectos/${id}?cok=abono#cobros`)
+}
+
+async function nuevoCobro(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const p = await one<{ contacto_id: number | null; nombre: string }>("select contacto_id, nombre from db_proyectos where id=$1", [id])
+  if (!p?.contacto_id) redirect(`/proyectos/${id}?cerr=${encodeURIComponent("Asigná un cliente al proyecto")}#cobros`)
+  const total = num(s(fd.get("monto")))
+  const vence = s(fd.get("vence"))
+  if (!total || !vence) redirect(`/proyectos/${id}?cerr=${encodeURIComponent("Faltan el monto o el vencimiento")}#cobros`)
+  const cuotas = Math.min(36, Math.max(1, Number(fd.get("cuotas")) || 1))
+  const tipo = TIPOS_COBRO.some((t) => t.v === fd.get("tipo")) ? String(fd.get("tipo")) : "cuota"
+  const moneda = s(fd.get("moneda")) === "USD" ? "USD" : "ARS"
+  const concepto = s(fd.get("concepto")) ?? `${tipoCobro(tipo)} · ${p!.nombre}`
+  const parte = Math.round((total! / cuotas) * 100) / 100
+  for (let k = 0; k < cuotas; k++) {
+    const monto = k === cuotas - 1 ? Math.round((total! - parte * (cuotas - 1)) * 100) / 100 : parte
+    await q(`insert into db_cobros(contacto_id, proyecto_id, tipo, concepto, monto, moneda, vence, creado_por) values ($1,$2,$3,$4,$5,$6, ($7::date + ($8 || ' months')::interval)::date, $9)`,
+      [p!.contacto_id, id, tipo, cuotas > 1 ? `${concepto} (${k + 1}/${cuotas})` : concepto, monto, moneda, vence, String(k), u.nombre])
+  }
+  await audit(u, "crea_cobro", "db_proyecto", id, `${cuotas} x ${moneda} ${parte}`)
+  redirect(`/proyectos/${id}?cok=cobro#cobros`)
+}
+
+async function accionCobro(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id")), cid = Number(fd.get("cobro"))
+  const op = String(fd.get("op"))
+  if (op === "pagado") await registrarPago(cid, { medio: s(fd.get("medio")) ?? "Transferencia", por: u.nombre })
+  else if (op === "anular") { await q("update db_cobros set estado='anulado' where id=$1 and proyecto_id=$2 and estado='pendiente'", [cid, id]); await audit(u, "anula_cobro", "db_cobro", cid) }
+  else if (op === "reabrir") { await q("update db_cobros set estado='pendiente', pagado_en=null, medio=null where id=$1 and proyecto_id=$2", [cid, id]); await audit(u, "reabre_cobro", "db_cobro", cid) }
+  redirect(`/proyectos/${id}#cobros`)
+}
+
 const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : "")
 
-export default async function Proyecto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; terr?: string; contacto?: string; hok?: string; herr?: string; avisado?: string; invitado?: string } }) {
+export default async function Proyecto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; terr?: string; contacto?: string; hok?: string; herr?: string; avisado?: string; invitado?: string; cok?: string; cerr?: string } }) {
   const nuevo = params.id === "nuevo"
   const p: any = nuevo ? { contacto_id: searchParams.contacto ? Number(searchParams.contacto) : null, estado: "planificado" } : await one<any>("select * from db_proyectos where id=$1", [Number(params.id)])
   if (!p) notFound()
@@ -132,6 +181,9 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
     q<any>("select id, nombre, organizacion from db_contactos order by coalesce(organizacion,nombre)"),
     q<any>("select id, nombre from db_servicios where activo or id=$1 order by nombre", [p.servicio_id ?? 0]),
   ])
+  const cobros = nuevo || !p.contacto_id ? [] : (await cobrosDe(p.contacto_id, true)).filter((c) => c.proyecto_id === p.id)
+  const sumar = (est: string) => cobros.filter((c) => c.estado === est).reduce<Record<string, number>>((a, c) => ((a[c.moneda] = (a[c.moneda] ?? 0) + Number(c.monto)), a), {})
+  const tot = (m: Record<string, number>) => Object.entries(m).map(([k, v]) => plata(v, k)).join(" + ") || "—"
   const [hitos, cliente] = nuevo ? [[], null] : await Promise.all([
     q<Hito>("select * from db_hitos where proyecto_id=$1 order by fecha desc, id desc limit 60", [p.id]),
     p.contacto_id ? one<{ nombre: string; email: string | null; portal_ultimo: string | null }>("select nombre, email, portal_ultimo from db_contactos where id=$1", [p.contacto_id]) : Promise.resolve(null),
@@ -160,7 +212,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
         <label className="lbl">Responsable<input name="responsable" defaultValue={p.responsable ?? ""} className="inp" /></label>
         <label className="lbl">Inicio<input name="inicio" type="date" defaultValue={iso(p.inicio)} className="inp" /></label>
         <label className="lbl">Entrega<input name="entrega" type="date" defaultValue={iso(p.entrega)} className="inp" /></label>
-        <label className="lbl">Monto acordado<input name="monto" inputMode="decimal" defaultValue={p.monto ?? ""} className="inp" /></label>
+        <label className="lbl">Monto acordado<span className="flex gap-2"><select name="moneda_proy" defaultValue={p.moneda ?? "USD"} className="inp w-24" aria-label="Moneda"><option>USD</option><option>ARS</option></select><input name="monto" inputMode="decimal" defaultValue={p.monto ?? ""} className="inp" /></span></label>
         <label className="lbl">Tablero de Trello (URL)<input name="trello_url" type="url" defaultValue={p.trello_url ?? ""} placeholder="https://trello.com/b/…" className="inp" /></label>
         <label className="lbl md:col-span-2">Alcance y notas<textarea name="notas" rows={6} defaultValue={p.notas ?? ""} className="inp" /></label>
         <div className="md:col-span-2"><button className="btn-p">Guardar</button></div>
@@ -196,6 +248,74 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
             )}
           </section>
         </aside>
+      )}
+
+      {!nuevo && (
+        <section id="cobros" aria-labelledby="t-cobros" className="card lg:col-span-3 flex flex-col gap-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="t-cobros" className="m-0 text-base">Cobros y abono</h2>
+            <span className="text-sm text-[#4A515C]">Cobrado <strong className="text-emerald-700">{tot(sumar("pagado"))}</strong> · Pendiente <strong className="text-[#0E1116]">{tot(sumar("pendiente"))}</strong>{p.monto ? <> · Acordado {plata(p.monto, p.moneda ?? "USD")}</> : null}</span>
+          </div>
+          {searchParams.cok && <p role="status" className="m-0 text-sm text-emerald-700">{searchParams.cok === "abono" ? "Abono guardado. El cobro del mes se genera solo." : "Cobro cargado. El cliente ya lo ve en su estado de cuenta."}</p>}
+          {searchParams.cerr && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.cerr}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <form action={nuevoCobro} className="flex flex-col gap-2 rounded-xl bg-[#F8F9FB] p-4">
+                <input type="hidden" name="id" value={p.id} />
+                <h3 className="m-0 text-sm font-bold">Nuevo cobro o plan de cuotas</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="lbl">Tipo<select name="tipo" className="inp" defaultValue="cuota">{TIPOS_COBRO.map((t) => <option key={t.v} value={t.v}>{t.n}</option>)}</select></label>
+                  <label className="lbl">Moneda<select name="moneda" className="inp" defaultValue="ARS"><option>ARS</option><option>USD</option></select></label>
+                  <label className="lbl">Monto total<input name="monto" required inputMode="decimal" className="inp" /></label>
+                  <label className="lbl">Cuotas<input name="cuotas" type="number" min={1} max={36} defaultValue={1} className="inp" /></label>
+                  <label className="lbl col-span-2">Primer vencimiento<input name="vence" type="date" required className="inp" /></label>
+                  <label className="lbl col-span-2">Concepto<input name="concepto" className="inp" placeholder={`Ej.: Anticipo 50% · ${p.nombre}`} /></label>
+                </div>
+                <p className="m-0 text-xs text-[#4A515C]">Con varias cuotas, se reparten en partes iguales una por mes.</p>
+                <button className="btn-p">Cargar</button>
+              </form>
+              <form action={abono} className="flex flex-col gap-2 rounded-xl bg-[#F8F9FB] p-4">
+                <input type="hidden" name="id" value={p.id} />
+                <h3 className="m-0 text-sm font-bold">Abono mensual (soporte, hosting, mantenimiento)</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="lbl">Monto<input name="abono_monto" inputMode="decimal" defaultValue={p.abono_monto ?? ""} className="inp" placeholder="Vacío = sin abono" /></label>
+                  <label className="lbl">Moneda<select name="abono_moneda" className="inp" defaultValue={p.abono_moneda ?? "ARS"}><option>ARS</option><option>USD</option></select></label>
+                  <label className="lbl">Vence el día<input name="abono_dia" type="number" min={1} max={28} defaultValue={p.abono_dia ?? 10} className="inp" /></label>
+                  <label className="lbl">Desde<input name="abono_desde" type="date" defaultValue={iso(p.abono_desde)} className="inp" /></label>
+                  <label className="lbl col-span-2">Hasta (opcional)<input name="abono_hasta" type="date" defaultValue={iso(p.abono_hasta)} className="inp" /></label>
+                </div>
+                <p className="m-0 text-xs text-[#4A515C]">Todos los meses se genera solo el cobro, con aviso por email 3 días antes y si se atrasa.</p>
+                <button className="btn-s">Guardar abono</button>
+              </form>
+            </div>
+            <div className="lg:col-span-3 overflow-x-auto">
+              <table className="tbl">
+                <thead><tr><th>Concepto</th><th>Vence</th><th>Monto</th><th>Estado</th><th></th></tr></thead>
+                <tbody>
+                  {cobros.map((c) => {
+                    const venc = c.estado === "pendiente" && (c.dias_atraso ?? 0) > 0
+                    return (
+                      <tr key={c.id} className={c.estado === "anulado" ? "opacity-50" : ""}>
+                        <td><span className="font-semibold">{c.concepto}</span><span className="block text-xs text-[#4A515C]">{tipoCobro(c.tipo)}</span></td>
+                        <td className={venc ? "text-rojo font-semibold" : ""}>{fecha(c.vence)}{venc && <span className="block text-xs">{c.dias_atraso} días</span>}</td>
+                        <td className="whitespace-nowrap">{plata(c.monto, c.moneda)}</td>
+                        <td><span className={`chip ${c.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : c.estado === "anulado" ? "bg-slate-100 text-slate-500" : venc ? "bg-red-50 text-rojo" : "bg-amber-50 text-amber-700"}`}>{c.estado === "pagado" ? `Pagado ${fecha(c.pagado_en)}` : c.estado === "anulado" ? "Anulado" : venc ? "Vencido" : "Pendiente"}</span>{c.medio && <span className="block text-xs text-[#4A515C]">{c.medio}</span>}{c.estado === "pendiente" && c.informado_en && <span className="block text-xs font-semibold text-sky-700">El cliente informó el pago: {c.informado_detalle}</span>}</td>
+                        <td>
+                          <form action={accionCobro} className="flex flex-wrap gap-1 justify-end">
+                            <input type="hidden" name="id" value={p.id} /><input type="hidden" name="cobro" value={c.id} />
+                            {c.estado === "pendiente" && <><select name="medio" className="inp py-1 text-xs w-auto" aria-label="Medio de pago"><option>Transferencia</option><option>Efectivo</option><option>Mercado Pago</option><option>Cheque</option><option>Otro</option></select><button name="op" value="pagado" className="btn-p py-1 text-xs">Cobrado</button><button name="op" value="anular" className="text-xs underline text-[#4A515C]">Anular</button></>}
+                            {c.estado !== "pendiente" && <button name="op" value="reabrir" className="text-xs underline text-[#4A515C]">Volver a pendiente</button>}
+                          </form>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {!cobros.length && <tr><td colSpan={5} className="text-[#4A515C]">Sin cobros cargados.{!p.contacto_id ? " Asigná un cliente para poder cargarlos." : ""}</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       )}
 
       {!nuevo && (

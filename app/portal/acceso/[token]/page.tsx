@@ -15,7 +15,7 @@ async function entrar(fd: FormData) {
   redirect(ir)
 }
 
-const destino = (ir?: string) => (ir && /^\/portal\/p\/\d+$/.test(ir) ? ir : "/portal")
+const destino = (ir?: string) => (ir && /^\/portal\/(p\/\d+|cursos\/\d+|cursos|pagos)$/.test(ir) ? ir : "/portal")
 
 export default async function Acceso({ params, searchParams }: { params: { token: string }; searchParams: { ir?: string } }) {
   const a = await verAcceso(params.token)

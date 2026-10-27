@@ -1,11 +1,13 @@
 import { SignJWT, jwtVerify } from "jose"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { createHash, randomBytes } from "crypto"
 import { q, one, audit } from "./db"
 import { secret } from "./auth"
 import { URL_SISTEMA } from "./brief"
 import { aHtml, plantilla, enviarBrevo } from "./email"
+import { accesoDe, config } from "./cobros"
+import { notificar } from "./push"
 
 /**
  * Portal del cliente: cada cliente entra con un link por email (sin contraseña)
@@ -49,9 +51,15 @@ export function urlPortal(path = "") {
   return base ? `${base}${path || "/"}` : `${URL_SISTEMA}/portal${path}`
 }
 
-// ── Sesión del cliente (separada de la del equipo) ──
+// ── Sesión del cliente o alumno (separada de la del equipo) ──
+// En producción la cookie vale para todo *.devisebit.com: el mismo ingreso sirve en portal y academia.
 const COOKIE = "db_cliente"
-export type Cliente = { id: number; nombre: string; organizacion: string | null; email: string }
+export type Cliente = { id: number; nombre: string; organizacion: string | null; email: string; acceso: "ok" | "bloqueado" | "deuda"; atraso: number; deuda: string }
+
+function dominioCookie() {
+  const h = (headers().get("host") ?? "").toLowerCase().split(":")[0]
+  return h === "devisebit.com" || h.endsWith(".devisebit.com") ? ".devisebit.com" : undefined
+}
 
 async function crearSesionCliente(contactoId: number) {
   const token = await new SignJWT({ cid: contactoId, typ: "cliente" })
@@ -59,9 +67,12 @@ async function crearSesionCliente(contactoId: number) {
     .setIssuedAt()
     .setExpirationTime("30d")
     .sign(await secret())
-  cookies().set(COOKIE, token, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 })
+  cookies().set(COOKIE, token, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30, domain: dominioCookie() })
 }
-export function cerrarSesionCliente() { cookies().delete(COOKIE) }
+export function cerrarSesionCliente() {
+  cookies().set(COOKIE, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0, domain: dominioCookie() })
+  cookies().delete(COOKIE)
+}
 
 export async function clienteActual(): Promise<Cliente | null> {
   const t = cookies().get(COOKIE)?.value
@@ -69,21 +80,88 @@ export async function clienteActual(): Promise<Cliente | null> {
   try {
     const { payload } = await jwtVerify(t, await secret())
     if (payload.typ !== "cliente") return null
-    return await one<Cliente>("select id, nombre, organizacion, email from db_contactos where id=$1 and email is not null", [payload.cid])
+    const c = await one<Omit<Cliente, "acceso" | "atraso" | "deuda">>("select id, nombre, organizacion, email from db_contactos where id=$1 and email is not null", [payload.cid])
+    if (!c) return null
+    const a = await accesoDe(c.id)
+    return { ...c, acceso: a.estado, atraso: a.atraso, deuda: a.deuda }
   } catch { return null }
 }
-export async function requerirCliente(): Promise<Cliente> {
+/** Exige sesión. Con deuda vencida o bloqueo, lo manda a la pantalla de cuenta suspendida (salvo `suspendidoOk`). */
+export async function requerirCliente(suspendidoOk = false): Promise<Cliente> {
   const c = await clienteActual()
   if (!c) redirect("/portal/entrar")
+  if (!suspendidoOk && c.acceso !== "ok") redirect("/portal/suspendido")
   return c
 }
 
 // ── Links de acceso de un solo uso ──
 const hash = (t: string) => createHash("sha256").update(t).digest("hex")
 
-/** ¿El contacto tiene algo para ver? (al menos un proyecto no cancelado) */
+/** ¿El contacto tiene algo para ver? (proyecto activo, cobros o inscripción a un curso) */
 export async function tienePortal(contactoId: number) {
-  return !!(await one("select 1 from db_proyectos where contacto_id=$1 and estado<>'cancelado' limit 1", [contactoId]))
+  return !!(await one(
+    `select 1 where exists (select 1 from db_proyectos where contacto_id=$1 and estado<>'cancelado')
+       or exists (select 1 from am_inscripciones where contacto_id=$1 and estado<>'baja')
+       or exists (select 1 from db_cobros where contacto_id=$1 and estado<>'anulado')`,
+    [contactoId],
+  ))
+}
+
+/** Política de ingreso: quién puede pedir el link. */
+export const POLITICAS = [
+  { v: "crm", n: "Contactos del sistema comercial", d: "Entra cualquier persona cargada en Contactos. Los emails desconocidos quedan pendientes hasta que el equipo los habilite." },
+  { v: "validado", n: "Solo clientes y alumnos validados", d: "Entran quienes tienen un proyecto, cobros o un curso, o fueron habilitados a mano. El resto queda pendiente." },
+  { v: "abierto", n: "Abierto: entra y después se revisa", d: "Entra cualquiera: si el email no existe se crea el contacto. El equipo puede bloquearlo después." },
+] as const
+export const politica = async () => {
+  const v = await config("portal_politica", "crm")
+  return POLITICAS.some((p) => p.v === v) ? v : "crm"
+}
+
+export type ResultadoPedido = "enviado" | "pendiente" | "bloqueado" | "limite" | "error"
+
+/** Pedido de link desde la pantalla de ingreso, conectado al sistema comercial. Queda todo registrado. */
+export async function pedirLink(email: string, nombre?: string | null): Promise<{ resultado: ResultadoPedido; detalle?: string }> {
+  const pol = await politica()
+  let c = await one<{ id: number; nombre: string; portal_acceso: string }>("select id, nombre, portal_acceso from db_contactos where lower(email)=$1", [email])
+  const registrar = async (resultado: ResultadoPedido, detalle?: string) => {
+    await q("insert into portal_solicitudes(email, contacto_id, resultado, detalle) values ($1,$2,$3,$4)", [email, c?.id ?? null, resultado, detalle ?? null]).catch(() => {})
+    return { resultado, detalle }
+  }
+  if (c?.portal_acceso === "bloqueado") return registrar("bloqueado", "Acceso bloqueado a mano")
+  let puede = false
+  if (c) puede = c.portal_acceso === "habilitado" || pol !== "validado" || (await tienePortal(c.id))
+  if (!c && pol === "abierto") {
+    c = await one<{ id: number; nombre: string; portal_acceso: string }>(
+      `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base','Portal','portal','Portal') returning id, nombre, portal_acceso`,
+      [nombre || email.split("@")[0], email],
+    )
+    puede = !!c
+  }
+  if (!puede) {
+    const r = await registrar("pendiente", c ? "Contacto sin proyecto ni curso" : "Email que no está en Contactos")
+    await notificar(["gerente", "coordinacion"], "🔑 Pedido de acceso al portal", `${email}${c ? ` (${c.nombre})` : " · no está en Contactos"}: validalo en Portal y accesos`, "/portal-admin").catch(() => {})
+    return r
+  }
+  if (!(await puedePedirLink(c!.id))) return registrar("limite", "Más de 3 pedidos en 15 minutos")
+  const env = await enviarAcceso(c!.id, "ingreso")
+  if (!env.ok) {
+    await notificar(["gerente", "coordinacion"], "⚠️ No salió un link del portal", `${email}: ${env.error}`, "/portal-admin").catch(() => {})
+    return registrar("error", env.error)
+  }
+  return registrar("enviado")
+}
+
+/** El equipo habilita un pedido pendiente: crea el contacto si hace falta, lo habilita y le manda la invitación. */
+export async function habilitarSolicitud(id: number, por: string) {
+  const s = await one<{ email: string; contacto_id: number | null }>("select email, contacto_id from portal_solicitudes where id=$1", [id])
+  if (!s) return { ok: false, error: "No existe el pedido" }
+  let cid = s.contacto_id ?? (await one<{ id: number }>("select id from db_contactos where lower(email)=$1", [s.email]))?.id ?? null
+  if (!cid) cid = (await one<{ id: number }>("insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base','Portal','portal','Portal') returning id", [s.email.split("@")[0], s.email]))!.id
+  await q("update db_contactos set portal_acceso='habilitado', actualizado=now() where id=$1", [cid])
+  await q("update portal_solicitudes set resuelta='habilitada', resuelta_por=$1, resuelta_en=now(), contacto_id=$2 where lower(email)=lower($3) and resultado='pendiente' and resuelta is null", [por, cid, s.email])
+  const r = await enviarAcceso(cid, "invitacion")
+  return r.ok ? { ok: true, contacto: cid } : { ok: false, error: r.error, contacto: cid }
 }
 
 export async function crearAcceso(contactoId: number, motivo: "ingreso" | "invitacion") {
@@ -100,9 +178,9 @@ export async function enviarAcceso(contactoId: number, motivo: "ingreso" | "invi
   const { url, horas } = await crearAcceso(contactoId, motivo)
   const vence = horas >= 24 ? `${horas / 24} días` : "1 hora"
   const md = motivo === "invitacion"
-    ? `# Tu portal de cliente ya está activo\n\nHola {{nombre}}, desde hoy podés seguir tu proyecto con DEVISEBIT en un solo lugar: en qué etapa está, qué entregamos, los documentos, las próximas reuniones y lo que necesitamos que apruebes.\n\nNo necesitás contraseña: entrás con este botón y, las próximas veces, pidiendo un link nuevo con tu email.\n\n[[Entrar a mi portal|${url}]]\n\nEl botón vale por ${vence} y se usa una sola vez. Cualquier duda, respondé este correo o escribinos por WhatsApp.`
-    : `# Tu link para entrar al portal\n\nHola {{nombre}}, este es tu acceso al portal de clientes de DEVISEBIT.\n\n[[Entrar a mi portal|${url}]]\n\nVale por ${vence} y se usa una sola vez. Si no lo pediste vos, ignorá este correo: nadie puede entrar sin este link.`
-  const r = await enviarBrevo({ email: c.email, name: c.nombre }, motivo === "invitacion" ? "Tu portal de cliente DEVISEBIT" : "Tu acceso al portal DEVISEBIT", plantilla(aHtml(md), { nombre: c.nombre, preheader: "Seguí tu proyecto en un solo lugar" }))
+    ? `# Tu cuenta DEVISEBIT ya está activa\n\nHola {{nombre}}, desde hoy tenés todo en un solo lugar: tus proyectos (etapa, entregas, documentos, reuniones y aprobaciones), tu estado de cuenta y tus cursos de la Academia.\n\nNo necesitás contraseña: entrás con este botón y, las próximas veces, pidiendo un link nuevo con tu email.\n\n[[Entrar a mi portal|${url}]]\n\nEl botón vale por ${vence} y se usa una sola vez. Cualquier duda, respondé este correo o escribinos por WhatsApp.`
+    : `# Tu link para entrar\n\nHola {{nombre}}, este es tu acceso a tu cuenta DEVISEBIT: proyectos, pagos y cursos.\n\n[[Entrar a mi portal|${url}]]\n\nVale por ${vence} y se usa una sola vez. Si no lo pediste vos, ignorá este correo: nadie puede entrar sin este link.`
+  const r = await enviarBrevo({ email: c.email, name: c.nombre }, motivo === "invitacion" ? "Tu cuenta DEVISEBIT está activa" : "Tu link para entrar a DEVISEBIT", plantilla(aHtml(md), { nombre: c.nombre, preheader: "Seguí tu proyecto en un solo lugar" }))
   return r.ok ? { ok: true } : { ok: false, error: r.error ?? "No se pudo enviar el email" }
 }
 

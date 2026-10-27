@@ -4,16 +4,18 @@ import Link from "next/link"
 import { q, one } from "@/lib/db"
 import { sembrar } from "@/lib/academia"
 import Suscribir from "@/components/Suscribir"
+import { modalidad } from "@/lib/cursos"
 
 export const dynamic = "force-dynamic"
 
 export default async function Academia() {
   const videos = await ultimosVideos(10)
   await sembrar()
-  const [guias, kit, subs] = await Promise.all([
+  const [guias, kit, subs, cursos] = await Promise.all([
     q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 12"),
     one<any>("select slug, titulo, bajada, precio, estado from am_productos where slug='kit-ia-pymes' and estado<>'oculto'"),
     one<{ n: number }>("select count(*)::int n from db_contactos where suscrito_en is not null and email_estado='activo'"),
+    q<any>("select slug, titulo, bajada, modalidad, horas, precio from am_cursos where estado='publicado' order by destacado desc, creado desc limit 3"),
   ])
   const iman = guias.find((g) => g.exclusiva)
   return (
@@ -38,6 +40,21 @@ export default async function Academia() {
           )}
         </div>
       </section>
+
+      {cursos.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 pt-14">
+          <div className="flex flex-wrap items-end justify-between gap-3"><h2 className="m-0 text-3xl font-extrabold">Cursos con certificado</h2><Link href="/cursos" className="font-semibold text-[#C8231F]">Ver todos →</Link></div>
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cursos.map((c) => (
+              <Link key={c.slug} href={`/cursos/${c.slug}`} className="card flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#C8231F] hover:-translate-y-1 transition-transform">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} h` : ""} · {c.precio ? "Pago" : "Gratis"}</span>
+                <span className="text-lg font-bold leading-snug">{c.titulo}</span>
+                {c.bajada && <span className="text-sm text-[#4A515C]">{c.bajada}</span>}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="max-w-6xl mx-auto px-4 py-14">
         <div className="flex flex-wrap items-end justify-between gap-3"><h2 className="m-0 text-3xl font-extrabold">Guías</h2><Link href="/guias" className="font-semibold text-[#C8231F]">Ver todas →</Link></div>

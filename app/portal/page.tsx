@@ -4,6 +4,9 @@ import { requerirCliente, proyectosDe, tipoHito } from "@/lib/portal"
 import { estadoProy } from "@/lib/crm"
 import { fecha } from "@/lib/util"
 import FaseBarra from "@/components/FaseBarra"
+import { estadoCuenta, montos, plata } from "@/lib/cobros"
+import { misInscripciones } from "@/lib/cursos"
+import { URL_ACADEMIA } from "@/lib/academia"
 
 export const dynamic = "force-dynamic"
 
@@ -13,18 +16,42 @@ export default async function Portal() {
   const c = await requerirCliente()
   const proyectos = await proyectosDe(c.id)
   const ids = proyectos.map((p) => p.id)
-  const [novedades, reuniones] = await Promise.all([
+  const [novedades, reuniones, cuenta, cursos, guias] = await Promise.all([
     ids.length ? q<any>(`select h.*, p.nombre proyecto from db_hitos h join db_proyectos p on p.id=h.proyecto_id where h.proyecto_id = any($1) and h.visible order by h.fecha desc limit 8`, [ids]) : Promise.resolve([]),
     q<any>(`select inicio, fin, modalidad, link from db_reuniones where contacto_id=$1 and estado='confirmada' and inicio > now() order by inicio limit 3`, [c.id]),
+    estadoCuenta(c.id),
+    misInscripciones(c.id),
+    q<any>("select slug, titulo, categoria from am_guias where publicada order by destacada desc, creado desc limit 3").catch(() => []),
   ])
+  const enCurso = cursos.filter((x) => ["inscripto", "cursando"].includes(x.estado))
   const pendientes = proyectos.reduce((a, p) => a + (p.pendientes ?? 0), 0)
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="m-0">Hola, {c.nombre.split(" ")[0]}</h1>
-        <p className="m-0 mt-1 text-[#4A515C]">Acá ves en qué está cada proyecto, qué entregamos y qué necesitamos de tu lado.</p>
+        <p className="m-0 mt-1 text-[#4A515C]">Tus proyectos, pagos y cursos con DEVISEBIT, en un solo lugar.</p>
       </div>
+
+      {(cuenta.pendientes.length > 0 || cursos.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link href="/portal/pagos" className={`card hover:border-[#C8231F] ${cuenta.vencidos.length ? "!border-[#C8231F]" : ""}`}>
+            <span className="text-xs text-[#4A515C]">{cuenta.vencidos.length ? "Pagos vencidos" : "Próximo pago"}</span>
+            <strong className={`block text-lg ${cuenta.vencidos.length ? "text-rojo" : ""}`}>{cuenta.vencidos.length ? montos(cuenta.deudaVencida) : cuenta.proximo ? plata(cuenta.proximo.monto, cuenta.proximo.moneda) : "Al día"}</strong>
+            <span className="text-xs text-[#4A515C]">{cuenta.vencidos.length ? "Regularizalo para no perder el acceso" : cuenta.proximo ? `Vence ${fecha(cuenta.proximo.vence)}` : "Sin pagos pendientes"}</span>
+          </Link>
+          <Link href="/portal/cursos" className="card hover:border-[#C8231F]">
+            <span className="text-xs text-[#4A515C]">Cursos</span>
+            <strong className="block text-lg">{enCurso.length ? `${enCurso.length} en curso` : cursos.length ? `${cursos.length} completados` : "Ninguno"}</strong>
+            <span className="text-xs text-[#4A515C]">{cursos.filter((x) => x.certificado).length} certificados</span>
+          </Link>
+          <a href="#t-proy" className="card hover:border-[#C8231F]">
+            <span className="text-xs text-[#4A515C]">Proyectos</span>
+            <strong className="block text-lg">{proyectos.filter((p) => p.estado !== "terminado").length} activos</strong>
+            <span className="text-xs text-[#4A515C]">{proyectos.filter((p) => p.estado === "terminado").length} entregados</span>
+          </a>
+        </div>
+      )}
 
       {pendientes > 0 && (
         <div role="status" className="card !border-[#C8231F] !bg-[#FDECEB] flex flex-wrap items-center justify-between gap-3">
@@ -35,7 +62,7 @@ export default async function Portal() {
 
       <section aria-labelledby="t-proy" className="flex flex-col gap-3">
         <h2 id="t-proy" className="m-0">Tus proyectos</h2>
-        {!proyectos.length && <p className="card m-0 text-sm text-[#4A515C]">Todavía no hay proyectos cargados en tu portal. Apenas arranquemos, vas a verlos acá.</p>}
+        {!proyectos.length && <p className="card m-0 text-sm text-[#4A515C]">Todavía no hay proyectos cargados. Cuando trabajemos juntos en uno, vas a seguirlo acá paso a paso. <a href="https://www.devisebit.com/servicios" className="underline text-[#C8231F]">Ver servicios</a></p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {proyectos.map((p) => {
             const e = estadoProy(p.estado)
@@ -87,6 +114,12 @@ export default async function Portal() {
           <a href="https://wa.me/5491173466490" className="btn-s py-1.5 mt-auto">Hablar con el equipo</a>
         </section>
       </div>
+      <section aria-labelledby="t-rec" className="card flex flex-col gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a href={`${URL_ACADEMIA}/cursos`} className="text-sm font-semibold text-[#C8231F]">Ver cursos →</a></div>
+        <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {guias.map((g) => <li key={g.slug}><a href={`${URL_ACADEMIA}/guias/${g.slug}`} className="block rounded-xl border border-[#E2E5EA] p-3 hover:border-[#C8231F]"><span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{g.categoria ?? "Guía"}</span><strong className="block text-sm mt-1">{g.titulo}</strong></a></li>)}
+        </ul>
+      </section>
     </div>
   )
 }

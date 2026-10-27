@@ -258,6 +258,97 @@ create table if not exists portal_accesos (
   creado timestamptz not null default now()
 );
 alter table db_contactos add column if not exists portal_ultimo timestamptz;
+alter table db_contactos add column if not exists portal_acceso text not null default 'auto';
+alter table db_contactos drop constraint if exists db_contactos_portal_acceso_check;
+alter table db_contactos add constraint db_contactos_portal_acceso_check check (portal_acceso in ('auto','habilitado','bloqueado'));
+alter table db_contactos add column if not exists portal_nota text;
+create table if not exists portal_solicitudes (
+  id bigserial primary key,
+  email text not null, contacto_id int references db_contactos(id) on delete set null,
+  resultado text not null, detalle text,
+  resuelta text, resuelta_por text, resuelta_en timestamptz,
+  creado timestamptz not null default now()
+);
+create index if not exists portal_solicitudes_creado on portal_solicitudes(creado desc);
+alter table db_proyectos add column if not exists abono_monto numeric;
+alter table db_proyectos add column if not exists abono_moneda text not null default 'ARS';
+alter table db_proyectos add column if not exists abono_dia int;
+alter table db_proyectos add column if not exists abono_desde date;
+alter table db_proyectos add column if not exists abono_hasta date;
+alter table db_proyectos add column if not exists moneda text not null default 'USD';
+create table if not exists db_cobros (
+  id serial primary key,
+  contacto_id int not null references db_contactos(id) on delete cascade,
+  proyecto_id int references db_proyectos(id) on delete set null,
+  tipo text not null default 'cuota' check (tipo in ('anticipo','cuota','saldo','abono','otro')),
+  concepto text not null, monto numeric not null, moneda text not null default 'ARS',
+  vence date not null, periodo text,
+  estado text not null default 'pendiente' check (estado in ('pendiente','pagado','anulado')),
+  pagado_en timestamptz, medio text, comprobante text, nota text,
+  mp_pago text, creado_por text, creado timestamptz not null default now()
+);
+create unique index if not exists db_cobros_abono on db_cobros(proyecto_id, periodo) where tipo='abono' and estado<>'anulado';
+create index if not exists db_cobros_contacto on db_cobros(contacto_id, estado, vence);
+alter table db_cobros add column if not exists informado_en timestamptz;
+alter table db_cobros add column if not exists informado_detalle text;
+create table if not exists am_cursos (
+  id serial primary key, slug text unique not null, titulo text not null, bajada text,
+  descripcion text not null default '', imagen text, categoria text, nivel text, docente text,
+  horas numeric, modalidad text not null default 'online' check (modalidad in ('online','en_vivo','presencial','mixta')),
+  precio numeric, moneda text not null default 'ARS',
+  estado text not null default 'borrador' check (estado in ('borrador','publicado','archivado')),
+  req_lecciones int not null default 100, req_asistencia int not null default 75,
+  certifica boolean not null default true, destacado boolean not null default false,
+  creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists am_ediciones (
+  id serial primary key, curso_id int not null references am_cursos(id) on delete cascade,
+  nombre text not null default 'Siempre disponible', inicio date, fin date, horario text, lugar text, link text,
+  cupo int, estado text not null default 'inscripcion' check (estado in ('inscripcion','en_curso','finalizada','cancelada')),
+  creado timestamptz not null default now()
+);
+create table if not exists am_lecciones (
+  id serial primary key, curso_id int not null references am_cursos(id) on delete cascade,
+  orden int not null default 0, modulo text, titulo text not null,
+  tipo text not null default 'lectura' check (tipo in ('video','lectura','descarga','tarea')),
+  contenido text not null default '', video_url text, archivo_url text, duracion_min int,
+  publicada boolean not null default true, creado timestamptz not null default now()
+);
+create table if not exists am_clases (
+  id serial primary key, edicion_id int not null references am_ediciones(id) on delete cascade,
+  fecha timestamptz not null, horas numeric not null default 2, tema text, link text, grabacion text,
+  creado timestamptz not null default now()
+);
+create table if not exists am_inscripciones (
+  id serial primary key, edicion_id int not null references am_ediciones(id) on delete cascade,
+  contacto_id int not null references db_contactos(id) on delete cascade,
+  estado text not null default 'inscripto' check (estado in ('inscripto','cursando','aprobado','desaprobado','baja')),
+  nota text, origen text, aprobado_en timestamptz, ultima_actividad timestamptz,
+  creado timestamptz not null default now(),
+  unique (edicion_id, contacto_id)
+);
+create table if not exists am_progreso (
+  inscripcion_id int not null references am_inscripciones(id) on delete cascade,
+  leccion_id int not null references am_lecciones(id) on delete cascade,
+  completada timestamptz not null default now(),
+  primary key (inscripcion_id, leccion_id)
+);
+create table if not exists am_asistencias (
+  clase_id int not null references am_clases(id) on delete cascade,
+  inscripcion_id int not null references am_inscripciones(id) on delete cascade,
+  presente boolean not null default true,
+  primary key (clase_id, inscripcion_id)
+);
+create table if not exists am_certificados (
+  id serial primary key, inscripcion_id int unique not null references am_inscripciones(id) on delete cascade,
+  codigo text unique not null, nombre text not null, curso text not null, horas numeric, edicion text,
+  emitido timestamptz not null default now(), anulado boolean not null default false
+);
+create table if not exists am_eventos (
+  id bigserial primary key, contacto_id int, inscripcion_id int, tipo text not null, ref text,
+  creado timestamptz not null default now()
+);
+create index if not exists am_eventos_contacto on am_eventos(contacto_id, creado desc);
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 

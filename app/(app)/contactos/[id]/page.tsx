@@ -5,6 +5,28 @@ import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { ETAPAS, SECTORES, estadoProy } from "@/lib/crm"
 import { fechaHora } from "@/lib/consultas"
+import { accesoDe, estadoCuenta, montos } from "@/lib/cobros"
+import { enviarAcceso } from "@/lib/portal"
+import { estadoInsc } from "@/lib/cursos"
+
+async function accesoPortal(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const op = String(fd.get("op") ?? "")
+  if (op === "invitar") {
+    const r = await enviarAcceso(id, "invitacion")
+    await audit(u, r.ok ? "portal_invita" : "portal_invita_error", "db_contacto", id, r.ok ? undefined : r.error)
+    redirect(`/contactos/${id}?${r.ok ? "pinv=1" : `perr=${encodeURIComponent(r.error ?? "error")}`}#portal`)
+  }
+  const v = String(fd.get("acceso"))
+  if (["auto", "habilitado", "bloqueado"].includes(v)) {
+    await q("update db_contactos set portal_acceso=$1, portal_nota=$2, actualizado=now() where id=$3", [v, String(fd.get("nota") ?? "").slice(0, 300) || null, id])
+    await audit(u, `portal_acceso_${v}`, "db_contacto", id)
+  }
+  redirect(`/contactos/${id}?pok=1#portal`)
+}
+
 
 export const dynamic = "force-dynamic"
 
@@ -31,7 +53,7 @@ async function guardar(fd: FormData) {
 
 const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : "")
 
-export default async function Contacto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; consulta?: string } }) {
+export default async function Contacto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; consulta?: string; pok?: string; pinv?: string; perr?: string } }) {
   const nuevo = params.id === "nuevo"
   let c: any = {}
   if (!nuevo) {
@@ -42,6 +64,10 @@ export default async function Contacto({ params, searchParams }: { params: { id:
     const k = await one<any>("select id, nombre, organizacion, email, telefono, motivo, mensaje, canal from consultas where id=$1 and empresa='devisebit'", [Number(searchParams.consulta)])
     if (k) c = { nombre: k.nombre, organizacion: k.organizacion, email: k.email, telefono: k.telefono, etapa: "conversando", origen: k.canal === "instagram" ? "Instagram" : "WhatsApp", notas: [k.motivo, k.mensaje].filter(Boolean).join("\n"), consulta_id: k.id }
   }
+  const [acc, cuenta, cursos] = nuevo ? [null, null, []] : await Promise.all([
+    accesoDe(c.id), estadoCuenta(c.id),
+    q<any>("select i.id, i.estado, cu.titulo, e.id edicion_id, e.nombre edicion from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos cu on cu.id=e.curso_id where i.contacto_id=$1 order by i.creado desc", [c.id]),
+  ])
   const [proyectos, consultas] = nuevo ? [[], []] : await Promise.all([
     q<any>("select p.id, p.nombre, p.estado, s.nombre servicio from db_proyectos p left join db_servicios s on s.id=p.servicio_id where p.contacto_id=$1 order by p.creado desc", [c.id]),
     q<any>(`select id, creado, motivo, estado from consultas where empresa='devisebit' and (id=$1 or (length(regexp_replace(coalesce($2::text,''),'\\D','','g'))>=6 and regexp_replace(coalesce(telefono,''),'\\D','','g') like '%'||right(regexp_replace($2,'\\D','','g'),8))) order by creado desc limit 10`, [c.consulta_id ?? 0, c.telefono]),
@@ -84,6 +110,21 @@ export default async function Contacto({ params, searchParams }: { params: { id:
             {proyectos.length ? proyectos.map((p: any) => (
               <Link key={p.id} href={`/proyectos/${p.id}`} className="flex justify-between gap-2 py-1.5 border-b border-[#EEF0F3] hover:underline"><span>{p.nombre}<span className="block text-xs text-[#4A515C]">{p.servicio ?? ""}</span></span><span className={`chip self-start ${estadoProy(p.estado).c}`}>{estadoProy(p.estado).n}</span></Link>
             )) : <p className="m-0 text-sm text-[#4A515C]">Sin proyectos.</p>}
+          </section>
+          <section id="portal" className="card flex flex-col gap-2">
+            <h2 className="m-0 text-base">Cuenta y portal</h2>
+            {searchParams.pok && <p role="status" className="m-0 text-xs text-emerald-700">Guardado.</p>}
+            {searchParams.pinv && <p role="status" className="m-0 text-xs text-emerald-700">Invitación enviada.</p>}
+            {searchParams.perr && <p role="alert" className="m-0 text-xs text-rojo">{searchParams.perr}</p>}
+            <p className="m-0 text-sm">Estado: <strong className={acc?.estado === "ok" ? "text-emerald-700" : "text-rojo"}>{acc?.estado === "ok" ? "Puede entrar" : acc?.estado === "deuda" ? `Suspendido por deuda (${acc.atraso} días)` : "Bloqueado"}</strong>{c.portal_ultimo ? <span className="block text-xs text-[#4A515C]">Último ingreso {new Date(c.portal_ultimo).toLocaleDateString("es-AR")}</span> : <span className="block text-xs text-[#4A515C]">Nunca entró</span>}</p>
+            {cuenta && cuenta.pendientes.length > 0 && <p className="m-0 text-sm">Pendiente: {montos(cuenta.aPagar)}{cuenta.vencidos.length ? <span className="block text-xs text-rojo font-semibold">Vencido: {montos(cuenta.deudaVencida)}</span> : null}</p>}
+            <form action={accesoPortal} className="flex flex-col gap-2">
+              <input type="hidden" name="id" value={c.id} />
+              <label className="lbl">Acceso<select name="acceso" defaultValue={c.portal_acceso ?? "auto"} className="inp py-1.5"><option value="auto">Automático (se suspende si debe)</option><option value="habilitado">Habilitar siempre</option><option value="bloqueado">Bloquear</option></select></label>
+              <label className="lbl">Motivo (interno)<input name="nota" defaultValue={c.portal_nota ?? ""} className="inp py-1.5" /></label>
+              <div className="flex gap-2"><button name="op" value="guardar" className="btn-s py-1.5">Guardar</button>{c.email && <button name="op" value="invitar" className="btn-s py-1.5">Mandar acceso</button>}</div>
+            </form>
+            {cursos.length > 0 && <><h3 className="m-0 mt-2 text-xs font-bold uppercase tracking-wider text-[#4A515C]">Cursos</h3>{cursos.map((k: any) => <Link key={k.id} href={`/cursos/edicion/${k.edicion_id}`} className="flex justify-between gap-2 text-sm hover:underline"><span>{k.titulo}<span className="block text-xs text-[#4A515C]">{k.edicion}</span></span><span className={`chip self-start ${estadoInsc(k.estado).c}`}>{estadoInsc(k.estado).n}</span></Link>)}</>}
           </section>
           <section className="card flex flex-col gap-2">
             <h2 className="m-0 text-base">Conversaciones del bot</h2>
