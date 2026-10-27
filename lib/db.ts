@@ -164,6 +164,7 @@ create table if not exists db_reuniones (
   notas text, creado timestamptz not null default now()
 );
 create index if not exists db_reuniones_inicio on db_reuniones(inicio);
+alter table db_reuniones add column if not exists recordado timestamptz;
 insert into db_servicios(nombre,categoria,descripcion) values ('Tienda online','A medida','Venta por web con catálogo, carrito, Mercado Pago y envíos') on conflict do nothing;
 update db_servicios set precio_desde=v.d, precio_hasta=v.h, plazo=coalesce(db_servicios.plazo,v.p), descripcion=case when v.x<>'' then db_servicios.descripcion||' · '||v.x else db_servicios.descripcion end from (values
   ('Sitio web',600,2500,'2 a 5 semanas',''),

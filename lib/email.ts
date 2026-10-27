@@ -3,7 +3,7 @@ import { URL_SISTEMA } from "./brief"
 
 /** Email marketing: plantilla con la marca, segmentos, cola diaria y envío por Brevo. */
 export const LIMITE_DIARIO = Number(process.env.EMAIL_LIMITE_DIARIO ?? 300)
-export const REMITENTE = { name: process.env.EMAIL_FROM_NOMBRE ?? "DEVISEBIT", email: process.env.EMAIL_FROM ?? "novedades@devisebit.com" }
+export const REMITENTE = { name: process.env.EMAIL_FROM_NOMBRE ?? "DEVISEBIT", email: process.env.EMAIL_FROM ?? "info@devisebit.com" }
 export const RESPONDER_A = process.env.EMAIL_REPLY_TO ?? "info@devisebit.com"
 export const brevoConfigurado = () => !!process.env.BREVO_API_KEY
 
@@ -57,7 +57,7 @@ export function conSeguimiento(html: string, envioId: number | string) {
     .replace("</body>", `<img src="${base}/o/${envioId}" width="1" height="1" alt="" style="display:block;width:1px;height:1px"></body>`)
 }
 
-export async function enviarBrevo(to: { email: string; name?: string | null }, asunto: string, html: string, baja?: string | null) {
+export async function enviarBrevo(to: { email: string; name?: string | null }, asunto: string, html: string, baja?: string | null, adjuntos?: { name: string; content: string }[]) {
   const key = process.env.BREVO_API_KEY
   if (!key) return { ok: false, error: "Falta BREVO_API_KEY" }
   try {
@@ -66,6 +66,7 @@ export async function enviarBrevo(to: { email: string; name?: string | null }, a
       headers: { "api-key": key, "Content-Type": "application/json", accept: "application/json" },
       body: JSON.stringify({
         sender: REMITENTE, replyTo: { email: RESPONDER_A }, to: [{ email: to.email, ...(to.name ? { name: to.name } : {}) }], subject: asunto, htmlContent: html,
+        ...(adjuntos?.length ? { attachment: adjuntos } : {}),
         ...(baja ? { headers: { "List-Unsubscribe": `<${baja}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}),
       }),
     })

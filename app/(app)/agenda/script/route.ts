@@ -1,9 +1,10 @@
 import { requerir } from "@/lib/auth"
+import { gcalConfig } from "@/lib/agenda"
 
 /** Código de Google Apps Script que conecta la agenda del sistema con Google Calendar. */
 const CODIGO = `// DEVISEBIT · conexión de la agenda con Google Calendar
-// Cambiá CLAVE por la misma clave que cargás en Vercel como GCAL_TOKEN.
-const TOKEN = 'CLAVE';
+// La clave ya viene puesta: es la que generó el sistema para tu cuenta. No la compartas.
+const TOKEN = '__TOKEN__';
 
 function doPost(e) {
   const b = JSON.parse(e.postData.contents || '{}');
@@ -33,5 +34,6 @@ function json(o) {
 
 export async function GET() {
   await requerir(["gerente", "coordinacion"])
-  return new Response(CODIGO, { headers: { "Content-Type": "text/plain; charset=utf-8" } })
+  const { token } = await gcalConfig()
+  return new Response(CODIGO.replace("__TOKEN__", token), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } })
 }

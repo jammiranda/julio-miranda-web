@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { waitUntil } from "@vercel/functions"
 import { one, q, audit } from "@/lib/db"
-import { turnosLibres, reservar, local } from "@/lib/agenda"
+import { turnosLibres, reservar, local, horario } from "@/lib/agenda"
 import { enviarTexto } from "@/lib/whatsapp"
 import { alCRM } from "@/lib/bot"
 
@@ -62,7 +62,7 @@ export default async function Agendar({ params, searchParams }: { params: { toke
   const dias = await turnosLibres(10)
   return (
     <main className="min-h-screen bg-[#F5F6F8]">
-      {head("Agendá tu reunión", "30 minutos, sin costo. Elegí el día y el horario que te quede mejor (hora de Argentina).")}
+      {head("Agendá tu reunión", `${(await horario()).duracion} minutos, sin costo. Elegí el día y el horario que te quede mejor (hora de Argentina).`)}
       <form action={agendar} className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-5">
         <input type="hidden" name="tok" value={params.token} />
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />

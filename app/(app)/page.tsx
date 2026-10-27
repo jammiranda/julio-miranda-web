@@ -46,7 +46,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
       </section>
 
       <section className="card flex flex-col gap-3" aria-label="Próximas reuniones">
-        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base">📅 Próximas reuniones</h2>{!calendarioConectado() && <span className="text-xs text-[#4A515C]">Google Calendar sin conectar: las reuniones se ven acá y en los avisos.</span>}</div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base">📅 Próximas reuniones</h2>{!(await calendarioConectado()) && <span className="text-xs text-[#4A515C]">Google Calendar sin conectar: las reuniones se ven acá y en los avisos.</span>}</div>
         {reuniones.length ? (
           <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">{reuniones.map((r: any) => (
             <li key={r.id} className="py-2 flex flex-wrap items-center justify-between gap-2">
