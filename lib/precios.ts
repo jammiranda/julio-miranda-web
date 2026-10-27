@@ -41,6 +41,11 @@ export const PRECIOS_INICIALES: Inicial[] = [
   { linea: "Plataforma para comunidades", producto: "Comunidad", precio: 2490000, abono: 449000, condicion: "Hasta 5.000 usuarios · abono mínimo 6 meses", incluye: "Academia más padrón de socios, beneficios, pagos y cuotas en línea, noticias", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Todo lo que un gremio o asociación necesita en una sola plataforma, sin desarrollar de cero.", link: "https://www.devisebit.com/comunidad" },
 ]
 
+/** Productos agregados después de la lista inicial. */
+export const ALTAS: Inicial[] = [
+  { linea: "Plataforma para comunidades", producto: "Sistema para gremios: padrón y obra social", precio: 1690000, abono: 299000, condicion: "Hasta 5.000 afiliados · abono mínimo 6 meses", incluye: "Padrón de afiliados con credencial digital, aportes y cuotas, módulo de obra social (padrón de beneficiarios, órdenes y autorizaciones, prestadores) y tablero para la conducción. Sin academia", mercado_desde: 1000000, mercado_hasta: 3000000, fuente: AD, argumento: "Es la parte de gestión de la plataforma gremial, probada en producción, sin la academia: menos costo para el gremio que solo necesita ordenar padrón y obra social.", link: "https://www.devisebit.com/comunidad" },
+]
+
 export const PAGO = {
   alias: process.env.DB_ALIAS_PAGO ?? "devisebitsrl",
   titular: "DEVISEBIT SRL",
@@ -75,6 +80,14 @@ async function asegurar() {
         [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, (i + 1) * 10])
     }
     await q("insert into db_precios_hist(producto,campo,motivo,usuario) values ('Toda la lista','alta','Lista inicial de lanzamiento con referencias de mercado','Sistema')")
+  }
+  // Altas posteriores: se agregan una sola vez si todavía no están
+  for (const [i, p] of ALTAS.entries()) {
+    const ya = await one("select 1 from db_precios where producto=$1", [p.producto])
+    if (ya) continue
+    await q("insert into db_precios(linea,producto,precio,abono,condicion,incluye,mercado_desde,mercado_hasta,fuente,argumento,link,orden) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+      [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, 1000 + i])
+    await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ($1,'alta',$2,'Producto nuevo','Sistema')", [p.producto, String(p.precio ?? "")])
   }
   listo = true
 }

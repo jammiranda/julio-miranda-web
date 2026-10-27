@@ -229,6 +229,8 @@ create table if not exists avisos_estado (
   n int not null default 0, dia date not null,
   primary key (usuario_id, clave)
 );
+create table if not exists avisos_email (clave text primary key, enviado timestamptz not null default now());
+insert into am_productos(slug,titulo,bajada,descripcion,precio,moneda,estado) values ('prueba-de-pago','Pago de prueba','Producto de prueba para verificar el cobro con Mercado Pago.','## Pago de prueba\nEste producto sirve solo para probar que el cobro con Mercado Pago funciona de punta a punta: pago, aviso y página de gracias.',100,'ARS','venta') on conflict (slug) do nothing;
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
 `
 

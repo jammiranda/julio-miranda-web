@@ -4,8 +4,18 @@ import { notificar } from "./push"
 
 /** Agenda propia de DEVISEBIT: turnos de 30 minutos, lunes a viernes. Si está conectado, crea el evento en Google Calendar (con invitación al cliente). */
 const TZ = 3 // Argentina, UTC-3 sin horario de verano
-const [H_DESDE, H_HASTA] = (process.env.AGENDA_HORAS ?? "9-18").split("-").map(Number)
-const DURACION = 30
+
+/** Horario de atención para reuniones: se define en Sistema → Agenda (tabla config, clave "agenda"). */
+export type HorarioAgenda = { dias: number[]; desde: string; hasta: string; duracion: number; anticipacion: number; bloqueos: string[] }
+export const HORARIO_INICIAL: HorarioAgenda = { dias: [1, 2, 3, 4, 5], desde: "09:00", hasta: "18:00", duracion: 30, anticipacion: 2, bloqueos: [] }
+export async function horario(): Promise<HorarioAgenda> {
+  const r = await one<{ valor: string }>("select valor from config where clave='agenda'").catch(() => null)
+  try { return { ...HORARIO_INICIAL, ...(r ? JSON.parse(r.valor) : {}) } } catch { return HORARIO_INICIAL }
+}
+export async function guardarHorario(h: HorarioAgenda) {
+  await q("insert into config(clave,valor) values ('agenda',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify(h)])
+}
+const minutos = (hhmm: string) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + (m || 0) }
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"]
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
 
@@ -33,12 +43,15 @@ export const calendarioConectado = () => !!(process.env.GCAL_SCRIPT_URL && proce
 
 /** Turnos libres de los próximos días hábiles (descuenta reuniones del sistema y lo ocupado en Google Calendar). */
 export async function turnosLibres(diasHabiles = 10) {
-  const ahora = Date.now(), minimo = ahora + 2 * 3600e3
+  const hz = await horario()
+  const DURACION = hz.duracion
+  const ahora = Date.now(), minimo = ahora + hz.anticipacion * 3600e3
   const fechas: string[] = []
-  for (let i = 0; fechas.length < diasHabiles && i < 30; i++) {
+  for (let i = 0; fechas.length < diasHabiles && i < 45; i++) {
     const l = local(new Date(ahora + i * 864e5))
-    if (l.dia >= 1 && l.dia <= 5) fechas.push(l.fecha)
+    if (hz.dias.includes(l.dia) && !hz.bloqueos.includes(l.fecha)) fechas.push(l.fecha)
   }
+  if (!fechas.length) return []
   const desde = deLocal(fechas[0], "00:00"), hasta = deLocal(fechas[fechas.length - 1], "23:59")
   const tomadas = await q<{ inicio: Date; fin: Date }>("select inicio, fin from db_reuniones where estado='confirmada' and inicio < $2 and fin > $1", [desde, hasta])
   const g = await gcal({ accion: "ocupado", desde: desde.toISOString(), hasta: hasta.toISOString() })
@@ -48,7 +61,7 @@ export async function turnosLibres(diasHabiles = 10) {
   ]
   return fechas.map((f) => {
     const turnos: { iso: string; hora: string }[] = []
-    for (let m = H_DESDE * 60; m + DURACION <= H_HASTA * 60; m += DURACION) {
+    for (let m = minutos(hz.desde); m + DURACION <= minutos(hz.hasta); m += DURACION) {
       const ini = deLocal(f, `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`)
       const a = ini.getTime(), b = a + DURACION * 60e3
       if (a < minimo || ocupado.some(([x, y]) => a < y && b > x)) continue
@@ -80,7 +93,7 @@ export async function reservar(cid: number, inicio: Date, datos: { nombre?: stri
   if (isNaN(inicio.getTime())) return { ok: false as const, error: "Fecha inválida" }
   const libre = (await turnosLibres(10)).some((d) => d.turnos.some((t) => t.iso === inicio.toISOString()))
   if (!libre) return { ok: false as const, error: "Ese horario ya no está disponible" }
-  const fin = new Date(inicio.getTime() + DURACION * 60e3)
+  const fin = new Date(inicio.getTime() + (await horario()).duracion * 60e3)
   const nombre = datos.nombre ?? c.nombre, email = datos.email ?? c.email, tel = datos.telefono ?? c.telefono
   const modalidad = datos.modalidad === "llamada" ? "llamada" : "videollamada"
   const link = modalidad === "videollamada" ? linkVideo(c.brief_token ?? String(cid)) : null
@@ -98,7 +111,7 @@ export async function reservar(cid: number, inicio: Date, datos: { nombre?: stri
   if (contacto) await q("update db_contactos set etapa=case when etapa in ('base','nuevo','conversando') then 'reunion' else etapa end, proximo=$1, proximo_fecha=$2, actualizado=now() where id=$3", [`Reunión ${local(inicio).texto}`, local(inicio).fecha, contacto.id])
   const l = local(inicio)
   await notificar(["gerente", "coordinacion"], "📅 Reunión agendada", `${nombre ?? "Cliente"}${c.organizacion ? ` (${c.organizacion})` : ""} · ${l.texto}`, `/consultas/${cid}`)
-  const confirmacion = `📅 ¡Listo! Quedó agendada la ${modalidad} de 30 minutos para el *${l.texto}*.${link ? `\nEntrás desde acá (no hace falta instalar nada): ${link}` : `\nTe llamamos al ${tel ?? "número que nos dejaste"}.`}${email && calendarioConectado() ? `\nTe llegó la invitación a ${email}.` : ""}\nPara sumarla a tu calendario: ${URL_SISTEMA}/agendar/${c.brief_token}/ics\n\nSi necesitás cambiarla, avisanos por acá.`
+  const confirmacion = `📅 ¡Listo! Quedó agendada la ${modalidad} de ${Math.round((fin.getTime() - inicio.getTime()) / 60e3)} minutos para el *${l.texto}*.${link ? `\nEntrás desde acá (no hace falta instalar nada): ${link}` : `\nTe llamamos al ${tel ?? "número que nos dejaste"}.`}${email && calendarioConectado() ? `\nTe llegó la invitación a ${email}.` : ""}\nPara sumarla a tu calendario: ${URL_SISTEMA}/agendar/${c.brief_token}/ics\n\nSi necesitás cambiarla, avisanos por acá.`
   return { ok: true as const, id: r!.id, inicio, link, texto: l.texto, confirmacion, gcal: !!ev?.id }
 }
 

@@ -44,7 +44,7 @@ export default async function Agendar({ params, searchParams }: { params: { toke
     const g = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Reunión con DEVISEBIT")}&dates=${new Date(prox.inicio).toISOString().replace(/[-:]|\.\d{3}/g, "")}/${new Date(prox.fin).toISOString().replace(/[-:]|\.\d{3}/g, "")}&details=${encodeURIComponent(prox.link ? `Videollamada: ${prox.link}` : "Llamada telefónica")}`
     return (
       <main className="min-h-screen bg-[#F5F6F8]">
-        {head(searchParams.ok ? "¡Reunión agendada!" : "Ya tenés una reunión agendada", `${prox.modalidad === "llamada" ? "Llamada" : "Videollamada"} de 30 minutos, sin costo.`)}
+        {head(searchParams.ok ? "¡Reunión agendada!" : "Ya tenés una reunión agendada", `${prox.modalidad === "llamada" ? "Llamada" : "Videollamada"} de ${Math.round((new Date(prox.fin).getTime() - new Date(prox.inicio).getTime()) / 60e3)} minutos, sin costo.`)}
         <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-4">
           <section className="card flex flex-col gap-3">
             <p className="m-0 text-2xl font-extrabold text-[#0E1116] first-letter:uppercase">{l.texto}</p>
