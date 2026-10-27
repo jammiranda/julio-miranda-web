@@ -140,7 +140,11 @@ export async function diagnosticoBrevo(): Promise<{ ok: boolean; problemas: stri
   const problemas: string[] = [], info: string[] = []
   try {
     const a = await fetch("https://api.brevo.com/v3/account", { headers: h, cache: "no-store" })
-    if (a.status === 401) return { ok: false, problemas: ["Brevo rechaza la clave (BREVO_API_KEY inválida o revocada). Generá una nueva en Brevo → SMTP y API → Claves API y cargala en Vercel."], info }
+    if (a.status === 401) {
+      const m = String((await a.json().catch(() => ({}))).message ?? "")
+      if (/ip/i.test(m)) return { ok: false, problemas: [`Brevo bloquea el envío porque viene de una IP no autorizada (Vercel cambia de IP). En Brevo → Seguridad → IP autorizadas, desactivá el bloqueo de IP desconocidas. Mensaje de Brevo: «${m}»`], info }
+      return { ok: false, problemas: [`Brevo rechaza la clave (BREVO_API_KEY inválida o revocada). Generá una nueva en Brevo → SMTP y API → Claves API y cargala en Vercel.${m ? ` Mensaje de Brevo: «${m}»` : ""}`], info }
+    }
     const ja = await a.json().catch(() => ({}))
     const planes = (ja.plan ?? []) as { type: string; credits: number; creditsType: string }[]
     for (const pl of planes) info.push(`Plan ${pl.type}: ${pl.credits} ${pl.creditsType === "sendLimit" ? "envíos disponibles" : "créditos"}`)
