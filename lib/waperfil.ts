@@ -14,7 +14,7 @@ export type Perfil = { about: string; description: string; address: string; emai
 export const PERFIL: Perfil = {
   about: "IA, webs y sistemas a medida · Te atiende Bit 24 h",
   description:
-    "DEVISEBIT SRL\nSoftware e inteligencia artificial desde 2009.\n\n" +
+    "DEVISEBIT SRL\nSoftware e IA. Desde 2009.\n\n" +
     "• Páginas web\n• Agentes de WhatsApp con IA\n• Redes y anuncios\n• Sistemas a medida\n• Plataformas para comunidades y gremios\n• ACADEMIA DEVISEBIT\n\n" +
     "Atención del equipo: lunes a viernes de 8 a 18 h.\nBit, nuestro asistente, responde las 24 h.",
   address: "",

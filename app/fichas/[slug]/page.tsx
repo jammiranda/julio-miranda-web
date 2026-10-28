@@ -60,7 +60,7 @@ export default async function Ficha({ params }: { params: { slug: string } }) {
         </section>
         <nav className="no-print flex flex-wrap gap-2 text-sm">{otras.map((o) => <a key={o.slug} href={`/fichas/${o.slug}`} className="chip border border-[#C3C8D1] bg-white px-3 py-1 hover:border-[#C8231F]">{o.servicio}</a>)}</nav>
         <Redes className="no-print justify-center" conTexto />
-        <p className="m-0 text-xs text-center text-[#4A515C]">DEVISEBIT SRL · Software e inteligencia artificial desde 2009 · Luna 24, Parque Patricios (Polo Tecnológico CABA) y Nordelta</p>
+        <p className="m-0 text-xs text-center text-[#4A515C]">DEVISEBIT SRL · Software e IA. Desde 2009 · Luna 24, Parque Patricios (Polo Tecnológico CABA) y Nordelta</p>
       </div>
     </main>
   )

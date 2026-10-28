@@ -45,7 +45,7 @@ export function plantilla(cuerpo: string, o: { preheader?: string | null; baja?:
 <tr><td style="background:#0E1116;border-radius:16px 16px 0 0;padding:22px 28px"><span style="font-size:20px;font-weight:800;letter-spacing:.04em;color:#fff">DEVISE<span style="color:#FF6A63">BIT</span></span></td></tr>
 <tr><td style="background:#fff;padding:28px">${saludo}</td></tr>
 <tr><td style="background:#fff;border-top:1px solid #EEF0F3;border-radius:0 0 16px 16px;padding:18px 28px;font-size:12px;line-height:1.6;color:#4A515C">
-DEVISEBIT SRL · Software e inteligencia artificial desde 2009<br>${REDES.map((r) => `<a href="${r.href}" style="color:#C8231F;font-weight:600;text-decoration:none">${r.nombre}</a>`).join(" · ")}<br>Luna 24, Parque Patricios (Polo Tecnológico CABA) · WhatsApp +54 9 11 7346-6490 · <a href="https://www.devisebit.com" style="color:#4A515C">devisebit.com</a><br>
+DEVISEBIT SRL · Software e IA. Desde 2009<br>${REDES.map((r) => `<a href="${r.href}" style="color:#C8231F;font-weight:600;text-decoration:none">${r.nombre}</a>`).join(" · ")}<br>Luna 24, Parque Patricios (Polo Tecnológico CABA) · WhatsApp +54 9 11 7346-6490 · <a href="https://www.devisebit.com" style="color:#4A515C">devisebit.com</a><br>
 ${o.baja ? `Recibís este correo porque estás en contacto con DEVISEBIT. <a href="${o.baja}" style="color:#4A515C">Darte de baja</a>.` : ""}
 </td></tr></table></td></tr></table></body></html>`
 }
