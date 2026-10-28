@@ -48,7 +48,7 @@ export default async function Academia() {
             <h2 className="acad-h2 m-0 font-extrabold text-white">Ordená tu organización con un método, no a prueba y error.</h2>
             <p className="acad-lead m-0 text-white/80">La guía práctica con autodiagnóstico, hoja de ruta en 14 pasos y el Programa Kit 4.0, y el taller para tu equipo con certificado.</p>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 pt-1">
-              <Link href="/productos/guia-transformacion-digital" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[48px] text-base sm:text-sm">Guía + bonus · $19.900</Link>
+              <Link href="/productos/guia-transformacion-digital" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[48px] text-base sm:text-sm">Guía + bonus · $40.000</Link>
               <Link href="/productos/taller-transformacion-digital" className="btn bg-white/10 text-white hover:bg-white/20 min-h-[48px] text-base sm:text-sm">Taller básico para tu equipo</Link>
               <a href="https://www.devisebit.com/transformacion-digital" className="btn bg-transparent text-white/85 hover:text-white underline min-h-[48px]">Consultoría completa ↗</a>
             </div>

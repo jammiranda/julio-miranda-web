@@ -1,3 +1,4 @@
+import { recursoEnMensaje, recurso, sumarUso, linkRecurso, entregarPorEmail } from "./recursos"
 import { q, one } from "./db"
 import { DEMOS, demoInfo, validarEmail, crearAcceso, enviarAcceso } from "./demos"
 import { BOTS, EQUIPO, NOMBRE_BOT, type Empresa } from "./bots/conocimiento"
@@ -10,7 +11,7 @@ import { catalogo, linkBrief } from "./brief"
 import { sugerencias, reservar, deLocal, linkAgenda } from "./agenda"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
-type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
+type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string; recurso?: string | null }
 type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado; reunion?: string | null; area?: string | null; demo?: string | null }
 const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
 
@@ -245,7 +246,23 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
   }
 
   let res: Resultado
-  if (tipo !== "text" && !texto) {
+  // Recursos con palabra clave (ej.: alguien escribe "GUIAS" desde un posteo): link al instante y se pide el email
+  const rec = await recursoEnMensaje(texto).catch(() => null)
+  const mailEnTexto = texto?.match(/[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}/i)?.[0] ?? null
+  const recPendiente = !rec && est.recurso && mailEnTexto ? await recurso(est.recurso).catch(() => null) : null
+  if (rec) {
+    await sumarUso(rec.palabra)
+    const nom = perfil && /^[A-Za-zÁÉÍÓÚÑáéíóúñ]{2,}/.test(perfil) ? ` ${perfil.split(" ")[0]}` : ""
+    res = { respuestas: [`¡Hola${nom}! 🙌 Acá tenés ${rec.titulo}:\n${linkRecurso(rec.palabra)}${rec.mensaje ? `\n\n${rec.mensaje}` : ""}`, "¿Querés que te lo mande también por email y te avise cuando salga el próximo? Pasame tu email 📩"], datos: {}, derivar: false, estado: { ...est, recurso: rec.palabra } }
+  } else if (recPendiente) {
+    const val = await validarEmail(mailEnTexto)
+    if (val.ok) {
+      const env = await entregarPorEmail(recPendiente, val.email, perfil, `${red} (recurso ${recPendiente.palabra})`).catch(() => ({ ok: false }))
+      res = { respuestas: [env.ok ? `¡Listo! Te lo mandé a ${val.email} ✉️ Si no lo ves, fijate en promociones o spam. ¿Te puedo ayudar con algo más?` : `Guardé tu email (${val.email}) 🙌 En un rato te llega. ¿Te ayudo con algo más?`], datos: { email: val.email }, derivar: false, estado: { ...est, recurso: null } }
+    } else {
+      res = { respuestas: [`Mmm, ese email no parece válido (${mailEnTexto}) 🤔 ¿Me lo pasás de nuevo?`], datos: {}, derivar: false, estado: est }
+    }
+  } else if (tipo !== "text" && !texto) {
     res = { respuestas: ["¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?"], datos: {}, derivar: false, estado: est }
   } else {
     const hist = await q<{ autor: string; texto: string | null }>("select autor, texto from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '3 days' order by creado desc limit 30", [e, waId])
