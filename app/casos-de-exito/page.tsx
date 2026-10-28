@@ -12,7 +12,7 @@ import { useState } from "react"
 import TrabajosClient from "../trabajos/TrabajosClient"
 import { REDES_GESTIONADAS } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
-import { Instagram, Globe } from "lucide-react"
+import { Instagram } from "lucide-react"
 
 export default function CasosDeExitoPage() {
   const [selectedSector, setSelectedSector] = useState("gobierno")
@@ -358,18 +358,18 @@ export default function CasosDeExitoPage() {
           <div className="flex flex-col gap-3 max-w-[820px]">
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Redes que gestionamos</p>
             <h2 id="t-redes" className="m-0 font-tight text-[32px] md:text-[42px] leading-[1.1] font-extrabold">Contenido, reels y campañas, todas las semanas.</h2>
-            <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Estas son algunas de las cuentas que manejamos: planificación, diseño de placas y reels, publicación y respuesta con IA. Entrá y mirá cómo trabajamos.</p>
+            <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Universidades, gobierno, gremios, salud y empresas: cuentas que llevamos hoy o que llevamos en distintas etapas, con planificación, placas, reels, publicación y respuesta con IA. Entrá y mirá cómo trabajamos.</p>
           </div>
-          <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <ul className="m-0 p-0 list-none grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
             {REDES_GESTIONADAS.map((r) => {
-              const href = r.ig ? `https://www.instagram.com/${r.ig}/` : r.web!
+              const href = `https://www.instagram.com/${r.ig}/`
               return (
                 <li key={r.nombre}>
-                  <a href={href} target="_blank" rel="noopener noreferrer" className="db-card h-full rounded-2xl border border-white/15 hover:border-[#FF6A63] bg-white/[0.03] p-5 flex flex-col gap-2 transition-colors" aria-label={`${r.nombre} (se abre en otra pestaña)`}>
-                    <span className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]">{r.ig ? <Instagram size={22} aria-hidden="true" /> : <Globe size={22} aria-hidden="true" />}</span>
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="db-card h-full rounded-2xl border border-white/15 hover:border-[#FF6A63] bg-white/[0.03] p-4 md:p-5 flex flex-col gap-2 transition-colors" aria-label={`${r.nombre} (se abre en otra pestaña)`}>
+                    <span className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]"><Instagram size={20} aria-hidden="true" /></span>
                     <strong className="text-[17px] leading-snug">{r.nombre}</strong>
                     <span className="text-sm text-[#C3C8D1]">{r.rubro}</span>
-                    <span className="mt-auto pt-1 text-sm font-bold text-[#FF6A63]">{r.ig ? `@${r.ig}` : "Ver el sitio"} →</span>
+                    <span className="mt-auto pt-1 text-sm font-bold text-[#FF6A63] break-all">@{r.ig} →</span>
                   </a>
                 </li>
               )

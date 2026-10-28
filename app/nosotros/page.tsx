@@ -103,6 +103,21 @@ export default function NosotrosPage() {
           </div>
         </section>
 
+        <section aria-labelledby="t-fund" className="bg-white">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16">
+            <div className="rounded-[20px] border border-[#E2E5EA] p-6 md:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/julio.jpg" alt="Julio Miranda" width={112} height={112} className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white shadow-[0_0_0_2px_#C8231F] shrink-0" />
+              <div className="flex flex-col gap-2.5 flex-1 min-w-0">
+                <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Quién lidera DEVISEBIT</p>
+                <h2 id="t-fund" className="m-0 font-tight text-[26px] md:text-[30px] font-extrabold leading-tight">Julio Miranda · Fundador y Director</h2>
+                <p className="m-0 text-[16px] leading-relaxed text-[#4A515C] max-w-[820px]">Más de 15 años liderando proyectos de software, datos y transformación digital. Coordinó plataformas tecnológicas federales en el Ministerio de Ambiente de la Nación y dirigió el Centro Metropolitano de Diseño y el BA Laboratorio Tecnológico en la Ciudad de Buenos Aires. Fundó la empresa en 2009 como Web y Graf, que hoy es DEVISEBIT SRL.</p>
+              </div>
+              <a href="https://julio.devisebit.com" target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-xl border-2 border-[#0E1116] hover:bg-[#0E1116] hover:text-white px-5 py-3 font-bold transition-colors">Ver su perfil →</a>
+            </div>
+          </div>
+        </section>
+
         <section id="equipo" className="bg-[#F5F6F8] scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
@@ -110,7 +125,7 @@ export default function NosotrosPage() {
               <h2 className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">Líderes con equipos propios, detrás de cada proyecto.</h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {EQUIPO.map((p) => (
+              {EQUIPO.filter((p) => p.name !== "Julio").map((p) => (
                 <article key={p.name} className="db-card rounded-2xl border border-[#E2E5EA] bg-white p-6 flex flex-col gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-[#0B0D12] text-white font-tight text-2xl font-extrabold flex items-center justify-center" aria-hidden="true">{p.name[0]}</div>
                   <div>

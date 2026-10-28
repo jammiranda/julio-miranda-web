@@ -3,7 +3,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
-import { EQUIPO, EQUIPO_PIE, SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
+import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
 
 const STATS = [
@@ -220,41 +220,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Academia + equipo */}
-        <section id="nosotros" className="bg-white">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-wrap gap-8">
-            <div className="db-tech flex-[1_1_480px] min-w-0 rounded-[20px] bg-[#0B0D12] text-white p-8 md:p-9 flex flex-col gap-4">
-              <p className={kicker + " text-[#FF6A63]"}>Academia DEVISEBIT</p>
-              <h2 className="m-0 font-tight text-[30px] md:text-[34px] leading-[1.15] font-extrabold">Cursos de tecnología e IA aplicada, con certificado.</h2>
-              <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Para equipos de salud, gestión y administración. También armamos la academia online de tu organización.</p>
-              <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <li><a href={ACADEMIA.kit} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Kit IA para pymes</strong><span className="text-[13px] text-[#C3C8D1]">50 prompts y 10 automatizaciones paso a paso. Próximamente</span></a></li>
-                <li><a href={ACADEMIA.guias} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Guías gratis</strong><span className="text-[13px] text-[#C3C8D1]">Automatizaciones, CRM, ciberseguridad y más</span></a></li>
-                <li><a href={ACADEMIA.cursos} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Cursos</strong><span className="text-[13px] text-[#C3C8D1]">Con clases en vivo y certificado verificable</span></a></li>
-              </ul>
+        {/* Academia DEVISEBIT */}
+        <section id="academia" className="bg-white">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20">
+            <div className="db-tech rounded-[20px] bg-[#0B0D12] text-white p-7 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-8 lg:gap-12 items-center">
+              <div className="flex flex-col gap-4">
+                <p className={kicker + " text-[#FF6A63]"}>Academia DEVISEBIT</p>
+                <h2 className="m-0 font-tight text-[30px] md:text-[40px] leading-[1.12] font-extrabold">Cursos de tecnología e IA aplicada, con certificado.</h2>
+                <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Para equipos de salud, gestión y administración. También armamos la academia online de tu organización.</p>
+                <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <li><a href={ACADEMIA.kit} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Kit IA para pymes</strong><span className="text-[13px] text-[#C3C8D1]">50 prompts y 10 automatizaciones paso a paso. Próximamente</span></a></li>
+                  <li><a href={ACADEMIA.guias} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Guías gratis</strong><span className="text-[13px] text-[#C3C8D1]">Automatizaciones, CRM, ciberseguridad y más</span></a></li>
+                  <li><a href={ACADEMIA.cursos} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Cursos</strong><span className="text-[13px] text-[#C3C8D1]">Con clases en vivo y certificado verificable</span></a></li>
+                </ul>
+                <div className="flex flex-wrap gap-2.5 pt-1">
+                  <a href={ACADEMIA.url} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-[#FF6A63] hover:bg-[#ff8a85] px-[22px] py-[12px] font-extrabold text-[#0B0D12] transition-colors">Entrar a la Academia →</a>
+                  <a href="/transformacion-digital" className="rounded-xl border-2 border-white/20 hover:border-[#FF6A63] px-[22px] py-[10px] font-bold transition-colors">Capacitación para empresas</a>
+                </div>
+              </div>
               <YoutubeUltimos titulo="Lo último en YouTube: videos y shorts" />
-              <a href={ACADEMIA.url} target="_blank" rel="noopener noreferrer" className="mt-auto self-start rounded-xl border-2 border-[#FF6A63] px-[22px] py-[12px] font-extrabold text-[#FF6A63] hover:bg-[#FF6A63] hover:text-[#0B0D12] transition-colors">Entrar a la Academia →</a>
-            </div>
-            <div className="flex-[1_1_480px] min-w-0 flex flex-col gap-4">
-              <h2 className="m-0 font-tight text-[30px] md:text-[34px] font-extrabold">Nuestro equipo</h2>
-              <div className="grid grid-cols-2 auto-rows-fr gap-3 flex-1">
-                {EQUIPO.map((p) => (
-                  <div key={p.name} className="db-card rounded-2xl border border-[#E2E5EA] p-[18px]">
-                    <strong className="text-lg">{p.name}</strong>
-                    <div className="text-[#4A515C]">{p.role}</div>
-                  </div>
-                ))}
-                <a href="/nosotros#equipo" className="db-card rounded-2xl border border-dashed border-[#C8231F] p-[18px] flex flex-col justify-center hover:bg-[#FDECEB] transition-colors">
-                  <strong className="text-lg text-[#C8231F]">Conocé al equipo →</strong>
-                  <span className="text-[#4A515C]">Quién hace qué en cada proyecto</span>
-                </a>
-              </div>
-              <p className="m-0 text-[#4A515C] leading-relaxed">{EQUIPO_PIE}</p>
-              <div className="rounded-2xl bg-[#F5F6F8] p-5 grid sm:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-0.5"><strong>Polo Tecnológico</strong><span className="text-[15px] text-[#4A515C]">Luna 24, 6.º piso, Parque Patricios, CABA</span></div>
-                <div className="flex flex-col gap-0.5"><strong>Circular Cowork</strong><span className="text-[15px] text-[#4A515C]">Av. de los Lagos 7008, Nordelta, Tigre</span></div>
-                <a href="/trabaja-con-nosotros" className="sm:col-span-2 font-bold text-[#C8231F] hover:text-[#9E1A17]">¿Querés sumarte al equipo? →</a>
-              </div>
             </div>
           </div>
         </section>

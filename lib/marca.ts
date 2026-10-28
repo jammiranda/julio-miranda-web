@@ -61,11 +61,17 @@ export const ACADEMIA = {
 }
 
 // ── Cuentas de Instagram que gestionamos (casos de éxito) ──
-// ig: usuario confirmado; si es null, la tarjeta lleva a la web del cliente hasta confirmar la cuenta.
 export const REDES_GESTIONADAS = [
-  { nombre: "DEVISEBIT SRL", rubro: "Tecnología e IA · nuestra marca", ig: "devisebit", web: null },
-  { nombre: "Academia USL", rubro: "Academia online y comunidad", ig: "academia_usl", web: "https://academiausl.com" },
-  { nombre: "UTHGRA San Luis", rubro: "Gremio gastronómico y hotelero", ig: null, web: "https://uthgrasanluis.com" },
-  { nombre: "Centro Sagrado Corazón", rubro: "Salud · Merlo, San Luis", ig: null, web: "https://www.centrosagradocorazon.com" },
-  { nombre: "San Patricio Servicios de Salud", rubro: "Salud", ig: "sanpatriciosalud", web: null },
+  { nombre: "Academia BA", rubro: "Gobierno de la Ciudad · emprendedores", ig: "academia_ba" },
+  { nombre: "UBA Posgrados", rubro: "Universidad", ig: "ubaposgrados" },
+  { nombre: "Academia USL", rubro: "Academia online y comunidad", ig: "academia_usl" },
+  { nombre: "UTHGRA San Luis", rubro: "Gremio gastronómico y hotelero", ig: "uthgrasanluisoficial" },
+  { nombre: "UTHGRA Delegación Merlo", rubro: "Gremio · Merlo, San Luis", ig: "uthgramerlosanluis" },
+  { nombre: "IPLIDO", rubro: "Instituto para la Igualdad de Oportunidades", ig: "iplido" },
+  { nombre: "Fundación SODETEC", rubro: "Educación para el trabajo", ig: "sodetec" },
+  { nombre: "Centro Médico Sagrado Corazón", rubro: "Salud · Merlo, San Luis", ig: "centroscorazon" },
+  { nombre: "San Patricio Servicios de Salud", rubro: "Salud", ig: "sanpatriciosalud" },
+  { nombre: "RGV Consultora", rubro: "Consultoría", ig: "rgv.consultora" },
+  { nombre: "Trasandino Comex", rubro: "Comercio exterior", ig: "trasandinocomex" },
+  { nombre: "DEVISEBIT SRL", rubro: "Nuestra marca", ig: "devisebit" },
 ] as const
