@@ -15,13 +15,12 @@ const CIFRAS = [
 ]
 
 const TRAYECTORIA = [
-  { a: "2026 – hoy", t: "Docente · Colegio Nacional de Buenos Aires (UBA)", d: "Campo de Deportes de Puerto Madero; acompañó la gestión del proyecto del nuevo campo deportivo." },
-  { a: "2026 – hoy", t: "Docente de Excel · Colegio Northfield (Red Educativa Itínere)", d: "Horas extraprogramáticas en 5.° año y preparación para la certificación externa de la UTN." },
-  { a: "2023 – 2026", t: "Coordinadora de Proyectos de Digitalización · Universidad de Buenos Aires", d: "Equipos de hasta 15 personas: implementación de plataformas, sistematización de procesos y mejora de la web institucional." },
-  { a: "2022 – 2026", t: "Secretaria de Innovación Tecnológica Educativa · Colegio Nacional de Buenos Aires", d: "Procesos digitales en la enseñanza; tutora pedagógica con seguimiento académico de 150 estudiantes." },
-  { a: "2024", t: "Medios de apoyo técnico-pedagógico · Colegio Preuniversitario Dr. Ramón Cereijo", d: "Además, gestión y organización de un curso de inglés a nivel universitario." },
-  { a: "2012 – 2022", t: "Profesora · Colegio Carmen Arriola de Marín", d: "Educación Física y Construcción de la Ciudadanía, con proyectos interdisciplinarios." },
-  { a: "2008 – 2014", t: "Profesora y coordinadora de Educación Física · Instituto San Juan Bosco", d: "Nivel primario; campamentos y viajes educativos." },
+  { a: "2022 – hoy", t: "Secretaria de Innovación Tecnológica Educativa · Colegio Nacional de Buenos Aires (UBA)", d: "Implementó herramientas y procesos digitales aplicados a la enseñanza. Fue tutora pedagógica (2022 – 2024) con seguimiento académico de 150 estudiantes, y desde 2026 es ayudante de Campo de Deportes: acompañó a la gestión del colegio en el proyecto del nuevo campo deportivo." },
+  { a: "2026 – hoy", t: "Profesora · Colegio Northfield, sede Puertos (Red Educativa Itínere)", d: "Dicta Gestión de Datos en el nivel secundario y prepara a los estudiantes para la certificación externa de la UTN." },
+  { a: "2023 – 2026", t: "Coordinadora de Proyectos de Digitalización · Universidad de Buenos Aires", d: "Subsecretaría de Transformación Digital y Modernización. Lideró equipos interdisciplinarios de hasta 15 personas: sistematización de correos, implementación de plataformas, digitalización de documentos y procesos, y mejora de la web institucional." },
+  { a: "2024", t: "Encargada de Medios de Apoyo Técnico-Pedagógico · Colegio Preuniversitario Dr. Ramón Cereijo", d: "Además, gestión y organización de un curso de inglés a nivel universitario." },
+  { a: "2012 – 2022", t: "Docente y desarrolladora de proyectos interdisciplinarios · Colegio Carmen Arriola de Marín", d: "Grupo Educativo Marín." },
+  { a: "2008 – 2014", t: "Profesora de Educación Física y coordinadora de campamentos · Instituto San Juan Bosco", d: "Coordinó y organizó campamentos y viajes educativos institucionales." },
 ]
 
 const FORMACION = [
@@ -32,9 +31,9 @@ const FORMACION = [
   ["Coaching Ontológico", "Axion Training · 2018"],
 ]
 
-const CAPACITACIONES = ["Multialfabetización digital (USI)", "Profesionalización y evaluación de la enseñanza (Grupo Educativo Marín)", "“Que enseñes no significa que aprendan” (Laura Lewin)", "Cápsulas de práctica docente (Red Itínere, 2026)", "Desarrollo Profesional Docente (Northfield School, 2026)", "Inglés B1"]
+const CAPACITACIONES = ["Multialfabetización digital (USI)", "Profesionalización y evaluación de la enseñanza (Grupo Educativo Marín)", "“Que enseñes no significa que aprendan” (Laura Lewin)", "Cápsulas de práctica docente (Red Itínere, 2026)", "Desarrollo Profesional Docente (Northfield School, 2026)", "Coaching Ontológico (Axion Training)", "Inglés B1 (intermedio)"]
 
-const AREAS = ["Tecnología educativa e IA en el aula", "Transformación digital de instituciones", "Diseño y evaluación de la enseñanza", "Decisiones basadas en datos", "Capacitación docente", "Liderazgo de equipos y gestión del cambio"]
+const AREAS = ["Gestión educativa", "IA aplicada a la educación", "Transformación digital de instituciones", "Planificación estratégica", "Decisiones basadas en datos", "Tutorías y acompañamiento", "Capacitación docente", "Liderazgo de equipos y gestión del cambio"]
 
 /** Equipo académico de la ACADEMIA DEVISEBIT (público). */
 export default function EquipoAcademico() {
@@ -59,10 +58,11 @@ export default function EquipoAcademico() {
             <div>
               <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#C8231F]">Directora académica</p>
               <h2 id="t-dir" className="m-0 mt-1 text-2xl sm:text-3xl">Georgina N. Varela Cilio</h2>
+              <p className="m-0 mt-1 font-semibold text-[#262C37]">Gestión educativa · Liderazgo de equipos · Innovación y transformación digital</p>
               <p className="m-0 mt-1 text-[#4A515C]">Licenciada y Profesora en Ciencias de la Educación · Profesora de Educación Física · Maestranda en Dirección de Instituciones Educativas (USAL)</p>
             </div>
             <p className="m-0">Lidera el diseño pedagógico de la Academia: qué se enseña, cómo se enseña y cómo se evalúa, para que cada curso termine en algo que el alumno pueda aplicar en su trabajo.</p>
-            <p className="m-0">Tiene 17 años de trayectoria en los tres niveles educativos. Fue secretaria de Innovación Tecnológica Educativa y tutora pedagógica en el Colegio Nacional de Buenos Aires, y coordinó proyectos de digitalización en la Universidad de Buenos Aires: implementación de plataformas, digitalización de procesos y comunicación institucional.</p>
+            <p className="m-0">Tiene 17 años de trayectoria en educación, liderazgo de equipos e innovación educativa, en los tres niveles. Se destaca por la comunicación asertiva, la adaptabilidad y la toma de decisiones basada en datos. Fue secretaria de Innovación Tecnológica Educativa y tutora pedagógica en el Colegio Nacional de Buenos Aires, y coordinó proyectos de digitalización en la Universidad de Buenos Aires: implementación de plataformas, digitalización de procesos y comunicación institucional.</p>
             <blockquote className="m-0 border-l-4 border-[#C8231F] pl-4 italic text-[#262C37]">“Los datos no hablan solos: nosotros los hacemos hablar.”</blockquote>
             <a href="https://www.linkedin.com/in/georgina-n-varela-cilio-55a277106/" target="_blank" rel="noopener noreferrer" className="btn-s self-start">Perfil de LinkedIn ↗</a>
           </div>
@@ -111,7 +111,7 @@ export default function EquipoAcademico() {
 
         <section aria-labelledby="t-proy" className="card bg-[#F5F6F8] flex flex-col gap-2">
           <h2 id="t-proy" className="m-0 text-xl">En el aula hoy</h2>
-          <p className="m-0">Diseña cápsulas de práctica docente con rutinas de pensamiento: los alumnos aprenden Excel resolviendo el caso de una tienda real (“DigiMarket”), con estaciones de inteligencias múltiples, funciones condicionales y registro de evidencias del aprendizaje. Esa misma forma de enseñar —práctica, con casos concretos y medible— es la que guía los cursos de la Academia.</p>
+          <p className="m-0">Enseña Gestión de Datos con cápsulas de práctica docente y rutinas de pensamiento: los alumnos trabajan resolviendo el caso de una tienda real (“DigiMarket”), con estaciones de inteligencias múltiples, funciones condicionales y registro de evidencias del aprendizaje. Esa misma forma de enseñar —práctica, con casos concretos y medible— es la que guía los cursos de la Academia.</p>
         </section>
       </div>
     </main>
