@@ -57,8 +57,8 @@ export default function ProductosPage() {
                   {(() => { const sol = SOLUCIONES.find((x) => x.id === SOLUCION_DE_PRODUCTO[p.id]); return sol ? <Link href={sol.href} className="rounded-xl border border-[#C3C8D1] hover:border-[#C8231F] px-4 py-2.5 text-center text-sm font-bold text-[#0E1116] transition-colors">Ver planes y precios</Link> : null })()}
                   {DEMO_DE_PRODUCTO[p.id] ? (
                     <>
-                      <a href={demoUrl(DEMO_DE_PRODUCTO[p.id])} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 text-center text-sm font-bold text-white transition-colors">Probar la demo</a>
-                      <span className="text-xs text-[#4A515C] text-center">Funciona en tu navegador, con datos de ejemplo. <Link href={`/contacto?tema=${encodeURIComponent("Demo: " + p.title)}#formulario`} className="underline">O pedí una demo con tus datos</Link>.</span>
+                      <a href={demoUrl(DEMO_DE_PRODUCTO[p.id])} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 text-center text-sm font-bold text-white transition-colors">Pedir la demo</a>
+                      <span className="text-xs text-[#4A515C] text-center">Te llega por email un link para probarla. <Link href={`/contacto?tema=${encodeURIComponent("Demo: " + p.title)}#formulario`} className="underline">O pedí una presentación</Link>.</span>
                     </>
                   ) : (
                     <>
@@ -115,8 +115,8 @@ export default function ProductosPage() {
               ))}
             </ol>
             <div className="flex flex-wrap gap-3">
-              <a href={demoUrl("whatsapp")} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Probar la demo ahora</a>
-              <Link href={`/contacto?tema=${encodeURIComponent("Demo: Asistente de WhatsApp con IA")}#formulario`} className="rounded-xl border-2 border-[#0E1116] px-[22px] py-[14px] font-bold text-[17px] hover:bg-[#0E1116] hover:text-white transition-colors">Pedir una demo con mis datos</Link>
+              <a href={demoUrl("whatsapp")} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Pedir la demo</a>
+              <Link href={`/contacto?tema=${encodeURIComponent("Demo: Asistente de WhatsApp con IA")}#formulario`} className="rounded-xl border-2 border-[#0E1116] px-[22px] py-[14px] font-bold text-[17px] hover:bg-[#0E1116] hover:text-white transition-colors">Pedir una presentación</Link>
             </div>
           </div>
         </section>

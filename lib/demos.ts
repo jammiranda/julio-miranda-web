@@ -12,8 +12,8 @@ export const DEMOS: Demo[] = [
   { slug: "transformacion-digital", titulo: "Autodiagnóstico de madurez digital", texto: "12 preguntas y obtenés tu nivel, un gráfico por área y 3 prioridades.", para: "Pymes, empresas familiares y organismos" },
 ]
 
-export const videoUrl = (slug: string, blanca = false) => `/demos/videos/${slug}${blanca ? "-marca-blanca" : ""}.mp4`
-export const demoUrl = (slug: string, blanca = false) => `/demos/${slug}.html${blanca ? "?marca=blanca" : ""}`
+/** Las demos son privadas: se piden con email. Solo el autodiagnóstico es público. */
+export const demoUrl = (slug: string, _blanca = false) => (slug === "transformacion-digital" ? "/demos/transformacion-digital.html" : `/demos?d=${slug}#pedir`)
 export const demoDe = (slug: string) => DEMOS.find((d) => d.slug === slug)
 
 /** Producto de /productos → demo que lo muestra */
