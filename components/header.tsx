@@ -18,7 +18,7 @@ const NOSOTROS = [
   { href: "/nosotros", label: "Quiénes somos" },
   { href: "/nosotros#equipo", label: "Nuestro equipo" },
   { href: "/casos-de-exito", label: "Casos de éxito" },
-  { href: "/#planes", label: "Planes y precios" },
+  { href: "/transformacion-digital", label: "Transformación digital" },
   { href: "/alianzas-estrategicas", label: "Alianzas estratégicas" },
   { href: "/trabaja-con-nosotros", label: "Trabajá con nosotros" },
   { href: "https://academia.devisebit.com", label: "Academia DEVISEBIT", external: true },

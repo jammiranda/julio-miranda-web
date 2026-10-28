@@ -28,10 +28,12 @@ const ETAPAS = [
   { n: "05", t: "Gestión del cambio y capacitación", d: "Acompañamos a los equipos en la adopción, con talleres y cursos de la Academia DEVISEBIT, y medimos el avance con los indicadores definidos." },
 ]
 
+const ACAD = "https://academia.devisebit.com/productos/"
 const FORMATOS = [
-  { t: "Taller de Transformación Digital", d: "Una jornada para directivos y equipos: conceptos de industria 4.0, casos reales y autodiagnóstico de madurez digital.", items: ["Presencial o virtual", "In company o abierto", "Material y autodiagnóstico incluidos"] },
-  { t: "Diagnóstico y hoja de ruta", d: "Relevamos la organización y entregamos un informe con el nivel de madurez, los retos priorizados y el plan por etapas.", items: ["Entrevistas y relevamiento de procesos", "Informe y tablero de indicadores", "Presentación al directorio"] },
-  { t: "Programa de acompañamiento", d: "Implementamos la hoja de ruta con tu equipo: pilotos, sistemas, capacitación y seguimiento mensual.", items: ["Responsable único de DEVISEBIT", "Entregas cortas y medibles", "Capacitación con certificado"] },
+  { t: "Guía práctica en PDF", precio: "$19.900", nota: "Descarga inmediata", d: "13 páginas con autodiagnóstico, hoja de ruta en 14 pasos, gestión del cambio, indicadores y el Programa Kit 4.0.", items: ["Plantillas listas para usar", "Para dirección y mandos medios", "Actualizada a octubre de 2026"], href: ACAD + "guia-transformacion-digital", cta: "Comprar la guía" },
+  { t: "Taller de Transformación Digital", precio: "$390.000", nota: "Hasta 15 personas · 3 horas", d: "Una jornada para directivos y equipos: conceptos, casos reales y autodiagnóstico de madurez digital en vivo.", items: ["Virtual o presencial (CABA y GBA)", "Certificado de la Academia DEVISEBIT", "Guía en PDF para cada asistente"], href: ACAD + "taller-transformacion-digital", cta: "Comprar el taller" },
+  { t: "Diagnóstico y hoja de ruta", precio: "$890.000", nota: "Organizaciones de hasta 50 personas", d: "Relevamos la organización y entregamos el nivel de madurez, los retos priorizados y el plan por etapas.", items: ["Entrevistas y relevamiento de procesos", "Informe, tablero de indicadores y presentación", "Financiamiento aplicable (Kit 4.0 y otros)"], href: ACAD + "diagnostico-transformacion-digital", cta: "Comprar el diagnóstico" },
+  { t: "Programa de acompañamiento", precio: "A medida", nota: "Abono mensual · mínimo 3 meses", d: "Implementamos la hoja de ruta con tu equipo: pilotos, sistemas, capacitación y seguimiento mensual.", items: ["Responsable único de DEVISEBIT", "Entregas cortas y medibles", "Capacitación con certificado"], href: WA, cta: "Pedir propuesta" },
 ]
 
 const PARA = ["Directores y gerentes", "Pymes y empresas familiares", "Gremios, mutuales y obras sociales", "Organismos públicos y municipios", "Universidades e institutos", "Emprendedores en crecimiento"]
@@ -94,19 +96,36 @@ export default function TransformacionDigitalPage() {
             <div className="flex flex-col gap-2.5 max-w-[760px]">
               <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Formatos</p>
               <h2 id="t-for" className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">Empezá por donde te sirva.</h2>
+              <p className="m-0 text-lg leading-relaxed text-[#4A515C]">Precios finales en pesos. Pagás online con Mercado Pago (tarjeta hasta 3 cuotas sin interés). ¿Preferís transferencia o necesitás factura A? Escribinos.</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {FORMATOS.map((f) => (
                 <article key={f.t} className="db-card rounded-2xl border border-[#E2E5EA] bg-white p-7 flex flex-col gap-3">
-                  <h3 className="m-0 font-tight text-[23px] font-bold">{f.t}</h3>
-                  <p className="m-0 text-base leading-relaxed text-[#4A515C]">{f.d}</p>
+                  <h3 className="m-0 font-tight text-[21px] font-bold leading-snug">{f.t}</h3>
+                  <div><span className="font-tight text-3xl font-extrabold">{f.precio}</span><span className="block text-sm text-[#4A515C]">{f.nota}</span></div>
+                  <p className="m-0 text-[15px] leading-relaxed text-[#4A515C]">{f.d}</p>
                   <ul className="m-0 p-0 list-none flex flex-col gap-2 border-t border-[#E2E5EA] pt-3">
                     {f.items.map((i) => <li key={i} className="flex gap-2.5 text-[15px]"><span className="text-[#C8231F] font-extrabold" aria-hidden="true">✓</span>{i}</li>)}
                   </ul>
-                  <a href={WA} target="_blank" rel="noopener noreferrer" className="mt-auto pt-2 font-bold text-[#C8231F] hover:text-[#9E1A17]">Consultar →</a>
+                  <a href={f.href} target="_blank" rel="noopener noreferrer" className="mt-auto rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 text-center font-bold text-white transition-colors">{f.cta}</a>
                 </article>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="t-kit" className="bg-white border-b border-[#E2E5EA]">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] grid md:grid-cols-[1fr_1.2fr] gap-10 items-start">
+            <div className="flex flex-col gap-3">
+              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Financiamiento</p>
+              <h2 id="t-kit" className="m-0 font-tight text-[30px] md:text-[38px] leading-[1.12] font-extrabold">Programa Kit 4.0: hasta el 50% cofinanciado.</h2>
+              <p className="m-0 text-[17px] leading-relaxed text-[#4A515C]">El programa nacional Kit 4.0 cofinancia la transformación digital de las mipymes. Desde septiembre de 2026 alcanza a todos los sectores económicos. En el diagnóstico te decimos si tu organización califica y qué kit del catálogo oficial conviene.</p>
+            </div>
+            <ul className="m-0 p-0 list-none grid sm:grid-cols-2 gap-3">
+              {[["Qué cubre", "Hasta el 50% del valor de un kit de soluciones digitales del catálogo oficial."], ["Cómo se paga", "La pyme paga su parte; el Estado cubre el resto con crédito fiscal al proveedor."], ["Quiénes", "Mipymes con certificado MiPyME, dos años de actividad y sin deudas exigibles."], ["Ojo", "Rige hasta agotar el cupo y las condiciones cambian: lo verificamos en el sitio oficial antes de empezar."]].map(([t, d]) => (
+                <li key={t} className="rounded-2xl border border-[#E2E5EA] p-5 flex flex-col gap-1.5"><strong>{t}</strong><span className="text-[15px] text-[#4A515C]">{d}</span></li>
+              ))}
+            </ul>
           </div>
         </section>
 

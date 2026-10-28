@@ -77,7 +77,7 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-3">
                 <a href="#contacto" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Contanos tu proyecto</a>
                 <Link href="/casos-de-exito" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-semibold text-[17px] text-white transition-colors">Ver casos de éxito</Link>
-                <a href="#planes" className="rounded-xl bg-white hover:bg-[#FDECEB] px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Planes y precios →</a>
+                <Link href="/transformacion-digital" className="rounded-xl bg-white hover:bg-[#FDECEB] px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Transformación digital →</Link>
               </div>
             </div>
             <div className="db-rise2 flex-[1_1_360px] min-w-0 grid grid-cols-2 gap-3">
@@ -92,28 +92,27 @@ export default function HomePage() {
           <div className="db-scan"><i /></div>
         </section>
 
-        {/* Planes con precio publicado */}
-        <section id="planes" className="bg-white scroll-mt-[72px]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 flex flex-col gap-8">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="flex flex-col gap-2.5 max-w-[760px]">
-                <p className={kicker + " text-[#C8231F]"}>Planes con precio publicado</p>
-                <h2 className={h2}>Elegí tu solución y arrancá esta semana.</h2>
-                <p className="m-0 text-lg leading-relaxed text-[#4A515C]">Precio fijo por escrito, hasta 3 cuotas sin interés y 10% de descuento por transferencia.</p>
+        {/* Transformación digital (destacado) */}
+        <section id="transformacion" className="db-tech relative overflow-hidden bg-[#0B0D12] text-white border-t-4 border-[#C8231F]">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 grid lg:grid-cols-[1.15fr_1fr] gap-10 items-center">
+            <div className="flex flex-col gap-4">
+              <p className={kicker + " text-[#FF6A63]"}>Nuevo · Consultoría de Transformación Digital</p>
+              <h2 className="m-0 font-tight text-[34px] md:text-[46px] leading-[1.08] font-extrabold">Ordená tu organización con tecnología y estrategia.</h2>
+              <p className="m-0 text-lg leading-relaxed text-[#C3C8D1] max-w-[620px]">Medimos tu madurez digital, armamos la hoja de ruta por etapas y la ponemos en marcha con tu equipo, con capacitación y certificado. Te orientamos además sobre el financiamiento disponible, como el Programa Kit 4.0.</p>
+              <div className="flex flex-wrap gap-3 pt-1">
+                <Link href="/transformacion-digital" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
+                <a href="https://academia.devisebit.com/productos/guia-transformacion-digital" target="_blank" rel="noopener noreferrer" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-semibold text-[17px] text-white transition-colors">Guía práctica en PDF</a>
               </div>
-              <a href="/precios" target="_blank" rel="noopener noreferrer" className="font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver la lista de precios completa →</a>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {SOLUCIONES.map((p) => (
-                <a key={p.href} href={p.href} className="db-card group rounded-2xl border border-[#262C37] bg-[#0B0D12] text-white p-6 flex flex-col gap-3 min-h-[250px] hover:border-[#C8231F] transition-colors">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#FF6A63]">{p.tag}</span>
-                  <span className="font-tight text-[21px] font-bold leading-tight">{p.title}</span>
-                  <span className="text-[15px] leading-normal text-[#C3C8D1]">{p.text}</span>
-                  <span className="mt-auto font-tight text-2xl font-extrabold">{p.price}</span>
-                  <span className="text-sm font-bold text-[#FF6A63] group-hover:translate-x-1 transition-transform">Ver planes →</span>
-                </a>
+            <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[["01", "Diagnóstico", "Madurez digital en 4 ejes y 4 niveles."], ["02", "Hoja de ruta", "Retos priorizados, indicadores y plazos."], ["03", "Pilotos", "Resultados rápidos antes de invertir en grande."], ["04", "Cambio y capacitación", "Tu equipo adopta lo nuevo, con certificado."]].map(([n, t, d]) => (
+                <li key={n} className="db-card db-dark rounded-2xl border border-[#262C37] bg-[#161A22] p-5 flex flex-col gap-1.5">
+                  <span className="font-tight text-2xl font-extrabold text-[#FF6A63]">{n}</span>
+                  <strong className="text-lg">{t}</strong>
+                  <span className="text-[15px] text-[#C3C8D1]">{d}</span>
+                </li>
               ))}
-            </div>
+            </ol>
           </div>
         </section>
 
