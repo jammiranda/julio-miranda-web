@@ -6,6 +6,7 @@ import { s } from "@/lib/util"
 import { fechaHora } from "@/lib/consultas"
 import { BOTS } from "@/lib/bots/conocimiento"
 import { modoBot } from "@/lib/bot"
+import { revisionSemanal, ultimoInforme } from "@/lib/revision"
 
 export const dynamic = "force-dynamic"
 
@@ -46,10 +47,31 @@ async function cambiar(fd: FormData) {
   redirect(`/bot?e=${e}`)
 }
 
-export default async function Bot({ searchParams }: { searchParams: { e?: string; ok?: string } }) {
+async function revisarAhora() {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const r = await revisionSemanal(true).catch((x) => String(x))
+  await audit(u, "bot_revision", "bot", "devisebit", r)
+  redirect(`/bot?rev=${encodeURIComponent(r)}`)
+}
+
+async function sugerencia(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  if (fd.get("a") === "aprobar") await q("update bot_conocimiento set pregunta=$1, respuesta=$2, activo=true, origen='revision_aprobada' where id=$3 and origen='revision'", [s(fd.get("pregunta")), s(fd.get("respuesta")) ?? "", id])
+  else await q("update bot_conocimiento set origen='revision_descartada' where id=$1 and origen='revision'", [id])
+  await audit(u, "bot_sugerencia_" + fd.get("a"), "bot", id)
+  redirect("/bot")
+}
+
+export default async function Bot({ searchParams }: { searchParams: { e?: string; ok?: string; rev?: string } }) {
   const u = await requerir(["gerente", "coordinacion"])
   const e = empresaDe(u.rol, searchParams.e)
-  const rows = await q<any>("select * from bot_conocimiento where empresa=$1 order by activo desc, id desc", [e])
+  const todas = await q<any>("select * from bot_conocimiento where empresa=$1 and origen <> 'revision_descartada' order by activo desc, id desc", [e])
+  const pendientes = todas.filter((r) => r.origen === "revision" && !r.activo)
+  const rows = todas.filter((r) => !(r.origen === "revision" && !r.activo))
+  const inf = await ultimoInforme().catch(() => null)
   const stats = await q<{ autor: string; n: number }>("select autor, count(*)::int n from wa_mensajes where empresa=$1 and creado > now() - interval '30 days' group by autor", [e])
   const st = Object.fromEntries(stats.map((x) => [x.autor, x.n]))
   const ia = !!process.env.ANTHROPIC_API_KEY
@@ -92,6 +114,40 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
         <div><button className="btn-p">Guardar</button>{searchParams.ok && <span className="ml-3 text-sm text-[#9E1A17]">Guardado. El bot ya lo usa.</span>}</div>
       </form>
 
+      <section className="card flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="m-0 text-base">Revisión semanal</h2>
+          <form action={revisarAhora}><button className="btn-s py-1.5">Revisar ahora</button></form>
+        </div>
+        <p className="m-0 text-sm text-[#4A515C]">Cada viernes a las 8 h se revisan los chats de la semana: dónde Bit inventó algo, se fue largo, no cerró o no derivó. Lo que se puede enseñar queda abajo como sugerencia: el bot no lo usa hasta que lo aprobás.</p>
+        {searchParams.rev && <p className="m-0 text-sm text-[#9E1A17]">Resultado: {searchParams.rev}</p>}
+        {inf ? (
+          <div className="text-sm flex flex-col gap-2">
+            <div className="text-xs text-[#4A515C]">Última revisión: {inf.fecha} · {inf.chats} chats · {inf.fallas.length} fallas · {inf.sugerencias} sugerencias</div>
+            {inf.resumen && <p className="m-0">{inf.resumen}</p>}
+            {inf.fallas.length > 0 && <ul className="m-0 pl-5">{inf.fallas.map((f, i) => <li key={i}><strong>{f.chat}:</strong> {f.problema}</li>)}</ul>}
+          </div>
+        ) : <p className="m-0 text-sm text-[#4A515C]">Todavía no corrió ninguna revisión.</p>}
+      </section>
+
+      {pendientes.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="m-0 text-base">Sugerencias para aprobar ({pendientes.length})</h2>
+          {pendientes.map((r) => (
+            <form key={r.id} action={sugerencia} className="card flex flex-col gap-2">
+              <input type="hidden" name="id" value={r.id} />
+              <div className="text-xs text-[#4A515C]">{r.creado_por ?? "Revisión semanal"} · {fechaHora(r.creado)}</div>
+              <input name="pregunta" defaultValue={r.pregunta ?? ""} className="inp" placeholder="Cuando pregunten…" />
+              <textarea name="respuesta" defaultValue={r.respuesta} rows={3} className="inp" />
+              <div className="flex gap-2">
+                <button name="a" value="aprobar" className="btn-p py-1.5">Aprobar y enseñar</button>
+                <button name="a" value="descartar" className="btn-s py-1.5">Descartar</button>
+              </div>
+            </form>
+          ))}
+        </section>
+      )}
+
       <section className="flex flex-col gap-3">
         <h2 className="m-0 text-base">Lo que ya sabe ({rows.filter((r) => r.activo).length})</h2>
         {rows.map((r) => (
@@ -99,7 +155,7 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
             <summary className="cursor-pointer">
               <strong>{r.pregunta ?? "Información general"}</strong>
               <div className="text-sm text-[#262C37] whitespace-pre-line">{r.respuesta}</div>
-              <div className="text-xs text-[#4A515C] mt-1">{r.origen === "conversacion" ? "Aprendido de una conversación" : "Cargado a mano"} · {r.creado_por ?? "—"} · {fechaHora(r.creado)}{r.activo ? "" : " · desactivado"}</div>
+              <div className="text-xs text-[#4A515C] mt-1">{r.origen === "conversacion" ? "Aprendido de una conversación" : r.origen === "revision_aprobada" ? "Sugerido por la revisión semanal" : "Cargado a mano"} · {r.creado_por ?? "—"} · {fechaHora(r.creado)}{r.activo ? "" : " · desactivado"}</div>
             </summary>
             <form action={cambiar} className="flex flex-col gap-2 mt-3">
               <input type="hidden" name="id" value={r.id} /><input type="hidden" name="e" value={e} />
