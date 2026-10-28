@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { usuarioActual } from "@/lib/auth"
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Equipo académico (borrador)", robot
  */
 export default async function EquipoAcademico() {
   const u = await usuarioActual()
-  if (!u) notFound()
+  if (!u) redirect("/login")
   return (
     <main>
       <div className="bg-amber-100 text-amber-900 text-sm font-semibold text-center py-2 px-4">BORRADOR · no está publicado · solo lo ve el equipo con sesión iniciada</div>
