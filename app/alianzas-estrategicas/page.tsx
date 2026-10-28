@@ -11,7 +11,7 @@ export const metadata = {
 
 const PARTNERS = [
   { name: "TSGroup", area: "Transformación digital y gestión", d: "Sumamos nuestra agilidad tecnológica a su experiencia en la gestión de proyectos a gran escala.", logo: "/images/tsg-logo.png", url: "https://tsgroup.com.ar/" },
-  { name: "HighTech", area: "Ciberseguridad y arquitecturas", d: "Su especialización en ciberseguridad y cloud nos permite desarrollar proyectos seguros desde el diseño.", logo: "/images/hightech-logo.png", url: "https://hightech.ar/" },
+  { name: "HighTech", area: "Ciberseguridad y arquitecturas", d: "Su especialización en ciberseguridad y cloud nos permite desarrollar proyectos seguros desde el diseño.", logo: "/images/hightech-logo.png", oscuro: true, url: "https://hightech.ar/" },
   { name: "pmIT", area: "Tableros de control y BI", d: "Su experiencia en business intelligence nos permite construir tableros que convierten datos en decisiones.", logo: "/images/pmit-logo.png", url: "https://pmit.com.ar/" },
 ]
 
@@ -30,7 +30,7 @@ export default function AlianzasPage() {
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] grid md:grid-cols-3 gap-5">
             {PARTNERS.map((p) => (
               <article key={p.name} className="db-card rounded-2xl border border-[#E2E5EA] bg-white overflow-hidden flex flex-col">
-                <div className="h-36 bg-white border-b border-[#E2E5EA] relative">
+                <div className={`h-36 border-b border-[#E2E5EA] relative ${"oscuro" in p && p.oscuro ? "bg-[#0B0D12]" : "bg-white"}`}>
                   <Image src={p.logo} alt={p.name} fill sizes="360px" className="object-contain p-8" />
                 </div>
                 <div className="p-6 flex flex-col gap-2.5 flex-1">

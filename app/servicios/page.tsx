@@ -43,10 +43,10 @@ const SERVICES = [
   },
   {
     id: "transformacion",
-    ver: [{ href: "/comunidad", t: "Comunidades" }, { href: "https://academia.devisebit.com", t: "Academia DEVISEBIT" }], productos: ["academias", "app"],
-    title: "Transformación digital",
-    text: "Diagnóstico de madurez digital y hoja de ruta para ordenar la organización por etapas.",
-    items: ["Diagnóstico de procesos", "Hoja de ruta por etapas", "Capacitación de equipos", "Academias online propias"],
+    ver: [{ href: "/transformacion-digital", t: "Ver la consultoría" }, { href: "https://academia.devisebit.com", t: "Academia DEVISEBIT" }], productos: ["academias"],
+    title: "Consultoría de Transformación Digital",
+    text: "Diagnóstico de madurez digital, hoja de ruta, pilotos y capacitación con certificado para ordenar la organización por etapas.",
+    items: ["Diagnóstico de madurez digital", "Hoja de ruta con indicadores", "Talleres in company", "Capacitación con certificado"],
     caso: "Academia BA Emprende del Gobierno de la Ciudad",
   },
   {

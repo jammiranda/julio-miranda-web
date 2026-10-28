@@ -10,6 +10,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 import TrabajosClient from "../trabajos/TrabajosClient"
+import { REDES_GESTIONADAS } from "@/lib/marca"
+import YoutubeUltimos from "@/components/youtube-ultimos"
+import { Instagram, Globe } from "lucide-react"
 
 export default function CasosDeExitoPage() {
   const [selectedSector, setSelectedSector] = useState("gobierno")
@@ -18,7 +21,7 @@ export default function CasosDeExitoPage() {
   const sectors = [
     { id: "gobierno", name: "Gobierno y Administración", icon: "🏛️" },
     { id: "empresas", name: "Empresas Privadas", icon: "🏢" },
-    { id: "innovacion", name: "Innovación y Startups", icon: "🚀" },
+    { id: "innovacion", name: "Educación e Innovación", icon: "🎓" },
     { id: "analitica", name: "Analítica de Datos", icon: "📊" },
     { id: "gremios", name: "Gremios y Salud", icon: "🤝" },
   ]
@@ -44,15 +47,16 @@ export default function CasosDeExitoPage() {
       id: 2,
       sector: "innovacion",
       category: "Desarrollo Tecnológico y Gestión de Proyecto IT",
-      title: "Red de Innovación Abierta",
-      client: "Empresa Privada / Tecnología y Gestión de Gobierno Provincial",
-      industry: "Tecnología e Innovación",
+      title: "Academia BA Emprende",
+      client: "Gobierno de la Ciudad de Buenos Aires (Argentina)",
+      industry: "Educación y Gobierno",
       challenge:
-        "Diseño y Desarrollo de una plataforma, de entorno web, proporcionando un espacio de encuentro, entre empresas que buscan soluciones innovadoras y startups, que pueden ofrecer esa posible solución.",
-      service: "Desarrollo Tecnológico PHP y Python - UX/YI Ciberseguridad. Scrum Agile.",
-      achievements: "Actualización Tecnológica Agilidad. Organización. Información oportuna y actualizada.",
-      image: "/images/case-innovation-new.png",
-      technologies: ["PHP", "Python", "UX/UI", "Ciberseguridad", "Scrum Agile"],
+        "Proporcionar un espacio de interacción y oferta académica, para fomentar el desarrollo del conocimiento y experiencia de los ciudadanos de GCBA.",
+      service:
+        "Single Sign-On (SSO) entre WordPress y Moodle Gestión de contenidos para educación en línea. Implementación y conexión CRM UX/UI.Scrum Agile.",
+      achievements: "Actualización Tecnológica. Agilidad. Organización. Información oportuna y actualizada",
+      image: "/images/case-academia-new.png",
+      technologies: ["WordPress", "Moodle", "SSO", "CRM", "UX/UI"],
     },
     {
       id: 3,
@@ -114,21 +118,6 @@ export default function CasosDeExitoPage() {
       achievements: "Actualización Tecnológica Agilidad Organización Gestión de Datos",
       image: "/images/case-trade-marketing-new.png",
       technologies: ["PostgreSQL", ".NET Core", "VueJS", "React Native", "SASS"],
-    },
-    {
-      id: 7,
-      sector: "gobierno",
-      category: "Desarrollo Tecnológico y Gestión de Proyecto IT",
-      title: "Academia BA Emprende",
-      client: "Gobierno de la Ciudad de Buenos Aires (Argentina)",
-      industry: "Educación y Gobierno",
-      challenge:
-        "Proporcionar un espacio de interacción y oferta académica, para fomentar el desarrollo del conocimiento y experiencia de los ciudadanos de GCBA.",
-      service:
-        "Single Sign-On (SSO) entre WordPress y Moodle Gestión de contenidos para educación en línea. Implementación y conexión CRM UX/UI.Scrum Agile.",
-      achievements: "Actualización Tecnológica. Agilidad. Organización. Información oportuna y actualizada",
-      image: "/images/case-academia-new.png",
-      technologies: ["WordPress", "Moodle", "SSO", "CRM", "UX/UI"],
     },
     {
       id: 8,
@@ -360,6 +349,40 @@ export default function CasosDeExitoPage() {
               </Card>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Redes que gestionamos */}
+      <section aria-labelledby="t-redes" className="db-tech bg-[#0B0D12] text-white border-t border-white/10">
+        <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
+          <div className="flex flex-col gap-3 max-w-[820px]">
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Redes que gestionamos</p>
+            <h2 id="t-redes" className="m-0 font-tight text-[32px] md:text-[42px] leading-[1.1] font-extrabold">Contenido, reels y campañas, todas las semanas.</h2>
+            <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Estas son algunas de las cuentas que manejamos: planificación, diseño de placas y reels, publicación y respuesta con IA. Entrá y mirá cómo trabajamos.</p>
+          </div>
+          <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {REDES_GESTIONADAS.map((r) => {
+              const href = r.ig ? `https://www.instagram.com/${r.ig}/` : r.web!
+              return (
+                <li key={r.nombre}>
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="db-card h-full rounded-2xl border border-white/15 hover:border-[#FF6A63] bg-white/[0.03] p-5 flex flex-col gap-2 transition-colors" aria-label={`${r.nombre} (se abre en otra pestaña)`}>
+                    <span className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]">{r.ig ? <Instagram size={22} aria-hidden="true" /> : <Globe size={22} aria-hidden="true" />}</span>
+                    <strong className="text-[17px] leading-snug">{r.nombre}</strong>
+                    <span className="text-sm text-[#C3C8D1]">{r.rubro}</span>
+                    <span className="mt-auto pt-1 text-sm font-bold text-[#FF6A63]">{r.ig ? `@${r.ig}` : "Ver el sitio"} →</span>
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="flex flex-col gap-3">
+              <h3 className="m-0 font-tight text-2xl font-bold">Los casos, también en video</h3>
+              <p className="m-0 text-[#C3C8D1] leading-relaxed">Publicamos resúmenes de cada proyecto en reels y shorts: el problema, lo que hicimos y el resultado, en menos de un minuto. Suscribite para ver los nuevos.</p>
+              <a href="https://www.instagram.com/devisebit/reels/" target="_blank" rel="noopener noreferrer" className="self-start inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-4 py-2.5 text-sm font-bold"><Instagram size={18} aria-hidden="true" /> Reels en Instagram</a>
+            </div>
+            <YoutubeUltimos titulo="Últimos videos y shorts" />
+          </div>
         </div>
       </section>
 

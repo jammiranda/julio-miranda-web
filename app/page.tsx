@@ -3,7 +3,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
-import { EQUIPO, EQUIPO_PIE, SOLUCIONES } from "@/lib/marca"
+import { EQUIPO, EQUIPO_PIE, SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
+import YoutubeUltimos from "@/components/youtube-ultimos"
 
 const STATS = [
   { n: "17", c: 17, pre: "", l: "años de proyectos en producción" },
@@ -19,6 +20,9 @@ const NEEDS = [
   { num: "04", title: "Gestionar afiliados y clientes", text: "CRM a medida con padrón, autorizaciones y embudo de ventas.", href: "/productos#crm" },
   { num: "05", title: "Capacitar a mucha gente", text: "Academia online con pagos, app y certificados.", href: "/comunidad" },
   { num: "06", title: "Tener una web que trabaje", text: "Sitios con turnos, formularios y WhatsApp conectados a tus sistemas.", href: "/webs" },
+  { num: "07", title: "Crecer en redes y anuncios", text: "Reels, placas y campañas en Meta y Google, todas las semanas.", href: "/redes" },
+  { num: "08", title: "Transformar la organización", text: "Consultoría de transformación digital: diagnóstico, hoja de ruta y capacitación con certificado.", href: "/transformacion-digital" },
+  { num: "09", title: "Ordenar un gremio o comunidad", text: "Padrón, beneficios, app y academia con tu marca.", href: "/comunidad" },
 ]
 
 const PRODUCTS = [
@@ -37,7 +41,7 @@ const PRODUCT_IDS = ["clinicas", "whatsapp", "crm", "tableros", "app", "academia
 const CASES = [
   { img: "https://julio.devisebit.com/media/trabajos/plataforma-academia.jpg", tag: "Comunidad y academia", title: "Comunidad USL · Academia", text: "Comunidad y academia online: cursos, inscripciones, beneficios y padrón en un solo panel. Más de 1.000 inscriptos en un año." },
   { img: "/images/case-tigre-new.png", tag: "Gobierno municipal", title: "Municipio de Tigre · app Soy Tigre", text: "Desarrollo y soporte de la app: comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
-  { img: "/images/case-innovation-new.png", tag: "Innovación", title: "Red de Innovación Abierta", text: "Plataforma que conecta empresas que buscan soluciones con startups que pueden darlas, con matching y seguimiento." },
+  { img: "/images/case-academia-new.png", tag: "Gobierno y educación", title: "GCBA · Academia BA Emprende", text: "Oferta académica online para emprendedores de la Ciudad: WordPress y Moodle unificados con un solo ingreso y conexión al CRM." },
 ]
 
 const STEPS = [
@@ -63,7 +67,7 @@ export default function HomePage() {
         <section id="inicio" className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-20 md:pt-20 md:pb-24 flex flex-wrap gap-14 items-center">
             <div className="db-rise flex-[999_1_560px] min-w-0 flex flex-col gap-6">
-              <p className={kicker + " text-[#FF6A63]"}><span className="db-live" />Software e IA desde 2009 · sistemas en producción</p>
+              <p className={kicker + " text-[#FF6A63]"}><span className="db-live" />Software e IA. Desde 2009 · sistemas en producción</p>
               <h1 className="m-0 font-tight text-[40px] md:text-[64px] leading-[1.04] font-extrabold tracking-[-0.02em]">
                 Sistemas que ordenan tu organización. <span className="text-[#FF6A63]">Con precio fijo y fecha de entrega.</span>
               </h1>
@@ -97,7 +101,7 @@ export default function HomePage() {
                 <h2 className={h2}>Elegí tu solución y arrancá esta semana.</h2>
                 <p className="m-0 text-lg leading-relaxed text-[#4A515C]">Precio fijo por escrito, hasta 3 cuotas sin interés y 10% de descuento por transferencia.</p>
               </div>
-              <a href="https://sistema.devisebit.com/lista-precios" className="font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver la lista de precios completa →</a>
+              <a href="/precios" target="_blank" rel="noopener noreferrer" className="font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver la lista de precios completa →</a>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {SOLUCIONES.map((p) => (
@@ -219,15 +223,21 @@ export default function HomePage() {
         {/* Academia + equipo */}
         <section id="nosotros" className="bg-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-wrap gap-8">
-            <div className="db-tech flex-[1_1_480px] min-w-0 rounded-[20px] bg-[#0B0D12] text-white p-8 md:p-9 flex flex-col gap-3.5">
+            <div className="db-tech flex-[1_1_480px] min-w-0 rounded-[20px] bg-[#0B0D12] text-white p-8 md:p-9 flex flex-col gap-4">
               <p className={kicker + " text-[#FF6A63]"}>Academia DEVISEBIT</p>
               <h2 className="m-0 font-tight text-[30px] md:text-[34px] leading-[1.15] font-extrabold">Cursos de tecnología e IA aplicada, con certificado.</h2>
               <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Para equipos de salud, gestión y administración. También armamos la academia online de tu organización.</p>
-              <a href="https://academia.devisebit.com" className="self-start rounded-xl border-2 border-[#FF6A63] px-[22px] py-[12px] font-extrabold text-[#FF6A63] hover:bg-[#FF6A63] hover:text-[#0B0D12] transition-colors">Entrar a la Academia →</a>
+              <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <li><a href={ACADEMIA.kit} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Kit IA para pymes</strong><span className="text-[13px] text-[#C3C8D1]">50 prompts y 10 automatizaciones paso a paso. Próximamente</span></a></li>
+                <li><a href={ACADEMIA.guias} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Guías gratis</strong><span className="text-[13px] text-[#C3C8D1]">Automatizaciones, CRM, ciberseguridad y más</span></a></li>
+                <li><a href={ACADEMIA.cursos} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Cursos</strong><span className="text-[13px] text-[#C3C8D1]">Con clases en vivo y certificado verificable</span></a></li>
+              </ul>
+              <YoutubeUltimos titulo="Lo último en YouTube: videos y shorts" />
+              <a href={ACADEMIA.url} target="_blank" rel="noopener noreferrer" className="mt-auto self-start rounded-xl border-2 border-[#FF6A63] px-[22px] py-[12px] font-extrabold text-[#FF6A63] hover:bg-[#FF6A63] hover:text-[#0B0D12] transition-colors">Entrar a la Academia →</a>
             </div>
             <div className="flex-[1_1_480px] min-w-0 flex flex-col gap-4">
               <h2 className="m-0 font-tight text-[30px] md:text-[34px] font-extrabold">Nuestro equipo</h2>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 auto-rows-fr gap-3 flex-1">
                 {EQUIPO.map((p) => (
                   <div key={p.name} className="db-card rounded-2xl border border-[#E2E5EA] p-[18px]">
                     <strong className="text-lg">{p.name}</strong>
@@ -240,6 +250,11 @@ export default function HomePage() {
                 </a>
               </div>
               <p className="m-0 text-[#4A515C] leading-relaxed">{EQUIPO_PIE}</p>
+              <div className="rounded-2xl bg-[#F5F6F8] p-5 grid sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-0.5"><strong>Polo Tecnológico</strong><span className="text-[15px] text-[#4A515C]">Luna 24, 6.º piso, Parque Patricios, CABA</span></div>
+                <div className="flex flex-col gap-0.5"><strong>Circular Cowork</strong><span className="text-[15px] text-[#4A515C]">Av. de los Lagos 7008, Nordelta, Tigre</span></div>
+                <a href="/trabaja-con-nosotros" className="sm:col-span-2 font-bold text-[#C8231F] hover:text-[#9E1A17]">¿Querés sumarte al equipo? →</a>
+              </div>
             </div>
           </div>
         </section>
@@ -254,6 +269,8 @@ export default function HomePage() {
               <div className="flex flex-col gap-2 text-[17px]">
                 <a href="mailto:info@devisebit.com" className="text-[#C8231F] hover:text-[#9E1A17]">info@devisebit.com</a>
                 <span>Luna 24, 6.º piso, Parque Patricios, CABA</span>
+                <span>Av. de los Lagos 7008, Nordelta, Tigre</span>
+                <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="text-[#C8231F] hover:text-[#9E1A17]">WhatsApp +54 9 11 7346-6490</a>
               </div>
               <div className="flex flex-col gap-2"><span className="text-sm font-semibold text-[#4A515C]">Seguinos</span><Redes oscuro={false} conTexto /></div>
             </div>

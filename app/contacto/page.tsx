@@ -1,7 +1,9 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
-import { Mail, MessageCircle, MapPin, Linkedin, Instagram } from "lucide-react"
+import { Mail, MessageCircle, MapPin, CalendarClock, FileText, Tag } from "lucide-react"
+import Redes from "@/components/redes"
+import { WHATSAPP } from "@/lib/marca"
 
 export const metadata = {
   title: "Contacto · DEVISEBIT",
@@ -18,6 +20,13 @@ export default function ContactoPage() {
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Contacto</p>
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold max-w-[900px]">Contanos tu proyecto.</h1>
             <p className="m-0 text-lg md:text-[19px] leading-relaxed text-[#C3C8D1] max-w-[760px]">Te respondemos en 24 horas hábiles con alcance, fecha y precio fijo.</p>
+            <div className="flex flex-wrap gap-2.5 mt-3">
+              <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#1EB956] px-5 py-3.5 font-bold text-[#0B0D12] transition-colors"><MessageCircle size={19} aria-hidden="true" /> Escribinos por WhatsApp</a>
+              <a href="#formulario" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3.5 font-bold text-white transition-colors"><FileText size={19} aria-hidden="true" /> Completar el formulario</a>
+              <a href="https://sistema.devisebit.com/agendar" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><CalendarClock size={19} aria-hidden="true" /> Agendar una reunión</a>
+              <a href="mailto:info@devisebit.com" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><Mail size={19} aria-hidden="true" /> info@devisebit.com</a>
+              <a href="/precios" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><Tag size={19} aria-hidden="true" /> Lista de precios</a>
+            </div>
           </div>
           <div className="db-scan"><i /></div>
         </section>
@@ -30,12 +39,11 @@ export default function ContactoPage() {
               <a href="mailto:info@devisebit.com" className="flex items-center gap-3 text-[17px] text-[#C8231F] hover:text-[#9E1A17]"><Mail size={20} aria-hidden="true" /> info@devisebit.com</a>
               <span className="flex items-start gap-3 text-[17px]"><MapPin size={20} className="mt-0.5 shrink-0 text-[#C8231F]" aria-hidden="true" /> <span>Luna 24, 6.º piso, Parque Patricios, CABA<span className="block text-[15px] text-[#4A515C]">Ubicación estratégica en el Polo Tecnológico de la Ciudad de Buenos Aires.</span></span></span>
               <span className="flex items-start gap-3 text-[17px]"><MapPin size={20} className="mt-0.5 shrink-0 text-[#C8231F]" aria-hidden="true" /> <span>Av. de los Lagos 7008, Nordelta, Tigre<span className="block text-[15px] text-[#4A515C]">Oficina en <a href="https://www.instagram.com/circularcowork/" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#C8231F]">Circular Cowork</a>, parte de una red de empresas, emprendedores y laboratorios de innovación.</span></span></span>
-              <div className="flex gap-3 pt-2">
-                <a href="https://www.linkedin.com/company/devisebit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl border border-[#C9CED6] bg-white px-4 py-3 font-semibold hover:border-[#C8231F]"><Linkedin size={18} aria-hidden="true" /> LinkedIn</a>
-                <a href="https://www.instagram.com/devisebit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl border border-[#C9CED6] bg-white px-4 py-3 font-semibold hover:border-[#C8231F]"><Instagram size={18} aria-hidden="true" /> Instagram</a>
-              </div>
+              <a href="https://sistema.devisebit.com/agendar" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-[17px] text-[#C8231F] hover:text-[#9E1A17]"><CalendarClock size={20} aria-hidden="true" /> Reunión de 30 minutos por videollamada</a>
+              <p className="m-0 text-[15px] text-[#4A515C]">Respondemos de lunes a viernes, de 9 a 18 h. Por WhatsApp, en el día.</p>
+              <div className="flex flex-col gap-2 pt-2"><span className="text-sm font-semibold text-[#4A515C]">Seguinos y mirá cómo trabajamos</span><Redes oscuro={false} conTexto /></div>
             </div>
-            <div className="flex-[999_1_520px] min-w-0">
+            <div id="formulario" className="flex-[999_1_520px] min-w-0 scroll-mt-24">
               <DbContactForm />
             </div>
           </div>

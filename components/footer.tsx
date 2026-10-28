@@ -13,6 +13,8 @@ const COLS = [
       { href: "/redes", label: "Redes y anuncios" },
       { href: "/sistemas", label: "Sistemas a medida" },
       { href: "/comunidad", label: "Plataforma para comunidades" },
+      { href: "/transformacion-digital", label: "Consultoría de Transformación Digital" },
+      { href: "/precios", label: "Lista de precios" },
       { href: "https://academia.devisebit.com", label: "Academia DEVISEBIT" },
       { href: "https://portal.devisebit.com", label: "Mi cuenta (clientes y alumnos)" },
     ],

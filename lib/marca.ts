@@ -43,3 +43,29 @@ export const NOMBRE_PRODUCTO: Record<string, string> = {
   clinicas: "Sistema para clínicas", whatsapp: "Asistente de WhatsApp con IA", crm: "CRM de afiliados y prestadores", tableros: "Tableros de control",
   app: "App y credencial digital", academias: "Academias online", votacion: "Votación y control de acceso", documental: "Gestor documental con firma digital",
 }
+
+// ── YouTube: la lista de subidas del canal se actualiza sola con cada video o short nuevo ──
+export const YOUTUBE = {
+  canal: "https://www.youtube.com/@devisebitsrl",
+  suscribirse: "https://www.youtube.com/@devisebitsrl?sub_confirmation=1",
+  shorts: "https://www.youtube.com/@devisebitsrl/shorts",
+  ultimos: "https://www.youtube-nocookie.com/embed/videoseries?list=UU390RZKG-NZ6xU3tbOGInCA",
+}
+
+export const ACADEMIA = {
+  url: "https://academia.devisebit.com",
+  kit: "https://academia.devisebit.com/productos/kit-ia-pymes",
+  guias: "https://academia.devisebit.com/guias",
+  cursos: "https://academia.devisebit.com/cursos",
+  videos: "https://academia.devisebit.com/videos",
+}
+
+// ── Cuentas de Instagram que gestionamos (casos de éxito) ──
+// ig: usuario confirmado; si es null, la tarjeta lleva a la web del cliente hasta confirmar la cuenta.
+export const REDES_GESTIONADAS = [
+  { nombre: "DEVISEBIT SRL", rubro: "Tecnología e IA · nuestra marca", ig: "devisebit", web: null },
+  { nombre: "Academia USL", rubro: "Academia online y comunidad", ig: "academia_usl", web: "https://academiausl.com" },
+  { nombre: "UTHGRA San Luis", rubro: "Gremio gastronómico y hotelero", ig: null, web: "https://uthgrasanluis.com" },
+  { nombre: "Centro Sagrado Corazón", rubro: "Salud · Merlo, San Luis", ig: null, web: "https://www.centrosagradocorazon.com" },
+  { nombre: "San Patricio Servicios de Salud", rubro: "Salud", ig: "sanpatriciosalud", web: null },
+] as const
