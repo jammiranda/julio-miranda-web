@@ -62,14 +62,16 @@ export async function guardarGcalUrl(url: string) {
   const c = await gcalConfig()
   await q("insert into config(clave,valor) values ('gcal',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify({ token: c.token, url })])
 }
-async function gcal(body: Record<string, unknown>) {
+async function gcal(body: Record<string, unknown>, timeoutMs = 25000) {
   const { url, token } = await gcalConfig()
   if (!url || !token) return null
   try {
-    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ ...body, token }), redirect: "follow" })
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ ...body, token }), redirect: "follow", signal: AbortSignal.timeout(timeoutMs) })
     return await r.json()
   } catch { return null }
 }
+/** Llamada al conector de Google (Apps Script): Calendar, Drive y Gmail. Devuelve null si no está conectado o no respondió. */
+export const googleScript = gcal
 export async function probarGcal() {
   const ahora = new Date()
   const r = await gcal({ accion: "ocupado", desde: ahora.toISOString(), hasta: new Date(ahora.getTime() + 864e5).toISOString() })

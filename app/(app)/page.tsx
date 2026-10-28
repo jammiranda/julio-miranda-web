@@ -3,6 +3,7 @@ import { q } from "@/lib/db"
 import { ETAPAS, etapa, estadoProy } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
 import { local, calendarioConectado } from "@/lib/agenda"
+import { eventosCalendario, contactosPorEmail } from "@/lib/integraciones"
 
 export const dynamic = "force-dynamic"
 
@@ -28,6 +29,14 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
        group by 1 order by leads desc`, [dias]),
     q<any>("select r.*, k.organizacion from db_reuniones r left join consultas k on k.id=r.consulta_id where r.estado='confirmada' and r.fin > now() order by r.inicio limit 10"),
   ])
+  const cal = await eventosCalendario(14).catch(() => ({ eventos: [], ok: false, cuando: null }))
+  const delSistema = new Set(reuniones.map((r: any) => String(r.calendar_id ?? "").replace(/@google\.com$/, "")).filter(Boolean))
+  const externos = cal.eventos.filter((e) => !e.todoElDia && !delSistema.has(e.id.replace(/@google\.com$/, "")))
+  const cMap = await contactosPorEmail(externos.flatMap((e) => e.invitados)).catch(() => ({} as Record<string, { id: number; n: string }>))
+  const todas = [
+    ...reuniones.map((r: any) => ({ k: `s${r.id}`, ini: new Date(r.inicio), titulo: `${r.nombre ?? "Cliente"}${r.organizacion ? ` · ${r.organizacion}` : ""}`, sub: `Reservada por el cliente · ${r.modalidad}`, href: `/consultas/${r.consulta_id}`, link: r.link as string | null, ext: false })),
+    ...externos.map((e) => { const c = e.invitados.map((x) => cMap[x.toLowerCase()]).find(Boolean); return { k: `g${e.id}`, ini: new Date(e.inicio), titulo: e.titulo, sub: `Google Calendar${c ? ` · ${c.n}` : e.invitados.length ? ` · ${e.invitados.slice(0, 2).join(", ")}` : ""}`, href: c ? `/contactos/${c.id}` : e.link || "https://calendar.google.com", link: e.meet || null, ext: !c } }),
+  ].sort((a, b) => a.ini.getTime() - b.ini.getTime()).slice(0, 12)
   const totLeads = fuentes.reduce((a, f) => a + f.leads, 0)
   const n = Object.fromEntries(cuenta.map((c) => [c.etapa, c.n]))
   const hoy = hoyISO()
@@ -49,15 +58,15 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
       </section>
 
       <section className="card flex flex-col gap-3" aria-label="Próximas reuniones">
-        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base">📅 Próximas reuniones</h2>{!(await calendarioConectado()) && <span className="text-xs text-[#4A515C]">Google Calendar sin conectar: las reuniones se ven acá y en los avisos.</span>}</div>
-        {reuniones.length ? (
-          <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">{reuniones.map((r: any) => (
-            <li key={r.id} className="py-2 flex flex-wrap items-center justify-between gap-2">
-              <div><Link href={`/consultas/${r.consulta_id}`} className="font-semibold hover:underline first-letter:uppercase">{local(new Date(r.inicio)).texto}</Link><div className="text-sm text-[#4A515C]">{r.nombre ?? "Cliente"}{r.organizacion ? ` · ${r.organizacion}` : ""} · {r.modalidad}</div></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base">📅 Próximas reuniones</h2>{!cal.ok && <span className="text-xs text-[#4A515C]">{(await calendarioConectado()) ? "Para ver también las reuniones que anotás en Google Calendar, actualizá el conector en" : "Google Calendar sin conectar:"} <Link href="/integraciones" className="underline">Integraciones</Link>.</span>}</div>
+        {todas.length ? (
+          <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">{todas.map((r) => (
+            <li key={r.k} className="py-2 flex flex-wrap items-center justify-between gap-2">
+              <div><span className="block text-xs font-semibold text-[var(--gris)] first-letter:uppercase">{local(r.ini).texto}</span>{r.ext ? <a href={r.href} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">{r.titulo}</a> : <Link href={r.href} className="font-semibold hover:underline">{r.titulo}</Link>}<div className="text-sm text-[#4A515C]">{r.sub}</div></div>
               {r.link && <a href={r.link} target="_blank" rel="noopener noreferrer" className="btn-s py-1 px-3 text-xs">Entrar</a>}
             </li>
           ))}</ul>
-        ) : <p className="vacio">No hay reuniones agendadas. El bot las ofrece en cada conversación y el cliente las reserva solo.</p>}
+        ) : <p className="vacio">No hay reuniones en los próximos 14 días. El bot las ofrece en cada conversación y el cliente las reserva solo.</p>}
       </section>
 
       <section className="card flex flex-col gap-3" aria-label="De dónde llegan los clientes">

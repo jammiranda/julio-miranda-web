@@ -4,11 +4,12 @@ import { q } from "@/lib/db"
 import { ESTADOS_MOD, dinero, isoD, sumarDias } from "@/lib/gestion"
 import { fecha, hoyISO, nombrePeriodo, periodoActual, rangoPeriodo } from "@/lib/util"
 import { Kpi } from "@/components/Registro"
+import { eventosCalendario, correosGmail, correosImap, contactosPorEmail, nombreDe, emailDe } from "@/lib/integraciones"
 
 export const dynamic = "force-dynamic"
 
-type Item = { f: string; t: string; d: string; area: string; href: string; monto?: string }
-const AREA_C: Record<string, string> = { Cobro: "bg-emerald-50 text-emerald-700", Pago: "bg-red-50 text-rojo", Legal: "bg-violet-50 text-violet-700", Contrato: "bg-violet-50 text-violet-700", Licitación: "bg-amber-50 text-amber-700", Proyecto: "bg-sky-50 text-sky-700", Módulo: "bg-slate-100 text-slate-700" }
+type Item = { f: string; t: string; d: string; area: string; href: string; monto?: string; ext?: boolean; hora?: string }
+const AREA_C: Record<string, string> = { Cobro: "bg-emerald-50 text-emerald-700", Pago: "bg-red-50 text-rojo", Legal: "bg-violet-50 text-violet-700", Contrato: "bg-violet-50 text-violet-700", Licitación: "bg-amber-50 text-amber-700", Proyecto: "bg-sky-50 text-sky-700", Módulo: "bg-slate-100 text-slate-700", Reunión: "bg-[#0E1116] text-white" }
 const PUNTO: Record<string, string> = { sin_empezar: "#94A3B8", en_curso: "#D97706", trabado: "#DC2626", listo: "#059669" }
 
 export default async function TableroDireccion() {
@@ -19,7 +20,7 @@ export default async function TableroDireccion() {
   const per = periodoActual()
   const { ini, fin: finMes } = rangoPeriodo(per)
 
-  const [num, mods, agenda] = await Promise.all([
+  const [num, mods, agenda, cal, gm, im] = await Promise.all([
     q<any>(
       `select
         (select count(*) from db_contactos where etapa in ('conversando','reunion','propuesta') and coalesce(clase,'')<>'descartado')::int oportunidades,
@@ -54,11 +55,28 @@ export default async function TableroDireccion() {
         union all select m.fecha::text, m.nombre||': '||coalesce(m.proximo,''), m.responsable, 'Módulo', '/modulos#'||m.codigo, null
           from g_modulos m where m.estado<>'listo' and m.fecha <= $2
       ) x where f is not null order by f limit 40`, [hoy, h30]),
+    eventosCalendario(30).catch(() => ({ eventos: [], cuando: null, ok: false })),
+    fin ? correosGmail().catch(() => ({ hilos: [], cuando: null, ok: false })) : Promise.resolve({ hilos: [], cuando: null, ok: false }),
+    fin ? correosImap().catch(() => ({ mails: [], cuando: null, ok: false, noLeidos: 0 })) : Promise.resolve({ mails: [], cuando: null, ok: false, noLeidos: 0 }),
   ])
+  const diaLocal = (iso: string) => new Date(iso).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" })
+  const horaLocal = (iso: string) => new Date(iso).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+  const invitados = cal.eventos.flatMap((e) => e.invitados)
+  const cMap = await contactosPorEmail(invitados).catch(() => ({} as Record<string, { id: number; n: string }>))
+  const reuniones: Item[] = cal.eventos.filter((e) => !e.todoElDia).map((e) => {
+    const c = e.invitados.map((x) => cMap[x.toLowerCase()]).find(Boolean)
+    return { f: diaLocal(e.inicio), hora: horaLocal(e.inicio), t: e.titulo, d: [c ? `Cliente: ${c.n}` : e.invitados.slice(0, 2).join(", "), e.meet ? "Meet" : e.lugar].filter(Boolean).join(" · "), area: "Reunión", href: e.meet || e.link || "https://calendar.google.com", ext: true }
+  })
+  const semana = sumarDias(hoy, 7)
+  const proxReu = reuniones.filter((r) => r.f <= semana)
+  const sinLeer = [...gm.hilos.filter((h) => h.noLeido).map((h) => ({ k: h.id, de: nombreDe(h.de), em: emailDe(h.de), asunto: h.asunto, href: h.link, ext: true, origen: "Gmail" })),
+    ...im.mails.filter((m) => !m.leido).map((m) => ({ k: String(m.uid), de: m.de, em: m.deEmail, asunto: m.asunto, href: "/correos?ver=info", ext: false, origen: "info@" }))]
+  const totalSinLeer = gm.hilos.filter((h) => h.noLeido).length + (im.noLeidos ?? 0)
   const n = num[0]
   const res = Number(n.ing) - Number(n.egr)
   const trabados = mods.filter((m) => m.estado === "trabado")
-  const visibles = fin ? agenda : agenda.filter((a) => !["Cobro", "Pago"].includes(a.area))
+  const visibles = [...(fin ? agenda : agenda.filter((a) => !["Cobro", "Pago"].includes(a.area))), ...reuniones]
+    .sort((a, b) => (a.f + (a.hora ?? "99")).localeCompare(b.f + (b.hora ?? "99"))).slice(0, 45)
   const montoTxt = (m?: string) => { if (!m) return null; const [v, mon] = m.split(" "); return v && v !== "null" ? dinero(v, mon) : null }
 
   return (
@@ -76,26 +94,32 @@ export default async function TableroDireccion() {
         {fin && <Kpi t="Legales" v={n.venc_30} d={n.venc_tarde ? `${n.venc_tarde} vencidos sin resolver` : `vencimientos en 30 días · ${n.contratos_firma} contratos a firmar`} tono={n.venc_tarde ? "rojo" : n.venc_30 ? "ambar" : undefined} href="/legales?ver=vencimientos" />}
         <Kpi t="Licitaciones abiertas" v={n.licitaciones} href="/licitaciones" />
         <Kpi t="Módulos trabados" v={trabados.length} d={trabados.length ? trabados.map((t) => t.nombre).join(", ") : "Nada trabado"} tono={trabados.length ? "rojo" : "verde"} href="/modulos" />
-        <Kpi t="Documentos" v={n.documentos} d="En el repositorio" href="/documentos" />
+        <Kpi t="Reuniones en 7 días" v={cal.ok ? proxReu.length : "—"} d={cal.ok ? (proxReu[0] ? `Próxima: ${fecha(proxReu[0].f).slice(0, 5)} ${proxReu[0].hora} · ${proxReu[0].t}` : "Agenda libre") : "Conectá Google Calendar"} href={cal.ok ? undefined : "/integraciones"} />
       </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-5">
         <section className="card flex flex-col gap-3" aria-label="Lo que viene">
-          <div><h2 className="m-0 text-base">Lo que viene · próximos 30 días</h2><p className="m-0 text-xs text-[var(--gris)]">Cobros, pagos, vencimientos legales, contratos, aperturas de licitaciones, entregas y próximos pasos de cada módulo, en un solo orden.</p></div>
+          <div><h2 className="m-0 text-base">Lo que viene · próximos 30 días</h2><p className="m-0 text-xs text-[var(--gris)]">Reuniones de tu Google Calendar, cobros, pagos, vencimientos legales, contratos, aperturas de licitaciones, entregas y próximos pasos de cada módulo, en un solo orden.</p></div>
           {visibles.length ? (
             <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--borde-2)]">
               {visibles.map((a, i) => {
                 const f = isoD(a.f)!
                 const tarde = f < hoy
                 const m = fin ? montoTxt(a.monto) : null
-                return (
-                  <li key={i}>
-                    <Link href={a.href.endsWith("/") ? "/finanzas" : a.href} className="py-2.5 flex items-center gap-3 hover:bg-[var(--sup-2)] -mx-2 px-2 rounded-lg">
-                      <span className={`w-[86px] shrink-0 text-xs font-semibold tabular-nums ${tarde ? "text-rojo" : "text-[var(--gris)]"}`}>{tarde ? "Vencido" : fecha(f).slice(0, 5)}<span className="block font-normal">{tarde ? fecha(f).slice(0, 5) : ""}</span></span>
+                const esHoy = f === hoy
+                const cuerpo = (
+                  <>
+                      <span className={`w-[86px] shrink-0 text-xs font-semibold tabular-nums ${tarde ? "text-rojo" : esHoy ? "text-[var(--tinta)]" : "text-[var(--gris)]"}`}>{tarde ? "Vencido" : esHoy ? "Hoy" : fecha(f).slice(0, 5)}<span className="block font-normal">{tarde ? fecha(f).slice(0, 5) : a.hora ?? ""}</span></span>
                       <span className={`chip shrink-0 ${AREA_C[a.area]}`}>{a.area}</span>
                       <span className="flex-1 min-w-0"><span className="block font-semibold truncate">{a.t}</span>{a.d && <span className="block text-xs text-[var(--gris)] truncate">{a.d}</span>}</span>
                       {m && <span className="text-sm font-semibold tabular-nums whitespace-nowrap">{m}</span>}
-                    </Link>
+                      {a.ext && a.area === "Reunión" && <span className="text-xs font-semibold text-[var(--ac-texto)] whitespace-nowrap">{a.href.includes("meet.google") ? "Entrar ↗" : "Ver ↗"}</span>}
+                  </>
+                )
+                const cls = "py-2.5 flex items-center gap-3 hover:bg-[var(--sup-2)] -mx-2 px-2 rounded-lg"
+                return (
+                  <li key={i}>
+                    {a.ext ? <a href={a.href} target="_blank" rel="noopener noreferrer" className={cls}>{cuerpo}</a> : <Link href={a.href.endsWith("/") ? "/finanzas" : a.href} className={cls}>{cuerpo}</Link>}
                   </li>
                 )
               })}
@@ -103,6 +127,7 @@ export default async function TableroDireccion() {
           ) : <p className="vacio">Nada con fecha en los próximos 30 días. A medida que cargues cobros, gastos, vencimientos y licitaciones, aparecen acá.</p>}
         </section>
 
+        <div className="flex flex-col gap-5">
         <section className="card flex flex-col gap-3" aria-label="Módulos">
           <div className="flex items-center justify-between gap-2"><h2 className="m-0 text-base">Los 10 módulos</h2><Link href="/modulos" className="btn-s py-1 px-3 text-xs">Abrir</Link></div>
           <ul className="m-0 p-0 list-none flex flex-col gap-1">
@@ -121,6 +146,26 @@ export default async function TableroDireccion() {
             })}
           </ul>
         </section>
+        {fin && (
+          <section className="card flex flex-col gap-3" aria-label="Correo sin leer">
+            <div className="flex items-center justify-between gap-2"><h2 className="m-0 text-base">Correo sin leer {totalSinLeer > 0 && <span className="chip bg-red-50 text-rojo ml-1">{totalSinLeer}</span>}</h2><Link href="/correos" className="btn-s py-1 px-3 text-xs">Abrir</Link></div>
+            {gm.ok || im.ok ? (
+              sinLeer.length ? (
+                <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--borde-2)]">
+                  {sinLeer.slice(0, 6).map((c) => (
+                    <li key={c.origen + c.k}>
+                      <a href={c.href} target={c.ext ? "_blank" : undefined} rel={c.ext ? "noopener noreferrer" : undefined} className="py-2 flex flex-col -mx-2 px-2 rounded-lg hover:bg-[var(--sup-2)]">
+                        <span className="text-sm font-semibold truncate">{c.de}<span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-[var(--gris)]">{c.origen}</span></span>
+                        <span className="text-xs text-[var(--gris)] truncate">{c.asunto}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : <p className="vacio">Todo leído.</p>
+            ) : <p className="vacio">Conectá Gmail y la casilla info@devisebit.com en <Link href="/integraciones" className="underline">Integraciones</Link>.</p>}
+          </section>
+        )}
+        </div>
       </div>
     </div>
   )

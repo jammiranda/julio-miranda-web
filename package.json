@@ -11,6 +11,7 @@
     "@neondatabase/serverless": "1.0.2",
     "@vercel/functions": "^1.5.2",
     "bcryptjs": "3.0.3",
+    "imapflow": "^1.0.171",
     "jose": "6.1.0",
     "next": "14.2.35",
     "react": "18.3.1",

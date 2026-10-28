@@ -2,7 +2,21 @@ import Link from "next/link"
 import { requerir } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { CAT_DOC } from "@/lib/gestion"
-import { TablaRegistro, Aviso, Kpi } from "@/components/Registro"
+import { TablaRegistro, Aviso } from "@/components/Registro"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
+import { driveConfig, sincronizarDrive } from "@/lib/integraciones"
+import { fecha } from "@/lib/util"
+
+export const maxDuration = 120
+
+async function sincronizar() {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const r = await sincronizarDrive(u.usuario)
+  revalidatePath("/documentos")
+  redirect(`/documentos?${r.ok ? "ok" : "error"}=${encodeURIComponent(r.mensaje)}`)
+}
 
 export const dynamic = "force-dynamic"
 
@@ -20,6 +34,8 @@ export default async function Documentos({ searchParams: sp }: { searchParams: S
        order by actualizado desc`, [edita, cat, b]),
     q<{ categoria: string; n: number }>("select categoria, count(*)::int n from g_documentos where ($1::bool or not confidencial) group by 1", [edita]),
   ])
+  const dr = await driveConfig()
+  const deDrive = docs.filter((d) => d.origen === "drive").length
   const N = Object.fromEntries(cuenta.map((c) => [c.categoria, c.n]))
   const total = cuenta.reduce((a, c) => a + c.n, 0)
   const params = new URLSearchParams({ ...(cat ? { cat } : {}), ...(b ? { b } : {}) }).toString()
@@ -29,7 +45,7 @@ export default async function Documentos({ searchParams: sp }: { searchParams: S
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
         <div><div className="eyebrow">Gestión</div><h1 className="m-0">Documentos</h1><p>Todo lo que DEVISEBIT tiene escrito, en un solo lugar: institucional, propuestas, contratos, papeles contables, documentación técnica y plantillas.</p></div>
-        {edita && <div className="pag-acc"><Link href={`${volver}${params ? "&" : "?"}nuevo=1`} className="btn-p">+ Documento</Link></div>}
+        {edita && <div className="pag-acc"><form action={sincronizar}><button className="btn-s">↻ Sincronizar con Drive</button></form><Link href={`${volver}${params ? "&" : "?"}nuevo=1`} className="btn-p">+ Documento</Link></div>}
       </header>
       <Aviso ok={sp.ok} error={sp.error} />
 
@@ -51,6 +67,7 @@ export default async function Documentos({ searchParams: sp }: { searchParams: S
         {(cat || b) && <Link href="/documentos" className="text-sm underline text-[var(--gris)]">Ver todo ({total})</Link>}
       </form>
 
+      <p className="m-0 text-xs text-[var(--gris)]">{dr.ultima ? `${deDrive} de estos documentos vienen de la carpeta de Drive «${dr.carpeta}» · última sincronización ${fecha(dr.ultima)}. Se actualiza solo todos los días.` : <>Conectá una carpeta de Google Drive en <Link href="/integraciones" className="underline">Integraciones</Link> y sus archivos aparecen acá solos.</>}</p>
       <TablaRegistro clave="documentos" filas={docs} volver={volver} editar={Number(sp.editar) || null} nuevo={!!sp.nuevo} puedeEditar={edita}
         vacio={b || cat ? "No hay documentos con ese filtro." : "Todavía no hay documentos. Subí cada archivo a Drive y pegá el link acá: así el equipo encuentra la última versión sin buscar en chats."} />
       {!edita && <p className="m-0 text-xs text-[var(--gris)]">Los documentos confidenciales solo los ven Dirección y Coordinación.</p>}

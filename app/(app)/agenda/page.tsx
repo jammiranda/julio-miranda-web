@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { horario, guardarHorario, gcalConfig, guardarGcalUrl, probarGcal, turnosLibres, leerFranjas, type HorarioAgenda } from "@/lib/agenda"
+import { eventosCalendario } from "@/lib/integraciones"
 import { URL_SISTEMA } from "@/lib/brief"
 import Copiar from "@/components/Copiar"
 
@@ -49,6 +50,7 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
     turnosLibres(3),
     gcalConfig(),
   ])
+  const cal = await eventosCalendario(14).catch(() => ({ eventos: [], ok: false, cuando: null }))
   const link = `${URL_SISTEMA}/agendar`
   const gcal = !!gc.url
   const fmt = (d: string) => new Date(d).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "short", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })
@@ -88,8 +90,15 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
           <h2 className="m-0 text-base">Próximas reuniones</h2>
           <ul className="m-0 p-0 list-none flex flex-col gap-1">
             {prox.map((r: any, i: number) => <li key={i} className="border-b border-[#EEF0F3] pb-1"><a href={`/consultas/${r.cid}`} className="font-semibold">{fmt(r.inicio)}</a> · {r.nombre ?? "Cliente"}{r.organizacion ? ` (${r.organizacion})` : ""} · {r.modalidad}</li>)}
-            {!prox.length && <li className="text-[#4A515C]">No hay reuniones agendadas.</li>}
+            {!prox.length && <li className="text-[#4A515C]">No hay reuniones reservadas por clientes.</li>}
           </ul>
+          <h3 className="m-0 mt-2 text-sm">En tu Google Calendar · 14 días</h3>
+          {cal.ok ? (
+            <ul className="m-0 p-0 list-none flex flex-col gap-1">
+              {cal.eventos.filter((e) => !e.todoElDia).slice(0, 12).map((e) => <li key={e.id} className="border-b border-[#EEF0F3] pb-1"><span className="font-semibold">{fmt(e.inicio)}</span> · {e.titulo}{e.meet && <> · <a href={e.meet} target="_blank" rel="noopener noreferrer" className="underline">Meet</a></>}</li>)}
+              {!cal.eventos.length && <li className="text-[#4A515C]">Nada agendado.</li>}
+            </ul>
+          ) : <p className="m-0 text-[#4A515C]">Para ver acá todo tu calendario, actualizá el conector a la versión 2 en <a href="/integraciones" className="underline">Integraciones</a>.</p>}
           <h3 className="m-0 mt-2 text-sm">Turnos libres de los próximos días</h3>
           {libres.map((d) => <p key={d.fecha} className="m-0"><strong>{d.etiqueta}:</strong> {d.turnos.map((t) => t.hora).join(" · ") || "sin turnos"}</p>)}
         </div>
@@ -98,7 +107,7 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
           <p className="m-0 text-[#4A515C]">Conectado, el sistema no ofrece horarios en los que ya tengas algo en tu Google Calendar y cada reunión reservada se crea sola en tu calendario, con invitación al cliente.</p>
           {!gcal && <ol className="m-0 pl-5 flex flex-col gap-1">
             <li>Entrá a <a href="https://script.google.com/home/projects/create" target="_blank" rel="noopener noreferrer" className="underline">script.google.com</a> con la cuenta de Google del calendario y creá un proyecto nuevo (ponele de nombre «Agenda DEVISEBIT»).</li>
-            <li>Borrá lo que trae y pegá el código de <a href="/agenda/script" target="_blank" className="underline">este archivo</a> (ya trae la clave puesta, no hay que cambiar nada). Guardá.</li>
+            <li>Borrá lo que trae y pegá el código de <a href="/agenda/script" target="_blank" className="underline">este archivo</a> (ya trae la clave puesta, no hay que cambiar nada). Guardá. Es el conector completo: Calendar, Drive y Gmail.</li>
             <li>Implementar → Nueva implementación → tipo «Aplicación web» · Ejecutar como: yo · Quién tiene acceso: cualquier persona → Implementar. Autorizá el acceso a tu calendario.</li>
             <li>Copiá la «URL de la aplicación web» y pegala acá abajo.</li>
           </ol>}

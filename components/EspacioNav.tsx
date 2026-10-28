@@ -46,6 +46,8 @@ const P: Record<string, JSX.Element> = {
   balanza: <><path d="M12 3v18M7 21h10M5 7h14" /><path d="m5 7-3 6a3 3 0 0 0 6 0z" /><path d="m19 7-3 6a3 3 0 0 0 6 0z" /></>,
   carpeta: <><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></>,
   martillo: <><path d="m15 12-8.37 8.37a2.12 2.12 0 0 1-3-3L12 9" /><path d="M17.64 15 22 10.64" /><path d="m20.91 11.7-1.25-1.25a2.4 2.4 0 0 1-.7-1.7V7.86L16.27 5.2a6 6 0 0 0-4.24-1.76H9.65l.92.82A6.18 6.18 0 0 1 12.6 8.8v1.42l2 2h2.47l2.26 1.91" /></>,
+  bandeja: <><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></>,
+  enchufe: <><path d="M12 22v-5" /><path d="M9 8V2M15 8V2" /><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" /></>,
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
   cerrar: <path d="M18 6 6 18M6 6l12 12" />,
   contraer: <><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18" /><path d="m16 15-3-3 3-3" /></>,
@@ -98,12 +100,13 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           { href: "/licitaciones", t: "Licitaciones", i: "martillo" },
         ] },
         { t: "Comunicación", items: edita ? [
+          { href: "/correos", t: "Correo", i: "bandeja" },
           { href: "/email", t: "Envíos de email", i: "mail" },
           { href: "/bot", t: "Bot · Conocimiento", i: "bot" },
           { href: "/whatsapp-business", t: "WhatsApp Business", i: "whatsapp" },
           { href: "/agenda", t: "Agenda y avisos", i: "calendario" },
         ] : [] },
-        { t: "Administración", items: gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : [] },
+        { t: "Administración", items: [...(edita ? [{ href: "/integraciones", t: "Integraciones", i: "enchufe" }] : []), ...(gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : [])] },
         { t: null, items: [{ href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
       ]
   return s.filter((x) => x.items.length)

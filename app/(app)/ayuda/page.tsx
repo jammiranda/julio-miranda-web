@@ -71,6 +71,17 @@ const SECCIONES: Sec[] = [
     ],
   },
   {
+    id: "integraciones", t: "Integraciones: Google y Donweb", para: ["gerente", "coordinacion"], en: ["comercial"], link: "/integraciones",
+    pasos: [
+      "Un solo *conector de Google* (un script en tu cuenta) conecta Calendar, Drive y Gmail. Si ya tenías la agenda conectada, alcanza con pegar el código nuevo y crear una *nueva versión* de la implementación.",
+      "*Calendar*: las reuniones que anotás en Google Calendar aparecen en el Tablero, el Resumen comercial y Agenda, con el link de Meet y el contacto del CRM si es un invitado.",
+      "*Drive*: elegís una carpeta (por defecto «DEVISEBIT») y sus archivos aparecen en Documentos todos los días. La categoría sale del nombre de la subcarpeta.",
+      "*Gmail*: los correos de la búsqueda configurada se ven en *Correo* y en el Tablero; en cada contacto aparecen los correos con esa persona.",
+      "*info@devisebit.com (Donweb)*: se conecta por IMAP con servidor, usuario y clave (la clave queda cifrada). Los correos sin leer aparecen en Correo y en el Tablero.",
+      "Los vencimientos de dominios y hosting de Donweb se cargan en Legales como vencimientos anuales.",
+    ],
+  },
+  {
     id: "conversaciones", t: "Conversaciones (bot de WhatsApp e Instagram)", para: ["gerente", "coordinacion"], en: ["comercial"], link: "/consultas", ir: "Conversaciones",
     pasos: [
       "Todo lo que entra por WhatsApp, Instagram y el formulario de devisebit.com aparece acá. Bit responde solo y va tomando nombre, organización, necesidad y email.",

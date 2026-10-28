@@ -8,6 +8,7 @@ import { fechaHora } from "@/lib/consultas"
 import { accesoDe, estadoCuenta, montos } from "@/lib/cobros"
 import { enviarAcceso } from "@/lib/portal"
 import { estadoInsc } from "@/lib/cursos"
+import { correosCon } from "@/lib/integraciones"
 
 async function accesoPortal(fd: FormData) {
   "use server"
@@ -56,7 +57,7 @@ async function guardar(fd: FormData) {
 
 const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : "")
 
-export default async function Contacto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; consulta?: string; pok?: string; pinv?: string; perr?: string } }) {
+export default async function Contacto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; consulta?: string; pok?: string; pinv?: string; perr?: string; email?: string; nombre?: string } }) {
   const nuevo = params.id === "nuevo"
   let c: any = {}
   if (!nuevo) {
@@ -66,14 +67,18 @@ export default async function Contacto({ params, searchParams }: { params: { id:
     // Precarga desde una consulta del bot
     const k = await one<any>("select id, nombre, organizacion, email, telefono, motivo, mensaje, canal from consultas where id=$1 and empresa='devisebit'", [Number(searchParams.consulta)])
     if (k) c = { nombre: k.nombre, organizacion: k.organizacion, email: k.email, telefono: k.telefono, etapa: "conversando", origen: k.canal === "instagram" ? "Instagram" : "WhatsApp", notas: [k.motivo, k.mensaje].filter(Boolean).join("\n"), consulta_id: k.id }
+  } else if (searchParams.email) {
+    // Precarga desde un correo (Correo → + Contacto)
+    c = { email: searchParams.email, nombre: searchParams.nombre && searchParams.nombre !== searchParams.email ? searchParams.nombre : "", etapa: "nuevo", origen: "Email" }
   }
   const [acc, cuenta, cursos] = nuevo ? [null, null, []] : await Promise.all([
     accesoDe(c.id), estadoCuenta(c.id),
     q<any>("select i.id, i.estado, cu.titulo, e.id edicion_id, e.nombre edicion from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos cu on cu.id=e.curso_id where i.contacto_id=$1 order by i.creado desc", [c.id]),
   ])
-  const [proyectos, consultas] = nuevo ? [[], []] : await Promise.all([
+  const [proyectos, consultas, mails] = nuevo ? [[], [], []] : await Promise.all([
     q<any>("select p.id, p.nombre, p.estado, s.nombre servicio from db_proyectos p left join db_servicios s on s.id=p.servicio_id where p.contacto_id=$1 order by p.creado desc", [c.id]),
     q<any>(`select id, creado, motivo, estado from consultas where empresa='devisebit' and (id=$1 or (length(regexp_replace(coalesce($2::text,''),'\\D','','g'))>=6 and regexp_replace(coalesce(telefono,''),'\\D','','g') like '%'||right(regexp_replace($2,'\\D','','g'),8))) order by creado desc limit 10`, [c.consulta_id ?? 0, c.telefono]),
+    correosCon(c.email ?? "").catch(() => []),
   ])
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -130,6 +135,12 @@ export default async function Contacto({ params, searchParams }: { params: { id:
             </form>
             {cursos.length > 0 && <><h3 className="m-0 mt-2 text-xs font-bold uppercase tracking-wider text-[#4A515C]">Cursos</h3>{cursos.map((k: any) => <Link key={k.id} href={`/sistema/cursos/edicion/${k.edicion_id}`} className="flex justify-between gap-2 text-sm hover:underline"><span>{k.titulo}<span className="block text-xs text-[#4A515C]">{k.edicion}</span></span><span className={`chip self-start ${estadoInsc(k.estado).c}`}>{estadoInsc(k.estado).n}</span></Link>)}</>}
           </section>
+          {c.email && (
+            <section className="card flex flex-col gap-2">
+              <h2 className="m-0 text-base">Correos en Gmail</h2>
+              {mails.length ? mails.map((h: any) => <a key={h.id} href={h.link} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline"><span className={h.noLeido ? "font-bold" : "font-semibold"}>{h.asunto}</span><span className="block text-xs text-[#4A515C]">{new Date(h.fecha).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })} · {h.mensajes} {h.mensajes === 1 ? "mensaje" : "mensajes"}</span></a>) : <p className="m-0 text-sm text-[#4A515C]">Sin correos con {c.email} (o Gmail sin conectar).</p>}
+            </section>
+          )}
           <section className="card flex flex-col gap-2">
             <h2 className="m-0 text-base">Conversaciones del bot</h2>
             {consultas.length ? consultas.map((k: any) => <Link key={k.id} href={`/consultas/${k.id}`} className="text-sm hover:underline">{fechaHora(k.creado)} · {k.motivo ?? "Consulta"}</Link>) : <p className="m-0 text-sm text-[#4A515C]">Ninguna.</p>}

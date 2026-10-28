@@ -478,6 +478,12 @@ insert into g_modulos(codigo,nombre,responsable,entregable,orden) values
   ('m09','Administración, finanzas y legal','Julio · contador y abogado validan','Cierre de mes, cobranzas y contratos revisados',9),
   ('m10','ACADEMIA DEVISEBIT','Julio + Jime','Plan de cursos y avales para certificar',10)
   on conflict (codigo) do nothing;
+create table if not exists g_cache (clave text primary key, valor jsonb, actualizado timestamptz not null default now());
+alter table g_documentos add column if not exists origen text not null default 'manual';
+alter table g_documentos add column if not exists externo_id text;
+alter table g_documentos add column if not exists ruta text;
+alter table g_documentos add column if not exists mime text;
+create unique index if not exists g_documentos_externo on g_documentos(externo_id) where externo_id is not null;
 `
 
 let ready: Promise<void> | null = null

@@ -7,6 +7,7 @@ import { recordatoriosCobro } from "@/lib/pagos"
 import { recordatoriosClases } from "@/lib/cursos"
 import { revisionSemanal } from "@/lib/revision"
 import { sincronizarMeta } from "@/lib/ads"
+import { sincronizarDrive } from "@/lib/integraciones"
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
 /** Lo llama Vercel Cron a las 8 de Argentina: recordatorios de reuniones, abonos del mes, avisos de pago, recordatorios de clases, perfil de WhatsApp, la tanda diaria de campañas y, los viernes, la revisión semanal del bot. */
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest) {
   const clases = await recordatoriosClases().catch((e) => String(e))
   const revision = await revisionSemanal().catch((e) => String(e))
   const anuncios = await sincronizarMeta().catch((e) => String(e))
+  const drive = await sincronizarDrive("cron").then((r) => r.mensaje).catch((e) => String(e))
   const r = await procesarCola()
-  return NextResponse.json({ ok: true, ...r, recordatorios, wa, abonos, cobros, clases, revision, anuncios })
+  return NextResponse.json({ ok: true, ...r, recordatorios, wa, abonos, cobros, clases, revision, anuncios, drive })
 }
