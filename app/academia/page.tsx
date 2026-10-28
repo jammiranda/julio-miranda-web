@@ -12,7 +12,7 @@ export default async function Academia() {
   const videos = await ultimosVideos(10)
   await sembrar()
   const [guias, kit, cursos] = await Promise.all([
-    q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 12"),
+    q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 6"),
     one<any>("select slug, titulo, bajada, precio, estado from am_productos where slug='kit-ia-pymes' and estado<>'oculto'"),
     q<any>("select slug, titulo, bajada, modalidad, horas, precio from am_cursos where estado='publicado' order by destacado desc, creado desc limit 3"),
   ])
@@ -37,6 +37,27 @@ export default async function Academia() {
               <p className="m-0 mt-4 font-semibold text-[#C8231F]">Descargala gratis →</p>
             </Link>
           )}
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-4 pt-14">
+        <div className="rounded-3xl bg-[#0E1116] text-white p-7 sm:p-10 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-center relative overflow-hidden">
+          <div aria-hidden="true" className="absolute -left-24 -bottom-24 w-[380px] h-[380px] rounded-full" style={{ background: "radial-gradient(circle, rgba(200,35,31,.35), transparent 65%)" }} />
+          <div className="relative flex flex-col gap-3">
+            <span className="chip self-start bg-[#C8231F] text-white">Nuevo · Transformación digital</span>
+            <h2 className="m-0 text-3xl sm:text-4xl font-extrabold leading-tight text-white">Ordená tu organización con un método, no a prueba y error.</h2>
+            <p className="m-0 text-white/80 text-lg">La guía práctica con autodiagnóstico, hoja de ruta en 14 pasos y el Programa Kit 4.0, y el taller para tu equipo con certificado.</p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Link href="/productos/guia-transformacion-digital" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17]">Guía + bonus · $19.900</Link>
+              <Link href="/productos/taller-transformacion-digital" className="btn bg-white/10 text-white hover:bg-white/20">Taller básico para tu equipo</Link>
+              <a href="https://www.devisebit.com/transformacion-digital" className="btn bg-transparent text-white/85 hover:text-white underline">Consultoría completa ↗</a>
+            </div>
+          </div>
+          <ul className="relative m-0 p-0 list-none grid grid-cols-2 gap-3 text-sm">
+            {[["PDF", "13 páginas, en español e inglés"], ["Planilla", "Autodiagnóstico editable con resultado automático"], ["30 min", "Reunión sin cargo para revisar tu diagnóstico"], ["Kit 4.0", "Qué cofinancia y cómo se pide"]].map(([t, d]) => (
+              <li key={t} className="rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col gap-1"><strong className="text-xl text-[#FF6A63]">{t}</strong><span className="text-white/80">{d}</span></li>
+            ))}
+          </ul>
         </div>
       </section>
 

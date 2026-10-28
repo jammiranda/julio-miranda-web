@@ -21,7 +21,8 @@ export async function GET(_r: Request, { params }: { params: { token: string } }
       const d = createDecipheriv("aes-256-gcm", Buffer.from(clave, "base64"), buf.subarray(0, 12))
       d.setAuthTag(buf.subarray(12, 28))
       const pdf = Buffer.concat([d.update(buf.subarray(28)), d.final()])
-      return new NextResponse(pdf, { headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="${o.slug}-devisebit.pdf"`, "Cache-Control": "private, no-store" } })
+      const zip = String(o.archivo_url).endsWith(".zip.enc")
+      return new NextResponse(pdf, { headers: { "Content-Type": zip ? "application/zip" : "application/pdf", "Content-Disposition": `attachment; filename="${o.slug}-devisebit.${zip ? "zip" : "pdf"}"`, "Cache-Control": "private, no-store" } })
     } catch {
       return new NextResponse("Descarga no disponible por el momento. Escribinos a info@devisebit.com y te la mandamos.", { status: 503 })
     }
