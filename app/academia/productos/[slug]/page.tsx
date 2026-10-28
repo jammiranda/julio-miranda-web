@@ -5,6 +5,9 @@ import { mdWeb, mpConfigurado, crearPreferencia } from "@/lib/academia"
 import Suscribir from "@/components/Suscribir"
 export const dynamic = "force-dynamic"
 
+/** Un producto con archivo cifrado solo se vende si la clave para abrirlo está cargada. */
+const archivoListo = (p: any) => !String(p?.archivo_url ?? "").startsWith("enc:") || !!process.env.ACADEMIA_ARCHIVOS_KEY
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const p = await one<any>("select titulo, bajada from am_productos where slug=$1 and estado<>'oculto'", [params.slug]).catch(() => null)
   return p ? { title: p.titulo, description: p.bajada } : {}
@@ -14,7 +17,7 @@ async function comprar(fd: FormData) {
   "use server"
   const p = await one<any>("select * from am_productos where slug=$1 and estado='venta'", [String(fd.get("slug"))])
   const email = String(fd.get("email") ?? "").trim().toLowerCase()
-  if (!p || !p.precio || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !mpConfigurado()) redirect(`/productos/${fd.get("slug")}?e=1`)
+  if (!p || !p.precio || !archivoListo(p) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !mpConfigurado()) redirect(`/productos/${fd.get("slug")}?e=1`)
   const o = await one<{ id: number; token: string }>("insert into am_ordenes(producto_id,email,nombre,monto,moneda) values ($1,$2,$3,$4,$5) returning id, token", [p.id, email, String(fd.get("nombre") ?? "").slice(0, 120) || null, p.precio, p.moneda])
   const pref = await crearPreferencia({ orden: o!.id, titulo: p.titulo, precio: Number(p.precio), email, token: o!.token })
   if (!pref.ok) redirect(`/productos/${p.slug}?e=1`)
@@ -26,7 +29,7 @@ async function comprar(fd: FormData) {
 export default async function Producto({ params, searchParams }: { params: { slug: string }; searchParams: { e?: string } }) {
   const p = await one<any>("select * from am_productos where slug=$1 and estado<>'oculto'", [params.slug])
   if (!p) notFound()
-  const venta = p.estado === "venta" && p.precio && mpConfigurado()
+  const venta = p.estado === "venta" && p.precio && mpConfigurado() && archivoListo(p)
   return (
     <main>
       <header className="ficha-head bg-[#0E1116] text-white"><div className="max-w-4xl mx-auto px-4 py-14">
@@ -42,9 +45,9 @@ export default async function Producto({ params, searchParams }: { params: { slu
               <p className="m-0 text-3xl font-extrabold">{p.moneda === "ARS" ? "$" : p.moneda + " "}{Number(p.precio).toLocaleString("es-AR")}</p>
               <input type="hidden" name="slug" value={p.slug} />
               <label className="lbl">Nombre<input name="nombre" className="inp" /></label>
-              <label className="lbl">Email (te llega la descarga)<input name="email" type="email" required className="inp" /></label>
+              <label className="lbl">{p.servicio ? "Email (te escribimos para coordinar)" : "Email (te llega la descarga)"}<input name="email" type="email" required className="inp" /></label>
               <button className="btn-p text-base py-3.5">Comprar con Mercado Pago</button>
-              <p className="m-0 text-xs text-[#4A515C]">Pago seguro con Mercado Pago: tarjeta, débito o dinero en cuenta. Descarga inmediata.</p>
+              <p className="m-0 text-xs text-[#4A515C]">Pago seguro con Mercado Pago: tarjeta, débito o dinero en cuenta. {p.servicio ? "Después del pago coordinamos la fecha con vos. ¿Preferís transferencia o factura A? Escribinos por WhatsApp." : "Descarga inmediata."}</p>
               {searchParams.e && <p role="alert" className="m-0 text-sm text-rojo">No pudimos iniciar el pago. Revisá el email o probá de nuevo.</p>}
             </form>
           ) : (

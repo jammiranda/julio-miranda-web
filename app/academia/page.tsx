@@ -11,10 +11,9 @@ export const dynamic = "force-dynamic"
 export default async function Academia() {
   const videos = await ultimosVideos(10)
   await sembrar()
-  const [guias, kit, subs, cursos] = await Promise.all([
+  const [guias, kit, cursos] = await Promise.all([
     q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 12"),
     one<any>("select slug, titulo, bajada, precio, estado from am_productos where slug='kit-ia-pymes' and estado<>'oculto'"),
-    one<{ n: number }>("select count(*)::int n from db_contactos where suscrito_en is not null and email_estado='activo'"),
     q<any>("select slug, titulo, bajada, modalidad, horas, precio from am_cursos where estado='publicado' order by destacado desc, creado desc limit 3"),
   ])
   const iman = guias.find((g) => g.exclusiva)
@@ -28,7 +27,7 @@ export default async function Academia() {
             <h1 className="m-0 mt-4 text-4xl sm:text-6xl leading-[1.05] font-extrabold text-white">La IA que sirve, explicada para tu negocio.</h1>
             <p className="m-0 mt-5 text-lg text-white/80 max-w-xl">Guías prácticas para automatizar tareas, atender mejor y decidir con datos. Probadas en empresas, gremios, universidades y gobiernos de Argentina.</p>
             <div id="suscribirme" className="mt-8 max-w-xl scroll-mt-24"><Suscribir oscuro boton="Quiero las guías" /></div>
-            <p className="m-0 mt-3 text-sm text-white/60">Una guía nueva por semana. Sin spam, te das de baja en un clic.{subs?.n ? ` Ya somos ${subs.n}.` : ""}</p>
+            <p className="m-0 mt-3 text-sm text-white/60">Una guía nueva por semana. Sin spam, te das de baja en un clic.</p>
           </div>
           {iman && (
             <Link href={`/guias/${iman.slug}`} className="lg:col-span-2 block rounded-2xl bg-white text-[#0E1116] p-6 no-underline shadow-2xl rotate-1 hover:rotate-0 transition-transform">
