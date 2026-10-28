@@ -195,7 +195,7 @@ export default async function PortalAdmin({ searchParams }: { searchParams: { ok
           <ul className="m-0 p-0 list-none flex flex-col">
             {ultimos.map((s) => (
               <li key={s.id} className="flex items-center gap-2 py-2 border-b border-[#EEF0F3] last:border-0 text-sm">
-                <span className="flex-1 min-w-0"><span className="block truncate font-semibold">{s.email}</span><span className="text-xs text-[#4A515C]">{new Date(s.creado).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })}{s.detalle ? ` · ${s.detalle}` : ""}{s.resuelta ? ` · ${s.resuelta}` : ""}</span></span>
+                <span className="flex-1 min-w-0"><span className="block truncate font-semibold">{s.email}</span><span className="text-xs text-[#4A515C]">{new Date(s.creado).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hourCycle: "h23" })}{s.detalle ? ` · ${s.detalle}` : ""}{s.resuelta ? ` · ${s.resuelta}` : ""}</span></span>
                 <span className={`chip ${RES_C[s.resultado] ?? ""}`}>{RES[s.resultado] ?? s.resultado}</span>
               </li>
             ))}

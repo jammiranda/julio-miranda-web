@@ -10,24 +10,48 @@
   --fuente: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --fuente-titulos: var(--fuente);
 }
-body { background: var(--fondo); color: var(--tinta); font-family: var(--fuente); }
-.font-titulo { font-family: "Fraunces", Georgia, "Times New Roman", serif; }
-.card { @apply rounded-2xl border p-5; background: var(--sup); border-color: var(--borde); }
-.btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors; }
-.btn-p { @apply btn text-white; background: var(--ac); }
-.btn-p:hover { background: var(--ac-hover); }
-.btn-s { @apply btn bg-white border text-[#0E1116]; border-color: var(--borde-fuerte); }
-.btn-s:hover { border-color: var(--ac); }
-.inp { @apply w-full rounded-xl border bg-white px-3 py-2.5 text-[15px] outline-none; border-color: var(--borde-fuerte); }
-.inp:focus { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-anillo); }
-.lbl { @apply flex flex-col gap-1 text-sm font-semibold; }
-.tbl { @apply w-full text-sm; }
-.tbl th { @apply text-left font-semibold text-[#4A515C] px-3 py-2 border-b border-[#E2E5EA] whitespace-nowrap; }
-.tbl td { @apply px-3 py-2 border-b border-[#EEF0F3] align-top; }
-.chip { @apply inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold; }
-h1 { @apply text-2xl font-extrabold tracking-tight text-[#0E1116]; }
-h2 { @apply text-lg font-bold; }
+/* Base y componentes van en capas de Tailwind (antes de las utilidades): así una variante como
+   `card p-0` o `btn-s py-1 text-xs` aplica la utilidad en lugar de quedar pisada por la clase base. */
+@layer base {
+  body { background: var(--fondo); color: var(--tinta); font-family: var(--fuente); }
+  h1 { @apply text-2xl font-extrabold tracking-tight text-[#0E1116]; }
+  h2 { @apply text-lg font-bold; }
+}
+@layer components {
+  .font-titulo { font-family: "Fraunces", Georgia, "Times New Roman", serif; }
+  .card { @apply rounded-2xl border p-5; background: var(--sup); border-color: var(--borde); }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors; }
+  .btn-p { @apply btn text-white; background: var(--ac); }
+  .btn-p:hover { background: var(--ac-hover); }
+  .btn-s { @apply btn bg-white border text-[#0E1116]; border-color: var(--borde-fuerte); }
+  .btn-s:hover { border-color: var(--ac); }
+  .inp { @apply w-full rounded-xl border bg-white px-3 py-2.5 text-[15px] outline-none; border-color: var(--borde-fuerte); }
+  .inp:focus { border-color: var(--ac); box-shadow: 0 0 0 3px var(--ac-anillo); }
+  .lbl { @apply flex flex-col gap-1 text-sm font-semibold; }
+  .tbl { @apply w-full text-sm; }
+  /* :where() deja la especificidad en una clase: un `text-right` o `px-2` en la celda gana */
+  .tbl :where(th) { @apply text-left font-semibold text-[#4A515C] px-3 py-2 border-b border-[#E2E5EA] whitespace-nowrap; }
+  .tbl :where(td) { @apply px-3 py-2 border-b border-[#EEF0F3] align-top; }
+  .chip { @apply inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold; }
 
+  /* Versión sistema (sistema.devisebit.com y academia.devisebit.com/sistema) de los mismos componentes.
+     Con :where([data-espacio]) pisan a la base pero no a las utilidades. */
+  :where([data-espacio]) .card { border-radius: var(--radio); box-shadow: var(--sombra); }
+  :where([data-espacio]) .btn { min-height: 40px; }
+  :where([data-espacio]) .btn-s { color: var(--tinta); }
+  :where([data-espacio]) .inp { min-height: 42px; font-size: 15px; }
+  :where([data-espacio]) :where(select).inp { padding-right: 2rem; }
+  :where([data-espacio]) .lbl { color: var(--tinta); }
+  :where([data-espacio]) .tbl { border-collapse: separate; border-spacing: 0; }
+  :where([data-espacio]) .tbl :where(th) { position: sticky; top: 0; z-index: 1; background: var(--tbl-head); color: var(--gris); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 10px 14px; border-bottom: 1px solid var(--borde); }
+  :where([data-espacio]) .tbl :where(td) { padding: 12px 14px; border-bottom: 1px solid var(--borde-2); }
+  :where([data-espacio]) .tbl :where(td[colspan]) { padding: 28px 14px; color: var(--gris); }
+  :where([data-espacio]) .tbl :where(tbody tr:last-child td) { border-bottom: 0; }
+  :where([data-espacio]) .chip { line-height: 1.5; }
+  :where([data-espacio="academia"]) .chip { border-radius: 8px; }
+  /* Academia pública: etiquetas un poco más grandes en celular */
+  :where(.acad) .lbl { font-size: 15px; }
+}
 @media print { header:not(.ficha-head), nav, footer, .no-print { display: none !important; } body { background: #fff; } main:not(.ficha) .card { border: 0; padding: 0; } .ficha .card { break-inside: avoid; } @page { margin: 12mm; } }
 .prosa { @apply text-[17px] leading-[1.75] text-[#262C37]; }
 .prosa h2 { @apply mt-10 mb-3 text-2xl font-extrabold text-[#0E1116]; }
@@ -51,7 +75,6 @@ h2 { @apply text-lg font-bold; }
 /* Botones y campos: objetivos táctiles de 44px y sin zoom automático de iOS (≥16px) */
 .acad .btn { min-height: 44px; }
 .acad .inp { min-height: 48px; font-size: 16px; }
-.acad .lbl { font-size: 15px; }
 .acad input[type=radio], .acad input[type=checkbox] { width: 20px; height: 20px; accent-color: #C8231F; flex-shrink: 0; }
 /* Foco visible para teclado */
 .acad :focus-visible { outline: 3px solid #FF6A63; outline-offset: 2px; border-radius: 6px; }
@@ -159,35 +182,22 @@ html:has(.acad) { scroll-padding-top: 5rem; }
 .rapido:active { background: var(--sup-2); }
 
 /* Componentes compartidos, versión sistema */
-[data-espacio] .card { border-radius: var(--radio); box-shadow: var(--sombra); }
 [data-espacio] a.card:hover, [data-espacio] .card-link:hover { border-color: var(--borde-fuerte); box-shadow: 0 4px 14px rgba(14, 17, 22, .07); }
 [data-espacio] main h1 { font-family: var(--fuente-titulos); font-size: 1.625rem; line-height: 1.2; letter-spacing: -0.015em; color: var(--tinta); text-wrap: balance; }
 [data-espacio="academia"] main h1 { font-weight: 600; letter-spacing: -0.01em; font-size: 1.75rem; }
 [data-espacio="academia"] main h2 { font-family: var(--fuente-titulos); font-weight: 600; letter-spacing: -0.005em; }
 @media (min-width: 1024px) { [data-espacio] main h1 { font-size: 1.875rem; } [data-espacio="academia"] main h1 { font-size: 2rem; } }
-[data-espacio] .btn { min-height: 40px; }
-[data-espacio] .btn-s { color: var(--tinta); }
 [data-espacio] .btn-s:hover { border-color: var(--ac); color: var(--ac-texto); }
 [data-espacio] .btn-p:focus-visible, [data-espacio] .btn-s:focus-visible { outline-offset: 3px; }
-[data-espacio] .inp { min-height: 42px; font-size: 15px; }
-[data-espacio] select.inp { padding-right: 2rem; }
 [data-espacio] input[type=checkbox], [data-espacio] input[type=radio] { accent-color: var(--ac); }
-[data-espacio] .lbl { color: var(--tinta); }
 @media (max-width: 767.98px), (pointer: coarse) {
   [data-espacio] .btn { min-height: 44px; }
   [data-espacio] .inp { min-height: 44px; font-size: 16px; }
 }
-[data-espacio] .tbl { border-collapse: separate; border-spacing: 0; }
-[data-espacio] .tbl th { position: sticky; top: 0; z-index: 1; background: var(--tbl-head); color: var(--gris); font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 10px 14px; border-bottom: 1px solid var(--borde); }
-[data-espacio] .tbl td { padding: 12px 14px; border-bottom: 1px solid var(--borde-2); }
 [data-espacio] .tbl tbody tr { transition: background-color .12s; }
 [data-espacio] .tbl tbody tr:hover { background: var(--fila-hover); }
-[data-espacio] .tbl tbody tr:last-child td { border-bottom: 0; }
 /* En escritorio las tablas largas scrollean dentro de su tarjeta y el encabezado queda fijo */
 @media (min-width: 1024px) { [data-espacio] main :has(> table.tbl) { max-height: calc(100vh - 160px); overflow: auto; } }
-[data-espacio] .tbl td[colspan] { padding: 28px 14px; color: var(--gris); }
-[data-espacio] .chip { line-height: 1.5; }
-[data-espacio="academia"] .chip { border-radius: 8px; }
 [data-espacio] details > summary { border-radius: 8px; }
 
 /* Cabecera de página y estados vacíos */

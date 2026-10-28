@@ -27,7 +27,7 @@ async function guiaIA(fd: FormData) {
   if (!tema || !process.env.ANTHROPIC_API_KEY) redirect("/sistema?err=Falta%20el%20tema%20o%20la%20clave%20de%20IA")
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST", headers: { "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: process.env.CLAUDE_MODEL ?? "claude-sonnet-5-5", max_tokens: 3500, messages: [{ role: "user", content: `Escribí una guía práctica para la Academia DEVISEBIT (lectores: dueños, gerentes y equipos de pymes e instituciones argentinas, no técnicos), en español rioplatense, clara, concreta y accionable, de 600 a 900 palabras. Tema: ${tema}.
+    body: JSON.stringify({ model: process.env.CLAUDE_MODEL ?? "claude-sonnet-5-5", max_tokens: 3500, messages: [{ role: "user", content: `Escribí una guía práctica para la ACADEMIA DEVISEBIT (lectores: dueños, gerentes y equipos de pymes e instituciones argentinas, no técnicos), en español rioplatense, clara, concreta y accionable, de 600 a 900 palabras. Tema: ${tema}.
 Nada inventado: si das datos o precios, que sean generales o indicá que son de referencia. Sin nombres de clientes. Cerrá con un botón a WhatsApp ([[Texto|https://wa.me/5491173466490?text=...]]) relacionado al tema.
 Formato: "## " subtítulos, "### ", párrafos, "- " listas, "1. " pasos, **negrita**, "> " destacado, [texto](url).
 Respondé SOLO un JSON: {"titulo":"...","bajada":"...(1 oración)","categoria":"...(2-3 palabras)","contenido":"..."}` }] }),

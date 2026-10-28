@@ -32,14 +32,14 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
           <MarcaIcono academia={aca} tam={44} fondo={aca ? "#0B4F4A" : "#1B2029"} />
           <div className="leading-tight">
             {aca
-              ? <div className="font-titulo text-xl font-semibold text-white">Academia <span className="font-sans text-base font-extrabold tracking-[0.06em] text-[#5EEAD4]">DEVISEBIT</span></div>
+              ? <div className="font-titulo text-xl font-semibold text-white">ACADEMIA <span className="font-sans text-base font-extrabold tracking-[0.06em] text-[#5EEAD4]">DEVISEBIT</span></div>
               : <div className="text-xl font-extrabold tracking-[0.05em] text-white">DEVISE<span className="text-[#FF6A63]">BIT</span></div>}
             <div className="text-[10px] font-semibold tracking-[0.25em] text-white/70">{aca ? "SISTEMA" : "SISTEMA COMERCIAL"}</div>
           </div>
         </div>
         <div className="relative hidden lg:block">
           <h1 className={`m-0 text-white ${aca ? "font-titulo font-semibold text-[2.6rem] leading-[1.1]" : "text-[2.4rem] font-extrabold leading-[1.1] tracking-tight"}`}>{aca ? "Sistema Academia" : "Sistema comercial"}</h1>
-          <p className="mt-3 mb-0 max-w-sm text-[15px] text-white/75">{aca ? "Alumnos, cursos, guías y envíos de la Academia DEVISEBIT." : "CRM, conversaciones del bot y proyectos de DEVISEBIT."}</p>
+          <p className="mt-3 mb-0 max-w-sm text-[15px] text-white/75">{aca ? "Alumnos, cursos, guías y envíos de la ACADEMIA DEVISEBIT." : "CRM, conversaciones del bot y proyectos de DEVISEBIT."}</p>
         </div>
         <div className="relative hidden lg:block text-xs text-white/60">DEVISEBIT SRL · Datos personales protegidos (Ley 25.326)</div>
       </aside>

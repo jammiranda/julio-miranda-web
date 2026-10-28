@@ -73,7 +73,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
                 return (
                   <tr key={c.id} className={`hover:bg-[#F8F9FB] ${c.estado === "nueva" ? "font-semibold" : ""}`}>
                     <td className="whitespace-nowrap">{fechaHora(c.creado)}<div className={`text-xs font-normal ${demora ? "text-rojo font-semibold" : "text-[#4A515C]"}`}>{hace(c.creado)}</div></td>
-                    <td><span className={`chip ${est.c}`}>{est.n}</span>{c.necesita_humano && c.estado !== "descartada" && <div><span className="chip bg-red-600 text-white mt-1">Quiere una persona</span></div>}</td>
+                    <td><span className={`chip whitespace-nowrap ${est.c}`}>{est.n}</span>{c.necesita_humano && c.estado !== "descartada" && <div><span className="chip whitespace-nowrap bg-red-600 text-white mt-1">Quiere una persona</span></div>}</td>
                     <td><Link href={`/consultas/${c.id}`} className="hover:underline">{c.nombre ?? "Sin nombre"}</Link><div className="text-xs font-normal text-[#4A515C]">{c.telefono ?? ""}</div></td>
                     <td>{c.organizacion ?? "—"}<div className="text-xs font-normal text-[#4A515C]">{c.email ?? ""}</div></td>
                     <td className="font-normal">{c.motivo ?? "—"}</td>

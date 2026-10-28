@@ -14,7 +14,7 @@ export default async function Cursos() {
      from am_cursos c where c.estado='publicado' order by c.destacado desc, c.creado desc`)
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
-      <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[#C8231F]">Academia DEVISEBIT</p>
+      <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[#C8231F]">ACADEMIA DEVISEBIT</p>
       <h1 className="acad-h1-m m-0 mt-2 font-extrabold">Cursos</h1>
       <p className="acad-lead m-0 mt-2 text-[#4A515C] max-w-2xl">Aprendé con quienes implementan tecnología e inteligencia artificial en organizaciones reales. Con materiales descargables, seguimiento de tu avance y certificado.</p>
       {!cursos.length && <p className="card mt-8">Estamos preparando los primeros cursos. Suscribite a la newsletter desde la <Link href="/" className="underline text-[#C8231F]">portada</Link> y te avisamos apenas abran las inscripciones.</p>}

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { requerir } from "@/lib/auth"
+import { requerir, URL_ESPACIO } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
 import { ESTADOS_EDICION, ESTADOS_INSC, estadoInsc, avance, evaluar, aprobar, inscribir, bienvenida, contactoPorEmail, urlCertificado, modalidad } from "@/lib/cursos"
@@ -107,7 +107,7 @@ const fh = (d: any) => new Date(d).toLocaleString("es-AR", { weekday: "short", d
 const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : "")
 
 export default async function Edicion({ params, searchParams }: { params: { id: string }; searchParams: Record<string, string | undefined> }) {
-  await requerir()
+  const u = await requerir()
   const e = await one<any>(
     `select e.*, c.id curso_id, c.titulo, c.slug, c.modalidad, c.req_lecciones, c.req_asistencia, c.certifica, c.horas
      from am_ediciones e join am_cursos c on c.id=e.curso_id where e.id=$1`, [Number(params.id)])
@@ -167,7 +167,7 @@ export default async function Edicion({ params, searchParams }: { params: { id: 
                 const cumple = x.pctLecciones >= e.req_lecciones && (!clases.length || x.pctAsistencia >= e.req_asistencia)
                 return (
                   <tr key={a.id} className={a.estado === "baja" ? "opacity-50" : ""}>
-                    <td><Link href={`/contactos/${a.contacto_id}`} className="font-semibold hover:underline">{a.nombre}</Link><span className="block text-xs text-[#4A515C]">{a.email}{a.organizacion ? ` · ${a.organizacion}` : ""}</span></td>
+                    <td>{u.espacios.includes("comercial") ? <a href={`${URL_ESPACIO.comercial}/contactos/${a.contacto_id}`} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline" title="Abrir la ficha en el Sistema comercial">{a.nombre}</a> : <strong>{a.nombre}</strong>}<span className="block text-xs text-[#4A515C]">{a.email}{a.organizacion ? ` · ${a.organizacion}` : ""}</span></td>
                     <td><span className={`chip ${estadoInsc(a.estado).c}`}>{estadoInsc(a.estado).n}</span>{cumple && ["inscripto", "cursando"].includes(a.estado) && <span className="block text-xs text-emerald-700 mt-1">Cumple requisitos</span>}</td>
                     <td className="whitespace-nowrap">{x.lecciones ? `${x.hechas}/${x.lecciones} · ${x.pctLecciones}%` : "—"}</td>
                     {clases.length > 0 && <td className="whitespace-nowrap">{x.presentes}/{x.clases} · {x.pctAsistencia}%</td>}

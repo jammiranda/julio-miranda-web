@@ -13,9 +13,9 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://academia.devisebit.com"),
-  title: { default: "Academia DEVISEBIT · IA y tecnología aplicada para pymes e instituciones", template: "%s · Academia DEVISEBIT" },
+  title: { default: "ACADEMIA DEVISEBIT · IA y tecnología aplicada para pymes e instituciones", template: "%s · ACADEMIA DEVISEBIT" },
   description: "Guías prácticas, gratis y en castellano para usar inteligencia artificial, automatizar tareas y digitalizar tu organización. Hechas por el equipo de DEVISEBIT, desde 2009.",
-  openGraph: { siteName: "Academia DEVISEBIT", locale: "es_AR", type: "website", images: [{ url: OG_ACADEMIA, width: 1200, height: 630, alt: "Academia DEVISEBIT: IA y tecnología aplicada, explicada simple" }] },
+  openGraph: { siteName: "ACADEMIA DEVISEBIT", locale: "es_AR", type: "website", images: [{ url: OG_ACADEMIA, width: 1200, height: 630, alt: "ACADEMIA DEVISEBIT: IA y tecnología aplicada, explicada simple" }] },
   twitter: { card: "summary_large_image", images: [OG_ACADEMIA] },
   robots: { index: true, follow: true },
 }
@@ -37,7 +37,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
       <a href="#contenido" className="acad-saltar">Saltar al contenido</a>
       <header className="ficha-head bg-[#0E1116] text-white sticky top-0 z-40" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="max-w-6xl mx-auto h-14 md:h-16 flex items-center justify-between gap-3" style={{ paddingLeft: "max(1rem, env(safe-area-inset-left))", paddingRight: "max(1rem, env(safe-area-inset-right))" }}>
-          <Link href="/" className="flex items-center gap-2 min-h-[44px] text-white no-underline shrink-0" aria-label="Academia DEVISEBIT, inicio">
+          <Link href="/" className="flex items-center gap-2 min-h-[44px] text-white no-underline shrink-0" aria-label="ACADEMIA DEVISEBIT, inicio">
             <span className="text-lg font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.14em] sm:tracking-[0.22em] text-white/70">Academia</span>
           </Link>

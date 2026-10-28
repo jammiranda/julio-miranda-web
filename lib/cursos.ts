@@ -6,7 +6,7 @@ import { URL_ACADEMIA } from "./academia"
 import { crearAcceso, urlPortal } from "./portal"
 
 /**
- * Academia DEVISEBIT · cursos (modelo tomado de Academia USL):
+ * ACADEMIA DEVISEBIT · cursos (modelo tomado de Academia USL):
  * curso → ediciones (cohortes) → clases en vivo con asistencia, y lecciones online con avance.
  * Inscripción conectada a Contactos (tags alumno / curso:slug / egresado), aprobación y certificado verificable.
  */
@@ -124,7 +124,7 @@ export async function aprobar(iid: number, por: string) {
   await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'aprobado',$3)", [i.contacto_id, iid, d.slug])
   await audit({ id: 0, usuario: por }, "curso_aprobado", "am_inscripcion", iid, d.titulo)
   if (d.email) {
-    const md = `# ¡Felicitaciones, terminaste el curso!\n\nHola {{nombre}}, aprobaste **${d.titulo}**.${cert ? `\n\nTu certificado ya está disponible. Cualquier persona puede verificarlo con el código **${cert}**.\n\n[[Ver mi certificado|${urlCertificado(cert)}]]` : ""}\n\nEn tu cuenta tenés todos tus cursos y certificados. Gracias por aprender con la Academia DEVISEBIT.\n\n[[Ver más cursos|${URL_ACADEMIA}/cursos]]`
+    const md = `# ¡Felicitaciones, terminaste el curso!\n\nHola {{nombre}}, aprobaste **${d.titulo}**.${cert ? `\n\nTu certificado ya está disponible. Cualquier persona puede verificarlo con el código **${cert}**.\n\n[[Ver mi certificado|${urlCertificado(cert)}]]` : ""}\n\nEn tu cuenta tenés todos tus cursos y certificados. Gracias por aprender con la ACADEMIA DEVISEBIT.\n\n[[Ver más cursos|${URL_ACADEMIA}/cursos]]`
     await enviarBrevo({ email: d.email, name: d.nombre }, `Aprobaste ${d.titulo}${cert ? " · tu certificado" : ""}`, plantilla(aHtml(md), { nombre: d.nombre, preheader: "Tu certificado está listo" })).catch(() => {})
   }
   await notificar(["gerente", "coordinacion"], "🎓 Curso aprobado", `${d.nombre} · ${d.titulo}`, `/sistema/cursos/edicion/${i.edicion_id}`).catch(() => {})

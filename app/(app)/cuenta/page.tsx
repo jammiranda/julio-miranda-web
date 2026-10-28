@@ -69,7 +69,7 @@ export default async function Cuenta({ searchParams }: { searchParams: { ok?: st
           <label className="lbl">Clave nueva<input name="c1" type="password" required minLength={8} autoComplete="new-password" className="inp" /></label>
           <label className="lbl">Repetir clave nueva<input name="c2" type="password" required minLength={8} autoComplete="new-password" className="inp" /></label>
         </div>
-        <p className="m-0 text-xs text-[#4A515C]">Mínimo 8 caracteres. Conviene mezclar letras, números y algún símbolo: el sistema guarda datos de salud.</p>
+        <p className="m-0 text-xs text-[#4A515C]">Mínimo 8 caracteres. Conviene mezclar letras, números y algún símbolo: el sistema guarda datos de clientes y de la empresa.</p>
         <div><button className="btn-p">Cambiar contraseña</button></div>
       </form>
 

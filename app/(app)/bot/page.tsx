@@ -141,7 +141,7 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
         <h2 className="m-0 text-base">Enseñarle algo nuevo</h2>
         <p className="m-0 text-sm text-[#4A515C]">Escribilo como se lo explicarías a una persona nueva del equipo. También podés enseñarle desde cualquier conversación del CRM, con el botón "Enseñar al bot" debajo de una respuesta tuya.</p>
         <label className="lbl">Cuando pregunten… (opcional)<input name="pregunta" className="inp" placeholder="Ej.: ¿Atienden los fines de semana?" /></label>
-        <label className="lbl">El bot tiene que saber / responder…<textarea name="respuesta" rows={3} required className="inp" placeholder="Ej.: Las visitas se programan de lunes a sábado; los domingos solo urgencias coordinadas." /></label>
+        <label className="lbl">El bot tiene que saber / responder…<textarea name="respuesta" rows={3} required className="inp" placeholder="Ej.: El equipo atiende de lunes a viernes de 8 a 18 h; fuera de ese horario respondo yo y el equipo retoma el siguiente día hábil." /></label>
         <div><button className="btn-p">Guardar</button>{searchParams.ok && <span className="ml-3 text-sm text-[#9E1A17]">Guardado. El bot ya lo usa.</span>}</div>
       </form>
 

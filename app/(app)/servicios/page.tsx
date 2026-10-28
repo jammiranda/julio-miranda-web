@@ -28,7 +28,7 @@ function Campos({ x }: { x?: any }) {
       <label className="lbl md:col-span-3">Servicio<input name="nombre" defaultValue={x?.nombre ?? ""} required className="inp py-1.5" /></label>
       <label className="lbl md:col-span-2">Categoría<input name="categoria" defaultValue={x?.categoria ?? ""} placeholder="A medida / Producto" className="inp py-1.5" /></label>
       <label className="lbl md:col-span-7">Descripción<input name="descripcion" defaultValue={x?.descripcion ?? ""} className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-1">Moneda<select name="moneda" defaultValue={x?.moneda ?? "USD"} className="inp py-1.5"><option>USD</option><option>ARS</option></select></label>
+      <label className="lbl md:col-span-1">Moneda<select name="moneda" defaultValue={x?.moneda ?? "USD"} className="inp py-1.5 pl-2 pr-5 text-sm"><option>USD</option><option>ARS</option></select></label>
       <label className="lbl md:col-span-2">Desde<input name="precio_desde" inputMode="decimal" defaultValue={x?.precio_desde ?? ""} className="inp py-1.5" /></label>
       <label className="lbl md:col-span-2">Hasta<input name="precio_hasta" inputMode="decimal" defaultValue={x?.precio_hasta ?? ""} className="inp py-1.5" /></label>
       <label className="lbl md:col-span-2">Plazo típico<input name="plazo" defaultValue={x?.plazo ?? ""} placeholder="3 a 6 semanas" className="inp py-1.5" /></label>

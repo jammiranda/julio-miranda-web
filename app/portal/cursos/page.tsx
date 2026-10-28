@@ -24,7 +24,7 @@ export default async function MisCursos() {
   const certs = ins.filter((x) => x.certificado)
   return (
     <div className="flex flex-col gap-6">
-      <div><h1 className="m-0">Mis cursos</h1><p className="m-0 mt-1 text-[#4A515C]">Tus clases, materiales, avance y certificados de la Academia DEVISEBIT.</p></div>
+      <div><h1 className="m-0">Mis cursos</h1><p className="m-0 mt-1 text-[#4A515C]">Tus clases, materiales, avance y certificados de la ACADEMIA DEVISEBIT.</p></div>
 
       {!ins.length && (
         <div className="card flex flex-col gap-3 items-start">

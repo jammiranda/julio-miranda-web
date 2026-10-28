@@ -1,7 +1,7 @@
 import { q, one } from "./db"
 import { LOTE_2026_10, GUIAS_2026_10 } from "./academia-lote-2026-10"
 
-/** Academia DEVISEBIT (academia.devisebit.com): guías gratis, newsletter y productos digitales. */
+/** ACADEMIA DEVISEBIT (academia.devisebit.com): guías gratis, newsletter y productos digitales. */
 export const URL_ACADEMIA = process.env.ACADEMIA_URL ?? "https://academia.devisebit.com"
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")

@@ -47,7 +47,7 @@ export default async function Producto({ params, searchParams }: { params: { slu
         )}
       </div></header>
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-10 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-start">
-        <article className="prosa" dangerouslySetInnerHTML={{ __html: mdWeb(p.descripcion) }} />
+        <article className="prosa" dangerouslySetInnerHTML={{ __html: mdWeb(String(p.descripcion ?? "").replace(/\\n/g, "\n")) }} />
         <aside id="comprar" aria-label={venta ? "Comprar" : "Lista de espera"} className="card flex flex-col gap-3 md:sticky md:top-24 scroll-mt-20 shadow-[0_8px_30px_rgba(14,17,22,.06)]">
           {venta ? (
             <form action={comprar} className="flex flex-col gap-3">

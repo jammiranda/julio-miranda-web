@@ -111,7 +111,7 @@ function MarcaSistema({ espacio, compacta = false }: { espacio: Espacio; compact
       {!compacta && (
         <span className="leading-tight min-w-0">
           {aca ? (
-            <span className="block font-titulo text-[17px] font-semibold tracking-[0.01em] text-[var(--sb-tinta)] whitespace-nowrap">Academia <span className="font-sans text-[13px] font-extrabold tracking-[0.06em] text-[var(--ac)]">DEVISEBIT</span></span>
+            <span className="block font-titulo text-[17px] font-semibold tracking-[0.01em] text-[var(--sb-tinta)] whitespace-nowrap">ACADEMIA <span className="font-sans text-[13px] font-extrabold tracking-[0.06em] text-[var(--ac)]">DEVISEBIT</span></span>
           ) : (
             <span className="block text-[16px] font-extrabold tracking-[0.05em] text-[var(--sb-tinta)]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
           )}

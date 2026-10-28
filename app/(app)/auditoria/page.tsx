@@ -13,7 +13,7 @@ export default async function Auditoria() {
         <table className="tbl">
           <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead>
           <tbody>{rows.map((r) => (
-            <tr key={r.id}><td className="whitespace-nowrap">{new Date(r.ts).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })}</td><td>{r.usuario ?? "—"}</td><td>{r.accion}</td><td>{r.entidad ? `${r.entidad} ${r.entidad_id ?? ""}` : "—"}</td><td>{r.detalle ?? ""}</td></tr>
+            <tr key={r.id}><td className="whitespace-nowrap">{new Date(r.ts).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hourCycle: "h23" })}</td><td>{r.usuario ?? "—"}</td><td>{r.accion}</td><td>{r.entidad ? `${r.entidad} ${r.entidad_id ?? ""}` : "—"}</td><td>{r.detalle ?? ""}</td></tr>
           ))}</tbody>
         </table>
       </div>

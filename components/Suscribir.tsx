@@ -10,7 +10,7 @@ export default function Suscribir({ tag = "newsletter", boton = "Suscribirme gra
     setEstado("enviando")
     const p = new URLSearchParams(location.search)
     const utm = Object.fromEntries(["utm_source", "utm_medium", "utm_campaign", "gclid", "fbclid"].map((k) => [k, p.get(k)]).filter(([, v]) => v))
-    const r = await fetch("/api/suscribir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: f.get("email"), nombre: f.get("nombre"), website: f.get("website"), tag, origen: "Academia DEVISEBIT", referrer: document.referrer, ...utm }) }).catch(() => null)
+    const r = await fetch("/api/suscribir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: f.get("email"), nombre: f.get("nombre"), website: f.get("website"), tag, origen: "ACADEMIA DEVISEBIT", referrer: document.referrer, ...utm }) }).catch(() => null)
     if (r?.ok) {
       setEstado("ok")
       try { document.cookie = "acad=1; path=/; max-age=31536000; samesite=lax" } catch {}

@@ -70,7 +70,7 @@ export default async function WhatsAppBusiness({ searchParams }: { searchParams:
         <label className="flex items-center gap-2 text-sm self-end"><input type="checkbox" name="foto_original" /> Volver al logo de DEVISEBIT</label>
         <button className="btn-p md:col-span-2 justify-self-start">Guardar y publicar en WhatsApp</button>
       </form>
-      {estado && <p className="m-0 text-xs text-[#4A515C]">Última publicación: {new Date(estado.cuando).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })} · perfil {String(estado.perfil)} · foto {String(estado.foto ?? "—")} · mensajes de aviso: {estado.plantillas && typeof estado.plantillas === "object" ? Object.entries(estado.plantillas).map(([k, v]) => `${k} (${v})`).join(", ") : "se crean cuando entre el próximo mensaje"}</p>}
+      {estado && <p className="m-0 text-xs text-[#4A515C]">Última publicación: {new Date(estado.cuando).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hourCycle: "h23" })} · perfil {String(estado.perfil)} · foto {String(estado.foto ?? "—")} · mensajes de aviso: {estado.plantillas && typeof estado.plantillas === "object" ? Object.entries(estado.plantillas).map(([k, v]) => `${k} (${v})`).join(", ") : "se crean cuando entre el próximo mensaje"}</p>}
     </div>
   )
 }

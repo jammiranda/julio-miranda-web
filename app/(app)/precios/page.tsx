@@ -57,7 +57,7 @@ export default async function Precios({ searchParams }: { searchParams: { ok?: s
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="m-0">Precios</h1>
-          <p className="m-0 text-sm text-[#4A515C]">Lista vigente de DEVISEBIT con la referencia de mercado de cada precio y cómo explicárselo al cliente. Última actualización: {ult ? fechaHora(ult) : "—"}.</p>
+          <p className="m-0 text-sm text-[#4A515C]">Lista vigente de DEVISEBIT con la referencia de mercado de cada precio y cómo explicárselo al cliente. Última actualización: {ult ? fechaHora(ult) : "—"}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <a href="/lista-precios" target="_blank" className="btn-s">Ver lista para clientes ↗</a>
@@ -84,8 +84,8 @@ export default async function Precios({ searchParams }: { searchParams: { ok?: s
                       <td className="font-semibold min-w-[180px]">{p.producto}<div className="text-xs font-normal text-[#4A515C]">{p.condicion}</div>{!p.activo && <span className="chip bg-slate-100 text-slate-600">oculto</span>}</td>
                       <td className="text-right whitespace-nowrap font-semibold">{ars(p.precio) || "—"}</td>
                       <td className="text-right whitespace-nowrap">{p.abono != null ? ars(p.abono) : "—"}</td>
-                      <td className="whitespace-nowrap text-xs">{p.mercado_desde != null ? `${ars(p.mercado_desde)} a ${ars(p.mercado_hasta)}` : "—"}{p.fuente && <div className="text-[#4A515C]">{p.fuente}</div>}</td>
-                      <td><span className={`chip ${pos.c}`}>{pos.t}</span></td>
+                      <td className="text-xs min-w-[150px]"><span className="whitespace-nowrap">{p.mercado_desde != null ? `${ars(p.mercado_desde)} a ${ars(p.mercado_hasta)}` : "—"}</span>{p.fuente && <div className="text-[#4A515C]">{p.fuente}</div>}</td>
+                      <td><span className={`chip whitespace-nowrap ${pos.c}`}>{pos.t}</span></td>
                       <td className="text-sm min-w-[260px]">{p.argumento}</td>
                       {editar && <td>
                         <details>

@@ -8,7 +8,7 @@ export const NOMBRE_BOT = process.env.DB_NOMBRE_BOT ?? "Bit"
 /** Quién del equipo toma cada tipo de caso cuando el bot deriva. */
 export const EQUIPO: { area: string; nombre: string; rol: string; cuando: string }[] = [
   { area: "comercial", nombre: "Julio Miranda", rol: "CEO y gerente de proyectos IT", cuando: "propuestas, precios especiales, contratos, sistemas a medida, reuniones con decisores" },
-  { area: "coordinacion", nombre: "Bárbara Zoltan", rol: "coordinación de proyectos", cuando: "clientes que ya contrataron, envío de información del proyecto, fechas de entrega, pagos y facturas" },
+  { area: "coordinacion", nombre: "Bárbara Zoltan", rol: "coordinadora general", cuando: "clientes que ya contrataron, proyectos en curso (información, avances y fechas de entrega), pagos y facturas, cierres de venta (contrato, seña y alta del cliente) y coordinación general del equipo" },
   { area: "diseno", nombre: "Jime", rol: "diseño y redes", cuando: "redes sociales, diseño, marca, contenidos, anuncios" },
   { area: "desarrollo", nombre: "Jonathan Olmedo", rol: "desarrollo", cuando: "problemas técnicos de clientes actuales, integraciones, soporte" },
 ]

@@ -2,6 +2,6 @@
 export const REDES = [
   { id: "instagram", nombre: "Instagram", usuario: "@devisebit", href: "https://www.instagram.com/devisebit" },
   { id: "linkedin", nombre: "LinkedIn", usuario: "DEVISEBIT", href: "https://www.linkedin.com/company/devisebit" },
-  { id: "youtube", nombre: "YouTube", usuario: "Academia DEVISEBIT", href: "https://www.youtube.com/@devisebitsrl" },
+  { id: "youtube", nombre: "YouTube", usuario: "ACADEMIA DEVISEBIT", href: "https://www.youtube.com/@devisebitsrl" },
   { id: "blog", nombre: "Blog", usuario: "Novedades", href: "https://www.devisebit.com/novedades" },
 ] as const
