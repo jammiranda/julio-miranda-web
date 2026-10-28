@@ -39,18 +39,6 @@
 // WhatsApp de DEVISEBIT: 11 7346-6490
   // Después de enviar un formulario: página de gracias del sitio
   document.querySelectorAll('input[name="_next"]').forEach(function (i) { i.value = 'https://www.devisebit.com/gracias'; });
-  // Comunidad: producto aparte para gremios (padrón + obra social, sin academia)
-  if (/^\/comunidad/.test(location.pathname)) {
-    var pl = document.querySelector('#planes .cards');
-    if (pl && !document.getElementById('gremios')) {
-      var g = document.createElement('article');
-      g.id = 'gremios'; g.className = 'card reveal in';
-      g.style.cssText = 'margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 28px;align-items:start';
-      g.innerHTML = '<div><div class="mono" style="color:var(--red-2,#FF6A63)">Producto aparte · para gremios</div><h3 style="margin-top:6px">Sistema de padrón y obra social</h3><div class="price">$1.690.000</div><div class="time">+ $299.000 por mes · hasta 5.000 afiliados</div><p style="margin:10px 0 0;color:var(--muted,#C3C8D1)">La parte de gestión de la plataforma gremial, sin academia ni cursos. Para el gremio que necesita ordenar el padrón y la obra social.</p></div>' +
-        '<div><ul><li>Padrón de afiliados con credencial digital</li><li>Aportes, cuotas y estado de cada afiliado</li><li>Obra social: beneficiarios, órdenes y autorizaciones</li><li>Prestadores y cartilla</li><li>Tablero para la conducción</li></ul><a class="btn btn-red js-wa" data-msg="Hola DEVISEBIT, me interesa el sistema de padrón y obra social para gremios" href="#">Quiero este</a></div>';
-      pl.parentNode.insertBefore(g, pl.nextSibling);
-    }
-  }
   var WA = '5491173466490';
   // Conversión Google Ads «Contacto por WhatsApp»
   var AW_CONV = 'AW-10953063902/pk_YCMaLpaodEN776eYo';

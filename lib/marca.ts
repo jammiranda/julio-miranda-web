@@ -60,18 +60,18 @@ export const ACADEMIA = {
   videos: "https://academia.devisebit.com/videos",
 }
 
-// ── Cuentas de Instagram que gestionamos (casos de éxito) ──
+// ── Cuentas de Instagram que gestionamos, hoy o en proyectos anteriores (casos de éxito) ──
 export const REDES_GESTIONADAS = [
-  { nombre: "Academia BA", rubro: "Gobierno de la Ciudad · emprendedores", ig: "academia_ba" },
-  { nombre: "UBA Posgrados", rubro: "Universidad", ig: "ubaposgrados" },
+  { nombre: "Academia BA Emprende", rubro: "Gobierno de la Ciudad de Buenos Aires", ig: "academia_ba" },
+  { nombre: "UBA Posgrados", rubro: "Universidad de Buenos Aires", ig: "ubaposgrados" },
   { nombre: "Academia USL", rubro: "Academia online y comunidad", ig: "academia_usl" },
   { nombre: "UTHGRA San Luis", rubro: "Gremio gastronómico y hotelero", ig: "uthgrasanluisoficial" },
   { nombre: "UTHGRA Delegación Merlo", rubro: "Gremio · Merlo, San Luis", ig: "uthgramerlosanluis" },
   { nombre: "IPLIDO", rubro: "Instituto para la Igualdad de Oportunidades", ig: "iplido" },
-  { nombre: "Fundación SODETEC", rubro: "Educación para el trabajo", ig: "sodetec" },
   { nombre: "Centro Médico Sagrado Corazón", rubro: "Salud · Merlo, San Luis", ig: "centroscorazon" },
   { nombre: "San Patricio Servicios de Salud", rubro: "Salud", ig: "sanpatriciosalud" },
-  { nombre: "RGV Consultora", rubro: "Consultoría", ig: "rgv.consultora" },
-  { nombre: "Trasandino Comex", rubro: "Comercio exterior", ig: "trasandinocomex" },
+  { nombre: "Fundación SODETEC", rubro: "Educación para el trabajo", ig: "sodetec" },
+  { nombre: "RGV Consultora", rubro: "Asesoramiento contable e impositivo", ig: "rgv.consultora" },
+  { nombre: "Trasandino Comex", rubro: "Comercio exterior · Catamarca", ig: "trasandinocomex" },
   { nombre: "DEVISEBIT SRL", rubro: "Nuestra marca", ig: "devisebit" },
 ] as const
