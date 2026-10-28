@@ -5,7 +5,8 @@ import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { ETAPAS, CLASES } from "@/lib/crm"
-import { aHtml, plantilla, enviarBrevo, contarSegmento, encolar, procesarCola, brevoConfigurado, enviadosHoy, LIMITE_DIARIO, type Segmento } from "@/lib/email"
+import { ESTILOS, estilo as estiloDe, emailConEstilo } from "@/lib/email-estilos"
+import { enviarBrevo, contarSegmento, encolar, procesarCola, brevoConfigurado, enviadosHoy, LIMITE_DIARIO, type Segmento } from "@/lib/email"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
@@ -21,20 +22,20 @@ async function guardar(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const id = s(fd.get("id"))
   const asunto = s(fd.get("asunto")) ?? "Sin asunto"
-  const v = [asunto, s(fd.get("preheader")), String(fd.get("contenido") ?? ""), JSON.stringify(segDe(fd))]
+  const v = [asunto, s(fd.get("preheader")), String(fd.get("contenido") ?? ""), JSON.stringify(segDe(fd)), estiloDe(s(fd.get("estilo"))).id, s(fd.get("portada"))]
   let cid: number
-  if (id) { await q("update em_campanias set asunto=$1, preheader=$2, contenido=$3, segmento=$4 where id=$5 and estado='borrador'", [...v, Number(id)]); cid = Number(id) }
-  else cid = (await one<{ id: number }>("insert into em_campanias(asunto,preheader,contenido,segmento,creado_por) values ($1,$2,$3,$4,$5) returning id", [...v, u.nombre]))!.id
+  if (id) { await q("update em_campanias set asunto=$1, preheader=$2, contenido=$3, segmento=$4, estilo=$5, portada=$6 where id=$7 and estado='borrador'", [...v, Number(id)]); cid = Number(id) }
+  else cid = (await one<{ id: number }>("insert into em_campanias(asunto,preheader,contenido,segmento,estilo,portada,creado_por) values ($1,$2,$3,$4,$5,$6,$7) returning id", [...v, u.nombre]))!.id
   const a = String(fd.get("accion") ?? "guardar")
   if (a === "prueba") {
     const to = s(fd.get("prueba"))
     if (!to) redirect(`/email/${cid}?err=${encodeURIComponent("Poné un email para la prueba")}`)
-    const r = await enviarBrevo({ email: to! }, `[Prueba] ${asunto.replace(/\{\{nombre\}\}/g, u.nombre.split(" ")[0])}`, plantilla(aHtml(String(fd.get("contenido") ?? "")), { preheader: s(fd.get("preheader")), nombre: u.nombre, baja: "https://sistema.devisebit.com/baja/prueba" }))
+    const r = await enviarBrevo({ email: to! }, `[Prueba] ${asunto.replace(/\{\{nombre\}\}/g, u.nombre.split(" ")[0])}`, emailConEstilo(String(fd.get("contenido") ?? ""), { estilo: s(fd.get("estilo")), portada: s(fd.get("portada")), preheader: s(fd.get("preheader")), nombre: u.nombre, baja: "https://sistema.devisebit.com/baja/prueba" }))
     redirect(`/email/${cid}?${r.ok ? "ok=" + encodeURIComponent("Prueba enviada a " + to) : "err=" + encodeURIComponent(r.error ?? "error")}`)
   }
   if (a === "ia") {
     const tema = s(fd.get("tema")) ?? "novedades de la semana"
-    const txt = await redactar(tema, fd.get("novedades") === "on")
+    const txt = await redactar(tema, fd.get("novedades") === "on", estiloDe(s(fd.get("estilo"))).nombre + " (" + estiloDe(s(fd.get("estilo"))).para + ")")
     if (txt) await q("update em_campanias set asunto=$1, preheader=$2, contenido=$3 where id=$4", [txt.asunto, txt.preheader, txt.contenido, cid])
     redirect(`/email/${cid}?${txt ? "ok=" + encodeURIComponent("Borrador escrito por la IA: revisalo") : "err=" + encodeURIComponent("La IA no pudo escribirlo ahora")}`)
   }
@@ -60,13 +61,13 @@ async function estado(fd: FormData) {
   if (a === "pausar") await q("update em_campanias set estado='pausada' where id=$1 and estado='enviando'", [id])
   if (a === "reanudar") { await q("update em_campanias set estado='enviando' where id=$1 and estado='pausada'", [id]); waitUntil(procesarCola()) }
   if (a === "duplicar") {
-    const n = await one<{ id: number }>("insert into em_campanias(asunto,preheader,contenido,segmento,creado_por) select 'Copia de '||asunto, preheader, contenido, segmento, $2 from em_campanias where id=$1 returning id", [id, u.nombre])
+    const n = await one<{ id: number }>("insert into em_campanias(asunto,preheader,contenido,segmento,estilo,portada,creado_por) select 'Copia de '||asunto, preheader, contenido, segmento, estilo, portada, $2 from em_campanias where id=$1 returning id", [id, u.nombre])
     redirect(`/email/${n!.id}`)
   }
   redirect(`/email/${id}`)
 }
 
-async function redactar(tema: string, conNovedades: boolean) {
+async function redactar(tema: string, conNovedades: boolean, tipo = "Newsletter") {
   if (!process.env.ANTHROPIC_API_KEY) return null
   let novedades = ""
   if (conNovedades) {
@@ -77,7 +78,7 @@ async function redactar(tema: string, conNovedades: boolean) {
     headers: { "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
       model: process.env.CLAUDE_MODEL ?? "claude-sonnet-5-5", max_tokens: 2000,
-      messages: [{ role: "user", content: `Escribí un newsletter de DEVISEBIT SRL (software e inteligencia artificial para salud, gobierno, universidades, gremios y empresas, desde 2009) en español rioplatense, cercano, útil y concreto, de 250 a 400 palabras. Tema: ${tema}.
+      messages: [{ role: "user", content: `Escribí un email de tipo "${tipo}" de DEVISEBIT SRL (software e inteligencia artificial para salud, gobierno, universidades, gremios y empresas, desde 2009) en español rioplatense, cercano, útil y concreto, de 250 a 400 palabras. Tema: ${tema}.
 ${novedades ? `Usá las novedades publicadas en devisebit.com/novedades (texto de la página): ${novedades}\nIncluí 2 o 3 notas con su link (https://www.devisebit.com/novedades/...) si los encontrás.` : ""}
 Reglas: sin precios, sin nombres de clientes que no sean casos públicos, nada inventado. Terminá con una invitación a responder el correo o escribir por WhatsApp (https://wa.me/5491173466490).
 Formato del contenido (texto simple): "# Título", "## Subtítulo", párrafos, "- " para listas, **negrita**, [texto](url), y un botón con [[Texto del botón|https://...]]. Podés usar {{nombre}} para saludar.
@@ -93,7 +94,8 @@ Respondé SOLO un JSON: {"asunto":"...(máx 60 caracteres)","preheader":"...(má
 export default async function Campania({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string } }) {
   const u = await requerir(["gerente", "coordinacion"])
   const nueva = params.id === "nueva"
-  const k: any = nueva ? { asunto: "", preheader: "", contenido: "# Hola {{nombre}} 👋\n\nEscribí acá tu novedad.\n\n[[Hablemos por WhatsApp|https://wa.me/5491173466490]]", segmento: {}, estado: "borrador" } : await one<any>("select * from em_campanias where id=$1", [Number(params.id)])
+  if (nueva) redirect("/email/plantillas")
+  const k: any = await one<any>("select * from em_campanias where id=$1", [Number(params.id)])
   if (!k) notFound()
   const seg: Segmento = k.segmento ?? {}
   const editable = k.estado === "borrador"
@@ -106,7 +108,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
   ])
   const total = await contarSegmento(seg)
   const stats = nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas from em_envios where campania_id=$1`, [k.id])
-  const vista = plantilla(aHtml(k.contenido), { preheader: k.preheader, nombre: u.nombre, baja: "#" })
+  const vista = emailConEstilo(k.contenido, { estilo: k.estilo, portada: k.portada, preheader: k.preheader, nombre: u.nombre, baja: "#" })
   const hoy = await enviadosHoy()
   const Chk = ({ name, v, label, on }: { name: string; v: string; label?: string; on: boolean }) => (
     <label className="cursor-pointer"><input type="checkbox" name={name} value={v} defaultChecked={on} disabled={!editable} className="peer sr-only" />
@@ -115,7 +117,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><Link href="/email" className="text-sm text-[#4A515C]">← Email marketing</Link><h1 className="m-0">{nueva ? "Nueva campaña" : k.asunto}</h1></div>
+        <div><Link href="/email" className="text-sm text-[#4A515C]">← Envíos</Link> · <Link href="/email/plantillas" className="text-sm text-[#4A515C]">Plantillas</Link><h1 className="m-0">{nueva ? "Nueva campaña" : k.asunto}</h1></div>
         {!nueva && <form action={estado} className="flex gap-2"><input type="hidden" name="id" value={k.id} />
           {k.estado === "enviando" && <button name="a" value="pausar" className="btn-s">Pausar</button>}
           {k.estado === "pausada" && <button name="a" value="reanudar" className="btn-s">Reanudar</button>}
@@ -140,6 +142,10 @@ export default async function Campania({ params, searchParams }: { params: { id:
             </section>
           )}
           <section className="card flex flex-col gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="lbl">Estilo<select name="estilo" defaultValue={k.estilo ?? "clasico"} disabled={!editable} className="inp">{ESTILOS.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}</select></label>
+              <label className="lbl">Imagen de portada (link, opcional)<input name="portada" defaultValue={k.portada ?? ""} disabled={!editable} className="inp" placeholder="https://…/imagen.jpg" /></label>
+            </div>
             <label className="lbl">Asunto<input name="asunto" defaultValue={k.asunto} disabled={!editable} className="inp" placeholder="Podés usar {{nombre}}" /></label>
             <label className="lbl">Texto de vista previa (preheader)<input name="preheader" defaultValue={k.preheader ?? ""} disabled={!editable} className="inp" /></label>
             <label className="lbl">Contenido<textarea name="contenido" rows={16} defaultValue={k.contenido} disabled={!editable} className="inp font-mono text-sm" /></label>

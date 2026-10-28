@@ -7,6 +7,9 @@ import { fechaHora } from "@/lib/consultas"
 import { BOTS } from "@/lib/bots/conocimiento"
 import { modoBot } from "@/lib/bot"
 import { revisionSemanal, ultimoInforme } from "@/lib/revision"
+import { importarConocimiento, leerUrl } from "@/lib/importar-conocimiento"
+
+export const maxDuration = 120
 
 export const dynamic = "force-dynamic"
 
@@ -24,6 +27,34 @@ async function agregar(fd: FormData) {
     await audit(u, "bot_ensenar", "bot", e)
   }
   redirect(`/bot?e=${e}&ok=1`)
+}
+
+/** Importar: archivo (PDF, TXT, MD, CSV), texto pegado o una página web → sugerencias para aprobar. */
+async function importar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const e = empresaDe(u.rol, String(fd.get("e")))
+  const arch = fd.get("archivo") as File | null
+  const url = s(fd.get("url")), texto = s(fd.get("texto"))
+  let r: { ok: boolean; n?: number; error?: string }
+  try {
+    if (arch && arch.size > 0) {
+      if (arch.size > 4 * 1024 * 1024) redirect("/bot?imp=" + encodeURIComponent("El archivo pesa más de 4 MB."))
+      const buf = Buffer.from(await arch.arrayBuffer())
+      const pdf = /pdf$/i.test(arch.type) || /\.pdf$/i.test(arch.name)
+      if (!pdf && !/\.(txt|md|csv)$/i.test(arch.name) && !/^text\//.test(arch.type)) redirect("/bot?imp=" + encodeURIComponent("Por ahora acepta PDF, TXT, MD o CSV. Para un Word, guardalo como PDF."))
+      r = await importarConocimiento(pdf ? { nombre: arch.name, pdfBase64: buf.toString("base64"), texto } : { nombre: arch.name, texto: buf.toString("utf8") + (texto ? "\n\n" + texto : "") }, e, u.nombre)
+    } else if (url) {
+      r = await importarConocimiento({ nombre: url, texto: await leerUrl(url) }, e, u.nombre)
+    } else if (texto) {
+      r = await importarConocimiento({ nombre: "texto pegado", texto }, e, u.nombre)
+    } else r = { ok: false, error: "Subí un archivo, pegá un texto o poné un link." }
+  } catch (x: any) {
+    if (x?.digest?.startsWith?.("NEXT_REDIRECT")) throw x
+    r = { ok: false, error: String(x?.message ?? x).slice(0, 160) }
+  }
+  await audit(u, "bot_importar", "bot", e, r.ok ? `${r.n} sugerencias` : r.error)
+  redirect("/bot?imp=" + encodeURIComponent(r.ok ? `Listo: ${r.n} sugerencias para revisar abajo.` : r.error ?? "No se pudo importar."))
 }
 
 async function modo(fd: FormData) {
@@ -65,7 +96,7 @@ async function sugerencia(fd: FormData) {
   redirect("/bot")
 }
 
-export default async function Bot({ searchParams }: { searchParams: { e?: string; ok?: string; rev?: string } }) {
+export default async function Bot({ searchParams }: { searchParams: { e?: string; ok?: string; rev?: string; imp?: string } }) {
   const u = await requerir(["gerente", "coordinacion"])
   const e = empresaDe(u.rol, searchParams.e)
   const todas = await q<any>("select * from bot_conocimiento where empresa=$1 and origen <> 'revision_descartada' order by activo desc, id desc", [e])
@@ -112,6 +143,18 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
         <label className="lbl">Cuando pregunten… (opcional)<input name="pregunta" className="inp" placeholder="Ej.: ¿Atienden los fines de semana?" /></label>
         <label className="lbl">El bot tiene que saber / responder…<textarea name="respuesta" rows={3} required className="inp" placeholder="Ej.: Las visitas se programan de lunes a sábado; los domingos solo urgencias coordinadas." /></label>
         <div><button className="btn-p">Guardar</button>{searchParams.ok && <span className="ml-3 text-sm text-[#9E1A17]">Guardado. El bot ya lo usa.</span>}</div>
+      </form>
+
+      <form action={importar} className="card flex flex-col gap-3">
+        <input type="hidden" name="e" value={e} />
+        <h2 className="m-0 text-base">Importar información</h2>
+        <p className="m-0 text-sm text-[#4A515C]">Si alguien te pasa un documento, un folleto o una página con información, subilo acá. La IA lo convierte en respuestas para el bot y te las deja abajo como sugerencias: el bot no las usa hasta que las aprobás.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label className="lbl">Archivo (PDF, TXT, MD o CSV, hasta 4 MB)<input type="file" name="archivo" accept=".pdf,.txt,.md,.csv,application/pdf,text/plain,text/markdown,text/csv" className="inp" /></label>
+          <label className="lbl">O un link a una página<input name="url" type="url" placeholder="https://…" className="inp" /></label>
+        </div>
+        <label className="lbl">O pegá el texto (también sirve para aclarar el archivo)<textarea name="texto" rows={3} className="inp" placeholder="Ej.: condiciones del servicio, preguntas frecuentes de un cliente, horarios…" /></label>
+        <div><button className="btn-p">Importar y sugerir</button>{searchParams.imp && <span className="ml-3 text-sm text-[#9E1A17]">{searchParams.imp}</span>}</div>
       </form>
 
       <section className="card flex flex-col gap-3">

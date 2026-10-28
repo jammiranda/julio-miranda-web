@@ -43,8 +43,8 @@ export default async function Email() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="m-0">Email marketing</h1><p className="m-0 text-sm text-[#4A515C]">Newsletters y campañas a tus contactos, con el origen y los resultados de cada envío.</p></div>
-        <Link href="/email/nueva" className="btn-p">+ Nueva campaña</Link>
+        <div><h1 className="m-0">Envíos</h1><p className="m-0 text-sm text-[#4A515C]">Newsletters, promociones e invitaciones con plantillas de distintos estilos, escritas a mano o con IA. Ves aperturas y clics de cada envío.</p></div>
+        <Link href="/email/plantillas" className="btn-p">+ Nuevo envío</Link>
       </div>
       {!brevoConfigurado() && <p className="m-0 card border-2 border-amber-300 text-sm">⚠️ Falta conectar Brevo (variable <code>BREVO_API_KEY</code> en Vercel). Podés armar campañas y verlas, pero no se envían hasta conectarlo.</p>}
       <section className={`card flex flex-col gap-2 border-2 ${diag.ok ? "border-emerald-200" : "border-red-300"}`}>

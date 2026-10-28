@@ -1,6 +1,7 @@
 import { REDES } from "./redes"
 import { q, one } from "./db"
 import { URL_SISTEMA } from "./brief"
+import { emailConEstilo } from "./email-estilos"
 
 /** Email marketing: plantilla con la marca, segmentos, cola diaria y envío por Brevo. */
 export const LIMITE_DIARIO = Number(process.env.EMAIL_LIMITE_DIARIO ?? 300)
@@ -117,7 +118,7 @@ export async function procesarCola(max = LIMITE_DIARIO) {
   const cupo = Math.max(0, Math.min(max, LIMITE_DIARIO - (await enviadosHoy())))
   if (!cupo) return { enviados: 0, motivo: "Límite diario alcanzado" }
   const lote = await q<any>(
-    `select e.id, e.email, e.campania_id, ct.nombre, ct.email_token, k.asunto, k.preheader, k.contenido
+    `select e.id, e.email, e.campania_id, ct.nombre, ct.email_token, k.asunto, k.preheader, k.contenido, k.estilo, k.portada
      from em_envios e join em_campanias k on k.id=e.campania_id left join db_contactos ct on ct.id=e.contacto_id
      where e.estado='pendiente' and k.estado='enviando' order by e.campania_id, e.id limit $1`, [cupo])
   let enviados = 0
@@ -125,7 +126,7 @@ export async function procesarCola(max = LIMITE_DIARIO) {
     const vigente = await one<{ email_estado: string }>("select email_estado from db_contactos where lower(email)=lower($1)", [x.email])
     if (vigente && vigente.email_estado !== "activo") { await q("update em_envios set estado='omitido' where id=$1", [x.id]); continue }
     const baja = x.email_token ? `${URL_SISTEMA}/baja/${x.email_token}` : null
-    const html = conSeguimiento(plantilla(aHtml(x.contenido), { preheader: x.preheader, baja, nombre: x.nombre }), x.id)
+    const html = conSeguimiento(emailConEstilo(x.contenido, { estilo: x.estilo, portada: x.portada, preheader: x.preheader, baja, nombre: x.nombre }), x.id)
     const r = await enviarBrevo({ email: x.email, name: x.nombre }, x.asunto.replace(/\{\{nombre\}\}/g, x.nombre ? x.nombre.split(" ")[0] : "").trim(), html, baja)
     await q("update em_envios set estado=$1, error=$2, proveedor_id=$3, enviado_en=case when $1='enviado' then now() else enviado_en end where id=$4", [r.ok ? "enviado" : "error", r.ok ? null : r.error, r.ok ? r.id ?? null : null, x.id])
     if (r.ok) enviados++
