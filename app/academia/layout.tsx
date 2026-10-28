@@ -26,9 +26,8 @@ const MENU = [
   { href: "/videos", label: "Videos" },
   { href: "/equipo", label: "Equipo" },
   { href: "/productos/kit-ia-pymes", label: "Kit IA" },
-  { href: "https://www.devisebit.com/demos/transformacion-digital.html", label: "Diagnóstico gratis" },
-  { href: urlPortal("/cursos"), label: "Mi cuenta" },
 ]
+const MI_CUENTA = urlPortal("/cursos")
 
 const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20vengo%20de%20la%20Academia"
 
@@ -46,10 +45,10 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
             {MENU.map((i) => (
               <Link key={i.href} href={i.href} className="px-2.5 xl:px-3 py-3 rounded-lg text-white/85 hover:text-white hover:bg-white/10 no-underline">{i.label}</Link>
             ))}
-            <a href="/#suscribirme" className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[44px]">Suscribirme</a>
+            <a href={MI_CUENTA} className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[44px] no-underline">Mi cuenta</a>
           </nav>
           <div className="lg:hidden flex items-center gap-1">
-            <a href="/#suscribirme" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[40px] px-3">Suscribirme</a>
+            <a href={MI_CUENTA} className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[40px] px-3 no-underline">Mi cuenta</a>
             <MenuMovil items={MENU} />
           </div>
         </div>

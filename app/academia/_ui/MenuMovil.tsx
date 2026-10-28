@@ -53,7 +53,11 @@ export default function MenuMovil({ items }: { items: Item[] }) {
               {i.label}<span aria-hidden="true" className="text-white/40">›</span>
             </Link>
           ))}
-          <a href="/#suscribirme" onClick={() => setAbierto(false)} className="btn-p mt-6 min-h-[52px] text-base">Suscribirme gratis</a>
+          <a href="https://www.devisebit.com/demos/transformacion-digital.html" className="mt-6 rounded-2xl bg-white/5 border border-white/10 p-4 no-underline text-white">
+            <span className="block text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Gratis · 5 minutos</span>
+            <span className="block mt-1 text-base font-semibold">Autodiagnóstico de transformación digital →</span>
+          </a>
+          <a href="/#suscribirme" onClick={() => setAbierto(false)} className="mt-4 min-h-[48px] inline-flex items-center justify-center rounded-xl border border-white/25 text-white font-semibold no-underline">Suscribirme a las guías</a>
         </nav>
       </div>
     </>

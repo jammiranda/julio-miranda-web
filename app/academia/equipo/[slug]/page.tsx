@@ -21,8 +21,8 @@ export default function PerfilEquipo({ params }: { params: { slug: string } }) {
     <main>
       <header className="ficha-head bg-[#0E1116] text-white"><div className="max-w-5xl mx-auto px-4 pt-6 pb-10 sm:pt-8 sm:pb-12">
         <Link href="/equipo" className="inline-flex items-center min-h-[44px] text-sm text-white/70 hover:text-white no-underline">← Equipo académico</Link>
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-[180px_1fr] md:grid-cols-[220px_1fr] gap-6 items-center">
-          <Foto p={p} className="w-[150px] h-[150px] sm:w-[180px] sm:h-[180px] md:w-[220px] md:h-[220px] rounded-2xl border border-white/15" />
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-[136px_1fr] md:grid-cols-[152px_1fr] gap-6 items-center">
+          <Foto p={p} className="w-[112px] h-[112px] sm:w-[136px] sm:h-[136px] md:w-[152px] md:h-[152px] rounded-full border border-white/15" />
           <div className="flex flex-col gap-2">
             <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{p.rol}</span>
             <h1 className="m-0 text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight">{p.nombre}</h1>
