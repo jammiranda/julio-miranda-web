@@ -254,6 +254,12 @@ create table if not exists demo_accesos (
   creado timestamptz not null default now()
 );
 create index if not exists demo_accesos_email on demo_accesos(lower(email));
+create table if not exists material_links (k text primary key, url text not null, actualizado timestamptz not null default now(), por text);
+create table if not exists ads_diario (
+  plataforma text not null, fecha date not null, campania text not null, campania_id text not null default '', gasto numeric not null default 0, moneda text not null default 'ARS',
+  impresiones int not null default 0, clics int not null default 0, conversiones numeric not null default 0, actualizado timestamptz not null default now(),
+  primary key (plataforma, fecha, campania_id, campania)
+);
 create table if not exists demo_diagnosticos (
   id serial primary key, email text not null, nombre text, organizacion text, telefono text, puntaje int, nivel text,
   dimensiones jsonb, prioridades jsonb, respuestas jsonb, marca text, origen text, contacto_id int references db_contactos(id) on delete set null,

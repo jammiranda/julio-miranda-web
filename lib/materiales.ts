@@ -1,5 +1,6 @@
 import { PAGO } from "./precios"
 import { URL_SISTEMA } from "./brief"
+import { MV } from "./material"
 
 /** Material comercial que el bot y el equipo pueden mandar por WhatsApp con un clic. */
 export type Material = { k: string; n: string; link: string; texto: (nombre?: string | null) => string }
@@ -18,6 +19,11 @@ export const MATERIALES: Material[] = [
   { k: "inicio", n: "Formulario para mandar la info del proyecto", link: "https://www.devisebit.com/webs#inicio", texto: (n) => `${hola(n)}para arrancar, cargá la información de tu negocio acá (lo que no tengas, te lo brindamos): https://www.devisebit.com/webs#inicio\nSi preferís, mandámela por este chat: logo, fotos, textos y colores.` },
   { k: "youtube", n: "Canal de YouTube", link: "https://www.youtube.com/@devisebitsrl", texto: (n) => `${hola(n)}en nuestro canal de YouTube tenés guías, casos reales y demos: https://www.youtube.com/@devisebitsrl` },
   { k: "pago", n: "Datos de pago (CBU y alias)", link: "", texto: (n) => `${hola(n)}te paso los datos para la seña 👇\n*Titular:* ${PAGO.titular}\n*CUIT:* ${PAGO.cuit}\n*Banco:* ${PAGO.banco} · ${PAGO.cuenta}\n*CBU:* ${PAGO.cbu}\n*Alias:* ${PAGO.alias}\nPagando por transferencia tenés 10% de descuento. Cuando transfieras, mandame el comprobante por acá y te enviamos la factura.` },
+  ...([["webs", "Páginas web con IA"], ["whatsapp", "Asistente de WhatsApp con IA"], ["sistemas", "Sistemas a medida"], ["padron", "Sistema de padrón"], ["obras-sociales", "Sistema para obras sociales"], ["academia", "Plataforma de cursos"], ["panel-contenido", "Panel de Contenido"], ["transformacion-digital", "Transformación Digital"]] as const).map(([s, n]) => ({
+    k: `folleto-${s}`, n: `Folleto · ${n} (PDF)`, link: `${MV}/folletos/devisebit-${s}.pdf`,
+    texto: (nom?: string | null) => `${hola(nom)}te paso el folleto de ${n} para que lo veas con calma: ${MV}/folletos/devisebit-${s}.pdf`,
+  })),
+  { k: "panel-pdf", n: "Panel de Contenido · presentación (PDF)", link: `${MV}/panel-de-contenido-devisebit.pdf`, texto: (n) => `${hola(n)}te paso la presentación del Panel de Contenido, con pantallas reales: ${MV}/panel-de-contenido-devisebit.pdf` },
 ]
 
 export const material = (k: string) => MATERIALES.find((m) => m.k === k)

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { timingSafeEqual } from "crypto"
 import { q, one } from "@/lib/db"
 import { YT_CANAL_ID, YT_URL, VIDEOS_BASE } from "@/lib/youtube"
+import { resumenAds } from "@/lib/ads"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -153,6 +154,7 @@ export async function GET(req: NextRequest) {
     safe(one<{ c: number }>(`select count(*)::int c from usuarios where coalesce(activo,true)`)),
     safe(youtube()),
   ])
+  const anuncios = await safe(resumenAds())
   const salud = await safe(one<{ h: number | null }>("select extract(epoch from now() - max(creado))/3600 h from wa_mensajes where autor='bot'"))
   const map = <T extends Record<string, any>>(rows: T[] | null, k: keyof T, v: keyof T) => Object.fromEntries((rows ?? []).map((r) => [r[k], n(r[v])]))
 
@@ -177,6 +179,7 @@ export async function GET(req: NextRequest) {
         equipo: usEquipo?.c ?? null,
       },
       youtube: yt,
+      anuncios,
       academia: {
         suscriptores: subs ?? null,
         tags: tags ?? [],

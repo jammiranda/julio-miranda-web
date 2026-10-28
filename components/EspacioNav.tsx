@@ -76,7 +76,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           { href: "/consultas", t: "Conversaciones", i: "chat" },
           { href: "/contactos", t: "Contactos", i: "personas" },
           { href: "/proyectos", t: "Proyectos", i: "maletin" },
-          ...(edita ? [{ href: "/demos-admin", t: "Demos", i: "demo" }] : []),
+          ...(edita ? [{ href: "/demos-admin", t: "Demos", i: "demo" }, { href: "/material", t: "Material de venta", i: "guia" }] : []),
         ] },
         { t: "Oferta", items: [
           { href: "/servicios", t: "Servicios", i: "paquete" },
@@ -106,7 +106,7 @@ function actual(espacio: Espacio, rol: string, ruta: string) {
 function MarcaSistema({ espacio, compacta = false }: { espacio: Espacio; compacta?: boolean }) {
   const aca = espacio === "academia"
   return (
-    <Link href={INICIO[espacio]} className="sb-marca flex items-center gap-2.5 rounded-xl min-w-0" aria-label={aca ? "Academia DEVISEBIT · Sistema, ir al inicio" : "DEVISEBIT · Sistema comercial, ir al inicio"}>
+    <Link href={INICIO[espacio]} className="sb-marca flex items-center gap-2.5 rounded-xl min-w-0" aria-label={aca ? "ACADEMIA DEVISEBIT · Sistema, ir al inicio" : "DEVISEBIT · Sistema comercial, ir al inicio"}>
       <MarcaIcono academia={aca} tam={36} fondo={aca ? "#0F766E" : "#1B2029"} />
       {!compacta && (
         <span className="leading-tight min-w-0">
