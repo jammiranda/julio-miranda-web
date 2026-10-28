@@ -7,7 +7,7 @@ export function MarcaIcono({ academia = false, tam = 36, fondo = "#0E1116", clas
   )
 }
 
-export default function Marca({ chico = false, sub = "SISTEMA COMERCIAL" }: { chico?: boolean; sub?: string }) {
+export default function Marca({ chico = false, sub = "SISTEMA DE GESTIÓN" }: { chico?: boolean; sub?: string }) {
   const aca = /ACADEMIA/i.test(sub)
   return (
     <div className="flex items-center gap-2.5">

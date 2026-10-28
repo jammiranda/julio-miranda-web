@@ -34,19 +34,19 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
             {aca
               ? <div className="font-titulo text-xl font-semibold text-white">ACADEMIA <span className="font-sans text-base font-extrabold tracking-[0.06em] text-[#5EEAD4]">DEVISEBIT</span></div>
               : <div className="text-xl font-extrabold tracking-[0.05em] text-white">DEVISE<span className="text-[#FF6A63]">BIT</span></div>}
-            <div className="text-[10px] font-semibold tracking-[0.25em] text-white/70">{aca ? "SISTEMA" : "SISTEMA COMERCIAL"}</div>
+            <div className="text-[10px] font-semibold tracking-[0.25em] text-white/70">{aca ? "SISTEMA" : "SISTEMA DE GESTIÓN"}</div>
           </div>
         </div>
         <div className="relative hidden lg:block">
-          <h1 className={`m-0 text-white ${aca ? "font-titulo font-semibold text-[2.6rem] leading-[1.1]" : "text-[2.4rem] font-extrabold leading-[1.1] tracking-tight"}`}>{aca ? "Sistema Academia" : "Sistema comercial"}</h1>
-          <p className="mt-3 mb-0 max-w-sm text-[15px] text-white/75">{aca ? "Alumnos, cursos, guías y envíos de la ACADEMIA DEVISEBIT." : "CRM, conversaciones del bot y proyectos de DEVISEBIT."}</p>
+          <h1 className={`m-0 text-white ${aca ? "font-titulo font-semibold text-[2.6rem] leading-[1.1]" : "text-[2.4rem] font-extrabold leading-[1.1] tracking-tight"}`}>{aca ? "Sistema Academia" : "Sistema de gestión"}</h1>
+          <p className="mt-3 mb-0 max-w-sm text-[15px] text-white/75">{aca ? "Alumnos, cursos, guías y envíos de la ACADEMIA DEVISEBIT." : "El ERP de DEVISEBIT: dirección, ventas, finanzas, legales, documentos, licitaciones y proyectos."}</p>
         </div>
         <div className="relative hidden lg:block text-xs text-white/60">DEVISEBIT SRL · Datos personales protegidos (Ley 25.326)</div>
       </aside>
       <main className="flex items-start lg:items-center justify-center px-4 py-8 sm:py-12">
         <form action={ingresar} className="card w-full max-w-[400px] flex flex-col gap-4 p-6 sm:p-8">
           <div>
-            <h1 className="m-0 lg:hidden">{aca ? "Sistema Academia" : "Sistema comercial"}</h1>
+            <h1 className="m-0 lg:hidden">{aca ? "Sistema Academia" : "Sistema de gestión"}</h1>
             <h2 className="m-0 hidden lg:block text-2xl font-titulo-sis">Ingresar</h2>
             <p className="text-sm text-[var(--gris)] mt-1 mb-0">Ingresá con tu usuario. El acceso queda registrado.</p>
           </div>

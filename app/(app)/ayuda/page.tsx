@@ -9,7 +9,7 @@ const SECCIONES: Sec[] = [
   {
     id: "inicio", t: "Primeros pasos", para: ["todos"], en: ["comercial", "academia"], link: "/cuenta", ir: "Mi perfil",
     pasos: [
-      "Hay *dos sistemas separados*, cada uno con su dirección y su sesión: el *Sistema comercial* en sistema.devisebit.com (ventas, clientes, proyectos y bot) y el *Sistema Academia* en academia.devisebit.com/sistema (cursos, alumnos, guías y productos de ACADEMIA DEVISEBIT).",
+      "Hay *dos sistemas separados*, cada uno con su dirección y su sesión: el *Sistema de gestión* en sistema.devisebit.com (el ERP de DEVISEBIT: dirección, ventas, finanzas, legales, documentos, licitaciones, proyectos y bot) y el *Sistema Academia* en academia.devisebit.com/sistema (cursos, alumnos, guías y productos de ACADEMIA DEVISEBIT).",
       "Entrás con el mismo usuario y clave en los dos, si tenés acceso. Para pasar de uno al otro usá el cambio de sistema del menú lateral. Si es la primera vez, usá el enlace de activación que te mandó Dirección y elegí tu clave.",
       "En *Mi perfil* subí tu foto, cargá tu email (sirve para recuperar la clave) y activá los *avisos al celular*.",
       "Desde el celular: abrí el sistema en el navegador y elegí *Agregar a pantalla de inicio*. Queda como una app, con accesos rápidos abajo.",
@@ -23,6 +23,51 @@ const SECCIONES: Sec[] = [
       "*Coordinadora general (Bárbara Zoltan)*: toma a los clientes que ya contrataron, los proyectos en curso, los pagos y las facturas, los cierres de venta (contrato, seña y alta del cliente) y la coordinación general del equipo. Es a quien Bit le deriva esos casos.",
       "*Dirección (Julio Miranda)*: propuestas, precios especiales, sistemas a medida, licitaciones y reuniones con decisores.",
       "Roles del sistema: *Dirección* ve y edita todo; *Comercial* atiende conversaciones, contactos, proyectos, demos, material de venta, envíos y el bot; *Desarrollo* y *Solo lectura* consultan.",
+    ],
+  },
+  {
+    id: "direccion", t: "Tablero de dirección y módulos", para: ["todos"], en: ["comercial"], link: "/gestion", ir: "Tablero de dirección",
+    pasos: [
+      "El *Tablero de dirección* muestra toda la empresa en una pantalla: resultado del mes, cobros vencidos, oportunidades, proyectos, legales, licitaciones y módulos trabados.",
+      "*Lo que viene* junta en un solo orden todo lo que tiene fecha en los próximos 30 días: cobros, pagos, vencimientos, contratos, aperturas de licitaciones, entregas y próximos pasos.",
+      "*Módulos*: DEVISEBIT se maneja en 10 módulos (dirección, ventas, licitaciones, marketing, diseño y web, desarrollo, demos, bots, administración y ACADEMIA). Cada lunes Coordinación marca el estado de cada uno (Sin empezar, En curso, Trabado, Listo), el próximo paso con fecha y si hay algo trabado.",
+      "Lo trabado aparece en rojo en el tablero para que Dirección lo destrabe en la reunión de la semana.",
+    ],
+    tips: ["Rutina: lunes módulos y correos · martes redes y blog · miércoles pipeline y licitaciones · jueves desarrollos y demos · viernes resumen ejecutivo · fin de mes cierre en Finanzas."],
+  },
+  {
+    id: "finanzas", t: "Finanzas", para: ["gerente", "coordinacion"], en: ["comercial"], link: "/finanzas",
+    pasos: [
+      "Los *cobros a clientes* se siguen cargando en cada proyecto (anticipo, cuotas, abonos) y Finanzas los suma solos.",
+      "En *Movimientos* se cargan los egresos (sueldos y honorarios, software, hosting, publicidad, impuestos, cowork, contador) y otros ingresos que no vienen de un proyecto.",
+      "Un gasto que todavía no se pagó va como *Pendiente* con fecha de vencimiento: aparece en *A pagar* y en el Tablero de dirección. El botón *✓ Pagado* lo marca pagado con fecha de hoy.",
+      "El *Resumen* muestra ingresos, egresos y resultado del mes, los últimos 6 meses y en qué categoría se fue la plata. Los dólares se muestran aparte, sin convertir.",
+      "*Proveedores* guarda CUIT, condición de IVA y contacto, y se asocia a cada gasto. Pegá el link de la factura en *Comprobante*.",
+    ],
+  },
+  {
+    id: "legales", t: "Legales", para: ["gerente", "coordinacion"], en: ["comercial"], link: "/legales",
+    pasos: [
+      "*Contratos*: cada contrato con clientes, proveedores, equipo o NDA, con su estado (borrador, en revisión, firmado, vencido, rescindido), fecha de vencimiento y link al PDF.",
+      "Los contratos firmados que vencen en 60 días aparecen en el Tablero de dirección.",
+      "*Vencimientos*: impuestos (ARCA, Ingresos Brutos), dominios, hosting, seguros y registros de proveedores. Si se repite todos los meses o todos los años, al marcarlo *Hecho* el sistema crea solo el próximo.",
+    ],
+    tips: ["El sistema ordena y avisa; lo que tenga plata o responsabilidad en juego lo revisa el abogado o el contador antes de firmar."],
+  },
+  {
+    id: "documentos", t: "Documentos", para: ["todos"], en: ["comercial"], link: "/documentos",
+    pasos: [
+      "Repositorio único de DEVISEBIT por categoría: institucional, comercial y propuestas, legal, contable, técnico, equipo y procesos, plantillas y licitaciones.",
+      "Subí el archivo a Drive y pegá el link: así todos encuentran la última versión. Indicá la versión y el responsable.",
+      "Marcá *Confidencial* lo que solo deben ver Dirección y Coordinación (contratos, papeles contables, sueldos).",
+    ],
+  },
+  {
+    id: "licitaciones", t: "Licitaciones", para: ["todos"], en: ["comercial"], link: "/licitaciones",
+    pasos: [
+      "Cargá cada licitación que valga la pena con organismo, jurisdicción, objeto, presupuesto oficial, fecha de consultas y de apertura, y el link al pliego.",
+      "Movela por las etapas: Detectada → Analizando pliego → Preparando oferta → Presentada → Adjudicada o No adjudicada.",
+      "Las que abren en los próximos 30 días aparecen en el Tablero de dirección. En *Requisitos y notas* anotá garantía de oferta, inscripción y documentación pedida.",
     ],
   },
   {
@@ -111,7 +156,7 @@ const SECCIONES: Sec[] = [
     id: "usuarios", t: "Usuarios y seguridad", para: ["gerente"], en: ["comercial", "academia"], link: "/usuarios",
     pasos: [
       "Para sumar a alguien: *Usuarios* → agregar, elegí su rol y a qué sistema entra (Comercial, Academia o los dos) y *Generar enlace de activación*; se lo mandás por WhatsApp.",
-      "*Auditoría* (en el Sistema comercial) muestra quién cambió qué y cuándo.",
+      "*Auditoría* (en el Sistema de gestión) muestra quién cambió qué y cuándo.",
     ],
   },
 ]
@@ -125,7 +170,7 @@ export default async function Ayuda() {
     <div className="flex flex-col gap-5 max-w-4xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="m-0">Manual del {espacio === "academia" ? "Sistema Academia" : "Sistema comercial"}</h1>
+          <h1 className="m-0">Manual del {espacio === "academia" ? "Sistema Academia" : "Sistema de gestión"}</h1>
           <p className="m-0 text-sm text-[#4A515C]">Guía paso a paso para tu rol: <strong>{ROL_NOMBRE[u.rol]}</strong>. Ante cualquier duda, consultá a la coordinadora general o a Dirección.</p>
         </div>
         <Imprimir texto="Descargar en PDF" />

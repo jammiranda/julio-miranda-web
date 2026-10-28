@@ -13,7 +13,7 @@ import { MarcaIcono } from "@/components/Marca"
  */
 export type Espacio = "comercial" | "academia"
 const URL_ESPACIO: Record<Espacio, string> = { comercial: "https://sistema.devisebit.com", academia: "https://academia.devisebit.com/sistema" }
-const NOMBRE: Record<Espacio, string> = { comercial: "Sistema comercial", academia: "Sistema Academia" }
+const NOMBRE: Record<Espacio, string> = { comercial: "Sistema de gestión", academia: "Sistema Academia" }
 const INICIO: Record<Espacio, string> = { comercial: "/", academia: "/sistema" }
 
 type Props = { espacio: Espacio; espacios: Espacio[]; rol: string }
@@ -40,6 +40,12 @@ const P: Record<string, JSX.Element> = {
   libro: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>,
   guia: <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M16 13H8M16 17H8M10 9H8" /></>,
   bolsa: <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></>,
+  brujula: <><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z" /></>,
+  grilla: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>,
+  dinero: <><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2.5" /><path d="M6 12h.01M18 12h.01" /></>,
+  balanza: <><path d="M12 3v18M7 21h10M5 7h14" /><path d="m5 7-3 6a3 3 0 0 0 6 0z" /><path d="m19 7-3 6a3 3 0 0 0 6 0z" /></>,
+  carpeta: <><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></>,
+  martillo: <><path d="m15 12-8.37 8.37a2.12 2.12 0 0 1-3-3L12 9" /><path d="M17.64 15 22 10.64" /><path d="m20.91 11.7-1.25-1.25a2.4 2.4 0 0 1-.7-1.7V7.86L16.27 5.2a6 6 0 0 0-4.24-1.76H9.65l.92.82A6.18 6.18 0 0 1 12.6 8.8v1.42l2 2h2.47l2.26 1.91" /></>,
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
   cerrar: <path d="M18 6 6 18M6 6l12 12" />,
   contraer: <><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18" /><path d="m16 15-3-3 3-3" /></>,
@@ -71,8 +77,12 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
         { t: null, items: [{ href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
       ]
     : [
+        { t: "Dirección", items: [
+          { href: "/gestion", t: "Tablero de dirección", i: "brujula" },
+          { href: "/modulos", t: "Módulos", i: "grilla" },
+        ] },
         { t: "Ventas", items: [
-          { href: "/", t: "Resumen", i: "tablero" },
+          { href: "/", t: "Resumen comercial", i: "tablero" },
           { href: "/consultas", t: "Conversaciones", i: "chat" },
           { href: "/contactos", t: "Contactos", i: "personas" },
           { href: "/proyectos", t: "Proyectos", i: "maletin" },
@@ -81,6 +91,11 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
         { t: "Oferta", items: [
           { href: "/servicios", t: "Servicios", i: "paquete" },
           ...(edita ? [{ href: "/precios", t: "Precios", i: "etiqueta" }, { href: "/portal-admin", t: "Portal y accesos", i: "llave" }] : []),
+        ] },
+        { t: "Gestión", items: [
+          ...(edita ? [{ href: "/finanzas", t: "Finanzas", i: "dinero" }, { href: "/legales", t: "Legales", i: "balanza" }] : []),
+          { href: "/documentos", t: "Documentos", i: "carpeta" },
+          { href: "/licitaciones", t: "Licitaciones", i: "martillo" },
         ] },
         { t: "Comunicación", items: edita ? [
           { href: "/email", t: "Envíos de email", i: "mail" },
@@ -106,7 +121,7 @@ function actual(espacio: Espacio, rol: string, ruta: string) {
 function MarcaSistema({ espacio, compacta = false }: { espacio: Espacio; compacta?: boolean }) {
   const aca = espacio === "academia"
   return (
-    <Link href={INICIO[espacio]} className="sb-marca flex items-center gap-2.5 rounded-xl min-w-0" aria-label={aca ? "ACADEMIA DEVISEBIT · Sistema, ir al inicio" : "DEVISEBIT · Sistema comercial, ir al inicio"}>
+    <Link href={INICIO[espacio]} className="sb-marca flex items-center gap-2.5 rounded-xl min-w-0" aria-label={aca ? "ACADEMIA DEVISEBIT · Sistema, ir al inicio" : "DEVISEBIT · Sistema de gestión, ir al inicio"}>
       <MarcaIcono academia={aca} tam={36} fondo={aca ? "#0F766E" : "#1B2029"} />
       {!compacta && (
         <span className="leading-tight min-w-0">
@@ -115,7 +130,7 @@ function MarcaSistema({ espacio, compacta = false }: { espacio: Espacio; compact
           ) : (
             <span className="block text-[16px] font-extrabold tracking-[0.05em] text-[var(--sb-tinta)]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
           )}
-          <span className="block text-[10px] font-semibold tracking-[0.24em] text-[var(--sb-dim)]">{aca ? "SISTEMA" : "SISTEMA COMERCIAL"}</span>
+          <span className="block text-[10px] font-semibold tracking-[0.24em] text-[var(--sb-dim)]">{aca ? "SISTEMA" : "SISTEMA DE GESTIÓN"}</span>
         </span>
       )}
     </Link>
@@ -256,7 +271,7 @@ export function EspacioShell({ espacio, espacios, rol, colapsado: colapsadoInici
             <Link href={INICIO[espacio]} className="lg:hidden flex items-center gap-2 min-w-0" aria-label={`${NOMBRE[espacio]}, ir al inicio`}>
               <MarcaIcono academia={espacio === "academia"} tam={30} fondo={espacio === "academia" ? "#0F766E" : "#0E1116"} />
               <span className="leading-tight min-w-0">
-                <span className={`block truncate text-[15px] font-bold text-[var(--tinta)] ${espacio === "academia" ? "font-titulo font-semibold" : ""}`}>{espacio === "academia" ? "Academia" : "Comercial"}</span>
+                <span className={`block truncate text-[15px] font-bold text-[var(--tinta)] ${espacio === "academia" ? "font-titulo font-semibold" : ""}`}>{espacio === "academia" ? "Academia" : "Gestión"}</span>
                 {aqui && <span className="block truncate text-[11px] text-[var(--gris)]">{aqui.item.t}</span>}
               </span>
             </Link>
@@ -280,7 +295,7 @@ export function EspacioRapidos({ espacio }: { espacio: Espacio }) {
   const ruta = usePathname() ?? "/"
   const r = espacio === "academia"
     ? [{ href: "/sistema", t: "Inicio", i: "casa" }, { href: "/sistema/alumnos", t: "Alumnos", i: "birrete" }, { href: "/sistema/cursos", t: "Cursos", i: "libro" }, { href: "/email", t: "Envíos", i: "mail" }]
-    : [{ href: "/", t: "Resumen", i: "tablero" }, { href: "/consultas", t: "Chats", i: "chat" }, { href: "/contactos", t: "Contactos", i: "personas" }, { href: "/proyectos", t: "Proyectos", i: "maletin" }]
+    : [{ href: "/gestion", t: "Dirección", i: "brujula" }, { href: "/consultas", t: "Chats", i: "chat" }, { href: "/contactos", t: "Contactos", i: "personas" }, { href: "/proyectos", t: "Proyectos", i: "maletin" }]
   return (
     <nav aria-label="Accesos rápidos" className="rapidos no-print md:hidden fixed bottom-0 inset-x-0 z-30 grid grid-cols-4 pb-[env(safe-area-inset-bottom)]">
       {r.map((i) => {

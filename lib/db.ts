@@ -409,6 +409,75 @@ create table if not exists am_eventos (
 );
 create index if not exists am_eventos_contacto on am_eventos(contacto_id, creado desc);
 insert into usuarios(usuario,nombre,rol) values ('julio','Julio Miranda','gerente') on conflict do nothing;
+create table if not exists g_proveedores (
+  id serial primary key,
+  nombre text not null, rubro text, cuit text, condicion_iva text, contacto text, email text, telefono text, notas text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists g_movimientos (
+  id serial primary key,
+  tipo text not null default 'egreso' check (tipo in ('ingreso','egreso')),
+  concepto text not null, categoria text, monto numeric not null, moneda text not null default 'ARS',
+  estado text not null default 'pagado' check (estado in ('pagado','pendiente','anulado')),
+  fecha date, vence date,
+  proveedor_id int references g_proveedores(id) on delete set null,
+  proyecto_id int references db_proyectos(id) on delete set null,
+  medio text, comprobante text, nota text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create index if not exists g_movimientos_fecha on g_movimientos(fecha desc);
+create table if not exists g_contratos (
+  id serial primary key,
+  titulo text not null, tipo text not null default 'cliente', contraparte text,
+  contacto_id int references db_contactos(id) on delete set null,
+  proyecto_id int references db_proyectos(id) on delete set null,
+  estado text not null default 'borrador' check (estado in ('borrador','en_revision','firmado','vencido','rescindido')),
+  inicio date, vence date, renovacion_auto boolean not null default false,
+  monto numeric, moneda text not null default 'ARS', documento_url text, responsable text, notas text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists g_vencimientos (
+  id serial primary key,
+  titulo text not null, area text not null default 'otro', vence date not null,
+  recurrencia text not null default 'unica' check (recurrencia in ('unica','mensual','anual')),
+  estado text not null default 'pendiente' check (estado in ('pendiente','hecho')),
+  monto numeric, responsable text, nota text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists g_documentos (
+  id serial primary key,
+  titulo text not null, categoria text not null default 'institucional', url text not null, version text,
+  contacto_id int references db_contactos(id) on delete set null,
+  proyecto_id int references db_proyectos(id) on delete set null,
+  responsable text, confidencial boolean not null default false, descripcion text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists g_licitaciones (
+  id serial primary key,
+  objeto text not null, organismo text not null, jurisdiccion text, numero text, rubro text,
+  estado text not null default 'detectada' check (estado in ('detectada','analizando','preparando','presentada','adjudicada','perdida','descartada')),
+  consultas_hasta date, apertura date, monto_estimado numeric, moneda text not null default 'ARS',
+  link text, responsable text, notas text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create table if not exists g_modulos (
+  codigo text primary key, nombre text not null, responsable text, entregable text, orden int not null default 0,
+  estado text not null default 'sin_empezar' check (estado in ('sin_empezar','en_curso','trabado','listo')),
+  proximo text, fecha date, bloqueo text,
+  actualizado timestamptz not null default now(), actualizado_por text
+);
+insert into g_modulos(codigo,nombre,responsable,entregable,orden) values
+  ('m01','Dirección y coordinación','Julio + Bárbara','Tablero del lunes y resumen del viernes',1),
+  ('m02','Ventas y comercial','Julio · Bárbara agenda y sigue','Propuestas enviadas, reuniones y estado de cada oportunidad',2),
+  ('m03','Licitaciones públicas','Julio · Bárbara arma carpetas','Licitaciones abiertas, en preparación y presentadas',3),
+  ('m04','Marketing y redes','Jime','Grilla de redes, nota del blog publicada y métricas',4),
+  ('m05','Diseño y web','Jime + Jonathan','devisebit.com, casos de éxito y piezas aprobadas',5),
+  ('m06','Desarrollo y producto','Jonathan','Roadmap por producto y avance de cada desarrollo',6),
+  ('m07','Demos, testing y UX','Bárbara','Demo lista por producto y reporte de errores',7),
+  ('m08','Bots y automatización','Julio + Jonathan','Bot de WhatsApp probado y conectado a todo',8),
+  ('m09','Administración, finanzas y legal','Julio · contador y abogado validan','Cierre de mes, cobranzas y contratos revisados',9),
+  ('m10','ACADEMIA DEVISEBIT','Julio + Jime','Plan de cursos y avales para certificar',10)
+  on conflict (codigo) do nothing;
 `
 
 let ready: Promise<void> | null = null
