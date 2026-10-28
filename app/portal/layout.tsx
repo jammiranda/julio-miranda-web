@@ -5,6 +5,7 @@ import Marca from "@/components/Marca"
 import { clienteActual, cerrarSesionCliente } from "@/lib/portal"
 import { URL_ACADEMIA } from "@/lib/academia"
 import LinksExternos from "@/components/LinksExternos"
+import Redes from "@/components/Redes"
 
 export const metadata: Metadata = { title: "Mi cuenta · DEVISEBIT", robots: { index: false, follow: false } }
 
@@ -40,7 +41,8 @@ export default async function PortalLayout({ children }: { children: React.React
       </header>
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6">{children}</main>
       <LinksExternos />
-      <footer className="text-center text-xs text-[#4A515C] py-6 px-4">
+      <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6 px-4">
+        <Redes conTexto />
         DEVISEBIT SRL · <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="underline">WhatsApp +54 9 11 7346-6490</a> · <a href="mailto:info@devisebit.com" className="underline">info@devisebit.com</a><br />
         Tus datos están protegidos (Ley 25.326). Cada ingreso queda registrado.
       </footer>

@@ -7,6 +7,7 @@ import { avisos, marcarAvisos, restaurarAvisos } from "@/lib/avisos"
 import Avatar from "@/components/Avatar"
 import ActivarAvisos from "@/components/ActivarAvisos"
 import Marca from "@/components/Marca"
+import Redes from "@/components/Redes"
 
 async function marcar(fd: FormData) {
   "use server"
@@ -109,7 +110,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Link key={i.href} href={i.href} className="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold text-[#262C37] active:bg-[#FDECEB]"><span className="text-lg leading-none text-[#C8231F]" aria-hidden="true">{i.i}</span>{i.t}</Link>
         ))}
       </nav>
-      <footer className="text-center text-xs text-[#4A515C] py-6">DEVISEBIT SRL · Sistema comercial · Datos personales protegidos (Ley 25.326)</footer>
+      <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6"><Redes />DEVISEBIT SRL · Sistema comercial · Datos personales protegidos (Ley 25.326)</footer>
     </div>
   )
 }

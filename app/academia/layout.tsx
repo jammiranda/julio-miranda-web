@@ -4,6 +4,7 @@ import Script from "next/script"
 
 import { YT_URL, YT_SUSCRIBIR } from "@/lib/youtube"
 import { urlPortal } from "@/lib/portal"
+import Redes from "@/components/Redes"
 
 const OG_ACADEMIA = "https://sistema.devisebit.com/marca/og-academia.jpg"
 
@@ -41,7 +42,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
       <Script src="https://sistema.devisebit.com/v.js" strategy="afterInteractive" />
       <footer className="ficha-head bg-[#0E1116] text-white/70 text-sm">
         <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div><p className="m-0 text-white font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="font-semibold text-white/60 tracking-[0.2em] text-xs uppercase">Academia</span></p><p className="m-0 mt-2">IA y tecnología aplicada, explicada simple. Desde 2009 haciendo software para salud, gobierno, universidades, gremios y empresas.</p></div>
+          <div><p className="m-0 text-white font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="font-semibold text-white/60 tracking-[0.2em] text-xs uppercase">Academia</span></p><p className="m-0 mt-2">IA y tecnología aplicada, explicada simple. Desde 2009 haciendo software para salud, gobierno, universidades, gremios y empresas.</p><Redes oscuro className="mt-3" /></div>
           <div className="flex flex-col gap-1"><span className="text-white font-semibold">Aprender</span><Link href="/cursos" className="hover:text-white">Cursos con certificado</Link><a href={urlPortal("/cursos")} className="hover:text-white">Mi cuenta y certificados</a><Link href="/guias" className="hover:text-white">Todas las guías</Link><Link href="/productos/kit-ia-pymes" className="hover:text-white">Kit IA para pymes</Link><a href="/#suscribirme" className="hover:text-white">Newsletter</a><a href={YT_URL} className="hover:text-white">Canal de YouTube</a><a href={YT_SUSCRIBIR} className="hover:text-white">Suscribirme en YouTube</a></div>
           <div className="flex flex-col gap-1"><span className="text-white font-semibold">DEVISEBIT SRL</span><a href="https://www.devisebit.com" className="hover:text-white">devisebit.com</a><a href={WA} className="hover:text-white">WhatsApp +54 9 11 7346-6490</a><a href="https://www.devisebit.com/privacidad" className="hover:text-white">Privacidad</a></div>
         </div>

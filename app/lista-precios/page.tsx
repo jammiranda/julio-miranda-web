@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { precios, ars, PAGO } from "@/lib/precios"
 import { fecha } from "@/lib/util"
 import Imprimir from "@/components/Imprimir"
+import Redes from "@/components/Redes"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
@@ -63,7 +64,7 @@ export default async function ListaPrecios() {
           <p className="m-0">Transferencias a <strong>{PAGO.titular}</strong> (CUIT {PAGO.cuit}) · {PAGO.banco}, {PAGO.cuenta} · CBU <strong>{PAGO.cbu}</strong> · alias <strong>{PAGO.alias}</strong>.</p>
           <p className="m-0 text-xs text-[#4A515C]">Los abonos tienen un mínimo de 6 meses (redes y anuncios, 3 meses); después se dan de baja con 30 días de aviso. La inversión en anuncios la paga el cliente directo a Meta o Google. Comparamos nuestros precios con tarifarios públicos del mercado argentino y los revisamos cada trimestre.</p>
         </section>
-        <footer className="text-center text-xs text-[#4A515C] py-4">DEVISEBIT SRL · Software e inteligencia artificial desde 2009 · info@devisebit.com · WhatsApp +54 9 11 7346-6490</footer>
+        <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-4"><Redes conTexto className="no-print justify-center" />DEVISEBIT SRL · Software e inteligencia artificial desde 2009 · info@devisebit.com · WhatsApp +54 9 11 7346-6490</footer>
       </div>
     </main>
   )

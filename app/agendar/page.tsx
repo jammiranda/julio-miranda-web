@@ -4,6 +4,7 @@ import { randomBytes } from "crypto"
 import { one, q } from "@/lib/db"
 import { horario } from "@/lib/agenda"
 import { notificar } from "@/lib/push"
+import Redes from "@/components/Redes"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Agendá una reunión · DEVISEBIT", description: "Reunión sin costo con DEVISEBIT para tu proyecto web, de IA o de sistemas." }
@@ -48,6 +49,7 @@ export default async function AgendarGeneral({ searchParams }: { searchParams: {
           <label className="lbl">Empresa u organización (opcional)<input name="organizacion" className="inp" /></label>
           <label className="lbl">¿Sobre qué querés hablar?<textarea name="motivo" rows={3} placeholder="Ej.: quiero una página web para mi estudio / un bot de WhatsApp / un sistema para mi gremio" className="inp" /></label>
           <button className="btn-p self-start">Elegir día y horario →</button>
+          <Redes />
           <p className="m-0 text-xs text-[#4A515C]">Usamos tus datos solo para coordinar la reunión. DEVISEBIT SRL · WhatsApp +54 9 11 7346-6490.</p>
         </form>
       </div>

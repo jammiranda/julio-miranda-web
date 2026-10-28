@@ -8,6 +8,7 @@ import { enviarTexto } from "@/lib/whatsapp"
 import { notificar } from "@/lib/push"
 import { generarPropuesta } from "@/lib/propuesta"
 import { linkAgenda } from "@/lib/agenda"
+import Redes from "@/components/Redes"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -121,6 +122,7 @@ export default async function Brief({ params, searchParams }: { params: { token:
           <label className="lbl">¿Algo más que debamos saber?<textarea name="extra" rows={3} className="inp" /></label>
         </section>
         <button className="btn-p text-base py-3.5">Enviar y recibir mi propuesta preliminar</button>
+        <Redes className="justify-center" />
         <p className="m-0 text-xs text-center text-[#4A515C]">DEVISEBIT SRL · Tus datos se usan solo para responder tu consulta (Ley 25.326).</p>
       </form>
     </main>
