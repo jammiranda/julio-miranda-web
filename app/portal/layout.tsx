@@ -43,8 +43,8 @@ export default async function PortalLayout({ children }: { children: React.React
       <LinksExternos />
       <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6 px-4">
         <Redes conTexto />
-        DEVISEBIT SRL · <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="underline">WhatsApp +54 9 11 7346-6490</a> · <a href="mailto:info@devisebit.com" className="underline">info@devisebit.com</a><br />
-        Tus datos están protegidos (Ley 25.326). Cada ingreso queda registrado.
+        <p className="m-0">DEVISEBIT SRL · <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="underline">WhatsApp +54 9 11 7346-6490</a> · <a href="mailto:info@devisebit.com" className="underline">info@devisebit.com</a><br />
+        Tus datos están protegidos (Ley 25.326). Cada ingreso queda registrado.</p>
       </footer>
     </div>
   )
