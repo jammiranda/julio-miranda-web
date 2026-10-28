@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { EQUIPO, EQUIPO_PIE } from "@/lib/marca"
 import DbHero from "@/components/db-hero"
 
 export const metadata = {
@@ -24,12 +25,6 @@ const HITOS = [
   { y: "Hoy", t: "DEVISEBIT SRL", d: "Software e IA para salud e instituciones, con dos equipos de desarrollo." },
 ]
 
-const TEAM = [
-  { name: "Julio", role: "Fundador y Director", d: "Más de 15 años liderando proyectos de software, datos y transformación digital en salud, gobierno y educación." },
-  { name: "Bárbara", role: "Líder de Proyectos", d: "Coordina cada proyecto de punta a punta: alcance, tiempos, pruebas y experiencia de usuario." },
-  { name: "Jonathan", role: "Líder de Desarrollo", d: "Conduce el equipo de desarrollo y la arquitectura de las plataformas que ponemos en producción." },
-  { name: "Jime", role: "Líder de Diseño y Marketing", d: "Diseña la identidad, las interfaces y la comunicación digital de cada producto." },
-]
 
 const LOGOS = [
   { src: "/images/client-uthgra.png", alt: "UTHGRA" },
@@ -112,10 +107,10 @@ export default function NosotrosPage() {
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
               <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Nuestro equipo</p>
-              <h2 className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">Las personas detrás de cada proyecto.</h2>
+              <h2 className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">Líderes con equipos propios, detrás de cada proyecto.</h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {TEAM.map((p) => (
+              {EQUIPO.map((p) => (
                 <article key={p.name} className="db-card rounded-2xl border border-[#E2E5EA] bg-white p-6 flex flex-col gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-[#0B0D12] text-white font-tight text-2xl font-extrabold flex items-center justify-center" aria-hidden="true">{p.name[0]}</div>
                   <div>
@@ -125,8 +120,12 @@ export default function NosotrosPage() {
                   <p className="m-0 text-[15px] leading-relaxed text-[#4A515C]">{p.d}</p>
                 </article>
               ))}
+              <a href="/trabaja-con-nosotros" className="db-card rounded-2xl border-2 border-dashed border-[#C8231F] bg-white p-6 flex flex-col justify-center gap-2 hover:bg-[#FDECEB] transition-colors">
+                <strong className="font-tight text-xl text-[#C8231F]">¿Querés sumarte? →</strong>
+                <span className="text-[15px] leading-relaxed text-[#4A515C]">Buscamos talento en desarrollo, análisis, diseño, QA y soporte. Dejanos tu CV.</span>
+              </a>
             </div>
-            <p className="m-0 text-[#4A515C] leading-relaxed max-w-[760px]">Y un equipo de analistas funcionales, desarrolladores, QA y soporte que acompaña cada proyecto, con dos equipos de desarrollo trabajando en paralelo.</p>
+            <p className="m-0 text-[#4A515C] leading-relaxed max-w-[760px]">{EQUIPO_PIE} Así, cada cliente tiene un referente para cada tema y nadie depende de una sola persona.</p>
           </div>
         </section>
 

@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
+import Redes from "@/components/redes"
+import { EQUIPO, EQUIPO_PIE, SOLUCIONES } from "@/lib/marca"
 
 const STATS = [
   { n: "17", c: 17, pre: "", l: "años de proyectos en producción" },
@@ -47,20 +49,7 @@ const STEPS = [
 
 const SECTORS = ["Salud", "Gobierno", "Universidades", "Gremios y obras sociales", "Mutuales", "Medios", "Educación", "Empresas"]
 
-const TEAM = [
-  { name: "Julio", role: "Fundador y Director" },
-  { name: "Bárbara", role: "Líder de Proyectos" },
-  { name: "Jonathan", role: "Líder de Desarrollo" },
-  { name: "Jime", role: "Líder de Diseño y Marketing" },
-]
 
-const PLANES = [
-  { tag: "Páginas web", title: "Tu web a medida, lista en días", text: "Diseño único con IA, dominio a tu nombre y WhatsApp conectado.", price: "Desde $199.000", href: "/webs" },
-  { tag: "WhatsApp con IA", title: "Un asistente que atiende 24 h", text: "Responde, vende y da turnos por WhatsApp sin sumar personal.", price: "Desde $290.000", href: "/whatsapp" },
-  { tag: "Redes y anuncios", title: "Tus redes y tu pauta, resueltas", text: "Reels, placas, historias y campañas en Meta y Google.", price: "Desde $299.000/mes", href: "/redes" },
-  { tag: "Sistemas", title: "CRM, turnos y tableros", text: "Partimos de módulos probados: menos costo y menos tiempo.", price: "Desde $890.000", href: "/sistemas" },
-  { tag: "Comunidades", title: "Academia y padrón con tu marca", text: "Para gremios, asociaciones, colegios y cámaras.", price: "Desde $1.490.000", href: "/comunidad" },
-]
 
 const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em]"
 const h2 = "m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold"
@@ -111,7 +100,7 @@ export default function HomePage() {
               <a href="https://sistema.devisebit.com/lista-precios" className="font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver la lista de precios completa →</a>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {PLANES.map((p) => (
+              {SOLUCIONES.map((p) => (
                 <a key={p.href} href={p.href} className="db-card group rounded-2xl border border-[#262C37] bg-[#0B0D12] text-white p-6 flex flex-col gap-3 min-h-[250px] hover:border-[#C8231F] transition-colors">
                   <span className="text-xs font-bold uppercase tracking-widest text-[#FF6A63]">{p.tag}</span>
                   <span className="font-tight text-[21px] font-bold leading-tight">{p.title}</span>
@@ -239,14 +228,18 @@ export default function HomePage() {
             <div className="flex-[1_1_480px] min-w-0 flex flex-col gap-4">
               <h2 className="m-0 font-tight text-[30px] md:text-[34px] font-extrabold">Nuestro equipo</h2>
               <div className="grid grid-cols-2 gap-3">
-                {TEAM.map((p) => (
+                {EQUIPO.map((p) => (
                   <div key={p.name} className="db-card rounded-2xl border border-[#E2E5EA] p-[18px]">
                     <strong className="text-lg">{p.name}</strong>
                     <div className="text-[#4A515C]">{p.role}</div>
                   </div>
                 ))}
+                <a href="/nosotros#equipo" className="db-card rounded-2xl border border-dashed border-[#C8231F] p-[18px] flex flex-col justify-center hover:bg-[#FDECEB] transition-colors">
+                  <strong className="text-lg text-[#C8231F]">Conocé al equipo →</strong>
+                  <span className="text-[#4A515C]">Quién hace qué en cada proyecto</span>
+                </a>
               </div>
-              <p className="m-0 text-[#4A515C] leading-relaxed">Y un equipo de analistas funcionales, desarrolladores, QA y soporte que acompaña cada proyecto.</p>
+              <p className="m-0 text-[#4A515C] leading-relaxed">{EQUIPO_PIE}</p>
             </div>
           </div>
         </section>
@@ -261,8 +254,8 @@ export default function HomePage() {
               <div className="flex flex-col gap-2 text-[17px]">
                 <a href="mailto:info@devisebit.com" className="text-[#C8231F] hover:text-[#9E1A17]">info@devisebit.com</a>
                 <span>Luna 24, 6.º piso, Parque Patricios, CABA</span>
-                <span>Instagram y LinkedIn: @devisebit</span>
               </div>
+              <div className="flex flex-col gap-2"><span className="text-sm font-semibold text-[#4A515C]">Seguinos</span><Redes oscuro={false} conTexto /></div>
             </div>
             <div className="flex-[999_1_520px] min-w-0">
               <DbContactForm />

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { SOLUCIONES, SOLUCION_DE_PRODUCTO } from "@/lib/marca"
 
 export const metadata = {
   title: "Productos · DEVISEBIT",
@@ -35,6 +36,7 @@ export default function ProductosPage() {
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Productos</p>
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold max-w-[900px]">Sistemas probados, listos para implementar.</h1>
             <p className="m-0 text-lg md:text-[19px] leading-relaxed text-[#C3C8D1] max-w-[760px]">No empezamos de cero: adaptamos productos que ya funcionan en producción. Eso baja el plazo y el riesgo.</p>
+            <div className="flex flex-wrap gap-2 mt-3"><Link href="/servicios#soluciones" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Ver soluciones con precio</Link><Link href="/servicios#a-medida" className="rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3 font-bold text-white transition-colors">Servicios a medida</Link></div>
           </div>
           <div className="db-scan"><i /></div>
         </section>
@@ -50,7 +52,8 @@ export default function ProductosPage() {
                     <li key={i} className="flex gap-2 text-sm"><span className="text-[#C8231F] font-extrabold" aria-hidden="true">✓</span>{i}</li>
                   ))}
                 </ul>
-                <Link href="/contacto" className="mt-auto pt-2 text-[15px] font-bold text-[#C8231F] hover:text-[#9E1A17]">Pedir una demostración →</Link>
+                {(() => { const sol = SOLUCIONES.find((x) => x.id === SOLUCION_DE_PRODUCTO[p.id]); return sol ? <Link href={sol.href} className="mt-auto pt-2 text-sm font-semibold text-[#262C37] hover:text-[#C8231F]">Planes y precios en <span className="underline underline-offset-2">{sol.tag}</span> →</Link> : null })()}
+                <Link href="/contacto" className={`${SOLUCION_DE_PRODUCTO[p.id] ? "" : "mt-auto "}pt-1 text-[15px] font-bold text-[#C8231F] hover:text-[#9E1A17]`}>Pedir una demostración →</Link>
               </article>
             ))}
           </div>
