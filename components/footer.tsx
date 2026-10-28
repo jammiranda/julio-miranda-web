@@ -21,6 +21,7 @@ const COLUMNAS = [
     links: [
       { href: "/servicios", label: "Servicios" },
       { href: "/productos", label: "Productos" },
+      { href: "/demos", label: "Demos para probar" },
       { href: "/casos-de-exito", label: "Casos de éxito" },
       { href: "/precios", label: "Lista de precios" },
       { href: "https://academia.devisebit.com", label: "Academia" },

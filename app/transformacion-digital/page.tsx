@@ -51,6 +51,7 @@ export default function TransformacionDigitalPage() {
           sub="La transformación digital no es comprar un sistema: es un proceso continuo que combina estrategia, cultura y tecnología. Te ayudamos a medir dónde estás, definir a dónde ir y recorrer el camino por etapas."
         >
           <div className="flex flex-wrap gap-2.5 mt-2">
+            <a href="/demos/transformacion-digital.html" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3.5 font-bold text-white transition-colors"><Award size={19} aria-hidden="true" /> Hacé el autodiagnóstico gratis</a>
             <a href={WA} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#1EB956] px-5 py-3.5 font-bold text-[#0B0D12] transition-colors"><MessageCircle size={19} aria-hidden="true" /> Consultar por WhatsApp</a>
             <a href="https://sistema.devisebit.com/agendar" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><CalendarClock size={19} aria-hidden="true" /> Agendar una reunión</a>
             <Link href="/contacto#formulario" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><FileText size={19} aria-hidden="true" /> Dejar mis datos</Link>

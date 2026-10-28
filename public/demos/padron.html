@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de padrón para gremios y comunidades · Demo interactiva</title>
+<meta name="description" content="Probá un sistema de padrón online: afiliados, cuotas y aportes, altas, tablero con totales y credencial digital con QR para cada afiliado. Demo con datos de ejemplo.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0D12; --gray:#4A515C; --muted:#5F6672; --line:#E3E6EB; --line-2:#EEF0F3;
+  --bg:#F4F5F7; --card:#FFFFFF;
+  --accent:#C8231F; --accent-ink:#A11B18; --accent-soft:#FCECEB; --accent-line:#F2C4C2;
+  --ok:#126B34; --ok-soft:#DCF5E4; --warn:#8A4B08; --warn-soft:#FDF0D5; --bad:#B42318; --bad-soft:#FDE7E5;
+  --info:#1E4FA8; --info-soft:#E4ECFA;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 2px rgba(11,13,18,.06),0 4px 14px rgba(11,13,18,.06);
+  --shadow-lg:0 10px 40px rgba(11,13,18,.18);
+  --topbar-h:36px;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-tight:"Inter Tight","Inter",system-ui,sans-serif;
+}
+html[data-brand="blanca"]{ --accent:#1D4E89; --accent-ink:#163C6A; --accent-soft:#E7EEF7; --accent-line:#BFD0E6; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;padding-top:var(--topbar-h);min-height:100vh}
+h1,h2,h3,h4{font-family:var(--font-tight);margin:0;letter-spacing:-.01em;line-height:1.2}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent-ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+[hidden]{display:none!important}
+
+/* ---------- Barra demo ---------- */
+.dv-topbar{position:fixed;top:0;left:0;right:0;z-index:8000;background:#0B0D12;color:#E9EBEF;font-size:12.5px;min-height:36px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;padding:5px 12px}
+.dv-topbar .dv-tb-text{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.dv-topbar .dv-dot{width:7px;height:7px;border-radius:50%;background:#3DDC84;box-shadow:0 0 0 3px rgba(61,220,132,.18)}
+.dv-topbar .dv-tb-cta{display:inline-flex;align-items:center;gap:6px;background:#C8231F;color:#fff;text-decoration:none;font-weight:600;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.dv-topbar .dv-tb-cta:hover{background:#A11B18}
+.dv-topbar .dv-tb-link{color:#E9EBEF;text-decoration:underline;text-underline-offset:3px}
+.dv-topbar .dv-tb-link:hover{color:#fff}
+.dv-topbar :focus-visible{outline-color:#fff}
+.dv-seg{display:inline-flex;align-items:center;gap:6px;color:#B9BEC7}
+.dv-seg-btns{display:inline-flex;background:#1C2029;border-radius:999px;padding:2px}
+.dv-seg button{background:transparent;border:0;color:#C9CDD4;padding:2px 9px;border-radius:999px;cursor:pointer;font-size:12px}
+.dv-seg button[aria-pressed="true"]{background:#E9EBEF;color:#0B0D12;font-weight:600}
+
+/* ---------- Logos ---------- */
+.dv-logo{font-family:var(--font-tight);font-weight:800;letter-spacing:.02em;color:var(--ink);white-space:nowrap;display:inline-flex;align-items:center}
+.dv-logo b{color:#C8231F;font-weight:800}
+.dv-logo .tm-mark{margin-right:8px;width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-grid;place-items:center}
+.dv-logo.on-dark{color:#fff}
+
+/* ---------- Componentes comunes ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:9px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;line-height:1.2;min-height:38px;transition:background .15s,border-color .15s,box-shadow .15s}
+.btn:hover{background:#F7F8FA;border-color:#D3D7DE}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-ink);border-color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:rgba(11,13,18,.05)}
+.btn.sm{padding:5px 10px;min-height:32px;font-size:13px}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.ok:hover{background:#106631}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn svg{flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;line-height:1.5}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.info{background:var(--info-soft);color:var(--info)}
+.badge.neutral{background:#EEF0F3;color:var(--gray)}
+.badge.accent{background:var(--accent-soft);color:var(--accent-ink)}
+.badge.plain::before{display:none}
+.field{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--gray)}
+.input,select.input,textarea.input{border:1px solid #CDD2DA;border-radius:9px;padding:8px 11px;background:#fff;min-height:40px;font-weight:400;color:var(--ink);font-size:14.5px;width:100%}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input::placeholder{color:#7A818C}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{padding:14px 16px}
+.kpi .k-label{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.kpi .k-value{font-family:var(--font-tight);font-size:28px;font-weight:700;margin-top:4px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .k-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.kpi .k-sub .up{color:var(--ok);font-weight:600}
+.flash{animation:dvflash 1.1s ease}
+@keyframes dvflash{0%{background:var(--accent-soft)}100%{background:var(--card)}}
+.table-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:#FAFBFC}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.tbl tr.row-click{cursor:pointer}
+.tbl tr.row-click:hover td{background:#F8F9FB}
+.tbl tr.is-new td{background:var(--accent-soft)}
+.avatar{width:34px;height:34px;border-radius:50%;display:inline-grid;place-items:center;font-weight:700;font-size:13px;flex:none;color:#fff;background:#4A515C}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.spacer{flex:1}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--font);fill:#5F6672;font-size:11px}
+.chart .val{fill:#0B0D12;font-weight:600}
+.hbars{display:flex;flex-direction:column;gap:9px}
+.hbar{display:grid;grid-template-columns:minmax(110px,38%) 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+.hbar .track{display:block;height:10px;background:#EEF0F3;border-radius:999px;overflow:hidden}
+.hbar .fill{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.hbar .num{font-variant-numeric:tabular-nums;font-weight:600;min-width:34px;text-align:right}
+
+/* Toast */
+.dv-toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:9700;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(92vw,440px)}
+.dv-toast{background:#0B0D12;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow-lg);animation:dvtoast .25s ease;display:flex;gap:10px;align-items:center}
+.dv-toast svg{flex:none;color:#3DDC84}
+@keyframes dvtoast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Dialog */
+dialog.dv-dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 60px);box-shadow:var(--shadow-lg);color:var(--ink)}
+dialog.dv-dialog::backdrop{background:rgba(11,13,18,.45)}
+.dlg-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.dlg-head h2{font-size:18px}
+.dlg-body{padding:16px 18px;overflow:auto}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);background:#FAFBFC}
+.icon-btn{border:0;background:transparent;width:36px;height:36px;border-radius:8px;display:inline-grid;place-items:center;cursor:pointer;color:var(--gray)}
+.icon-btn:hover{background:#EEF0F3}
+
+/* Botón recorrido */
+.dv-tour-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent-ink);padding:6px 12px;border-radius:999px;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;min-height:34px}
+.dv-tour-btn:hover{background:#fff}
+.dv-tour-float{position:fixed;right:16px;bottom:16px;z-index:7000;box-shadow:var(--shadow)}
+
+/* ---------- Recorrido guiado ---------- */
+.dv-shield{position:fixed;inset:0;z-index:9000;background:transparent;cursor:none}
+.dv-cursor{position:fixed;left:0;top:0;z-index:9600;width:28px;height:28px;pointer-events:none;transition:transform .75s cubic-bezier(.45,.05,.25,1);transform:translate(50vw,60vh);filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+.dv-cursor .ripple{position:absolute;left:-14px;top:-14px;width:30px;height:30px;border-radius:50%;border:3px solid var(--accent);opacity:0}
+.dv-cursor.clicking .ripple{animation:dvripple .55s ease-out}
+@keyframes dvripple{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.9)}}
+.dv-ring{position:fixed;z-index:8900;pointer-events:none;border:3px solid var(--accent);border-radius:12px;box-shadow:0 0 0 9999px rgba(11,13,18,.12),0 0 0 6px var(--accent-soft);transition:all .45s cubic-bezier(.45,.05,.25,1);opacity:0}
+.dv-ring.on{opacity:1}
+.dv-caption{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:9500;width:min(860px,calc(100vw - 24px));background:rgba(11,13,18,.94);color:#fff;border-radius:16px;padding:16px 20px 14px;box-shadow:var(--shadow-lg);display:flex;gap:16px;align-items:flex-start;transition:top .3s,bottom .3s}
+.dv-caption.top{bottom:auto;top:calc(var(--topbar-h) + 12px)}
+.dv-caption .cap-num{flex:none;width:38px;height:38px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font-family:var(--font-tight);font-weight:800;font-size:18px}
+.dv-caption .cap-text{font-family:var(--font-tight);font-size:clamp(17px,2.2vw,23px);font-weight:600;line-height:1.3;flex:1;min-height:38px;display:flex;align-items:center}
+.dv-caption .cap-skip{flex:none;align-self:center;background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer}
+.dv-caption .cap-bar{position:absolute;left:20px;right:20px;bottom:7px;height:3px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}
+.dv-caption .cap-bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.dv-final{position:fixed;inset:0;z-index:9800;background:rgba(11,13,18,.72);display:grid;place-items:center;padding:20px;animation:dvtoast .35s ease}
+.dv-final .box{background:#fff;border-radius:20px;padding:34px 30px;max-width:520px;width:100%;text-align:center;box-shadow:var(--shadow-lg)}
+.dv-final h2{font-size:clamp(24px,4vw,32px);margin:14px 0 6px}
+.dv-final .big{font-family:var(--font-tight);font-size:clamp(22px,3.6vw,30px);font-weight:800;color:var(--accent);margin:4px 0 18px}
+.dv-final .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+@media (max-width:640px){
+  .dv-topbar{font-size:11.5px;gap:4px 8px;padding:5px 8px}
+  .dv-topbar .dv-tb-cta{padding:3px 9px}
+  #dv-seg-l{display:none}
+  .dv-topbar .dv-tb-text{order:0}.dv-topbar .dv-tb-link{order:1}.dv-topbar .dv-tb-cta{order:2}.dv-topbar .dv-seg{order:3}
+  .dv-seg button{padding:2px 8px}
+  .dv-caption{padding:12px 14px 13px;gap:10px;bottom:12px}
+  .dv-caption .cap-num{width:30px;height:30px;font-size:15px}
+  .dv-caption .cap-text{min-height:30px}
+  .dv-caption .cap-skip{display:none}
+  .dv-caption .cap-bar{left:14px;right:14px;bottom:5px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- Shell de aplicación (sidebar) ---------- */
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - var(--topbar-h))}
+.side{background:#0E1117;color:#D5D9E0;display:flex;flex-direction:column;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow:auto}
+.side-brand{padding:18px 18px 14px;border-bottom:1px solid #1E232C}
+.side-brand .prod{font-size:12px;color:#9AA2AE;margin-top:3px}
+.side-org{display:flex;gap:10px;align-items:center;margin:14px 12px 6px;padding:10px;background:#161A22;border-radius:10px}
+.side-org .o-name{font-size:13px;font-weight:600;color:#fff;line-height:1.25}
+.side-org .o-sub{font-size:11.5px;color:#9AA2AE}
+.side-nav{display:flex;flex-direction:column;gap:2px;padding:10px 10px}
+.side-nav .nav-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8A93A0;padding:12px 10px 6px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;color:#D5D9E0;padding:9px 11px;border-radius:9px;font-weight:500;font-size:14.5px;cursor:pointer;min-height:40px;white-space:nowrap}
+.nav-btn:hover{background:#1A1F28;color:#fff}
+.nav-btn[aria-current="page"]{background:var(--accent);color:#fff;font-weight:600}
+.nav-btn .cnt{margin-left:auto;background:#2A303B;color:#fff;font-size:11.5px;border-radius:999px;padding:1px 8px}
+.nav-btn[aria-current="page"] .cnt{background:rgba(255,255,255,.25)}
+.nav-btn.new-mod{animation:dvnew 1.4s ease}
+@keyframes dvnew{0%{background:rgba(255,255,255,.35)}100%{background:transparent}}
+.side :focus-visible{outline-color:#fff}
+.side-foot{margin-top:auto;padding:12px;border-top:1px solid #1E232C;display:flex;gap:10px;align-items:center;font-size:13px}
+.side-foot .u-name{color:#fff;font-weight:600}
+.side-foot .u-role{color:#9AA2AE;font-size:12px}
+.main{min-width:0;display:flex;flex-direction:column}
+.main-head{display:flex;align-items:center;gap:12px;padding:16px 28px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:var(--topbar-h);z-index:50}
+.main-head h1{font-size:21px}
+.main-head .crumb{font-size:12.5px;color:var(--muted)}
+.content{padding:22px 28px 60px;max-width:1280px;width:100%}
+.view{display:flex;flex-direction:column;gap:18px}
+.panel{padding:16px 18px}
+.panel-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.panel-h h2,.panel-h h3{font-size:16px}
+.cols-2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{position:relative;flex:1;min-width:220px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search .input{padding-left:36px}
+.tabs-inline{display:inline-flex;background:#EEF0F3;border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.tabs-inline button{border:0;background:transparent;padding:6px 12px;border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--gray);min-height:34px}
+.tabs-inline button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+.err{color:var(--bad);font-size:12.5px;font-weight:500}
+.cards-m{display:none}
+@media (max-width:900px){
+  .shell{display:block}
+  .side{position:static;height:auto;overflow:visible}
+  .side-brand{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0}
+  .side-brand .prod{margin:0}
+  .side-org,.side-foot,.side-nav .nav-lbl{display:none}
+  .side-nav{flex-direction:row;overflow-x:auto;padding:0 10px 10px;gap:4px;scrollbar-width:none}
+  .side-nav::-webkit-scrollbar{display:none}
+  .nav-btn{width:auto;flex:none;padding:7px 12px;font-size:14px;min-height:38px;background:#161A22}
+  .nav-btn .cnt{display:none}
+  .main-head{padding:12px 14px;position:static}
+  .main-head h1{font-size:18px}
+  .content{padding:14px 14px 50px}
+  .cols-2{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:12px}
+  .kpi .k-value{font-size:23px}
+  .kpi .k-label{font-size:11.5px}
+  .hide-m{display:none!important}
+  .tbl-m-hide{display:none}
+  .cards-m{display:flex;flex-direction:column;gap:8px}
+}
+
+dialog.dv-dialog.nonmodal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);margin:0;z-index:8500}
+.dv-backdrop{position:fixed;inset:0;background:rgba(11,13,18,.45);z-index:8450}
+body.dv-touring .dv-toasts{bottom:auto;top:calc(var(--topbar-h) + 14px)}
+@media (max-width:900px){ .filters select.input{flex:1 1 140px;width:auto!important} }
+
+.link-btn{background:none;border:0;padding:0;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;font-size:14.5px}
+.link-btn:hover{color:var(--accent-ink);text-decoration:underline}
+@media (max-width:640px){ .chart text{font-size:17px} }
+
+/* ---------- Login ---------- */
+.login{min-height:calc(100vh - var(--topbar-h));display:grid;place-items:center;padding:30px 16px;background:radial-gradient(1200px 500px at 50% -10%, var(--accent-soft), transparent 60%),var(--bg)}
+.login-card{width:min(520px,100%);padding:30px 28px;text-align:center}
+.login-card .prod{font-family:var(--font-tight);font-size:26px;font-weight:700;margin:14px 0 4px}
+.login-card .org{display:inline-flex;align-items:center;gap:8px;color:var(--gray);font-size:14px;margin-bottom:22px}
+.login-opts{display:flex;flex-direction:column;gap:12px;text-align:left}
+.login-opt{display:flex;align-items:center;gap:14px;text-align:left;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;width:100%;transition:border-color .15s,box-shadow .15s}
+.login-opt:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.login-opt .ic{width:46px;height:46px;border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.login-opt .t{font-weight:700;font-size:16px;display:block}
+.login-opt .s{font-size:13.5px;color:var(--muted)}
+.login-opt .go{margin-left:auto;color:var(--muted)}
+.login-note{margin-top:18px;font-size:13px;color:var(--muted)}
+.login-tour{margin-top:14px;display:flex;justify-content:center}
+/* Afiliados */
+.link-btn{background:none;border:0;padding:0;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;font-size:14.5px}
+.link-btn:hover{color:var(--accent-ink);text-decoration:underline}
+.who{display:flex;align-items:center;gap:10px}
+.who .nro{font-size:12.5px;color:var(--muted)}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:5px}
+.mcell{border-radius:7px;padding:6px 0 5px;text-align:center;font-size:11.5px;font-weight:600}
+.mcell .ic{display:block;margin:2px auto 0;width:14px;height:14px}
+.mcell.ok{background:var(--ok-soft);color:var(--ok)}
+.mcell.no{background:var(--bad-soft);color:var(--bad)}
+.dl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px;margin:6px 0 18px}
+.dl div{font-size:14px}
+.dl dt{font-size:12px;color:var(--muted);font-weight:600}
+.dl dd{margin:2px 0 0;font-weight:600}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.debt-list{list-style:none;padding:0;margin:0}
+.debt-list li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.debt-list li:last-child{border:0}
+/* Credencial */
+.cred-wrap{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start}
+.cred{width:360px;max-width:100%;border-radius:20px;padding:20px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#0E1117 0%,#1E2430 55%,var(--accent-ink) 140%);box-shadow:0 18px 40px rgba(11,13,18,.28)}
+.cred::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%)}
+.cred .c-top{display:flex;align-items:center;gap:10px}
+.cred .c-org{font-weight:700;font-size:14.5px;line-height:1.2}
+.cred .c-org small{display:block;font-weight:500;font-size:11.5px;opacity:.8}
+.cred .c-name{font-family:var(--font-tight);font-size:22px;font-weight:700;margin:18px 0 2px}
+.cred .c-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:12.5px;margin-top:10px}
+.cred .c-grid span{display:block;opacity:.75;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.cred .c-grid b{font-weight:600;font-size:14px}
+.cred .c-qr{background:#fff;border-radius:12px;padding:8px;display:flex;align-items:center;gap:12px;margin-top:16px;color:var(--ink)}
+.cred .c-qr p{margin:0;font-size:12.5px;color:var(--gray)}
+.cred .c-ok{display:inline-flex;align-items:center;gap:5px;background:#3DDC84;color:#0B2A17;font-weight:700;font-size:11.5px;border-radius:999px;padding:2px 9px;margin-left:auto}
+.ben-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.ben{padding:16px;display:flex;flex-direction:column;gap:8px}
+.ben .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-ink)}
+.ben h3{font-size:15.5px}
+.ben p{margin:0;font-size:13.5px;color:var(--gray);flex:1}
+.status-hero{display:flex;align-items:center;gap:14px;padding:16px 18px}
+.status-hero .big{font-family:var(--font-tight);font-size:22px;font-weight:700}
+.status-hero .ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;flex:none}
+@media (max-width:900px){
+  .cred-wrap{grid-template-columns:1fr}
+  .cred{width:100%}
+  .dl{grid-template-columns:1fr 1fr}
+  .months{grid-template-columns:repeat(6,1fr)}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* Kit común de demos: marca, barra superior, recorrido guiado, utilidades */
+(function(){
+  const qs = new URLSearchParams(location.search);
+  const brand = qs.get('marca') === 'blanca' ? 'blanca' : 'devisebit';
+  const showSelector = brand === 'devisebit' || qs.get('selector') === '1';
+  document.documentElement.setAttribute('data-brand', brand);
+
+  const DV = window.DV = {
+    brand, isWhite: brand === 'blanca',
+    brandName: brand === 'blanca' ? 'Tu Marca' : 'DEVISEBIT',
+    params: qs,
+    tourMode: qs.get('tour') === '1',
+  };
+
+  const esc = DV.esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  DV.$ = (s, r=document) => r.querySelector(s);
+  DV.$$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  DV.wait = ms => new Promise(r => setTimeout(r, ms));
+  DV.norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  DV.fmt = n => Number(n).toLocaleString('es-AR');
+  DV.initials = name => name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const palette = ['#4A515C','#1E4FA8','#0F766E','#7C3AED','#B45309','#BE185D','#166534','#9F1239','#334155','#0E7490'];
+  DV.avatarColor = s => { let h=0; for (const c of String(s)) h=(h*31+c.charCodeAt(0))>>>0; return palette[h%palette.length]; };
+  DV.avatar = (name, size) => `<span class="avatar" aria-hidden="true" style="background:${DV.avatarColor(name)}${size?`;width:${size}px;height:${size}px;font-size:${Math.round(size*.38)}px`:''}">${esc(DV.initials(name))}</span>`;
+
+  /* Logo: DEVISE + BIT (rojo) o "Tu Marca" */
+  DV.logo = (opts={}) => {
+    if (DV.isWhite) {
+      return `<span class="dv-logo${opts.dark?' on-dark':''}" style="font-size:${opts.size||18}px"><span class="tm-mark" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1" fill="#fff"/><rect x="7" y="1" width="4" height="4" rx="1" fill="#fff" opacity=".6"/><rect x="1" y="7" width="4" height="4" rx="1" fill="#fff" opacity=".6"/><rect x="7" y="7" width="4" height="4" rx="1" fill="#fff"/></svg></span>Tu Marca</span>`;
+    }
+    return `<span class="dv-logo${opts.dark?' on-dark':''}" style="font-size:${opts.size||18}px" aria-label="DEVISEBIT">DEVISE<b>BIT</b></span>`;
+  };
+
+  /* Utilidades de UI */
+  let toastWrap;
+  DV.toast = (msg) => {
+    if (!toastWrap) { toastWrap = document.createElement('div'); toastWrap.className='dv-toasts'; toastWrap.setAttribute('role','status'); toastWrap.setAttribute('aria-live','polite'); document.body.appendChild(toastWrap); }
+    const t = document.createElement('div'); t.className='dv-toast';
+    t.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>${esc(msg)}</span>`;
+    toastWrap.appendChild(t);
+    setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),320); }, 2800);
+  };
+  DV.flash = el => { if(!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+  DV.icon = (name, size=18) => {
+    const p = {
+      search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+      plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+      check:'<path d="M20 6 9 17l-5-5"/>', home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+      users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17.5 14.6c2.2.4 3.6 2 4 4.6"/>',
+      chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', file:'<path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/>',
+      card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>', logout:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+      building:'<path d="M4 21V5l8-2v18M12 8h8v13M8 9h.01M8 13h.01M8 17h.01M16 12h.01M16 16h.01"/>',
+      calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      kanban:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/>',
+      puzzle:'<path d="M9 3h6v3a2 2 0 1 0 4 0V3h2v6h-3a2 2 0 1 0 0 4h3v8h-6v-3a2 2 0 1 0-4 0v3H3v-6h3a2 2 0 1 0 0-4H3V3z"/>',
+      clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', box:'<path d="m3 7 9-4 9 4v10l-9 4-9-4z"/><path d="m3 7 9 4 9-4M12 11v10"/>',
+      bot:'<rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01"/>', receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+      portal:'<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>', send:'<path d="m4 12 16-8-6 16-2-7z"/>',
+      play:'<path d="M7 4v16l13-8z"/>', phone:'<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/>',
+      pin:'<path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>', shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
+      gift:'<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10 3 7.5 4.5 9 8 12 8zm0 0s2-5 4.5-3.5S15 8 12 8z"/>',
+      arrowR:'<path d="M5 12h14M13 6l6 6-6 6"/>', arrowL:'<path d="M19 12H5M11 6l-6 6 6 6"/>', mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+      alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>', menu:'<path d="M4 6h16M4 12h16M4 18h16"/>', chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+    }[name] || '';
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${p}</svg>`;
+  };
+
+  /* Gráfico de barras SVG */
+  DV.bars = (data, o={}) => {
+    const W = o.width||640, H = o.height||220, pl = 34, pr = 8, pt = 18, pb = 26;
+    const max = Math.max(1, ...data.map(d=>d.value)) * 1.08;
+    const p10 = Math.pow(10, Math.floor(Math.log10(max/5)));
+    const step = [1,2,2.5,5,10,20].map(m=>m*p10).find(s => Math.ceil(max/s) <= 5);
+    const nT = Math.ceil(max/step), nice = nT*step;
+    const iw = W-pl-pr, ih = H-pt-pb, bw = iw/data.length;
+    let g = '';
+    for (let i=0;i<=nT;i++){ const y = pt + ih - ih*i/nT; const v = step*i; g += `<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="#E9ECF0"/><text x="${pl-6}" y="${y+4}" text-anchor="end">${o.fmtAxis?o.fmtAxis(v):DV.fmt(Math.round(v))}</text>`; }
+    data.forEach((d,i)=>{
+      const h = ih * d.value / nice, x = pl + i*bw + bw*.18, w = bw*.64, y = pt+ih-h;
+      const col = d.highlight ? 'var(--accent)' : (o.color||'#9AA3AF');
+      g += `<g><title>${esc(d.label)}: ${esc(o.fmtVal?o.fmtVal(d.value):DV.fmt(d.value))}</title><rect x="${x}" y="${y}" width="${w}" height="${Math.max(h,1)}" rx="3" fill="${col}"/>`;
+      if (o.showVals || d.highlight) g += `<text class="val" x="${x+w/2}" y="${y-5}" text-anchor="middle">${esc(o.fmtVal?o.fmtVal(d.value):DV.fmt(d.value))}</text>`;
+      g += `<text x="${x+w/2}" y="${H-8}" text-anchor="middle">${esc(d.label)}</text></g>`;
+    });
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||'Gráfico de barras')}">${g}</svg>`;
+  };
+  DV.hbars = (data, o={}) => {
+    const max = Math.max(1, ...data.map(d=>d.value));
+    return `<div class="hbars" role="list">${data.map(d=>`<div class="hbar" role="listitem"><span>${esc(d.label)}</span><span class="track" aria-hidden="true"><span class="fill" style="width:${(d.value/max*100).toFixed(1)}%;${d.color?`background:${d.color}`:''}"></span></span><span class="num">${esc(o.fmt?o.fmt(d.value):DV.fmt(d.value))}</span></div>`).join('')}</div>`;
+  };
+  /* Barras horizontales en SVG (etiqueta arriba, valor a la derecha) */
+  DV.hbarsSvg = (data, o={}) => {
+    const W = 400, rowH = 42, max = Math.max(1, ...data.map(d=>d.value)); let g = '';
+    data.forEach((d,i) => { const y = i*rowH; const w = Math.max(3, (W) * d.value / max);
+      const v = o.fmt ? o.fmt(d.value) : DV.fmt(d.value);
+      g += `<g><title>${esc(d.label)}: ${esc(v)}</title><text x="0" y="${y+15}" style="font-size:13px;fill:#0B0D12">${esc(d.label)}</text><text x="${W}" y="${y+15}" text-anchor="end" style="font-size:13px;font-weight:600;fill:#0B0D12">${esc(v)}</text><rect x="0" y="${y+22}" width="${W}" height="10" rx="5" fill="#EEF0F3"/><rect x="0" y="${y+22}" width="${w}" height="10" rx="5" fill="${i===0?'var(--accent)':(d.color||'#7C8592')}"/></g>`; });
+    return `<svg class="chart" viewBox="0 -2 ${W} ${data.length*rowH}" role="img" aria-label="${esc(o.label||'Gráfico de barras')}">${g}</svg>`;
+  };
+  /* QR decorativo (no escaneable) */
+  DV.qr = (seed, size=140) => {
+    const n = 25; let s = 0; for (const c of String(seed)) s = (s*131 + c.charCodeAt(0)) >>> 0;
+    const rnd = () => (s = (s*1664525 + 1013904223) >>> 0) / 4294967296;
+    let r = '';
+    const finder = (x,y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#0B0D12"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#0B0D12"/>`;
+    const inF = (x,y) => (x<8&&y<8)||(x>n-9&&y<8)||(x<8&&y>n-9);
+    for (let y=0;y<n;y++) for (let x=0;x<n;x++){ if (inF(x,y)) continue; if (rnd()>.52) r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }
+    return `<svg width="${size}" height="${size}" viewBox="-1 -1 ${n+2} ${n+2}" role="img" aria-label="Código QR de la credencial (ilustrativo)" shape-rendering="crispEdges"><rect x="-1" y="-1" width="${n+2}" height="${n+2}" fill="#fff"/><g fill="#0B0D12">${r}</g>${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}</svg>`;
+  };
+
+  /* Diálogo */
+  DV.dialog = (id, title, bodyHTML, footHTML) => {
+    let d = document.getElementById(id);
+    if (!d) { d = document.createElement('dialog'); d.id = id; d.className = 'dv-dialog'; document.body.appendChild(d);
+      d.addEventListener('click', e => { if (e.target === d) d.close(); }); }
+    d.setAttribute('aria-labelledby', id+'-t');
+    d.innerHTML = `<div class="dlg-head"><h2 id="${id}-t">${title}</h2><span class="spacer"></span><button class="icon-btn" type="button" data-close aria-label="Cerrar">${DV.icon('x')}</button></div><div class="dlg-body">${bodyHTML}</div>${footHTML?`<div class="dlg-foot">${footHTML}</div>`:''}`;
+    DV.$$('[data-close]', d).forEach(b => b.addEventListener('click', ()=>d.close()));
+    if (!d.open) {
+      if (T.running) {
+        d.classList.add('nonmodal'); d.show(); if (document.activeElement) document.activeElement.blur();
+        const bd = document.createElement('div'); bd.className = 'dv-backdrop'; document.body.appendChild(bd);
+        d.addEventListener('close', () => bd.remove(), {once:true});
+      } else { d.classList.remove('nonmodal'); d.showModal(); }
+    }
+    return d;
+  };
+
+  /* Barra superior */
+  function buildTopbar(cfg){
+    const bar = document.createElement('div');
+    bar.className = 'dv-topbar'; bar.setAttribute('role','region'); bar.setAttribute('aria-label','Aviso de demo');
+    let html = `<span class="dv-tb-text"><span class="dv-dot" aria-hidden="true"></span>Demo con datos de ejemplo${DV.isWhite?'':' ·'}</span>`;
+    if (!DV.isWhite) {
+      const tema = encodeURIComponent('Demo: ' + cfg.product);
+      html += `<a class="dv-tb-cta" href="https://www.devisebit.com/contacto?tema=${tema}#formulario">Quiero esto para mi organización</a>`;
+      html += `<a class="dv-tb-link" href="https://www.devisebit.com/">Inicio</a>`;
+    }
+    if (showSelector) {
+      html += `<span class="dv-seg"><span id="dv-seg-l">Marca:</span><span class="dv-seg-btns" role="group" aria-labelledby="dv-seg-l"><button type="button" data-brand-set="devisebit" aria-pressed="${!DV.isWhite}">${DV.isWhite?'Original':'DEVISEBIT'}</button><button type="button" data-brand-set="blanca" aria-pressed="${DV.isWhite}">Tu marca</button></span></span>`;
+    }
+    bar.innerHTML = html;
+    document.body.prepend(bar);
+    DV.$$('[data-brand-set]', bar).forEach(b => b.addEventListener('click', () => {
+      const p = new URLSearchParams(location.search);
+      p.delete('tour');
+      if (b.dataset.brandSet === 'blanca') { p.set('marca','blanca'); p.set('selector','1'); } else { p.delete('marca'); p.delete('selector'); }
+      const q = p.toString(); location.href = location.pathname + (q?'?'+q:'');
+    }));
+    const setH = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
+    setH(); new ResizeObserver(setH).observe(bar);
+  }
+
+  /* ---------- Recorrido guiado ---------- */
+  class Abort extends Error {}
+  const T = DV.T = { aborted:false };
+  let cursor, ring, caption, shield;
+  const check = () => { if (T.aborted) throw new Abort(); };
+  const resolve = t => typeof t === 'string' ? DV.$(t) : (typeof t === 'function' ? t() : t);
+  T.wait = async ms => { check(); await DV.wait(ms); check(); };
+  T.move = async (target, {dwell=750} = {}) => {
+    const el = resolve(target); if (!el) return null;
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 60 || r0.bottom > innerHeight - 140 || r0.left < 0 || r0.right > innerWidth) { el.scrollIntoView({block:'center', inline:'nearest', behavior:'smooth'}); await T.wait(450); }
+    const r = el.getBoundingClientRect();
+    cursor.style.transform = `translate(${Math.round(r.left + Math.min(r.width/2, 40))}px, ${Math.round(r.top + r.height/2)}px)`;
+    placeCaption(r);
+    await T.wait(dwell);
+    return el;
+  };
+  T.click = async (target, o={}) => {
+    const el = await T.move(target, o); if (!el) { console.warn('tour: no encontrado', target); return null; }
+    cursor.classList.remove('clicking'); void cursor.offsetWidth; cursor.classList.add('clicking');
+    await T.wait(160);
+    if (el.focus) el.focus({preventScroll:true});
+    el.click();
+    await T.wait(o.after ?? 350);
+    return el;
+  };
+  T.type = async (target, text, o={}) => {
+    const el = await T.click(target, {after:150});
+    if (!el) return;
+    const setter = Object.getOwnPropertyDescriptor(el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set;
+    if (o.clear !== false) { setter.call(el, ''); el.dispatchEvent(new Event('input',{bubbles:true})); }
+    for (const ch of text) { setter.call(el, el.value + ch); el.dispatchEvent(new Event('input',{bubbles:true})); await T.wait(o.speed || 55); }
+    await T.wait(250);
+    return el;
+  };
+  T.select = async (target, value) => {
+    const el = await T.move(target, {dwell:600}); if (!el) return;
+    cursor.classList.remove('clicking'); void cursor.offsetWidth; cursor.classList.add('clicking');
+    el.value = value; el.dispatchEvent(new Event('change',{bubbles:true})); el.dispatchEvent(new Event('input',{bubbles:true}));
+    await T.wait(450);
+  };
+  T.ring = async (target, pad=6) => {
+    const el = resolve(target); if (!el) { ring.classList.remove('on'); return; }
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 50 || r0.bottom > innerHeight - 120) { el.scrollIntoView({block: r0.height > innerHeight*.6 ? 'start':'center', behavior:'smooth'}); await T.wait(450); }
+    const r = el.getBoundingClientRect();
+    Object.assign(ring.style, {left:(r.left-pad)+'px', top:(r.top-pad)+'px', width:(r.width+pad*2)+'px', height:(r.height+pad*2)+'px'});
+    ring.classList.add('on'); placeCaption(r);
+  };
+  T.unring = () => ring && ring.classList.remove('on');
+  T.drag = async (from, to, onDrop) => {
+    const a = await T.move(from, {dwell:600}); const b = resolve(to); if (!a || !b) return;
+    const ra = a.getBoundingClientRect();
+    const ghost = a.cloneNode(true);
+    Object.assign(ghost.style,{position:'fixed',left:ra.left+'px',top:ra.top+'px',width:ra.width+'px',margin:0,zIndex:9550,pointerEvents:'none',transition:'transform .9s cubic-bezier(.45,.05,.25,1)',boxShadow:'0 14px 34px rgba(0,0,0,.25)',transform:'rotate(2deg)'});
+    document.body.appendChild(ghost); a.style.opacity = '.35';
+    cursor.classList.add('clicking');
+    await T.wait(120);
+    const rb = b.getBoundingClientRect();
+    const dx = rb.left + rb.width/2 - (ra.left + ra.width/2), dy = rb.top + 60 - ra.top;
+    ghost.style.transform = `translate(${dx}px, ${dy}px) rotate(2deg)`;
+    cursor.style.transform = `translate(${Math.round(rb.left + rb.width/2)}px, ${Math.round(rb.top + 70)}px)`;
+    await T.wait(950);
+    ghost.remove(); a.style.opacity = '';
+    onDrop(); await T.wait(400);
+  };
+  function placeCaption(r){
+    if (!caption) return;
+    const capH = caption.offsetHeight + 40;
+    const lowZone = innerHeight - capH;
+    caption.classList.toggle('top', r && r.bottom > lowZone && r.top > capH + 60);
+  }
+  function setCaption(i, n, text){
+    caption.querySelector('.cap-num').textContent = i;
+    caption.querySelector('.cap-text').textContent = text;
+    caption.querySelector('.cap-bar i').style.width = (i/n*100)+'%';
+  }
+  function finalCard(cfg){
+    T.running = false; document.body.classList.remove('dv-touring');
+    T.unring(); shield && shield.remove(); cursor && cursor.remove(); caption && caption.remove(); ring && ring.remove();
+    const f = document.createElement('div'); f.className = 'dv-final'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-labelledby','dv-final-t');
+    if (DV.isWhite) {
+      f.innerHTML = `<div class="box">${DV.logo({size:22})}<h2 id="dv-final-t">¿Lo querés para tu organización?</h2><p class="big">Pedí tu demo</p><div class="acts"><button class="btn primary" type="button" data-again>Ver de nuevo</button><button class="btn" type="button" data-keep>Seguir probando</button></div></div>`;
+    } else {
+      const tema = encodeURIComponent('Demo: ' + cfg.product);
+      f.innerHTML = `<div class="box">${DV.logo({size:22})}<h2 id="dv-final-t">¿Lo querés para tu organización?</h2><p class="big">devisebit.com</p><div class="acts"><a class="btn primary" href="https://www.devisebit.com/contacto?tema=${tema}#formulario">Quiero esto para mi organización</a><button class="btn" type="button" data-keep>Seguir probando</button></div></div>`;
+    }
+    document.body.appendChild(f);
+    const keep = f.querySelector('[data-keep]');
+    keep.addEventListener('click', () => { const p = new URLSearchParams(location.search); p.delete('tour'); const q=p.toString(); location.href = location.pathname + (q?'?'+q:''); });
+    const again = f.querySelector('[data-again]'); if (again) again.addEventListener('click', () => location.reload());
+    (f.querySelector('a,button')).focus({preventScroll:true});
+    window.__tourDone = true;
+  }
+  async function runTour(cfg){
+    T.aborted = false; T.running = true; window.__tourDone = false; document.body.classList.add('dv-touring');
+    shield = document.createElement('div'); shield.className = 'dv-shield'; shield.setAttribute('aria-hidden','true');
+    ring = document.createElement('div'); ring.className = 'dv-ring';
+    cursor = document.createElement('div'); cursor.className = 'dv-cursor'; cursor.setAttribute('aria-hidden','true');
+    cursor.innerHTML = `<span class="ripple"></span><svg width="28" height="28" viewBox="0 0 28 28"><path d="M3 2l19 11.5-8.2 1.6 4.9 9.1-3.6 1.9-4.9-9.1L4 23z" fill="#0B0D12" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+    caption = document.createElement('div'); caption.className = 'dv-caption'; caption.setAttribute('role','status'); caption.setAttribute('aria-live','polite');
+    caption.innerHTML = `<span class="cap-num" aria-hidden="true">1</span><span class="cap-text"></span><button type="button" class="cap-skip">Saltar recorrido</button><span class="cap-bar" aria-hidden="true"><i></i></span>`;
+    document.body.append(shield, ring, cursor, caption);
+    caption.querySelector('.cap-skip').addEventListener('click', () => { T.aborted = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') T.aborted = true; });
+    const steps = cfg.tour;
+    const t0 = performance.now();
+    try {
+      for (let i=0;i<steps.length;i++){
+        const st = steps[i];
+        T.unring();
+        setCaption(i+1, steps.length, st.text);
+        await T.wait(st.lead ?? 500);
+        if (st.do) await st.do(T);
+        await T.wait(st.hold ?? 2800);
+      }
+    } catch(e) { if (!(e instanceof Abort)) console.error(e); }
+    window.__tourMs = Math.round(performance.now() - t0);
+    finalCard(cfg);
+  }
+
+  DV.start = (cfg) => {
+    DV.cfg = cfg;
+    document.title = cfg.title || document.title;
+    buildTopbar(cfg);
+    DV.$$('[data-logo]').forEach(el => el.innerHTML = DV.logo({size: +el.dataset.size || 18, dark: el.hasAttribute('data-dark')}));
+    DV.$$('[data-brand-name]').forEach(el => el.textContent = DV.brandName);
+    if (DV.isWhite) DV.$$('[data-dv-only]').forEach(el => el.remove()); else DV.$$('[data-white-only]').forEach(el => el.remove());
+    if (cfg.init) cfg.init();
+    if (!DV.tourMode) {
+      const b = document.createElement('button'); b.type='button'; b.className='dv-tour-btn';
+      b.innerHTML = `${DV.icon('play',14)} Ver recorrido guiado`;
+      b.addEventListener('click', () => { const p = new URLSearchParams(location.search); p.set('tour','1'); location.href = location.pathname + '?' + p.toString(); });
+      const slot = DV.$('[data-tour-slot]');
+      if (slot) slot.appendChild(b); else { b.classList.add('dv-tour-float'); document.body.appendChild(b); }
+    } else {
+      setTimeout(() => runTour(cfg), 900);
+    }
+  };
+})();
+
+</script>
+<script>
+(function(){
+const {$, $$, esc, icon} = DV;
+const ORG = 'Unión Gremial Los Álamos';
+const orgMark = (s=36) => `<svg width="${s}" height="${s}" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#2F6B4F"/><path d="M20 8c-5 4-8 8-8 13a8 8 0 0 0 16 0c0-5-3-9-8-13z" fill="#CFE8D6"/><path d="M20 15v19M20 22l-4-3M20 26l4-3" stroke="#2F6B4F" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+/* ---------- Datos ficticios ---------- */
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const r = rng(42);
+const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const now = new Date();
+const months = Array.from({length:12}, (_,i) => { const d = new Date(now.getFullYear(), now.getMonth() - 11 + i, 1); return {lbl: MES[d.getMonth()], full: MES[d.getMonth()] + ' ' + d.getFullYear(), d}; });
+const NOM = ['Lucía','Martín','Carolina','Diego','Florencia','Javier','Natalia','Gustavo','Romina','Pablo','Silvina','Hernán','Valeria','Sebastián','Mariela','Leandro','Daniela','Rubén','Analía','Cristian','Gabriela','Federico','Verónica','Walter','Lorena','Matías','Andrea','Ezequiel','Soledad','Raúl'];
+const APE = ['Ferreyra','Ferraro','Godoy','Quiroga','Acosta','Medina','Herrera','Aguirre','Sosa','Luna','Ojeda','Molina','Paz','Vega','Benítez','Correa','Ríos','Toledo','Cabrera','Sánchez','Ponce','Figueroa','Navarro','Campos','Peralta','Domínguez','Juárez','Villalba','Ibáñez','Salinas'];
+const EMP = ['Logística Quillén','Supermercados del Parque','Transportes Arroyo Seco','Distribuidora El Ceibo','Textil Las Lomas','Panificadora La Espiga','Frigorífico Cuatro Vientos','Envases del Oeste'];
+const CATS = ['Activo','Jubilado','Adherente'];
+const dni = () => { const n = Math.floor(20e6 + r()*24e6); return n.toLocaleString('es-AR'); };
+let AF = NOM.map((n, i) => {
+  const cat = i % 7 === 3 ? 'Jubilado' : (i % 9 === 5 ? 'Adherente' : 'Activo');
+  const paid = months.map(() => true);
+  let owe = 0; const x = r();
+  if (i === 1) owe = 2; else if (i === 0) owe = 0; else if (x > .9) owe = 3; else if (x > .72) owe = 1;
+  for (let k = 0; k < owe; k++) paid[11-k] = false;
+  if (r() > .85) paid[Math.floor(r()*6)] = false; // atraso viejo
+  const alta = new Date(2014 + Math.floor(r()*12), Math.floor(r()*12), 1 + Math.floor(r()*27));
+  return { nro: 10400 + i*7 + (i===0?18:0), nombre:n, apellido:APE[i], dni:dni(), cat, emp: cat==='Jubilado' ? 'Jubilado/a' : EMP[Math.floor(r()*EMP.length)], paid, alta, tel:'11 ' + (4000+Math.floor(r()*5999)) + '-' + (1000+Math.floor(r()*8999)), isNew:false };
+});
+[3,9,17,24].forEach((i,k) => { AF[i].alta = new Date(now.getFullYear(), Math.max(0, now.getMonth() - k*2), 3 + k*5); });
+AF[0].alta = new Date(2019, 2, 11); AF[0].emp = 'Transportes Arroyo Seco';
+const fullName = a => a.nombre + ' ' + a.apellido;
+const owed = a => a.paid.slice(-3).filter(p => !p).length;
+const estado = a => { const o = owed(a); return o === 0 ? ['ok','Al día'] : o === 1 ? ['warn','Debe 1 cuota'] : ['bad', `Debe ${o} cuotas`]; };
+const fdate = d => d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'});
+
+/* ---------- Estado ---------- */
+const st = { role:null, view:'tablero', q:'', fEstado:'todos', fCat:'todas', benCat:'Activo' };
+const ME = () => AF.find(a => a.nombre === 'Lucía' && a.apellido === 'Ferreyra');
+
+/* ---------- Render ---------- */
+function render(){
+  const app = $('#app');
+  if (!st.role) { app.innerHTML = loginHTML(); bindLogin(); return; }
+  const nav = st.role === 'admin'
+    ? [['tablero','Tablero','chart'],['afiliados','Afiliados','users',AF.length],['alta','Nueva alta','plus']]
+    : [['credencial','Mi credencial','card'],['cuenta','Estado de cuenta','file'],['beneficios','Beneficios','gift']];
+  const user = st.role === 'admin' ? ['Sandra Villegas','Administración'] : [fullName(ME()), 'Afiliada N° ' + ME().nro];
+  const titles = {tablero:'Tablero', afiliados:'Afiliados', alta:'Nueva alta de afiliado', credencial:'Mi credencial digital', cuenta:'Estado de cuenta', beneficios:'Beneficios'};
+  app.innerHTML = `<div class="shell">
+    <aside class="side" aria-label="Menú">
+      <div class="side-brand"><span data-logo data-dark data-size="18"></span><div class="prod">Padrón digital</div></div>
+      <div class="side-org">${orgMark(34)}<div><div class="o-name">${ORG}</div><div class="o-sub">${st.role==='admin'?'Panel de administración':'Portal del afiliado'}</div></div></div>
+      <nav class="side-nav" aria-label="Secciones"><span class="nav-lbl">${st.role==='admin'?'Gestión':'Mi cuenta'}</span>
+        ${nav.map(n => `<button type="button" class="nav-btn" data-view="${n[0]}" ${st.view===n[0]?'aria-current="page"':''}>${icon(n[2])}<span>${n[1]}</span>${n[3]?`<span class="cnt">${n[3]}</span>`:''}</button>`).join('')}
+        <button type="button" class="nav-btn" id="logout">${icon('logout')}<span>Salir</span></button>
+      </nav>
+      <div class="side-foot">${DV.avatar(user[0])}<div><div class="u-name">${esc(user[0])}</div><div class="u-role">${esc(user[1])}</div></div></div>
+    </aside>
+    <div class="main">
+      <header class="main-head"><div><div class="crumb">${ORG}</div><h1>${titles[st.view]}</h1></div><span class="spacer"></span><span data-tour-slot2></span>${st.role==='admin'&&st.view!=='alta'?`<button type="button" class="btn primary" data-view="alta">${icon('plus',16)} Nuevo afiliado</button>`:''}</header>
+      <main class="content" id="content">${VIEWS[st.view]()}</main>
+    </div></div>`;
+  $$('[data-logo]', app).forEach(el => el.innerHTML = DV.logo({size:18, dark:true}));
+  $$('[data-view]', app).forEach(b => b.addEventListener('click', () => go(b.dataset.view)));
+  $('#logout').addEventListener('click', () => { st.role = null; render(); window.scrollTo(0,0); });
+  moveTourBtn();
+  BIND[st.view] && BIND[st.view]();
+}
+function go(v){ st.view = v; render(); window.scrollTo(0,0); }
+function moveTourBtn(){ const b = $('.dv-tour-btn'); const slot = $('[data-tour-slot2]') || $('[data-tour-slot]'); if (b && slot) slot.appendChild(b); }
+
+function loginHTML(){
+  return `<div class="login"><div class="card login-card">
+    <span data-logo data-size="22">${DV.logo({size:22})}</span>
+    <div class="prod">Padrón digital</div>
+    <div class="org">${orgMark(22)} ${ORG}</div>
+    <div class="login-opts">
+      <button type="button" class="login-opt" id="login-admin"><span class="ic">${icon('shield',24)}</span><span><span class="t">Entrar como administrador</span><span class="s">Padrón, cuotas, altas y tablero</span></span><span class="go">${icon('arrowR')}</span></button>
+      <button type="button" class="login-opt" id="login-af"><span class="ic">${icon('card',24)}</span><span><span class="t">Entrar como afiliado</span><span class="s">Credencial digital, cuenta y beneficios</span></span><span class="go">${icon('arrowR')}</span></button>
+    </div>
+    <p class="login-note">Es una demo: no hace falta usuario ni contraseña. En la versión real, cada persona entra con su DNI y una clave, o con un código por WhatsApp.</p>
+    <div class="login-tour" data-tour-slot></div>
+  </div></div>`;
+}
+function bindLogin(){
+  $('#login-admin').addEventListener('click', () => { st.role = 'admin'; st.view = 'tablero'; render(); });
+  $('#login-af').addEventListener('click', () => { st.role = 'afiliado'; st.view = 'credencial'; render(); });
+  moveTourBtn();
+}
+
+const VIEWS = {
+  tablero(){
+    const total = AF.length, alDia = AF.filter(a => !owed(a)).length, deuda = total - alDia;
+    const altas = AF.filter(a => a.alta.getFullYear() === now.getFullYear()).length;
+    const bars = months.map((m, i) => ({label:m.lbl, value: AF.filter(a => a.paid[i]).length, highlight: i === 11}));
+    const cats = CATS.map(c => ({label:c, value: AF.filter(a => a.cat === c).length}));
+    const debtors = AF.filter(a => owed(a)).sort((a,b) => owed(b)-owed(a)).slice(0,5);
+    return `<div class="view">
+      <div class="kpis" id="kpis">
+        <div class="card kpi"><div class="k-label">Afiliados</div><div class="k-value">${total}</div><div class="k-sub">en el padrón</div></div>
+        <div class="card kpi"><div class="k-label">Cuotas al día</div><div class="k-value">${Math.round(alDia/total*100)}%</div><div class="k-sub">${alDia} afiliados</div></div>
+        <div class="card kpi"><div class="k-label">Con deuda</div><div class="k-value">${deuda}</div><div class="k-sub">últimos 3 meses</div></div>
+        <div class="card kpi"><div class="k-label">Altas ${now.getFullYear()}</div><div class="k-value">${altas}</div><div class="k-sub">en lo que va del año</div></div>
+      </div>
+      <div class="cols-2">
+        <section class="card panel" id="chart-aportes"><div class="panel-h"><h2>Aportes recibidos por mes</h2><span class="spacer"></span><span class="badge plain neutral">Últimos 12 meses</span></div>
+          ${DV.bars(bars, {label:'Cantidad de afiliados que aportaron por mes', height:230})}
+          <p class="small muted" style="margin:6px 0 0">Cantidad de afiliados con el aporte acreditado en cada mes.</p></section>
+        <section class="card panel"><div class="panel-h"><h2>Por categoría</h2></div>${DV.hbars(cats)}
+          <div class="panel-h" style="margin:20px 0 6px"><h2>Para contactar</h2></div>
+          <ul class="debt-list">${debtors.map(a => `<li>${DV.avatar(fullName(a))}<div style="flex:1;min-width:0"><div style="font-weight:600">${esc(fullName(a))}</div><span class="badge ${estado(a)[0]}">${estado(a)[1]}</span></div><button type="button" class="btn sm" data-remind="${a.nro}" aria-label="Enviar recordatorio a ${esc(fullName(a))}">${icon('chat',15)}<span class="hide-m">Recordar</span></button></li>`).join('')}</ul>
+        </section>
+      </div></div>`;
+  },
+  afiliados(){
+    return `<div class="view"><section class="card panel">
+      <div class="filters">
+        <div class="search">${icon('search',17)}<label class="sr-only" for="q">Buscar afiliado</label><input id="q" class="input" type="search" placeholder="Buscar por nombre, DNI o N° de afiliado" value="${esc(st.q)}"></div>
+        <label class="sr-only" for="f-est">Estado</label><select id="f-est" class="input" style="width:auto"><option value="todos">Todos los estados</option><option value="aldia">Al día</option><option value="deuda">Con deuda</option></select>
+        <label class="sr-only" for="f-cat">Categoría</label><select id="f-cat" class="input" style="width:auto"><option value="todas">Todas las categorías</option>${CATS.map(c=>`<option>${c}</option>`).join('')}</select>
+      </div>
+      <p class="small muted" id="count" aria-live="polite" style="margin:12px 0 4px"></p>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Afiliado</th><th class="hide-m">DNI</th><th class="hide-m">Categoría</th><th class="hide-m">Empresa</th><th>Cuotas</th></tr></thead><tbody id="rows"></tbody></table></div>
+    </section></div>`;
+  },
+  alta(){
+    return `<div class="view"><form class="card panel" id="alta" novalidate style="max-width:760px">
+      <div class="panel-h"><h2>Datos del afiliado</h2><span class="spacer"></span><span class="small muted">Los campos con * son obligatorios</span></div>
+      <div class="form-grid">
+        <label class="field">Nombre *<input class="input" id="a-nom" autocomplete="off"></label>
+        <label class="field">Apellido *<input class="input" id="a-ape" autocomplete="off"></label>
+        <label class="field">DNI *<input class="input" id="a-dni" inputmode="numeric" placeholder="Sin puntos" autocomplete="off"></label>
+        <label class="field">Teléfono<input class="input" id="a-tel" inputmode="tel" placeholder="11 5555-5555" autocomplete="off"></label>
+        <label class="field">Categoría<select class="input" id="a-cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select></label>
+        <label class="field">Empresa<select class="input" id="a-emp">${EMP.map(c=>`<option>${c}</option>`).join('')}</select></label>
+        <p class="err full" id="a-err" role="alert" style="margin:0"></p>
+      </div>
+      <div class="row" style="margin-top:14px;justify-content:flex-end"><button type="button" class="btn" data-view="afiliados">Cancelar</button><button type="submit" class="btn primary" id="a-save">${icon('check',16)} Guardar alta</button></div>
+    </form>
+    <p class="small muted">Al guardar, el afiliado aparece en el padrón y recibe por WhatsApp el link para ver su credencial.</p></div>`;
+  },
+  credencial(){
+    const a = ME();
+    return `<div class="view"><div class="cred-wrap">
+      <div class="cred" id="cred">
+        <div class="c-top">${orgMark(36)}<div class="c-org">${ORG}<small>Credencial de afiliación</small></div></div>
+        <div class="row" style="margin:18px 0 2px;align-items:center"><div class="c-name" style="margin:0">${esc(fullName(a))}</div><span class="c-ok">${icon('check',12)} Vigente</span></div>
+        <div class="c-grid"><div><span>N° de afiliada</span><b>${a.nro}</b></div><div><span>DNI</span><b>${a.dni}</b></div><div><span>Categoría</span><b>${a.cat}</b></div><div><span>Vence</span><b>31/12/${now.getFullYear()}</b></div></div>
+        <div class="c-qr">${DV.qr('cred-'+a.nro, 112)}<p>Mostrá este código en la sede o en los comercios adheridos para validar tu afiliación.</p></div>
+      </div>
+      <div class="view" style="gap:12px">
+        <div class="card status-hero"><span class="ic" style="background:var(--ok-soft);color:var(--ok)">${icon('check',26)}</span><div><div class="big">Estás al día</div><div class="muted small">Tu último aporte se acreditó el 05/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}.</div></div></div>
+        <div class="card panel"><h2 style="font-size:16px;margin-bottom:8px">Tu credencial, siempre a mano</h2><p class="small muted" style="margin:0 0 12px">Funciona desde el celular, sin instalar nada. Si cambia tu categoría o tu estado, se actualiza sola.</p>
+          <div class="row" style="flex-wrap:wrap"><button type="button" class="btn" id="add-home">${icon('phone',16)} Agregar a la pantalla de inicio</button><button type="button" class="btn" data-view="beneficios">${icon('gift',16)} Ver mis beneficios</button></div></div>
+      </div></div></div>`;
+  },
+  cuenta(){
+    const a = ME();
+    return `<div class="view">
+      <div class="card status-hero"><span class="ic" style="background:var(--ok-soft);color:var(--ok)">${icon('check',26)}</span><div><div class="big">Sin deuda</div><div class="muted small">Tus cuotas se descuentan por recibo de sueldo (${esc(a.emp)}).</div></div></div>
+      <section class="card panel"><div class="panel-h"><h2>Últimos 12 meses</h2></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Mes</th><th class="hide-m">Concepto</th><th>Estado</th><th class="hide-m">Acreditación</th></tr></thead><tbody>
+      ${months.slice().reverse().map((m) => `<tr><td>${m.full}</td><td class="hide-m">Cuota sindical · retención por recibo</td><td><span class="badge ok">Acreditada</span></td><td class="hide-m">05/${String(m.d.getMonth()+1).padStart(2,'0')}/${m.d.getFullYear()}</td></tr>`).join('')}
+      </tbody></table></div></section></div>`;
+  },
+  beneficios(){
+    const BEN = {
+      Activo:[['gift','Kit escolar','Mochila y útiles para tus hijos en edad escolar, en marzo.'],['home','Turismo y colonia','Hotel propio en las sierras y colonia de verano para chicos.'],['shield','Subsidio por nacimiento','Ayuda económica por nacimiento o adopción.'],['file','Asesoría legal gratuita','Consultas laborales con abogados del gremio.'],['box','Descuentos en farmacias','Hasta 40% en farmacias adheridas con tu credencial.'],['chart','Capacitaciones','Cursos de oficio y de computación, gratis para vos.']],
+      Jubilado:[['home','Turismo en temporada baja','Estadías en el hotel propio con prioridad para jubilados.'],['box','Descuentos en farmacias','Hasta 50% en medicamentos en farmacias adheridas.'],['users','Centro de jubilados','Talleres, actividades y salidas todo el año.'],['file','Gestoría previsional','Te ayudamos con trámites ante organismos previsionales.']],
+      Adherente:[['box','Descuentos en comercios','Beneficios en comercios adheridos de la zona.'],['chart','Capacitaciones','Acceso a cursos abiertos a la comunidad.'],['home','Uso del camping','Ingreso al camping del gremio los fines de semana.']]
+    };
+    return `<div class="view">
+      <div class="row" style="flex-wrap:wrap"><div class="tabs-inline" role="group" aria-label="Categoría">${CATS.map(c => `<button type="button" data-bcat="${c}" aria-pressed="${st.benCat===c}">${c}${c===ME().cat?' · tu categoría':''}</button>`).join('')}</div></div>
+      <div class="ben-grid" id="ben">${BEN[st.benCat].map(b => `<article class="card ben"><span class="ic">${icon(b[0],20)}</span><h3>${b[1]}</h3><p>${b[2]}</p>${st.benCat===ME().cat?`<button type="button" class="btn sm" data-req="${esc(b[1])}">Solicitar</button>`:'<span class="small muted">Para afiliados de esta categoría</span>'}</article>`).join('')}</div></div>`;
+  }
+};
+
+function renderRows(){
+  const q = DV.norm(st.q.trim()).replace(/\./g,'');
+  let list = AF.filter(a => {
+    if (q && !DV.norm(fullName(a) + ' ' + a.dni.replace(/\./g,'') + ' ' + a.nro).includes(q)) return false;
+    if (st.fEstado === 'aldia' && owed(a)) return false;
+    if (st.fEstado === 'deuda' && !owed(a)) return false;
+    if (st.fCat !== 'todas' && a.cat !== st.fCat) return false;
+    return true;
+  });
+  $('#count').textContent = `${list.length} de ${AF.length} afiliados`;
+  $('#rows').innerHTML = list.length ? list.map(a => { const e = estado(a); return `<tr class="row-click${a.isNew?' is-new':''}" data-nro="${a.nro}">
+    <td><div class="who">${DV.avatar(fullName(a))}<div><button type="button" class="link-btn" data-open="${a.nro}">${esc(a.apellido)}, ${esc(a.nombre)}</button>${a.isNew?' <span class="badge accent plain">Nuevo</span>':''}<div class="nro">N° ${a.nro}</div></div></div></td>
+    <td class="hide-m">${a.dni}</td><td class="hide-m">${a.cat}</td><td class="hide-m">${esc(a.emp)}</td><td><span class="badge ${e[0]}">${e[1]}</span></td></tr>`; }).join('')
+    : `<tr><td colspan="5"><div class="empty">No encontramos afiliados con esos filtros.</div></td></tr>`;
+  $$('#rows tr[data-nro]').forEach(tr => tr.addEventListener('click', () => openFicha(+tr.dataset.nro)));
+}
+function openFicha(nro){
+  const a = AF.find(x => x.nro === nro); const e = estado(a); const debe = a.paid.filter(p=>!p).length;
+  const body = `<div class="who" style="margin-bottom:10px">${DV.avatar(fullName(a), 46)}<div><div style="font-weight:700;font-size:17px">${esc(fullName(a))}</div><span class="badge ${e[0]}">${e[1]}</span></div></div>
+    <dl class="dl"><div><dt>N° de afiliado</dt><dd>${a.nro}</dd></div><div><dt>DNI</dt><dd>${a.dni}</dd></div><div><dt>Categoría</dt><dd>${a.cat}</dd></div><div><dt>Empresa</dt><dd>${esc(a.emp)}</dd></div><div><dt>Alta</dt><dd>${fdate(a.alta)}</dd></div><div><dt>Teléfono</dt><dd>${a.tel}</dd></div></dl>
+    <h3 style="font-size:14.5px;margin-bottom:8px">Cuotas y aportes · últimos 12 meses</h3>
+    <div class="months" id="months">${months.map((m,i) => `<div class="mcell ${a.paid[i]?'ok':'no'}" title="${m.full}: ${a.paid[i]?'acreditada':'pendiente'}">${m.lbl}<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">${a.paid[i]?'<path d="M20 6 9 17l-5-5"/>':'<path d="M18 6 6 18M6 6l12 12"/>'}</svg><span class="sr-only">${a.paid[i]?'acreditada':'pendiente'}</span></div>`).join('')}</div>
+    <div class="legend"><span><i style="background:var(--ok)"></i>Acreditada</span><span><i style="background:var(--bad)"></i>Pendiente</span></div>`;
+  const foot = `<button type="button" class="btn" id="remind">${icon('chat',16)} Enviar recordatorio</button>${debe?`<button type="button" class="btn ok" id="pay-btn">${icon('check',16)} Registrar pago (${debe})</button>`:`<button type="button" class="btn" data-close>Cerrar</button>`}`;
+  const d = DV.dialog('ficha', 'Ficha del afiliado', body, foot);
+  const pay = $('#pay-btn', d);
+  if (pay) pay.addEventListener('click', () => { a.paid = a.paid.map(() => true); DV.toast(`Pago registrado: ${fullName(a)} quedó al día`); openFicha(nro); if ($('#rows')) renderRows(); });
+  $('#remind', d).addEventListener('click', () => DV.toast(`Recordatorio enviado por WhatsApp a ${fullName(a)}`));
+}
+
+const BIND = {
+  tablero(){ $$('[data-remind]').forEach(b => b.addEventListener('click', () => { const a = AF.find(x => x.nro === +b.dataset.remind); DV.toast(`Recordatorio enviado por WhatsApp a ${fullName(a)}`); b.disabled = true; b.innerHTML = icon('check',15) + '<span class="hide-m">Enviado</span>'; })); },
+  afiliados(){
+    $('#f-est').value = st.fEstado; $('#f-cat').value = st.fCat;
+    $('#q').addEventListener('input', e => { st.q = e.target.value; renderRows(); });
+    $('#f-est').addEventListener('change', e => { st.fEstado = e.target.value; renderRows(); });
+    $('#f-cat').addEventListener('change', e => { st.fCat = e.target.value; renderRows(); });
+    renderRows();
+  },
+  alta(){
+    $('#alta').addEventListener('submit', e => {
+      e.preventDefault();
+      const nom = $('#a-nom').value.trim(), ape = $('#a-ape').value.trim(), d = $('#a-dni').value.replace(/\D/g,'');
+      const err = $('#a-err');
+      if (!nom || !ape) { err.textContent = 'Completá nombre y apellido.'; return; }
+      if (d.length < 7 || d.length > 8) { err.textContent = 'El DNI tiene que tener 7 u 8 números.'; $('#a-dni').focus(); return; }
+      if (AF.some(a => a.dni.replace(/\./g,'') === d)) { err.textContent = 'Ya hay un afiliado con ese DNI.'; return; }
+      const nro = Math.max(...AF.map(a => a.nro)) + 1;
+      AF.unshift({ nro, nombre:nom, apellido:ape, dni:Number(d).toLocaleString('es-AR'), cat:$('#a-cat').value, emp:$('#a-emp').value, paid: months.map((m,i) => i === 11), alta:new Date(), tel:$('#a-tel').value || '—', isNew:true });
+      AF[0].paid = months.map(() => true);
+      st.q = ''; st.fEstado = 'todos'; st.fCat = 'todas';
+      go('afiliados');
+      DV.toast(`Alta registrada: ${nom} ${ape} · N° ${nro}`);
+    });
+  },
+  credencial(){ $('#add-home').addEventListener('click', () => DV.toast('Listo: la credencial quedó como acceso directo en tu celular')); },
+  beneficios(){
+    $$('[data-bcat]').forEach(b => b.addEventListener('click', () => { st.benCat = b.dataset.bcat; render(); }));
+    $$('[data-req]').forEach(b => b.addEventListener('click', () => { DV.toast(`Solicitud de "${b.dataset.req}" enviada. Te avisamos por WhatsApp.`); b.disabled = true; b.textContent = 'Solicitado'; }));
+  }
+};
+
+DV.start({
+  product: 'Padrón',
+  init(){ render(); },
+  tour: [
+    { text:'Entrás como administrador, desde cualquier navegador. Sin instalar nada.', do: async T => { await T.click('#login-admin', {after:500}); }, hold:1800 },
+    { text:'El tablero muestra el padrón de un vistazo: afiliados, cuotas al día y deuda.', do: async T => { await T.ring('#kpis'); }, hold:3000 },
+    { text:'Y los aportes recibidos mes a mes, siempre actualizados.', do: async T => { await T.ring('#chart-aportes'); }, hold:2800 },
+    { text:'Buscás a cualquier afiliado por nombre, DNI o número.', do: async T => { T.unring(); await T.click('.nav-btn[data-view="afiliados"]', {after:500}); await T.type('#q', 'Ferr', {speed:120}); }, hold:2000 },
+    { text:'Su ficha muestra las cuotas y aportes de cada mes.', do: async T => { await T.click(() => $('#rows [data-open]:not([data-open="'+ME().nro+'"])')); await T.wait(500); await T.ring('#months'); }, hold:2600 },
+    { text:'Registrás el pago y el estado se actualiza solo, en la ficha y en el padrón.', do: async T => { T.unring(); await T.click('#pay-btn', {after:900}); await T.ring('#months'); await T.wait(1200); T.unring(); await T.click('#ficha [data-close]'); }, hold:1600 },
+    { text:'Das de alta un afiliado nuevo en segundos.', do: async T => { await T.click('.main-head [data-view="alta"]', {after:400}); await T.type('#a-nom', 'Camila', {speed:45}); await T.type('#a-ape', 'Arancibia', {speed:45}); await T.type('#a-dni', '38412977', {speed:40}); await T.click('#a-save', {after:700}); }, hold:2400 },
+    { text:'El afiliado entra desde el celular y tiene su credencial digital con QR.', do: async T => { await T.click('#logout', {after:500}); await T.click('#login-af', {after:600}); await T.ring('#cred', 8); }, hold:3200 },
+    { text:'También ve su estado de cuenta y los beneficios de su categoría.', do: async T => { T.unring(); await T.click('.nav-btn[data-view="beneficios"]', {after:500}); await T.ring('#ben'); }, hold:3000 },
+  ]
+});
+})();
+</script>
+</body>
+</html>
