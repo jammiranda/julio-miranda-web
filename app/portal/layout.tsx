@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import Marca from "@/components/Marca"
 import { clienteActual, cerrarSesionCliente } from "@/lib/portal"
 import { URL_ACADEMIA } from "@/lib/academia"
+import LinksExternos from "@/components/LinksExternos"
 
 export const metadata: Metadata = { title: "Mi cuenta · DEVISEBIT", robots: { index: false, follow: false } }
 
@@ -16,8 +17,8 @@ async function salir() {
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const c = await clienteActual()
   const items = c?.acceso === "ok"
-    ? [{ href: "/portal", t: "Inicio" }, { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos" }]
-    : c ? [{ href: "/portal/pagos", t: "Pagos" }] : []
+    ? [{ href: "/portal", t: "Inicio" }, { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos y facturas" }, { href: "/portal/servicios", t: "Servicios" }]
+    : c ? [{ href: "/portal/pagos", t: "Pagos y facturas" }] : []
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-[#E2E5EA]">
@@ -33,14 +34,14 @@ export default async function PortalLayout({ children }: { children: React.React
         {c && (
           <nav aria-label="Mi cuenta" className="max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
             {items.map((i) => <Link key={i.href} href={i.href} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">{i.t}</Link>)}
-            <a href={`${URL_ACADEMIA}/cursos`} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">Academia</a>
-            <a href="https://www.devisebit.com/servicios" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">Servicios</a>
+            <a href={`${URL_ACADEMIA}/cursos`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">Academia ↗</a>
           </nav>
         )}
       </header>
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6">{children}</main>
+      <LinksExternos />
       <footer className="text-center text-xs text-[#4A515C] py-6 px-4">
-        DEVISEBIT SRL · <a href="https://wa.me/5491173466490" className="underline">WhatsApp +54 9 11 7346-6490</a> · <a href="mailto:info@devisebit.com" className="underline">info@devisebit.com</a><br />
+        DEVISEBIT SRL · <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="underline">WhatsApp +54 9 11 7346-6490</a> · <a href="mailto:info@devisebit.com" className="underline">info@devisebit.com</a><br />
         Tus datos están protegidos (Ley 25.326). Cada ingreso queda registrado.
       </footer>
     </div>

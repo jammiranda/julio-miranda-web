@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic"
 export default async function Resumen({ searchParams }: { searchParams: { dias?: string } }) {
   const dias = [30, 90, 365].includes(Number(searchParams.dias)) ? Number(searchParams.dias) : 30
   const [cuenta, proximos, activos, sinPasar, fuentes, reuniones] = await Promise.all([
-    q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos group by etapa"),
-    q<any>("select id, nombre, organizacion, etapa, proximo, proximo_fecha from db_contactos where etapa not in ('ganado','perdido') and (proximo is not null or proximo_fecha is not null) order by proximo_fecha nulls last limit 12"),
+    q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos where clase in ('oportunidad','cliente') group by etapa"),
+    q<any>("select id, nombre, organizacion, etapa, proximo, proximo_fecha from db_contactos where coalesce(clase,'') not in ('descartado') and etapa not in ('ganado','perdido') and (proximo is not null or proximo_fecha is not null) order by proximo_fecha nulls last limit 12"),
     q<any>(`select p.id, p.nombre, p.estado, p.entrega, p.monto, c.organizacion, c.nombre contacto
             from db_proyectos p left join db_contactos c on c.id=p.contacto_id
             where p.estado in ('planificado','en_curso','pausado') order by p.entrega nulls last limit 12`),

@@ -52,7 +52,7 @@ export default async function Entrar({ searchParams }: { searchParams: { r?: str
           </form>
         )}
         {searchParams.r === "enviado" && <a href="/portal/entrar" className="text-sm underline text-[#4A515C]">Usar otro email</a>}
-        <p className="m-0 text-xs text-[#4A515C] border-t border-[#EEF0F3] pt-3">¿Problemas para entrar? Escribinos por <a className="underline" href={WA}>WhatsApp</a>.</p>
+        <p className="m-0 text-xs text-[#4A515C] border-t border-[#EEF0F3] pt-3">¿Problemas para entrar? Escribinos por <a target="_blank" rel="noopener noreferrer" className="underline" href={WA}>WhatsApp</a>.</p>
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
 import { FASES, TIPOS_HITO, tipoHito, registrarHito, avisarNovedad, enviarAcceso, urlPortal, fase as faseDe, type Hito } from "@/lib/portal"
 import FaseBarra from "@/components/FaseBarra"
+import { cargarFactura, nroRecibo, formatoCuit } from "@/lib/comprobantes"
 import { TIPOS_COBRO, tipoCobro, plata, cobrosDe, generarAbonos } from "@/lib/cobros"
 import { registrarPago } from "@/lib/pagos"
 import { ESTADOS_PROY, estadoProy, trelloActivo, trelloCrearTablero, trelloIdDeUrl, trelloResumen, trelloTarjeta, type TrelloResumen } from "@/lib/crm"
@@ -46,7 +47,8 @@ async function guardar(fd: FormData) {
     if (antes.entrega && ent && antes.entrega !== ent) await registrarHito(pid, { tipo: "sistema", titulo: `Nueva fecha estimada de entrega: ${fecha(ent)}`, detalle: `Antes: ${fecha(antes.entrega)}`, autor: u.nombre })
   }
   // Al ganar un proyecto, el contacto pasa a "ganado"
-  if (v[1] && ["en_curso", "terminado"].includes(v[3] as string)) await q("update db_contactos set etapa='ganado', actualizado=now() where id=$1 and etapa<>'ganado'", [v[1]])
+  if (v[1] && ["en_curso", "terminado"].includes(v[3] as string)) await q("update db_contactos set etapa='ganado', clase=case when clase is null or clase in ('oportunidad','suscriptor') then 'cliente' else clase end, actualizado=now() where id=$1", [v[1]])
+  else if (v[1]) await q("update db_contactos set clase=coalesce(clase,'oportunidad') where id=$1", [v[1]])
   await audit(u, id ? "edita_proyecto_db" : "crea_proyecto_db", "db_proyecto", pid, est)
   redirect(`/proyectos/${pid}?ok=1`)
 }
@@ -167,6 +169,12 @@ async function accionCobro(fd: FormData) {
   const op = String(fd.get("op"))
   if (op === "pagado") await registrarPago(cid, { medio: s(fd.get("medio")) ?? "Transferencia", por: u.nombre })
   else if (op === "anular") { await q("update db_cobros set estado='anulado' where id=$1 and proyecto_id=$2 and estado='pendiente'", [cid, id]); await audit(u, "anula_cobro", "db_cobro", cid) }
+  else if (op === "factura") {
+    const nro = s(fd.get("factura_nro")), url = s(fd.get("factura_url"))
+    if (!nro || !url || !/^https?:\/\//.test(url)) redirect(`/proyectos/${id}?cerr=${encodeURIComponent("Para cargar la factura poné el número y el link al PDF (https://…)")}#cobros`)
+    const r = await cargarFactura(cid, { nro: nro!, url: url!, tipo: s(fd.get("factura_tipo")), por: u.nombre })
+    redirect(`/proyectos/${id}?${r.ok ? "cok=factura" : `cerr=${encodeURIComponent(r.error ?? "error")}`}#cobros`)
+  }
   else if (op === "reabrir") { await q("update db_cobros set estado='pendiente', pagado_en=null, medio=null where id=$1 and proyecto_id=$2", [cid, id]); await audit(u, "reabre_cobro", "db_cobro", cid) }
   redirect(`/proyectos/${id}#cobros`)
 }
@@ -256,7 +264,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
             <h2 id="t-cobros" className="m-0 text-base">Cobros y abono</h2>
             <span className="text-sm text-[#4A515C]">Cobrado <strong className="text-emerald-700">{tot(sumar("pagado"))}</strong> · Pendiente <strong className="text-[#0E1116]">{tot(sumar("pendiente"))}</strong>{p.monto ? <> · Acordado {plata(p.monto, p.moneda ?? "USD")}</> : null}</span>
           </div>
-          {searchParams.cok && <p role="status" className="m-0 text-sm text-emerald-700">{searchParams.cok === "abono" ? "Abono guardado. El cobro del mes se genera solo." : "Cobro cargado. El cliente ya lo ve en su estado de cuenta."}</p>}
+          {searchParams.cok && <p role="status" className="m-0 text-sm text-emerald-700">{searchParams.cok === "abono" ? "Abono guardado. El cobro del mes se genera solo." : searchParams.cok === "factura" ? "Factura cargada y enviada al cliente por email." : "Cobro cargado. El cliente ya lo ve en su estado de cuenta."}</p>}
           {searchParams.cerr && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.cerr}</p>}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
             <div className="lg:col-span-2 flex flex-col gap-4">
@@ -299,13 +307,29 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
                         <td><span className="font-semibold">{c.concepto}</span><span className="block text-xs text-[#4A515C]">{tipoCobro(c.tipo)}</span></td>
                         <td className={venc ? "text-rojo font-semibold" : ""}>{fecha(c.vence)}{venc && <span className="block text-xs">{c.dias_atraso} días</span>}</td>
                         <td className="whitespace-nowrap">{plata(c.monto, c.moneda)}</td>
-                        <td><span className={`chip ${c.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : c.estado === "anulado" ? "bg-slate-100 text-slate-500" : venc ? "bg-red-50 text-rojo" : "bg-amber-50 text-amber-700"}`}>{c.estado === "pagado" ? `Pagado ${fecha(c.pagado_en)}` : c.estado === "anulado" ? "Anulado" : venc ? "Vencido" : "Pendiente"}</span>{c.medio && <span className="block text-xs text-[#4A515C]">{c.medio}</span>}{c.estado === "pendiente" && c.informado_en && <span className="block text-xs font-semibold text-sky-700">El cliente informó el pago: {c.informado_detalle}</span>}</td>
+                        <td><span className={`chip ${c.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : c.estado === "anulado" ? "bg-slate-100 text-slate-500" : venc ? "bg-red-50 text-rojo" : "bg-amber-50 text-amber-700"}`}>{c.estado === "pagado" ? `Pagado ${fecha(c.pagado_en)}` : c.estado === "anulado" ? "Anulado" : venc ? "Vencido" : "Pendiente"}</span>{c.medio && <span className="block text-xs text-[#4A515C]">{c.medio}</span>}{c.estado === "pendiente" && c.informado_en && <span className="block text-xs font-semibold text-sky-700">El cliente informó el pago: {c.informado_detalle}</span>}
+                          {c.estado === "pagado" && <a href={`/portal/pagos/comprobante/${c.id}`} target="_blank" rel="noopener noreferrer" className="block text-xs underline mt-1">Comprobante {nroRecibo(c.recibo_nro)}</a>}
+                          {c.factura_estado === "emitida" && <a href={c.factura_url ?? "#"} target="_blank" rel="noopener noreferrer" className="block text-xs underline text-emerald-700">Factura {c.factura_tipo ?? ""} {c.factura_nro}</a>}
+                          {c.factura_estado === "pedida" && <span className="block text-xs font-semibold text-sky-700">Pidió factura {c.factura_tipo ?? "(tipo a definir)"}: {c.factura_datos?.razon} · {c.factura_datos?.doc_tipo} {c.factura_datos?.doc_tipo === "DNI" ? c.factura_datos?.doc : formatoCuit(c.factura_datos?.doc ?? "")} · {c.factura_datos?.iva}</span>}
+                        </td>
                         <td>
                           <form action={accionCobro} className="flex flex-wrap gap-1 justify-end">
                             <input type="hidden" name="id" value={p.id} /><input type="hidden" name="cobro" value={c.id} />
                             {c.estado === "pendiente" && <><select name="medio" className="inp py-1 text-xs w-auto" aria-label="Medio de pago"><option>Transferencia</option><option>Efectivo</option><option>Mercado Pago</option><option>Cheque</option><option>Otro</option></select><button name="op" value="pagado" className="btn-p py-1 text-xs">Cobrado</button><button name="op" value="anular" className="text-xs underline text-[#4A515C]">Anular</button></>}
                             {c.estado !== "pendiente" && <button name="op" value="reabrir" className="text-xs underline text-[#4A515C]">Volver a pendiente</button>}
                           </form>
+                          {c.estado !== "anulado" && c.factura_estado !== "emitida" && (
+                            <details className="mt-1 text-right">
+                              <summary className={`cursor-pointer text-xs underline ${c.factura_estado === "pedida" ? "font-semibold text-sky-700" : "text-[#4A515C]"}`}>Cargar factura</summary>
+                              <form action={accionCobro} className="mt-1 flex flex-col gap-1 items-end">
+                                <input type="hidden" name="id" value={p.id} /><input type="hidden" name="cobro" value={c.id} />
+                                <select name="factura_tipo" defaultValue={c.factura_tipo ?? ""} className="inp py-1 text-xs w-auto" aria-label="Tipo de factura"><option value="">Tipo</option><option>A</option><option>B</option><option>C</option></select>
+                                <input name="factura_nro" placeholder="N° 0001-00000123" className="inp py-1 text-xs w-44" aria-label="Número de factura" />
+                                <input name="factura_url" type="url" placeholder="Link al PDF (Drive, ARCA…)" className="inp py-1 text-xs w-44" aria-label="Link al PDF de la factura" />
+                                <button name="op" value="factura" className="btn-p py-1 text-xs">Cargar y enviar</button>
+                              </form>
+                            </details>
+                          )}
                         </td>
                       </tr>
                     )

@@ -5,6 +5,7 @@ import { q, audit } from "@/lib/db"
 import { POLITICAS, politica, habilitarSolicitud, urlPortal } from "@/lib/portal"
 import { config, guardarConfig, diasBloqueo, plata } from "@/lib/cobros"
 import { fecha } from "@/lib/util"
+import { empresa, guardarEmpresa, cargarFactura, CONDICIONES_IVA, formatoCuit, cuitValido } from "@/lib/comprobantes"
 
 export const dynamic = "force-dynamic"
 
@@ -33,6 +34,26 @@ async function resolver(fd: FormData) {
   redirect("/portal-admin")
 }
 
+async function datosEmpresa(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const cuit = String(fd.get("cuit") ?? "").replace(/\D/g, "")
+  if (cuit && !cuitValido(cuit)) redirect("/portal-admin?err=" + encodeURIComponent("El CUIT de la empresa no es válido") + "#empresa")
+  const iva = String(fd.get("iva") ?? "")
+  await guardarEmpresa({ razon: String(fd.get("razon") ?? "DEVISEBIT SRL"), cuit, iva: (CONDICIONES_IVA as readonly string[]).includes(iva) ? iva : "", domicilio: String(fd.get("domicilio") ?? ""), iibb: String(fd.get("iibb") ?? ""), inicio: String(fd.get("inicio") ?? "") })
+  await audit(u, "empresa_datos", "config", "empresa_datos")
+  redirect("/portal-admin?ok=1#empresa")
+}
+
+async function facturar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const nro = String(fd.get("nro") ?? "").trim(), url = String(fd.get("url") ?? "").trim()
+  if (!nro || !/^https?:\/\//.test(url)) redirect("/portal-admin?err=" + encodeURIComponent("Poné el número de factura y el link al PDF (https://…)") + "#facturas")
+  const r = await cargarFactura(Number(fd.get("cobro")), { nro, url, tipo: String(fd.get("tipo") ?? "") || null, por: u.nombre })
+  redirect(r.ok ? "/portal-admin?fok=1#facturas" : "/portal-admin?err=" + encodeURIComponent(r.error ?? "error") + "#facturas")
+}
+
 async function acceso(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
@@ -47,10 +68,13 @@ async function acceso(fd: FormData) {
 const RES: Record<string, string> = { enviado: "Link enviado", pendiente: "Pendiente", bloqueado: "Bloqueado", limite: "Límite de pedidos", error: "Error de envío" }
 const RES_C: Record<string, string> = { enviado: "bg-emerald-50 text-emerald-700", pendiente: "bg-amber-50 text-amber-700", bloqueado: "bg-slate-100 text-slate-700", limite: "bg-slate-100 text-slate-600", error: "bg-red-50 text-rojo" }
 
-export default async function PortalAdmin({ searchParams }: { searchParams: { ok?: string; hab?: string; err?: string } }) {
+export default async function PortalAdmin({ searchParams }: { searchParams: { ok?: string; hab?: string; err?: string; fok?: string } }) {
   const u = await requerir(["gerente", "coordinacion"])
-  const [pol, dias, transf, pendientes, ultimos, clientes] = await Promise.all([
-    politica(), diasBloqueo(), config("datos_transferencia", ""),
+  const [pol, dias, transf, emp, facturas, pendientes, ultimos, clientes] = await Promise.all([
+    politica(), diasBloqueo(), config("datos_transferencia", ""), empresa(),
+    q<any>(`select b.*, to_char(b.factura_pedida_en at time zone 'America/Argentina/Buenos_Aires','DD/MM HH24:MI') pedida, k.nombre, k.organizacion, k.email, p.nombre proyecto
+            from db_cobros b join db_contactos k on k.id=b.contacto_id left join db_proyectos p on p.id=b.proyecto_id
+            where b.factura_estado='pedida' and b.estado<>'anulado' order by b.factura_pedida_en`),
     q<any>(`select distinct on (lower(s.email)) s.id, s.email, s.detalle, s.creado, c.nombre, c.id contacto_id from portal_solicitudes s left join db_contactos c on c.id=s.contacto_id
             where s.resultado='pendiente' and s.resuelta is null order by lower(s.email), s.creado desc`),
     q<any>("select s.*, c.nombre from portal_solicitudes s left join db_contactos c on c.id=s.contacto_id order by s.creado desc limit 25"),
@@ -76,6 +100,32 @@ export default async function PortalAdmin({ searchParams }: { searchParams: { ok
       {searchParams.ok && <p role="status" className="m-0 text-sm text-emerald-700">Configuración guardada.</p>}
       {searchParams.hab && <p role="status" className="m-0 text-sm text-emerald-700">Habilitado. Le mandamos la invitación por email.</p>}
       {searchParams.err && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.err}</p>}
+
+      {searchParams.fok && <p role="status" className="m-0 text-sm text-emerald-700">Factura cargada y enviada al cliente.</p>}
+      {(!emp.cuit || !emp.iva) && <p role="alert" className="m-0 card py-3 text-sm !bg-amber-50 !border-amber-200">Faltan el CUIT y la condición de IVA de DEVISEBIT para los comprobantes y para sugerir el tipo de factura. <a href="#empresa" className="underline font-semibold">Cargarlos</a></p>}
+
+      <section id="facturas" className="card flex flex-col gap-3" aria-labelledby="t-fac">
+        <h2 id="t-fac" className="m-0 text-base">Facturas pedidas para emitir ({facturas.length})</h2>
+        {!facturas.length && <p className="m-0 text-sm text-[#4A515C]">No hay pedidos de factura.</p>}
+        {facturas.map((f) => (
+          <form key={f.id} action={facturar} className="rounded-xl border border-[#E2E5EA] p-3 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-3">
+            <input type="hidden" name="cobro" value={f.id} />
+            <div className="text-sm">
+              <strong className="block">Factura {f.factura_tipo ?? "(tipo a definir)"} · {plata(f.monto, f.moneda)}</strong>
+              <span className="block">{f.concepto}{f.proyecto ? ` · ${f.proyecto}` : ""} · {f.estado === "pagado" ? "pagado" : "pendiente de pago"}</span>
+              <span className="block text-xs text-[#4A515C] mt-1">Para: <strong className="text-[#0E1116]">{f.factura_datos?.razon}</strong> · {f.factura_datos?.doc_tipo} {f.factura_datos?.doc_tipo === "DNI" ? f.factura_datos?.doc : formatoCuit(f.factura_datos?.doc ?? "")} · {f.factura_datos?.iva} · {f.factura_datos?.domicilio}{f.factura_datos?.email ? ` · ${f.factura_datos.email}` : ""}</span>
+              <span className="block text-xs text-[#4A515C]">Pedida {f.pedida} por <Link href={`/contactos/${f.contacto_id}`} className="underline">{f.organizacion ?? f.nombre}</Link></span>
+            </div>
+            <div className="flex flex-wrap gap-2 items-end content-start">
+              <select name="tipo" defaultValue={f.factura_tipo ?? ""} className="inp py-1.5 w-20" aria-label="Tipo"><option value="">Tipo</option><option>A</option><option>B</option><option>C</option></select>
+              <input name="nro" required placeholder="N° 0001-00000123" className="inp py-1.5 flex-1 min-w-[140px]" aria-label="Número de factura" />
+              <input name="url" type="url" required placeholder="Link al PDF (Drive, ARCA…)" className="inp py-1.5 w-full" aria-label="Link al PDF" />
+              <button className="btn-p py-1.5">Cargar y enviar al cliente</button>
+            </div>
+          </form>
+        ))}
+        <p className="m-0 text-xs text-[#4A515C]">La factura se emite en ARCA (factura electrónica) y acá se carga el número y el link al PDF: le llega al cliente por email y queda para descargar en su cuenta.</p>
+      </section>
 
       <section className="card flex flex-col gap-3" aria-labelledby="t-pend">
         <h2 id="t-pend" className="m-0 text-base">Pedidos de acceso para validar ({pendientes.length})</h2>
@@ -153,6 +203,19 @@ export default async function PortalAdmin({ searchParams }: { searchParams: { ok
           </ul>
         </section>
       </div>
+      <form id="empresa" action={datosEmpresa} className="card flex flex-col gap-3" aria-labelledby="t-emp">
+        <h2 id="t-emp" className="m-0 text-base">Datos de DEVISEBIT para comprobantes</h2>
+        <fieldset className="m-0 p-0 border-0 grid grid-cols-1 md:grid-cols-3 gap-3" disabled={u.rol !== "gerente"}>
+          <label className="lbl">Razón social<input name="razon" defaultValue={emp.razon} className="inp" /></label>
+          <label className="lbl">CUIT<input name="cuit" defaultValue={emp.cuit ? formatoCuit(emp.cuit) : ""} inputMode="numeric" className="inp" placeholder="30-12345678-9" /></label>
+          <label className="lbl">Condición frente al IVA<select name="iva" defaultValue={emp.iva} className="inp"><option value="">Elegí…</option>{CONDICIONES_IVA.filter((x) => x !== "Consumidor Final").map((x) => <option key={x}>{x}</option>)}</select></label>
+          <label className="lbl md:col-span-3">Domicilio comercial<input name="domicilio" defaultValue={emp.domicilio} className="inp" /></label>
+          <label className="lbl">Ingresos Brutos<input name="iibb" defaultValue={emp.iibb} className="inp" /></label>
+          <label className="lbl">Inicio de actividades<input name="inicio" defaultValue={emp.inicio} className="inp" placeholder="01/01/2009" /></label>
+          <div className="flex items-end"><button className="btn-p w-full">Guardar datos</button></div>
+        </fieldset>
+        <p className="m-0 text-xs text-[#4A515C]">Salen en cada comprobante de pago. Con la condición de IVA, el sistema sugiere el tipo de factura según el cliente: Responsable Inscripto emite A a inscriptos y monotributistas y B al resto; Monotributo emite C.</p>
+      </form>
     </div>
   )
 }

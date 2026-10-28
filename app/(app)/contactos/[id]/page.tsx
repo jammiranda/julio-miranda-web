@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
-import { ETAPAS, SECTORES, estadoProy } from "@/lib/crm"
+import { ETAPAS, SECTORES, CLASES, esClase, estadoProy } from "@/lib/crm"
 import { fechaHora } from "@/lib/consultas"
 import { accesoDe, estadoCuenta, montos } from "@/lib/cobros"
 import { enviarAcceso } from "@/lib/portal"
@@ -39,12 +39,15 @@ async function guardar(fd: FormData) {
   const et = String(fd.get("etapa") ?? "nuevo")
   const v = [nombre, s(fd.get("organizacion")), s(fd.get("cargo")), s(fd.get("email")), s(fd.get("telefono")), s(fd.get("sector")),
     ETAPAS.some((e) => e.v === et) ? et : "nuevo", s(fd.get("origen")), s(fd.get("notas")), s(fd.get("proximo")), s(fd.get("proximo_fecha")), s(fd.get("categoria")), s(fd.get("consentimiento"))]
+  const cla = String(fd.get("clase") ?? "")
+  const claseV = esClase(cla) ? cla : null
   let cid: number
   if (id) {
     await q("update db_contactos set nombre=$1,organizacion=$2,cargo=$3,email=$4,telefono=$5,sector=$6,etapa=$7,origen=$8,notas=$9,proximo=$10,proximo_fecha=$11,categoria=$12,consentimiento=$13,actualizado=now() where id=$14", [...v, Number(id)])
+    await q("update db_contactos set clase=$1, clasificado_en=case when $1::text is distinct from clase then now() else clasificado_en end, clasificado_por=case when $1::text is distinct from clase then $2 else clasificado_por end where id=$3", [claseV, u.nombre, Number(id)])
     cid = Number(id)
   } else {
-    const r = await one<{ id: number }>("insert into db_contactos(nombre,organizacion,cargo,email,telefono,sector,etapa,origen,notas,proximo,proximo_fecha,categoria,consentimiento,consulta_id) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning id", [...v, s(fd.get("consulta_id")) ? Number(fd.get("consulta_id")) : null])
+    const r = await one<{ id: number }>("insert into db_contactos(nombre,organizacion,cargo,email,telefono,sector,etapa,origen,notas,proximo,proximo_fecha,categoria,consentimiento,consulta_id,clase,clasificado_en,clasificado_por) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,now(),$16) returning id", [...v, s(fd.get("consulta_id")) ? Number(fd.get("consulta_id")) : null, claseV ?? "oportunidad", u.nombre])
     cid = r!.id
   }
   await audit(u, id ? "edita_contacto_db" : "crea_contacto_db", "db_contacto", cid, et)
@@ -90,6 +93,7 @@ export default async function Contacto({ params, searchParams }: { params: { id:
         <label className="lbl">Categoría<input name="categoria" defaultValue={c.categoria ?? ""} placeholder="Cliente, aliado, proveedor, red…" className="inp" /></label>
         <label className="lbl">Email<input name="email" type="email" defaultValue={c.email ?? ""} className="inp" /></label>
         <label className="lbl">Teléfono<input name="telefono" type="tel" defaultValue={c.telefono ?? ""} className="inp" /></label>
+        <label className="lbl">Lista<select name="clase" defaultValue={nuevo ? "oportunidad" : c.clase ?? ""} className="inp"><option value="">Por clasificar</option>{CLASES.map((x) => <option key={x.v} value={x.v}>{x.n}</option>)}</select></label>
         <label className="lbl">Etapa<select name="etapa" defaultValue={c.etapa ?? "nuevo"} className="inp">{ETAPAS.map((e) => <option key={e.v} value={e.v}>{e.n}</option>)}</select></label>
         <label className="lbl">Cómo llegó<input name="origen" defaultValue={c.origen ?? ""} placeholder="WhatsApp, LinkedIn, referido…" className="inp" /></label>
         <label className="lbl">Próximo paso<input name="proximo" defaultValue={c.proximo ?? ""} placeholder="Ej.: enviar propuesta" className="inp" /></label>

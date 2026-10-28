@@ -25,10 +25,10 @@ export async function POST(req: NextRequest) {
   const tag = String(b.tag ?? "newsletter").trim().toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40) || "newsletter"
   const og = desdeUtm(b)
   const c = await one<{ id: number; email_token: string; nuevo: boolean }>(
-    `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria,tags,suscrito_en,consentimiento,email_token)
-     values (coalesce($1,split_part($2,'@',1)),$2,'base',$3,$4,'Suscriptor',array[$5::text],now(),'Sí',md5(random()::text||clock_timestamp()::text))
+    `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria,tags,suscrito_en,consentimiento,email_token,clase)
+     values (coalesce($1,split_part($2,'@',1)),$2,'base',$3,$4,'Suscriptor',array[$5::text],now(),'Sí',md5(random()::text||clock_timestamp()::text),'suscriptor')
      on conflict (lower(email)) where email is not null do update set tags=(select array(select distinct unnest(db_contactos.tags || array[$5::text]))),
-       suscrito_en=coalesce(db_contactos.suscrito_en, now()), consentimiento='Sí', email_estado=case when db_contactos.email_estado='baja' then 'activo' else db_contactos.email_estado end, actualizado=now()
+       suscrito_en=coalesce(db_contactos.suscrito_en, now()), clase=coalesce(db_contactos.clase,'suscriptor'), consentimiento='Sí', email_estado=case when db_contactos.email_estado='baja' then 'activo' else db_contactos.email_estado end, actualizado=now()
      returning id, email_token, (xmax = 0) nuevo`,
     [nombre, email, String(b.origen ?? "Formulario newsletter").slice(0, 80), og.fuente, tag],
   )

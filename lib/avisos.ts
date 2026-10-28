@@ -18,7 +18,7 @@ async function calcular(u: Usuario): Promise<Aviso[]> {
     if (c?.humano) out.push({ clave: "humano", t: "Piden hablar con una persona", d: "Conversaciones esperando respuesta del equipo", href: "/consultas?v=bandeja", nivel: "alta", n: c.humano })
     if (c?.demoradas) out.push({ clave: "demoradas", t: "Consultas sin atender hace más de 4 h", d: "Respondelas antes de que se enfríen", href: "/consultas?v=bandeja", nivel: "alta", n: c.demoradas })
     else if (c?.nuevas) out.push({ clave: "nuevas", t: "Consultas nuevas", d: "Entraron y todavía nadie respondió", href: "/consultas?v=bandeja", nivel: "media", n: c.nuevas })
-    const px = await one<{ n: number }>("select count(*)::int n from db_contactos where etapa not in ('ganado','perdido') and proximo_fecha <= (now() at time zone 'America/Argentina/Buenos_Aires')::date")
+    const px = await one<{ n: number }>("select count(*)::int n from db_contactos where coalesce(clase,'') not in ('descartado') and etapa not in ('ganado','perdido') and proximo_fecha <= (now() at time zone 'America/Argentina/Buenos_Aires')::date")
     if (px?.n) out.push({ clave: "seguimientos", t: "Seguimientos para hoy", d: "Contactos con próximo paso vencido o de hoy", href: "/", nivel: "media", n: px.n })
     const pr = await one<{ n: number }>("select count(*)::int n from db_proyectos where estado in ('planificado','en_curso') and entrega < (now() at time zone 'America/Argentina/Buenos_Aires')::date")
     if (pr?.n) out.push({ clave: "entregas", t: "Proyectos con entrega vencida", d: "Revisá fechas o estado", href: "/proyectos", nivel: "alta", n: pr.n })

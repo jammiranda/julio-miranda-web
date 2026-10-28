@@ -48,7 +48,7 @@ export default async function Leccion({ params }: { params: { id: string; lid: s
       ) : l.video_url ? <a href={l.video_url} target="_blank" rel="noopener noreferrer" className="btn-s self-start">Ver el video ↗</a> : null}
       {l.contenido && <article className="card prosa" dangerouslySetInnerHTML={{ __html: mdWeb(l.contenido) }} />}
       {l.archivo_url && (
-        <a href={`/portal/descargar/${i.id}/${l.id}`} className="card flex items-center gap-3 hover:border-[#C8231F]">
+        <a href={`/portal/descargar/${i.id}/${l.id}`} target="_blank" rel="noopener noreferrer" className="card flex items-center gap-3 hover:border-[#C8231F]">
           <span className="w-10 h-10 rounded-xl bg-[#FDECEB] text-[#C8231F] flex items-center justify-center text-lg" aria-hidden="true">⤓</span>
           <span><strong className="block">Descargar material</strong><span className="text-xs text-[#4A515C]">Exclusivo para inscriptos</span></span>
         </a>

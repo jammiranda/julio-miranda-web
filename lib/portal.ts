@@ -53,7 +53,8 @@ export function urlPortal(path = "") {
 
 // ── Sesión del cliente o alumno (separada de la del equipo) ──
 // En producción la cookie vale para todo *.devisebit.com: el mismo ingreso sirve en portal y academia.
-const COOKIE = "db_cliente"
+// "db_cuenta" (antes "db_cliente"): se renombró para que ninguna sesión vieja de un solo subdominio quede trabada al salir.
+const COOKIE = "db_cuenta"
 export type Cliente = { id: number; nombre: string; organizacion: string | null; email: string; acceso: "ok" | "bloqueado" | "deuda"; atraso: number; deuda: string }
 
 function dominioCookie() {
@@ -69,9 +70,9 @@ async function crearSesionCliente(contactoId: number) {
     .sign(await secret())
   cookies().set(COOKIE, token, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30, domain: dominioCookie() })
 }
+/** Cierra la sesión. Una sola instrucción por cookie: si se mandan dos con el mismo nombre, la segunda pisa a la primera y la sesión no se borra. */
 export function cerrarSesionCliente() {
-  cookies().set(COOKIE, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0, domain: dominioCookie() })
-  cookies().delete(COOKIE)
+  cookies().set(COOKIE, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0, expires: new Date(0), domain: dominioCookie() })
 }
 
 export async function clienteActual(): Promise<Cliente | null> {
@@ -123,23 +124,23 @@ export type ResultadoPedido = "enviado" | "pendiente" | "bloqueado" | "limite" |
 /** Pedido de link desde la pantalla de ingreso, conectado al sistema comercial. Queda todo registrado. */
 export async function pedirLink(email: string, nombre?: string | null): Promise<{ resultado: ResultadoPedido; detalle?: string }> {
   const pol = await politica()
-  let c = await one<{ id: number; nombre: string; portal_acceso: string }>("select id, nombre, portal_acceso from db_contactos where lower(email)=$1", [email])
+  let c = await one<{ id: number; nombre: string; portal_acceso: string; clase: string | null }>("select id, nombre, portal_acceso, clase from db_contactos where lower(email)=$1", [email])
   const registrar = async (resultado: ResultadoPedido, detalle?: string) => {
     await q("insert into portal_solicitudes(email, contacto_id, resultado, detalle) values ($1,$2,$3,$4)", [email, c?.id ?? null, resultado, detalle ?? null]).catch(() => {})
     return { resultado, detalle }
   }
   if (c?.portal_acceso === "bloqueado") return registrar("bloqueado", "Acceso bloqueado a mano")
   let puede = false
-  if (c) puede = c.portal_acceso === "habilitado" || pol !== "validado" || (await tienePortal(c.id))
+  if (c) puede = c.portal_acceso === "habilitado" || (await tienePortal(c.id)) || (pol === "abierto") || (pol === "crm" && !!c.clase && c.clase !== "descartado")
   if (!c && pol === "abierto") {
-    c = await one<{ id: number; nombre: string; portal_acceso: string }>(
-      `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base','Portal','portal','Portal') returning id, nombre, portal_acceso`,
+    c = await one<{ id: number; nombre: string; portal_acceso: string; clase: string | null }>(
+      `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base','Portal','portal','Portal') returning id, nombre, portal_acceso, clase`,
       [nombre || email.split("@")[0], email],
     )
     puede = !!c
   }
   if (!puede) {
-    const r = await registrar("pendiente", c ? "Contacto sin proyecto ni curso" : "Email que no está en Contactos")
+    const r = await registrar("pendiente", !c ? "Email que no está en Contactos" : !c.clase ? "Contacto todavía sin clasificar" : c.clase === "descartado" ? "Contacto descartado" : "Contacto sin proyecto ni curso")
     await notificar(["gerente", "coordinacion"], "🔑 Pedido de acceso al portal", `${email}${c ? ` (${c.nombre})` : " · no está en Contactos"}: validalo en Portal y accesos`, "/portal-admin").catch(() => {})
     return r
   }

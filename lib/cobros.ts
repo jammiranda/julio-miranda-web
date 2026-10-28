@@ -19,6 +19,7 @@ export type Cobro = {
   id: number; contacto_id: number; proyecto_id: number | null; tipo: string; concepto: string; monto: string; moneda: string
   vence: string; periodo: string | null; estado: "pendiente" | "pagado" | "anulado"; pagado_en: string | null; medio: string | null; nota: string | null
   informado_en?: string | null; informado_detalle?: string | null
+  recibo_nro?: number | null; factura_estado?: string | null; factura_tipo?: string | null; factura_nro?: string | null; factura_url?: string | null; factura_datos?: any
   proyecto?: string | null; dias_atraso?: number
 }
 

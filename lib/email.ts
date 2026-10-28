@@ -82,10 +82,11 @@ export async function enviadosHoy() {
 }
 
 /** Segmento → condición SQL sobre db_contactos (c). */
-export type Segmento = { etapas?: string[]; sectores?: string[]; categorias?: string[]; tags?: string[]; fuentes?: string[]; soloSuscriptos?: boolean; excluirTags?: string[] }
+export type Segmento = { clases?: string[]; etapas?: string[]; sectores?: string[]; categorias?: string[]; tags?: string[]; fuentes?: string[]; soloSuscriptos?: boolean; excluirTags?: string[] }
 export function segmentoSQL(s: Segmento, base = 1) {
-  const cond = ["c.email is not null", "c.email_estado='activo'"], args: unknown[] = []
+  const cond = ["c.email is not null", "c.email_estado='activo'", "c.clase is not null", "c.clase<>'descartado'"], args: unknown[] = []
   const add = (sql: string, v: unknown) => { args.push(v); cond.push(sql.replace("$?", `$${base + args.length - 1}`)) }
+  if (s.clases?.length) add("c.clase = any($?)", s.clases)
   if (s.etapas?.length) add("c.etapa = any($?)", s.etapas)
   if (s.sectores?.length) add("c.sector = any($?)", s.sectores)
   if (s.categorias?.length) add("c.categoria = any($?)", s.categorias)

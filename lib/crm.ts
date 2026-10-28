@@ -64,3 +64,40 @@ export async function trelloTarjeta(board: string, nombre: string, vence?: strin
   const c = await fetch(`${T}/cards?idList=${l.id}&name=${encodeURIComponent(nombre)}${vence ? `&due=${vence}` : ""}&${auth()}`, { method: "POST" })
   if (!c.ok) throw new Error(`Trello ${c.status}`)
 }
+
+// ── Listas: dónde va cada contacto (para que no se mezclen clientes, oportunidades, newsletter y alumnos) ──
+export const CLASES = [
+  { v: "cliente", n: "Clientes", d: "Tienen o tuvieron proyectos o servicios con DEVISEBIT.", c: "bg-emerald-50 text-emerald-700" },
+  { v: "oportunidad", n: "Oportunidades", d: "Hay una conversación comercial: el embudo de ventas.", c: "bg-sky-50 text-sky-700" },
+  { v: "suscriptor", n: "Email marketing", d: "Reciben newsletter y novedades, sin conversación comercial.", c: "bg-violet-50 text-violet-700" },
+  { v: "alumno", n: "Alumnos", d: "Academia: cursos, guías y compras.", c: "bg-amber-50 text-amber-700" },
+  { v: "aliado", n: "Aliados y red", d: "Proveedores, socios, colegas, prensa, gobierno: no se les vende.", c: "bg-slate-100 text-slate-700" },
+  { v: "descartado", n: "Descartados", d: "No se usan: sin datos, duplicados o pidieron no recibir nada.", c: "bg-slate-100 text-slate-500" },
+] as const
+export type Clase = (typeof CLASES)[number]["v"]
+export const clase = (v: string | null | undefined) => CLASES.find((x) => x.v === v) ?? null
+export const esClase = (v: unknown): v is Clase => CLASES.some((x) => x.v === v)
+
+/** Sugerencia de lista según lo que el sistema ya sabe del contacto (SQL sobre db_contactos c). */
+export const SQL_SUGERENCIA = `case
+  when exists (select 1 from db_proyectos p where p.contacto_id=c.id and p.estado<>'cancelado') or exists (select 1 from db_cobros b where b.contacto_id=c.id and b.estado<>'anulado') or c.etapa='ganado' then 'cliente'
+  when exists (select 1 from am_inscripciones i where i.contacto_id=c.id) or 'comprador' = any(c.tags) or 'alumno' = any(c.tags) then 'alumno'
+  when c.consulta_id is not null or c.etapa in ('conversando','reunion','propuesta') or exists (select 1 from db_reuniones r where r.contacto_id=c.id) then 'oportunidad'
+  when c.email is null and c.telefono is null then 'descartado'
+  when c.email_estado<>'activo' then 'descartado'
+  when c.email is not null then 'suscriptor'
+  else null end`
+export const SQL_MOTIVO = `case
+  when exists (select 1 from db_proyectos p where p.contacto_id=c.id and p.estado<>'cancelado') then 'Tiene proyectos'
+  when exists (select 1 from db_cobros b where b.contacto_id=c.id and b.estado<>'anulado') then 'Tiene cobros'
+  when c.etapa='ganado' then 'Etapa: ganado'
+  when exists (select 1 from am_inscripciones i where i.contacto_id=c.id) then 'Inscripto en un curso'
+  when 'comprador' = any(c.tags) then 'Compró en la Academia'
+  when c.consulta_id is not null then 'Llegó por el bot o la web'
+  when c.etapa in ('conversando','reunion','propuesta') then 'En el embudo'
+  when exists (select 1 from db_reuniones r where r.contacto_id=c.id) then 'Tuvo reuniones'
+  when c.email is null and c.telefono is null then 'Sin email ni teléfono'
+  when c.email_estado<>'activo' then 'Email dado de baja o rebotado'
+  when c.suscrito_en is not null then 'Se suscribió al newsletter'
+  when c.email is not null then 'Solo tiene email'
+  else 'Sin datos para sugerir' end`

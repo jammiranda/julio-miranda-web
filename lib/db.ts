@@ -291,6 +291,23 @@ create unique index if not exists db_cobros_abono on db_cobros(proyecto_id, peri
 create index if not exists db_cobros_contacto on db_cobros(contacto_id, estado, vence);
 alter table db_cobros add column if not exists informado_en timestamptz;
 alter table db_cobros add column if not exists informado_detalle text;
+create sequence if not exists db_recibo_seq;
+alter table db_cobros add column if not exists recibo_nro int;
+create unique index if not exists db_cobros_recibo on db_cobros(recibo_nro) where recibo_nro is not null;
+alter table db_cobros add column if not exists factura_estado text;
+alter table db_cobros add column if not exists factura_pedida_en timestamptz;
+alter table db_cobros add column if not exists factura_tipo text;
+alter table db_cobros add column if not exists factura_datos jsonb;
+alter table db_cobros add column if not exists factura_nro text;
+alter table db_cobros add column if not exists factura_url text;
+alter table db_cobros add column if not exists factura_emitida_en timestamptz;
+alter table db_contactos add column if not exists fact jsonb;
+alter table db_contactos add column if not exists clase text;
+alter table db_contactos drop constraint if exists db_contactos_clase_check;
+alter table db_contactos add constraint db_contactos_clase_check check (clase is null or clase in ('cliente','oportunidad','suscriptor','alumno','aliado','descartado'));
+alter table db_contactos add column if not exists clasificado_en timestamptz;
+alter table db_contactos add column if not exists clasificado_por text;
+create index if not exists db_contactos_clase on db_contactos(clase);
 create table if not exists am_cursos (
   id serial primary key, slug text unique not null, titulo text not null, bajada text,
   descripcion text not null default '', imagen text, categoria text, nivel text, docente text,

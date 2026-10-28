@@ -32,8 +32,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
             <Link href="/guias" className="px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Guías</Link>
             <a href="/videos" className="px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Videos</a>
             <Link href="/productos/kit-ia-pymes" className="hidden sm:inline-block px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Kit IA</Link>
-            <a href="https://www.devisebit.com/servicios" className="hidden md:inline-block px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Servicios</a>
-            <a href={urlPortal("/cursos")} className="hidden sm:inline-block px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Mi cuenta</a>
+            <a href={urlPortal("/cursos")} className="px-3 py-2 rounded-lg text-white/85 hover:text-white hover:bg-white/10">Mi cuenta</a>
             <a href="/#suscribirme" className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] py-2">Suscribirme</a>
           </nav>
         </div>

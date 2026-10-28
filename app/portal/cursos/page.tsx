@@ -29,7 +29,7 @@ export default async function MisCursos() {
       {!ins.length && (
         <div className="card flex flex-col gap-3 items-start">
           <p className="m-0">Todavía no estás inscripto en ningún curso.</p>
-          <a href={`${URL_ACADEMIA}/cursos`} className="btn-p">Ver cursos disponibles</a>
+          <a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/cursos`} className="btn-p">Ver cursos disponibles</a>
         </div>
       )}
 
@@ -73,7 +73,7 @@ export default async function MisCursos() {
           <h2 id="t-mas" className="m-0">Seguí aprendiendo</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {otros.map((o) => (
-              <a key={o.slug} href={`${URL_ACADEMIA}/cursos/${o.slug}`} className="card flex flex-col gap-1 hover:border-[#C8231F]">
+              <a target="_blank" rel="noopener noreferrer" key={o.slug} href={`${URL_ACADEMIA}/cursos/${o.slug}`} className="card flex flex-col gap-1 hover:border-[#C8231F]">
                 <strong>{o.titulo}</strong>
                 {o.bajada && <span className="text-sm text-[#4A515C]">{o.bajada}</span>}
                 <span className="text-xs text-[#4A515C] mt-auto pt-2">{modalidad(o.modalidad)}{o.horas ? ` · ${Number(o.horas)} h` : ""} · {o.precio ? "Pago" : "Gratis"}</span>

@@ -62,7 +62,7 @@ export default async function Portal() {
 
       <section aria-labelledby="t-proy" className="flex flex-col gap-3">
         <h2 id="t-proy" className="m-0">Tus proyectos</h2>
-        {!proyectos.length && <p className="card m-0 text-sm text-[#4A515C]">Todavía no hay proyectos cargados. Cuando trabajemos juntos en uno, vas a seguirlo acá paso a paso. <a href="https://www.devisebit.com/servicios" className="underline text-[#C8231F]">Ver servicios</a></p>}
+        {!proyectos.length && <p className="card m-0 text-sm text-[#4A515C]">Todavía no hay proyectos cargados. Cuando trabajemos juntos en uno, vas a seguirlo acá paso a paso. <Link href="/portal/servicios" className="underline text-[#C8231F]">Ver servicios</Link></p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {proyectos.map((p) => {
             const e = estadoProy(p.estado)
@@ -111,13 +111,13 @@ export default async function Portal() {
               {r.link && <> · <a href={r.link} target="_blank" rel="noopener noreferrer" className="underline text-[#C8231F]">Unirme</a></>}
             </div>
           ))}
-          <a href="https://wa.me/5491173466490" className="btn-s py-1.5 mt-auto">Hablar con el equipo</a>
+          <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="btn-s py-1.5 mt-auto">Hablar con el equipo</a>
         </section>
       </div>
       <section aria-labelledby="t-rec" className="card flex flex-col gap-3">
-        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a href={`${URL_ACADEMIA}/cursos`} className="text-sm font-semibold text-[#C8231F]">Ver cursos →</a></div>
+        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/cursos`} className="text-sm font-semibold text-[#C8231F]">Ver cursos →</a></div>
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {guias.map((g) => <li key={g.slug}><a href={`${URL_ACADEMIA}/guias/${g.slug}`} className="block rounded-xl border border-[#E2E5EA] p-3 hover:border-[#C8231F]"><span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{g.categoria ?? "Guía"}</span><strong className="block text-sm mt-1">{g.titulo}</strong></a></li>)}
+          {guias.map((g) => <li key={g.slug}><a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/guias/${g.slug}`} className="block rounded-xl border border-[#E2E5EA] p-3 hover:border-[#C8231F]"><span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{g.categoria ?? "Guía"}</span><strong className="block text-sm mt-1">{g.titulo}</strong></a></li>)}
         </ul>
       </section>
     </div>

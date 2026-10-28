@@ -4,7 +4,7 @@ import { waitUntil } from "@vercel/functions"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
-import { ETAPAS } from "@/lib/crm"
+import { ETAPAS, CLASES } from "@/lib/crm"
 import { aHtml, plantilla, enviarBrevo, contarSegmento, encolar, procesarCola, brevoConfigurado, enviadosHoy, LIMITE_DIARIO, type Segmento } from "@/lib/email"
 
 export const dynamic = "force-dynamic"
@@ -13,7 +13,7 @@ export const maxDuration = 300
 function segDe(fd: FormData): Segmento {
   const all = (k: string) => fd.getAll(k).map(String).filter(Boolean)
   const lista = (k: string) => String(fd.get(k) ?? "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean)
-  return { etapas: all("etapas"), sectores: all("sectores"), categorias: all("categorias"), fuentes: all("fuentes"), tags: lista("tags"), excluirTags: lista("excluir"), soloSuscriptos: fd.get("solo") === "on" }
+  return { clases: all("clases"), etapas: all("etapas"), sectores: all("sectores"), categorias: all("categorias"), fuentes: all("fuentes"), tags: lista("tags"), excluirTags: lista("excluir"), soloSuscriptos: fd.get("solo") === "on" }
 }
 
 async function guardar(fd: FormData) {
@@ -147,6 +147,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
           </section>
           <section className="card flex flex-col gap-3">
             <h2 className="m-0 text-base">A quién se manda <span className="font-normal text-[#4A515C]">· {total} contactos con email activo{seg && Object.values(seg).some((x) => (Array.isArray(x) ? x.length : x)) ? " en este segmento" : " (toda la base)"}</span></h2>
+            <div className="flex flex-col gap-2"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">Lista</span><div className="flex flex-wrap gap-1.5">{CLASES.filter((x) => x.v !== "descartado").map((x) => <Chk key={x.v} name="clases" v={x.v} label={x.n} on={!!seg.clases?.includes(x.v)} />)}</div><span className="text-xs text-[#4A515C]">Solo se manda a contactos clasificados (no a los que están «Por clasificar» ni a los descartados).</span></div>
             <div className="flex flex-col gap-2"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">Etapa</span><div className="flex flex-wrap gap-1.5">{ETAPAS.map((e) => <Chk key={e.v} name="etapas" v={e.v} label={e.n} on={!!seg.etapas?.includes(e.v)} />)}</div></div>
             {sectores.length > 0 && <div className="flex flex-col gap-2"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">Sector</span><div className="flex flex-wrap gap-1.5">{sectores.map((x) => <Chk key={x.v} name="sectores" v={x.v} on={!!seg.sectores?.includes(x.v)} />)}</div></div>}
             {categorias.length > 0 && <div className="flex flex-col gap-2"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">Categoría</span><div className="flex flex-wrap gap-1.5">{categorias.map((x) => <Chk key={x.v} name="categorias" v={x.v} on={!!seg.categorias?.includes(x.v)} />)}</div></div>}

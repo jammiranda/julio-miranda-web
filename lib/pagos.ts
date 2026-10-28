@@ -30,7 +30,7 @@ export async function linkPagoCobro(cobroId: number, contactoId: number) {
 /** Marca un cobro como pagado (desde MP o a mano), deja rastro en el proyecto y avisa. */
 export async function registrarPago(cobroId: number, o: { medio: string; mpPago?: string | null; por: string; nota?: string | null }) {
   const c = await one<any>(
-    "update db_cobros set estado='pagado', pagado_en=now(), medio=$1, mp_pago=coalesce($2,mp_pago), nota=coalesce($3,nota) where id=$4 and estado='pendiente' returning *",
+    "update db_cobros set estado='pagado', pagado_en=now(), medio=$1, mp_pago=coalesce($2,mp_pago), nota=coalesce($3,nota), recibo_nro=coalesce(recibo_nro, nextval('db_recibo_seq')) where id=$4 and estado='pendiente' returning *",
     [o.medio, o.mpPago ?? null, o.nota ?? null, cobroId],
   )
   if (!c) return null
@@ -38,7 +38,7 @@ export async function registrarPago(cobroId: number, o: { medio: string; mpPago?
   if (c.proyecto_id) await registrarHito(c.proyecto_id, { tipo: "pago", titulo: `Pago recibido: ${c.concepto}`, detalle: `${plata(c.monto, c.moneda)} · ${o.medio}`, autor: o.por })
   await audit({ id: 0, usuario: o.por }, "cobro_pagado", "db_cobro", cobroId, `${c.moneda} ${c.monto} · ${o.medio}`)
   if (k?.email) {
-    await enviarBrevo({ email: k.email, name: k.nombre }, `Recibimos tu pago · ${c.concepto}`, plantilla(aHtml(`# ¡Gracias, recibimos tu pago!\n\n**${c.concepto}**\n\nImporte: **${plata(c.monto, c.moneda)}** · Medio: ${o.medio}\n\nPodés ver tu estado de cuenta completo en tu portal.\n\n[[Ver mi estado de cuenta|${urlPortal("/pagos")}]]`), { nombre: k.nombre, preheader: "Comprobante de pago" })).catch(() => {})
+    await enviarBrevo({ email: k.email, name: k.nombre }, `Recibimos tu pago · ${c.concepto}`, plantilla(aHtml(`# ¡Gracias, recibimos tu pago!\n\n**${c.concepto}**\n\nImporte: **${plata(c.monto, c.moneda)}** · Medio: ${o.medio}\n\nTu comprobante de pago N° ${String(c.recibo_nro).padStart(8, "0")} ya está disponible. Si necesitás factura, la podés pedir desde el mismo lugar.\n\n[[Ver mi comprobante|${urlPortal(`/pagos/comprobante/${c.id}`)}]]`), { nombre: k.nombre, preheader: "Comprobante de pago" })).catch(() => {})
   }
   await notificar(["gerente", "coordinacion"], "💰 Pago recibido", `${k?.organizacion ?? k?.nombre ?? "Cliente"} · ${c.concepto} · ${plata(c.monto, c.moneda)} (${o.medio})`, c.proyecto_id ? `/proyectos/${c.proyecto_id}#cobros` : "/portal-admin").catch(() => {})
   return c

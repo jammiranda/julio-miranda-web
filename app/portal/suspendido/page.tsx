@@ -16,12 +16,12 @@ export default async function Suspendido() {
           <>
             <p className="m-0 text-[#262C37]">Hola {c.nombre.split(" ")[0]}, tenés <strong>{c.deuda}</strong> vencido hace {c.atraso} días. Mientras tanto, el acceso a proyectos y cursos queda en pausa.</p>
             <p className="m-0 text-sm text-[#4A515C]">Apenas se acredite el pago se reactiva solo, sin que tengas que hacer nada más.</p>
-            <div className="flex flex-wrap gap-2"><Link href="/portal/pagos" className="btn-p">Ver y pagar</Link><a href="https://wa.me/5491173466490?text=Hola%2C%20quiero%20regularizar%20mi%20cuenta" className="btn-s">Hablar con el equipo</a></div>
+            <div className="flex flex-wrap gap-2"><Link href="/portal/pagos" className="btn-p">Ver y pagar</Link><a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490?text=Hola%2C%20quiero%20regularizar%20mi%20cuenta" className="btn-s">Hablar con el equipo</a></div>
           </>
         ) : (
           <>
             <p className="m-0 text-[#262C37]">Para reactivarlo, comunicate con el equipo de DEVISEBIT.</p>
-            <div className="flex flex-wrap gap-2"><a href="https://wa.me/5491173466490?text=Hola%2C%20mi%20acceso%20est%C3%A1%20suspendido" className="btn-p">Escribir por WhatsApp</a><Link href="/portal/pagos" className="btn-s">Ver mi estado de cuenta</Link></div>
+            <div className="flex flex-wrap gap-2"><a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490?text=Hola%2C%20mi%20acceso%20est%C3%A1%20suspendido" className="btn-p">Escribir por WhatsApp</a><Link href="/portal/pagos" className="btn-s">Ver mi estado de cuenta</Link></div>
           </>
         )}
       </div>

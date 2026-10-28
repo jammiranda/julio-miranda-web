@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
   const o = await one<any>("update am_ordenes set estado='pagada', mp_pago=$1, pagada_en=now() where id=$2 and estado<>'pagada' returning *", [String(p.id), orden])
   if (o) {
     const prod = await one<any>("select titulo from am_productos where id=$1", [o.producto_id])
-    await q(`insert into db_contactos(nombre,email,etapa,origen,categoria,tags,consentimiento) values (coalesce($1,split_part($2,'@',1)),$2,'ganado','Academia (compra)','Cliente academia',array['comprador']::text[],'Sí')
-             on conflict (lower(email)) where email is not null do update set tags=(select array(select distinct unnest(db_contactos.tags || array['comprador']::text[]))), actualizado=now()`, [o.nombre, o.email]).catch(() => {})
+    await q(`insert into db_contactos(nombre,email,etapa,origen,categoria,tags,consentimiento,clase) values (coalesce($1,split_part($2,'@',1)),$2,'ganado','Academia (compra)','Cliente academia',array['comprador']::text[],'Sí','alumno')
+             on conflict (lower(email)) where email is not null do update set tags=(select array(select distinct unnest(db_contactos.tags || array['comprador']::text[]))), clase=coalesce(db_contactos.clase,'alumno'), actualizado=now()`, [o.nombre, o.email]).catch(() => {})
     const link = `${URL_ACADEMIA}/descarga/${o.token}`
     await enviarBrevo({ email: o.email, name: o.nombre }, `Tu compra: ${prod?.titulo ?? "Academia DEVISEBIT"}`, plantilla(aHtml(`# ¡Gracias por tu compra!\n\nYa podés descargar **${prod?.titulo ?? "tu producto"}**.\n\n[[Descargar ahora|${link}]]\n\nSi tenés cualquier duda, respondé este correo.`), { preheader: "Tu descarga está lista" }))
     await notificar(["gerente", "coordinacion"], "💰 Venta en la Academia", `${prod?.titulo ?? "Producto"} · ${o.email} · ${o.moneda} ${o.monto}`, "/academia-admin").catch(() => {})

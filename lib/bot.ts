@@ -313,10 +313,10 @@ export async function alCRM(cid: number, canal: string) {
   const ya = await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [cid])
   const notas = [k.motivo && `Motivo: ${k.motivo}`, k.mensaje && `Primer mensaje: ${k.mensaje}`].filter(Boolean).join("\n")
   if (ya) {
-    await q("update db_contactos set organizacion=coalesce(organizacion,$1), email=coalesce(email,$2), notas=coalesce(notas,$3), actualizado=now() where id=$4", [k.organizacion, k.email, notas || null, ya.id])
+    await q("update db_contactos set organizacion=coalesce(organizacion,$1), email=coalesce(email,$2), notas=coalesce(notas,$3), clase=coalesce(clase,'oportunidad'), actualizado=now() where id=$4", [k.organizacion, k.email, notas || null, ya.id])
   } else {
     await q(
-      "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha,fuente,campania) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date,$8,$9) on conflict (lower(email)) where email is not null do update set consulta_id=coalesce(db_contactos.consulta_id,excluded.consulta_id), etapa=case when db_contactos.etapa='base' then 'nuevo' else db_contactos.etapa end, fuente=coalesce(db_contactos.fuente,excluded.fuente), actualizado=now()",
+      "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha,fuente,campania,clase) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date,$8,$9,'oportunidad') on conflict (lower(email)) where email is not null do update set consulta_id=coalesce(db_contactos.consulta_id,excluded.consulta_id), clase=coalesce(db_contactos.clase,'oportunidad'), etapa=case when db_contactos.etapa='base' then 'nuevo' else db_contactos.etapa end, fuente=coalesce(db_contactos.fuente,excluded.fuente), actualizado=now()",
       [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : canal === "web" ? "Web (formulario)" : "WhatsApp (bot)", notas || null, cid, k.fuente, k.campania],
     )
   }

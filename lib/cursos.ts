@@ -148,7 +148,7 @@ export async function inscribir(contactoId: number, edicionId: number, origen: s
   const iid = r!.id
   await q(
     `update db_contactos set tags=(select array(select distinct unnest(tags || array['alumno', $2::text]))),
-       categoria=coalesce(categoria,'Alumno academia'), consentimiento=coalesce(consentimiento,'Sí'), suscrito_en=coalesce(suscrito_en, now()), actualizado=now() where id=$1`,
+       categoria=coalesce(categoria,'Alumno academia'), clase=coalesce(clase,'alumno'), consentimiento=coalesce(consentimiento,'Sí'), suscrito_en=coalesce(suscrito_en, now()), actualizado=now() where id=$1`,
     [contactoId, `curso:${e.slug}`],
   )
   await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'inscripcion',$3)", [contactoId, iid, e.slug])
@@ -179,7 +179,7 @@ export async function contactoPorEmail(email: string, nombre?: string | null, ex
     return c.id
   }
   return (await one<{ id: number }>(
-    "insert into db_contactos(nombre,email,telefono,organizacion,etapa,origen,fuente,categoria,consentimiento) values ($1,$2,$3,$4,'base',$5,'academia','Alumno academia','Sí') returning id",
+    "insert into db_contactos(nombre,email,telefono,organizacion,etapa,origen,fuente,categoria,consentimiento,clase) values ($1,$2,$3,$4,'base',$5,'academia','Alumno academia','Sí','alumno') returning id",
     [nombre?.trim() || e.split("@")[0], e, extra?.telefono ?? null, extra?.organizacion ?? null, extra?.origen ?? "Academia (curso)"],
   ))!.id
 }

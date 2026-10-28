@@ -5,11 +5,13 @@ import { useEffect, useMemo, useRef, useState } from "react"
 type Fila = {
   id: number; organizacion: string | null; nombre: string; cargo: string | null; email: string | null; telefono: string | null
   etapa: string; etapaN: string; etapaC: string; sector: string | null; proximo: string | null; proximoF: string | null; proyectos: number
+  claseN?: string | null; claseC?: string | null
 }
 
 /** Tabla de contactos con selección múltiple: cambiar etapa, sector o próximo paso, o eliminar varios a la vez. */
-export default function ContactosTabla({ filas, etapas, sectores, editar, accion }: {
+export default function ContactosTabla({ filas, etapas, sectores, editar, accion, clases = [] }: {
   filas: Fila[]
+  clases?: { v: string; n: string }[]
   etapas: { v: string; n: string }[]
   sectores: string[]
   editar: boolean
@@ -33,7 +35,7 @@ export default function ContactosTabla({ filas, etapas, sectores, editar, accion
     if (op === "eliminar" && !window.confirm(`¿Eliminar ${sel.size} contacto${sel.size === 1 ? "" : "s"}? Sus proyectos y reuniones quedan, pero sin contacto asociado. No se puede deshacer.`)) { e.preventDefault(); return }
     if (op === "editar") {
       const fd = new FormData(e.currentTarget)
-      if (!["etapa", "sector", "proximo", "proximo_fecha"].some((k) => String(fd.get(k) ?? "").trim())) { e.preventDefault(); window.alert("Elegí al menos un dato para cambiar."); return }
+      if (!["clase", "etapa", "sector", "proximo", "proximo_fecha"].some((k) => String(fd.get(k) ?? "").trim())) { e.preventDefault(); window.alert("Elegí al menos un dato para cambiar."); return }
     }
     setEnviando(true)
   }
@@ -44,6 +46,9 @@ export default function ContactosTabla({ filas, etapas, sectores, editar, accion
         <form action={accion} onSubmit={confirmar} className="flex flex-wrap items-end gap-2 px-5 py-3 border-b border-[#E2E5EA] bg-[#FDECEB]">
           <input type="hidden" name="ids" value={Array.from(sel).join(",")} />
           <div className="text-sm font-semibold self-center mr-1">{sel.size} seleccionado{sel.size === 1 ? "" : "s"}</div>
+          {clases.length > 0 && <label className="text-xs font-semibold flex flex-col gap-1">Mover a lista
+            <select name="clase" defaultValue="" className="inp py-1.5 w-40"><option value="">Sin cambios</option>{clases.map((e) => <option key={e.v} value={e.v}>{e.n}</option>)}<option value="__ninguna">Volver a «Por clasificar»</option></select>
+          </label>}
           <label className="text-xs font-semibold flex flex-col gap-1">Etapa
             <select name="etapa" defaultValue="" className="inp py-1.5 w-40"><option value="">Sin cambios</option>{etapas.map((e) => <option key={e.v} value={e.v}>{e.n}</option>)}</select>
           </label>
@@ -73,7 +78,7 @@ export default function ContactosTabla({ filas, etapas, sectores, editar, accion
                 {editar && <td><input type="checkbox" checked={sel.has(c.id)} onChange={() => alternar(c.id)} aria-label={`Seleccionar ${c.organizacion ?? c.nombre}`} className="w-4 h-4 accent-[#C8231F]" /></td>}
                 <td className="font-semibold"><Link href={`/contactos/${c.id}`} className="hover:underline">{c.organizacion ?? "—"}</Link></td>
                 <td>{c.nombre}<div className="text-xs text-[#4A515C]">{[c.cargo, c.email, c.telefono].filter(Boolean).join(" · ")}</div></td>
-                <td><span className={`chip ${c.etapaC}`}>{c.etapaN}</span></td>
+                <td><span className={`chip ${c.etapaC}`}>{c.etapaN}</span>{c.claseN && <span className={`chip ${c.claseC} block w-fit mt-1`}>{c.claseN}</span>}</td>
                 <td>{c.sector ?? "—"}</td>
                 <td>{c.proximo ?? "—"}{c.proximoF && <div className="text-xs text-[#4A515C]">{c.proximoF}</div>}</td>
                 <td>{c.proyectos || "—"}</td>

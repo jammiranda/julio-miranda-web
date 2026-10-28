@@ -7,6 +7,8 @@ import { registrarHito } from "@/lib/portal"
 import { notificar } from "@/lib/push"
 import { waitUntil } from "@vercel/functions"
 import { fecha } from "@/lib/util"
+import Link from "next/link"
+import { pedirFactura, nroRecibo, formatoCuit, facturacionCompleta, type Facturacion } from "@/lib/comprobantes"
 
 export const dynamic = "force-dynamic"
 
@@ -32,9 +34,19 @@ async function informar(fd: FormData) {
   redirect("/portal/pagos?inf=1")
 }
 
-export default async function Pagos({ searchParams }: { searchParams: { mp?: string; e?: string; err?: string; inf?: string } }) {
+async function factura(fd: FormData) {
+  "use server"
   const c = await requerirCliente(true)
-  const [e, transf] = await Promise.all([estadoCuenta(c.id), datosTransferencia()])
+  const id = Number(fd.get("cobro"))
+  const r = await pedirFactura(id, c.id)
+  if (!r.ok && r.faltanDatos) redirect(`/portal/facturacion?cobro=${id}`)
+  redirect(r.ok ? "/portal/pagos?fac=1" : "/portal/pagos")
+}
+
+export default async function Pagos({ searchParams }: { searchParams: { mp?: string; e?: string; err?: string; inf?: string; fac?: string; datos?: string } }) {
+  const c = await requerirCliente(true)
+  const [e, transf, k] = await Promise.all([estadoCuenta(c.id), datosTransferencia(), one<{ fact: Facturacion | null }>("select fact from db_contactos where id=$1", [c.id])])
+  const fact = k?.fact ?? null
   const pagados = e.cobros.filter((x) => x.estado === "pagado").reverse()
   const mp = mpActivo()
   const Fila = ({ x }: { x: (typeof e.cobros)[number] }) => {
@@ -51,6 +63,14 @@ export default async function Pagos({ searchParams }: { searchParams: { mp?: str
           <form action={pagar}><input type="hidden" name="cobro" value={x.id} /><button className={venc ? "btn-p py-1.5" : "btn-s py-1.5"}>Pagar con Mercado Pago</button></form>
         )}
         {x.estado === "pagado" && <span className="chip bg-emerald-50 text-emerald-700">Pagado</span>}
+        <div className="w-full flex flex-wrap items-center gap-2 text-sm">
+          {x.estado === "pagado" && <Link href={`/portal/pagos/comprobante/${x.id}`} className="btn-s py-1 text-xs">Comprobante{x.recibo_nro ? ` N° ${nroRecibo(x.recibo_nro)}` : ""}</Link>}
+          {x.factura_estado === "emitida" && x.factura_url && <a href={x.factura_url} target="_blank" rel="noopener noreferrer" className="btn-s py-1 text-xs">Descargar factura {x.factura_tipo ?? ""} {x.factura_nro} ↗</a>}
+          {x.factura_estado === "pedida" && <span className="chip bg-sky-50 text-sky-700">Factura {x.factura_tipo ?? ""} pedida · la estamos preparando</span>}
+          {!x.factura_estado && (
+            <form action={factura}><input type="hidden" name="cobro" value={x.id} /><button className="text-xs underline text-[#4A515C] hover:text-[#C8231F]">Necesito factura</button></form>
+          )}
+        </div>
         {x.estado === "pendiente" && x.informado_en && <span className="chip bg-sky-50 text-sky-700">Pago informado · lo estamos confirmando</span>}
         {x.estado === "pendiente" && !x.informado_en && (
           <details className="w-full">
@@ -68,7 +88,9 @@ export default async function Pagos({ searchParams }: { searchParams: { mp?: str
   }
   return (
     <div className="flex flex-col gap-5">
-      <div><h1 className="m-0">Estado de cuenta</h1><p className="m-0 mt-1 text-[#4A515C]">Tus cuotas, abonos y pagos con DEVISEBIT.</p></div>
+      <div><h1 className="m-0">Pagos y facturas</h1><p className="m-0 mt-1 text-[#4A515C]">Tus cuotas, abonos, comprobantes y facturas con DEVISEBIT.</p></div>
+      {searchParams.fac && <p role="status" className="m-0 card py-3 text-sm !bg-emerald-50 !border-emerald-200">Pedido de factura enviado. Te llega por email y la vas a poder descargar desde acá.</p>}
+      {searchParams.datos && <p role="status" className="m-0 card py-3 text-sm !bg-emerald-50 !border-emerald-200">Datos de facturación guardados.</p>}
       {searchParams.mp && !searchParams.e && <p role="status" className="m-0 card py-3 text-sm !bg-emerald-50 !border-emerald-200">Si el pago se aprobó, en unos minutos lo vas a ver acá como pagado y te llega el comprobante por email.</p>}
       {searchParams.inf && <p role="status" className="m-0 card py-3 text-sm !bg-emerald-50 !border-emerald-200">¡Gracias! Avisamos al equipo: apenas lo confirmen, lo vas a ver como pagado y te llega el comprobante.</p>}
       {(searchParams.e || searchParams.err) && <p role="alert" className="m-0 card py-3 text-sm !bg-[#FDECEB] !border-[#F3B7B4]">{searchParams.err ?? "El pago no se completó. Podés intentar de nuevo o pagar por transferencia."}</p>}
@@ -88,13 +110,23 @@ export default async function Pagos({ searchParams }: { searchParams: { mp?: str
         <section className="card" aria-labelledby="t-tr">
           <h2 id="t-tr" className="m-0 text-base">Pagar por transferencia</h2>
           <p className="m-0 mt-2 text-sm whitespace-pre-line">{transf || "Pedinos los datos bancarios por WhatsApp o respondé el último email."}</p>
-          <p className="m-0 mt-2 text-xs text-[#4A515C]">Después de transferir, tocá «Ya pagué» en el cobro o mandanos el comprobante por <a className="underline" href="https://wa.me/5491173466490">WhatsApp</a> o a info@devisebit.com.</p>
+          <p className="m-0 mt-2 text-xs text-[#4A515C]">Después de transferir, tocá «Ya pagué» en el cobro o mandanos el comprobante por <a target="_blank" rel="noopener noreferrer" className="underline" href="https://wa.me/5491173466490">WhatsApp</a> o a info@devisebit.com.</p>
         </section>
       )}
 
+      <section className="card flex flex-wrap items-start justify-between gap-3" aria-labelledby="t-fact">
+        <div>
+          <h2 id="t-fact" className="m-0 text-base">Datos de facturación</h2>
+          {facturacionCompleta(fact)
+            ? <p className="m-0 mt-1 text-sm">{fact.razon} · {fact.doc_tipo} {fact.doc_tipo === "DNI" ? fact.doc : formatoCuit(fact.doc)} · {fact.iva}<span className="block text-xs text-[#4A515C]">{fact.domicilio}{fact.email ? ` · Facturas a ${fact.email}` : ""}</span></p>
+            : <p className="m-0 mt-1 text-sm text-[#4A515C]">Cargalos una vez y pedí factura de cualquier cobro, pagado o por pagar.</p>}
+        </div>
+        <Link href="/portal/facturacion" className="btn-s py-1.5">{facturacionCompleta(fact) ? "Editar" : "Cargar datos"}</Link>
+      </section>
+
       {pagados.length > 0 && (
         <section className="card" aria-labelledby="t-hist">
-          <h2 id="t-hist" className="m-0 text-base">Pagos realizados</h2>
+          <h2 id="t-hist" className="m-0 text-base">Pagos realizados y comprobantes</h2>
           <ul className="m-0 p-0 list-none">{pagados.map((x) => <Fila key={x.id} x={x} />)}</ul>
         </section>
       )}
