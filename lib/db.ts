@@ -7,7 +7,8 @@ function client() {
   if (!_sql) {
     const url = process.env.DATABASE_URL || process.env.POSTGRES_URL
     if (!url) throw new Error("Falta DATABASE_URL")
-    _sql = neon(url)
+    // Sin caché de Next: cada consulta va a la base (si no, Vercel puede devolver resultados viejos entre despliegues)
+    _sql = neon(url, { fetchOptions: { cache: "no-store" } })
   }
   return _sql
 }
