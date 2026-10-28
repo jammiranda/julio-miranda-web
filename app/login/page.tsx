@@ -1,3 +1,4 @@
+import { inicioSegunHost, espacioDelHost } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import bcrypt from "bcryptjs"
 import { one, audit } from "@/lib/db"
@@ -16,15 +17,15 @@ async function ingresar(fd: FormData) {
   }
   await crearSesion(u)
   await audit(u, "login")
-  redirect("/")
+  redirect(inicioSegunHost())
 }
 
 export default async function Login({ searchParams }: { searchParams: { e?: string } }) {
-  if (await usuarioActual()) redirect("/")
+  if (await usuarioActual()) redirect(inicioSegunHost())
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
       <form action={ingresar} className="card w-full max-w-sm flex flex-col gap-4">
-        <Marca />
+        <Marca sub={espacioDelHost() === "academia" ? "SISTEMA ACADEMIA" : "SISTEMA COMERCIAL"} />
         <p className="text-sm text-[#4A515C] m-0">Ingresá con tu usuario. El acceso queda registrado.</p>
         {searchParams.e && <p role="alert" className="text-sm text-rojo m-0">Usuario o clave incorrectos.</p>}
         <label className="lbl">Usuario<input name="usuario" required autoComplete="username" className="inp" /></label>

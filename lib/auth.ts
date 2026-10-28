@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from "jose"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { randomBytes } from "crypto"
 import { one, q } from "./db"
@@ -70,13 +70,12 @@ export const ROL_NOMBRE: Record<Rol, string> = {
   profesional: "Desarrollo",
 }
 
-/** Los dos sistemas: Comercial (CRM, proyectos, bot, portal) y Academia (cursos, guías, productos, alumnos). */
-export const ESPACIO_NOMBRE: Record<Espacio, string> = { comercial: "Sistema comercial", academia: "Sistema Academia" }
-const RUTAS_ACADEMIA = ["/academia-admin", "/cursos"]
-const RUTAS_COMPARTIDAS = ["/email", "/cuenta", "/ayuda", "/usuarios"]
-export function espacioDeRuta(ruta: string): Espacio | null {
-  if (RUTAS_ACADEMIA.some((r) => ruta === r || ruta.startsWith(r + "/"))) return "academia"
-  if (RUTAS_COMPARTIDAS.some((r) => ruta === r || ruta.startsWith(r + "/"))) return null
-  return "comercial"
+/** Los dos sistemas, cada uno en su dominio: Comercial (sistema.devisebit.com) y Academia (academia.devisebit.com/sistema). */
+export function espacioDelHost(): Espacio {
+  const h = headers()
+  if (h.get("x-espacio") === "academia") return "academia"
+  return [h.get("x-forwarded-host"), h.get("host")].some((x) => (x ?? "").toLowerCase().startsWith("academia.")) ? "academia" : "comercial"
 }
-export const INICIO_ESPACIO: Record<Espacio, string> = { comercial: "/", academia: "/academia-admin" }
+/** Inicio del sistema según el dominio (para redirigir después de entrar). */
+export const inicioSegunHost = () => (espacioDelHost() === "academia" ? "/sistema" : "/")
+export const URL_ESPACIO: Record<Espacio, string> = { comercial: "https://sistema.devisebit.com", academia: "https://academia.devisebit.com/sistema" }

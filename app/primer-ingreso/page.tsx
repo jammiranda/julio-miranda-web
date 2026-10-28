@@ -1,3 +1,4 @@
+import { inicioSegunHost } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import bcrypt from "bcryptjs"
 import { one, q, audit } from "@/lib/db"
@@ -20,7 +21,7 @@ async function crear(fd: FormData) {
   if (!u) redirect("/login")
   await audit(u, "primer_ingreso_gerencia")
   await crearSesion(u)
-  redirect("/")
+  redirect(inicioSegunHost())
 }
 
 export default async function PrimerIngreso({ searchParams }: { searchParams: { e?: string } }) {

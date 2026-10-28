@@ -128,7 +128,7 @@ export default async function Contacto({ params, searchParams }: { params: { id:
               <label className="lbl">Motivo (interno)<input name="nota" defaultValue={c.portal_nota ?? ""} className="inp py-1.5" /></label>
               <div className="flex gap-2"><button name="op" value="guardar" className="btn-s py-1.5">Guardar</button>{c.email && <button name="op" value="invitar" className="btn-s py-1.5">Mandar acceso</button>}</div>
             </form>
-            {cursos.length > 0 && <><h3 className="m-0 mt-2 text-xs font-bold uppercase tracking-wider text-[#4A515C]">Cursos</h3>{cursos.map((k: any) => <Link key={k.id} href={`/cursos/edicion/${k.edicion_id}`} className="flex justify-between gap-2 text-sm hover:underline"><span>{k.titulo}<span className="block text-xs text-[#4A515C]">{k.edicion}</span></span><span className={`chip self-start ${estadoInsc(k.estado).c}`}>{estadoInsc(k.estado).n}</span></Link>)}</>}
+            {cursos.length > 0 && <><h3 className="m-0 mt-2 text-xs font-bold uppercase tracking-wider text-[#4A515C]">Cursos</h3>{cursos.map((k: any) => <Link key={k.id} href={`/sistema/cursos/edicion/${k.edicion_id}`} className="flex justify-between gap-2 text-sm hover:underline"><span>{k.titulo}<span className="block text-xs text-[#4A515C]">{k.edicion}</span></span><span className={`chip self-start ${estadoInsc(k.estado).c}`}>{estadoInsc(k.estado).n}</span></Link>)}</>}
           </section>
           <section className="card flex flex-col gap-2">
             <h2 className="m-0 text-base">Conversaciones del bot</h2>

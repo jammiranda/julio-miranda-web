@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       await enviarBrevo({ email: o.email, name: o.nombre }, `Confirmamos tu compra: ${prod.titulo}`, plantilla(aHtml(`# ¡Gracias por tu compra!\n\nRecibimos el pago de **${prod.titulo}**.\n\nEn menos de 24 horas hábiles te escribimos para coordinar. Si querés adelantarte, elegí un horario:\n\n[[Agendar la primera reunión|https://sistema.devisebit.com/agendar]]\n\n¿Necesitás factura? Respondé este correo con tu razón social, CUIT y condición frente al IVA.`), { preheader: "Te escribimos en menos de 24 h" }))
     } else
     await enviarBrevo({ email: o.email, name: o.nombre }, `Tu compra: ${prod?.titulo ?? "Academia DEVISEBIT"}`, plantilla(aHtml(`# ¡Gracias por tu compra!\n\nYa podés descargar **${prod?.titulo ?? "tu producto"}**.\n\n[[Descargar ahora|${link}]]\n\nSi tenés cualquier duda, respondé este correo.`), { preheader: "Tu descarga está lista" }))
-    await notificar(["gerente", "coordinacion"], "💰 Venta en la Academia", `${prod?.titulo ?? "Producto"} · ${o.email} · ${o.moneda} ${o.monto}`, "/academia-admin").catch(() => {})
+    await notificar(["gerente", "coordinacion"], "💰 Venta en la Academia", `${prod?.titulo ?? "Producto"} · ${o.email} · ${o.moneda} ${o.monto}`, "/sistema").catch(() => {})
   }
   return NextResponse.json({ ok: true })
 }

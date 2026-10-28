@@ -3,12 +3,26 @@ const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/con
 export function middleware(req: NextRequest) {
   const p = req.nextUrl.pathname
   const host = (req.headers.get("host") ?? "").toLowerCase()
-  // academia.devisebit.com: sitio público de contenidos (vive en /academia)
+  // academia.devisebit.com: sitio público (vive en /academia) + su propio sistema interno en /sistema
   if (host.startsWith("academia.")) {
-    if (p.startsWith("/api") || p.startsWith("/_next") || p.startsWith("/academia") || /\.(png|ico|txt|xml|webmanifest)$/.test(p)) return NextResponse.next()
+    if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
+    // Sistema interno de la Academia y pantallas compartidas (sesión propia de este dominio)
+    if (/^\/(sistema|email|usuarios|cuenta|ayuda|login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) {
+      if (!/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p) && !req.cookies.get("db_sesion")) return NextResponse.redirect(new URL("/login", req.url))
+      const h = new Headers(req.headers)
+      h.set("x-espacio", "academia")
+      return NextResponse.next({ request: { headers: h } })
+    }
+    if (p.startsWith("/academia")) return NextResponse.next()
     const u = req.nextUrl.clone()
     u.pathname = "/academia" + (p === "/" ? "" : p)
     return NextResponse.rewrite(u)
+  }
+  // sistema.devisebit.com: la Academia tiene su propio sistema en academia.devisebit.com/sistema
+  if (host.startsWith("sistema.")) {
+    const viejo = p.match(/^\/(academia-admin|cursos)(\/.*)?$/)
+    if (viejo) return NextResponse.redirect(`https://academia.devisebit.com/sistema${viejo[1] === "cursos" ? "/cursos" : ""}${viejo[2] ?? ""}${req.nextUrl.search}`)
+    if (p === "/sistema" || p.startsWith("/sistema/")) return NextResponse.redirect(`https://academia.devisebit.com${p}${req.nextUrl.search}`)
   }
   // portal.devisebit.com: portal de clientes (vive en /portal, maneja su propia sesión)
   if (host.startsWith("portal.")) {
@@ -19,12 +33,6 @@ export function middleware(req: NextRequest) {
   }
   if (PUBLIC.some((x) => p.startsWith(x)) || p === "/academia" || p.startsWith("/academia/")) return NextResponse.next()
   if (!req.cookies.get("db_sesion")) return NextResponse.redirect(new URL("/login", req.url))
-  // El layout necesita saber en qué sistema estás (Comercial o Academia)
-  const h = new Headers(req.headers)
-  h.set("x-ruta", p)
-  const res = NextResponse.next({ request: { headers: h } })
-  const esp = p.startsWith("/academia-admin") || p.startsWith("/cursos") ? "academia" : /^\/(email|cuenta|ayuda|usuarios|api)(\/|$)/.test(p) ? null : "comercial"
-  if (esp && req.cookies.get("db_espacio")?.value !== esp) res.cookies.set("db_espacio", esp, { path: "/", sameSite: "lax", maxAge: 60 * 60 * 24 * 180 })
-  return res
+  return NextResponse.next()
 }
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] }

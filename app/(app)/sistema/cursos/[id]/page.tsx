@@ -17,7 +17,7 @@ async function guardar(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("id"))
   const titulo = s(fd.get("titulo"))
-  if (!titulo) redirect(`/cursos/${id}?err=titulo`)
+  if (!titulo) redirect(`/sistema/cursos/${id}?err=titulo`)
   let slug = slugDe(s(fd.get("slug")) ?? titulo!) || `curso-${id}`
   if (await one("select 1 from am_cursos where slug=$1 and id<>$2", [slug, id])) slug = `${slug}-${id}`
   const mod = String(fd.get("modalidad"))
@@ -30,7 +30,7 @@ async function guardar(fd: FormData) {
       Math.min(100, Math.max(0, Number(fd.get("req_lecciones")) || 0)), Math.min(100, Math.max(0, Number(fd.get("req_asistencia")) || 0)), fd.get("certifica") === "1", fd.get("destacado") === "1", id],
   )
   await audit(u, "edita_curso", "am_curso", id, est)
-  redirect(`/cursos/${id}?ok=1`)
+  redirect(`/sistema/cursos/${id}?ok=1`)
 }
 
 async function leccion(fd: FormData) {
@@ -38,22 +38,22 @@ async function leccion(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion", "profesional"])
   const id = Number(fd.get("id")), lid = Number(fd.get("lid") || 0)
   const op = String(fd.get("op") ?? "guardar")
-  if (op === "borrar") { await q("delete from am_lecciones where id=$1 and curso_id=$2", [lid, id]); await audit(u, "borra_leccion", "am_leccion", lid); redirect(`/cursos/${id}#lecciones`) }
+  if (op === "borrar") { await q("delete from am_lecciones where id=$1 and curso_id=$2", [lid, id]); await audit(u, "borra_leccion", "am_leccion", lid); redirect(`/sistema/cursos/${id}#lecciones`) }
   if (op === "subir" || op === "bajar") {
     const l = await q<{ id: number }>("select id from am_lecciones where curso_id=$1 order by orden, id", [id])
     const k = l.findIndex((x) => x.id === lid), j = op === "subir" ? k - 1 : k + 1
     if (k >= 0 && j >= 0 && j < l.length) [l[k], l[j]] = [l[j], l[k]]
     for (const [i, x] of l.entries()) await q("update am_lecciones set orden=$1 where id=$2", [i + 1, x.id])
-    redirect(`/cursos/${id}#lecciones`)
+    redirect(`/sistema/cursos/${id}#lecciones`)
   }
   const titulo = s(fd.get("titulo"))
-  if (!titulo) redirect(`/cursos/${id}?lerr=1#lecciones`)
+  if (!titulo) redirect(`/sistema/cursos/${id}?lerr=1#lecciones`)
   const tipo = TIPOS_LECCION.some((t) => t.v === fd.get("tipo")) ? String(fd.get("tipo")) : "lectura"
   const v = [s(fd.get("modulo")), titulo, tipo, String(fd.get("contenido") ?? ""), url(s(fd.get("video_url"))), url(s(fd.get("archivo_url"))), Number(fd.get("duracion_min")) || null, fd.get("publicada") === "1"]
   if (lid) await q("update am_lecciones set modulo=$1, titulo=$2, tipo=$3, contenido=$4, video_url=$5, archivo_url=$6, duracion_min=$7, publicada=$8 where id=$9 and curso_id=$10", [...v, lid, id])
   else await q("insert into am_lecciones(curso_id, orden, modulo, titulo, tipo, contenido, video_url, archivo_url, duracion_min, publicada) values ($1, coalesce((select max(orden) from am_lecciones where curso_id=$1),0)+1, $2,$3,$4,$5,$6,$7,$8,$9)", [id, ...v])
   await audit(u, lid ? "edita_leccion" : "crea_leccion", "am_curso", id, titulo)
-  redirect(`/cursos/${id}?lok=1#lecciones`)
+  redirect(`/sistema/cursos/${id}?lok=1#lecciones`)
 }
 
 async function edicion(fd: FormData) {
@@ -63,7 +63,7 @@ async function edicion(fd: FormData) {
   const r = await one<{ id: number }>("insert into am_ediciones(curso_id, nombre, inicio, fin, horario, lugar, link, cupo) values ($1,$2,$3,$4,$5,$6,$7,$8) returning id",
     [id, s(fd.get("nombre")) ?? "Nueva edición", s(fd.get("inicio")), s(fd.get("fin")), s(fd.get("horario")), s(fd.get("lugar")), url(s(fd.get("link"))), Number(fd.get("cupo")) || null])
   await audit(u, "crea_edicion", "am_curso", id)
-  redirect(`/cursos/edicion/${r!.id}?nueva=1`)
+  redirect(`/sistema/cursos/edicion/${r!.id}?nueva=1`)
 }
 
 const Campo = ({ l, children, className = "" }: { l: string; children: React.ReactNode; className?: string }) => <label className={`lbl ${className}`}>{l}{children}</label>
@@ -83,7 +83,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link href="/cursos" className="text-sm underline text-[#4A515C]">← Cursos</Link>
+        <Link href="/sistema/cursos" className="text-sm underline text-[#4A515C]">← Cursos</Link>
         {c.estado === "publicado" && <a href={`${URL_ACADEMIA}/cursos/${c.slug}`} target="_blank" rel="noopener noreferrer" className="btn-s py-1.5">Ver publicado ↗</a>}
       </div>
       {searchParams.nuevo && <p role="status" className="m-0 card py-3 text-sm">Curso creado en borrador con una edición. Completá los datos, cargá las lecciones y cuando esté listo pasalo a <strong>Publicado</strong>.</p>}
@@ -116,7 +116,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <div className="overflow-x-auto"><table className="tbl">
           <thead><tr><th>Edición</th><th>Fechas</th><th>Inscriptos</th><th>Aprobados</th><th>Estado</th></tr></thead>
           <tbody>{ediciones.map((e) => (
-            <tr key={e.id}><td><Link href={`/cursos/edicion/${e.id}`} className="font-semibold hover:underline">{e.nombre}</Link>{e.horario && <span className="block text-xs text-[#4A515C]">{e.horario}</span>}</td>
+            <tr key={e.id}><td><Link href={`/sistema/cursos/edicion/${e.id}`} className="font-semibold hover:underline">{e.nombre}</Link>{e.horario && <span className="block text-xs text-[#4A515C]">{e.horario}</span>}</td>
               <td>{e.inicio ? `${fecha(e.inicio)}${e.fin ? ` – ${fecha(e.fin)}` : ""}` : "A su ritmo"}</td><td>{e.inscriptos}{e.cupo ? ` / ${e.cupo}` : ""}</td><td>{e.aprobados}</td>
               <td>{ESTADOS_EDICION.find((x) => x.v === e.estado)?.n}</td></tr>
           ))}</tbody>
@@ -150,7 +150,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
                 <input type="hidden" name="id" value={c.id} /><input type="hidden" name="lid" value={l.id} />
                 <button name="op" value="subir" disabled={k === 0} aria-label="Subir" className="w-7 h-7 rounded hover:bg-[#F5F6F8] disabled:opacity-30">↑</button>
                 <button name="op" value="bajar" disabled={k === lecciones.length - 1} aria-label="Bajar" className="w-7 h-7 rounded hover:bg-[#F5F6F8] disabled:opacity-30">↓</button>
-                <Link href={`/cursos/${c.id}?editar=${l.id}#editor`} className="underline px-1">Editar</Link>
+                <Link href={`/sistema/cursos/${c.id}?editar=${l.id}#editor`} className="underline px-1">Editar</Link>
                 {puede && <button name="op" value="borrar" className="underline text-rojo px-1">Borrar</button>}
               </form>
             </li>
@@ -167,7 +167,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
           <Campo l="Duración (min)"><input name="duracion_min" type="number" min={0} defaultValue={ed?.duracion_min ?? ""} className="inp" /></Campo>
           <Campo l="Contenido (texto simple)" className="md:col-span-4"><textarea name="contenido" rows={6} defaultValue={ed?.contenido ?? ""} className="inp font-mono text-sm" /></Campo>
           <label className="flex gap-2 items-center text-sm"><input type="checkbox" name="publicada" value="1" defaultChecked={ed ? ed.publicada : true} /> Visible para alumnos</label>
-          <div className="md:col-span-3 flex gap-2 justify-end">{ed && <Link href={`/cursos/${c.id}#lecciones`} className="btn-s">Cancelar</Link>}<button name="op" value="guardar" className="btn-p">{ed ? "Guardar cambios" : "Agregar lección"}</button></div>
+          <div className="md:col-span-3 flex gap-2 justify-end">{ed && <Link href={`/sistema/cursos/${c.id}#lecciones`} className="btn-s">Cancelar</Link>}<button name="op" value="guardar" className="btn-p">{ed ? "Guardar cambios" : "Agregar lección"}</button></div>
           <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">El material descargable solo lo abren los inscriptos con la cuenta al día; cada descarga queda registrada.</p>
         </form>
       </section>

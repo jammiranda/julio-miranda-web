@@ -11,13 +11,13 @@ async function crear(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
   const titulo = String(fd.get("titulo") ?? "").trim()
-  if (!titulo) redirect("/cursos?err=1")
+  if (!titulo) redirect("/sistema/cursos?err=1")
   let slug = slugDe(titulo) || "curso"
   if (await one("select 1 from am_cursos where slug=$1", [slug])) slug = `${slug}-${Date.now().toString(36).slice(-4)}`
   const r = await one<{ id: number }>("insert into am_cursos(slug, titulo, modalidad) values ($1,$2,$3) returning id", [slug, titulo.slice(0, 160), String(fd.get("modalidad") ?? "online")])
   await q("insert into am_ediciones(curso_id, nombre) values ($1, $2)", [r!.id, fd.get("modalidad") === "online" ? "Siempre disponible" : "Primera edición"])
   await audit(u, "crea_curso", "am_curso", r!.id, titulo)
-  redirect(`/cursos/${r!.id}?nuevo=1`)
+  redirect(`/sistema/cursos/${r!.id}?nuevo=1`)
 }
 
 export default async function CursosAdmin({ searchParams }: { searchParams: { err?: string } }) {
@@ -36,7 +36,7 @@ export default async function CursosAdmin({ searchParams }: { searchParams: { er
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div><h1 className="m-0">Academia · Cursos</h1><p className="m-0 text-sm text-[#4A515C]">Cursos, ediciones, alumnos, asistencia y certificados. Se publican en <a href={`${URL_ACADEMIA}/cursos`} target="_blank" rel="noopener noreferrer" className="underline">academia.devisebit.com/cursos</a>.</p></div>
-        <Link href="/academia-admin" className="text-sm underline text-[#4A515C]">Guías y productos →</Link>
+        <Link href="/sistema" className="text-sm underline text-[#4A515C]">Guías y productos →</Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[["Alumnos", kpi?.alumnos], ["Certificados emitidos", kpi?.certificados], ["Activos últimos 30 días", kpi?.activos], ["Descargas últimos 30 días", kpi?.descargas]].map(([t, v]) => (
@@ -55,7 +55,7 @@ export default async function CursosAdmin({ searchParams }: { searchParams: { er
           <tbody>
             {cursos.map((c) => (
               <tr key={c.id}>
-                <td><Link href={`/cursos/${c.id}`} className="font-semibold hover:underline">{c.titulo}</Link>{c.destacado && <span className="ml-2 chip bg-[#FDECEB] text-[#9E1A17]">Destacado</span>}</td>
+                <td><Link href={`/sistema/cursos/${c.id}`} className="font-semibold hover:underline">{c.titulo}</Link>{c.destacado && <span className="ml-2 chip bg-[#FDECEB] text-[#9E1A17]">Destacado</span>}</td>
                 <td>{modalidad(c.modalidad)}</td><td>{c.lecciones}</td><td>{c.alumnos}</td><td>{c.aprobados}</td>
                 <td><span className={`chip ${c.estado === "publicado" ? "bg-emerald-50 text-emerald-700" : c.estado === "borrador" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}>{c.estado === "publicado" ? "Publicado" : c.estado === "borrador" ? "Borrador" : "Archivado"}</span></td>
               </tr>

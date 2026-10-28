@@ -1,3 +1,4 @@
+import { inicioSegunHost } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import bcrypt from "bcryptjs"
 import { one, q, audit } from "@/lib/db"
@@ -19,7 +20,7 @@ async function activar(fd: FormData) {
   await q("update usuarios set pass_hash=$1, invite_token=null, invite_expira=null where id=$2", [await bcrypt.hash(c1, 12), u.id])
   await audit(u, "activacion_cuenta")
   await crearSesion(u)
-  redirect("/")
+  redirect(inicioSegunHost())
 }
 
 export default async function Activar({ params, searchParams }: { params: { token: string }; searchParams: { e?: string } }) {

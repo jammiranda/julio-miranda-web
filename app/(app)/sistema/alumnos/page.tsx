@@ -39,7 +39,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
     { t: "Suscriptos", v: k?.suscriptos, d: `${k?.nuevos ?? 0} nuevos en 30 días` },
   ]
   const tab = (v: string, t: string) => (
-    <Link href={`/academia-admin/alumnos?v=${v}${b ? `&b=${encodeURIComponent(b)}` : ""}`} aria-current={vista === v ? "page" : undefined} className={`px-4 py-2 rounded-lg text-sm font-semibold ${vista === v ? "bg-[#0F766E] text-white" : "bg-white border border-[#E2E5EA] text-[#262C37]"}`}>{t}</Link>
+    <Link href={`/sistema/alumnos?v=${v}${b ? `&b=${encodeURIComponent(b)}` : ""}`} aria-current={vista === v ? "page" : undefined} className={`px-4 py-2 rounded-lg text-sm font-semibold ${vista === v ? "bg-[#0F766E] text-white" : "bg-white border border-[#E2E5EA] text-[#262C37]"}`}>{t}</Link>
   )
   return (
     <div className="flex flex-col gap-5">
@@ -59,7 +59,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
             <thead><tr><th>Alumno</th><th>Curso</th><th>Estado</th><th>Lecciones vistas</th><th>Última actividad</th><th>Inscripción</th></tr></thead>
             <tbody>
               {(alumnos as any[]).map((r) => (
-                <tr key={r.id}><td>{ficha ? <Link href={`/contactos/${r.cid}`} className="font-semibold underline">{r.nombre ?? r.email}</Link> : <strong>{r.nombre ?? r.email}</strong>}<div className="text-xs text-[#4A515C]">{r.email}</div></td><td>{r.curso}<div className="text-xs text-[#4A515C]">{r.edicion}</div></td><td>{ESTADO[r.estado] ?? r.estado}</td><td>{r.lecciones}</td><td>{r.ultima_actividad ? fecha(r.ultima_actividad) : "—"}</td><td>{fecha(r.creado)}</td></tr>
+                <tr key={r.id}><td>{ficha ? <Link href={`https://sistema.devisebit.com/contactos/${r.cid}`} className="font-semibold underline">{r.nombre ?? r.email}</Link> : <strong>{r.nombre ?? r.email}</strong>}<div className="text-xs text-[#4A515C]">{r.email}</div></td><td>{r.curso}<div className="text-xs text-[#4A515C]">{r.edicion}</div></td><td>{ESTADO[r.estado] ?? r.estado}</td><td>{r.lecciones}</td><td>{r.ultima_actividad ? fecha(r.ultima_actividad) : "—"}</td><td>{fecha(r.creado)}</td></tr>
               ))}
               {!(alumnos as any[]).length && <tr><td colSpan={6} className="text-center text-[#4A515C] py-6">Todavía no hay alumnos{b ? " con esa búsqueda" : ""}. Se suman al inscribirse en un curso.</td></tr>}
             </tbody>
@@ -81,7 +81,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
             <thead><tr><th>Suscripto</th><th>Intereses</th><th>Desde</th></tr></thead>
             <tbody>
               {(suscriptos as any[]).map((r) => (
-                <tr key={r.id}><td>{ficha ? <Link href={`/contactos/${r.id}`} className="font-semibold underline">{r.nombre ?? r.email}</Link> : <strong>{r.nombre ?? r.email}</strong>}<div className="text-xs text-[#4A515C]">{r.email}</div></td><td className="text-xs">{(r.tags ?? []).slice(0, 4).join(" · ") || "—"}</td><td>{fecha(r.suscrito_en)}</td></tr>
+                <tr key={r.id}><td>{ficha ? <Link href={`https://sistema.devisebit.com/contactos/${r.id}`} className="font-semibold underline">{r.nombre ?? r.email}</Link> : <strong>{r.nombre ?? r.email}</strong>}<div className="text-xs text-[#4A515C]">{r.email}</div></td><td className="text-xs">{(r.tags ?? []).slice(0, 4).join(" · ") || "—"}</td><td>{fecha(r.suscrito_en)}</td></tr>
               ))}
               {!(suscriptos as any[]).length && <tr><td colSpan={3} className="text-center text-[#4A515C] py-6">Todavía no hay suscriptos{b ? " con esa búsqueda" : ""}.</td></tr>}
             </tbody>

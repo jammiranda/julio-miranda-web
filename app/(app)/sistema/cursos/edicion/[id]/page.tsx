@@ -10,7 +10,7 @@ export const maxDuration = 120
 
 const url = (v: string | null) => (v && /^https?:\/\//.test(v) ? v : null)
 const tz = (d: string | null) => (d ? `${d}:00-03:00` : null)
-const back = (id: number, qs = "", h = "") => redirect(`/cursos/edicion/${id}${qs ? `?${qs}` : ""}${h ? `#${h}` : ""}`)
+const back = (id: number, qs = "", h = "") => redirect(`/sistema/cursos/edicion/${id}${qs ? `?${qs}` : ""}${h ? `#${h}` : ""}`)
 
 async function datos(fd: FormData) {
   "use server"
@@ -129,7 +129,7 @@ export default async function Edicion({ params, searchParams }: { params: { id: 
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <Link href={`/cursos/${e.curso_id}#ediciones`} className="text-sm underline text-[#4A515C]">← {e.titulo}</Link>
+          <Link href={`/sistema/cursos/${e.curso_id}#ediciones`} className="text-sm underline text-[#4A515C]">← {e.titulo}</Link>
           <h1 className="m-0 mt-1">{e.nombre}</h1>
           <p className="m-0 text-sm text-[#4A515C]">{modalidad(e.modalidad)} · {activos.length} inscriptos{e.cupo ? ` de ${e.cupo}` : ""} · {cuenta("aprobado")} aprobados · Requisitos: {e.req_lecciones}% de lecciones{clases.length ? ` y ${e.req_asistencia}% de asistencia` : ""}</p>
         </div>

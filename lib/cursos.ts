@@ -127,7 +127,7 @@ export async function aprobar(iid: number, por: string) {
     const md = `# ¡Felicitaciones, terminaste el curso!\n\nHola {{nombre}}, aprobaste **${d.titulo}**.${cert ? `\n\nTu certificado ya está disponible. Cualquier persona puede verificarlo con el código **${cert}**.\n\n[[Ver mi certificado|${urlCertificado(cert)}]]` : ""}\n\nEn tu cuenta tenés todos tus cursos y certificados. Gracias por aprender con la Academia DEVISEBIT.\n\n[[Ver más cursos|${URL_ACADEMIA}/cursos]]`
     await enviarBrevo({ email: d.email, name: d.nombre }, `Aprobaste ${d.titulo}${cert ? " · tu certificado" : ""}`, plantilla(aHtml(md), { nombre: d.nombre, preheader: "Tu certificado está listo" })).catch(() => {})
   }
-  await notificar(["gerente", "coordinacion"], "🎓 Curso aprobado", `${d.nombre} · ${d.titulo}`, `/cursos/edicion/${i.edicion_id}`).catch(() => {})
+  await notificar(["gerente", "coordinacion"], "🎓 Curso aprobado", `${d.nombre} · ${d.titulo}`, `/sistema/cursos/edicion/${i.edicion_id}`).catch(() => {})
   return cert
 }
 
@@ -153,7 +153,7 @@ export async function inscribir(contactoId: number, edicionId: number, origen: s
   )
   await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'inscripcion',$3)", [contactoId, iid, e.slug])
   if (conEmail) await bienvenida(iid).catch(() => {})
-  await notificar(["gerente", "coordinacion"], "🎓 Nueva inscripción", `${e.titulo} · ${e.nombre}`, `/cursos/edicion/${edicionId}`).catch(() => {})
+  await notificar(["gerente", "coordinacion"], "🎓 Nueva inscripción", `${e.titulo} · ${e.nombre}`, `/sistema/cursos/edicion/${edicionId}`).catch(() => {})
   return { ok: true as const, id: iid, ya: false }
 }
 

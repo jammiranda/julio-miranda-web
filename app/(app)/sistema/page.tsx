@@ -17,14 +17,14 @@ async function guardarGuia(fd: FormData) {
   if (id) await q("update am_guias set titulo=$1,bajada=$2,categoria=$3,contenido=$4,exclusiva=$5,publicada=$6,destacada=$7,actualizado=now() where id=$8", [...v, Number(id)])
   else await q("insert into am_guias(titulo,bajada,categoria,contenido,exclusiva,publicada,destacada,slug) values ($1,$2,$3,$4,$5,$6,$7,$8)", [...v, slugDe(titulo) + "-" + Date.now().toString(36).slice(-4)])
   await audit(u, "academia_guia", "am_guia", id ?? titulo)
-  revalidatePath("/academia-admin")
+  revalidatePath("/sistema")
 }
 
 async function guiaIA(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
   const tema = s(fd.get("tema"))
-  if (!tema || !process.env.ANTHROPIC_API_KEY) redirect("/academia-admin?err=Falta%20el%20tema%20o%20la%20clave%20de%20IA")
+  if (!tema || !process.env.ANTHROPIC_API_KEY) redirect("/sistema?err=Falta%20el%20tema%20o%20la%20clave%20de%20IA")
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST", headers: { "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({ model: process.env.CLAUDE_MODEL ?? "claude-sonnet-5-5", max_tokens: 3500, messages: [{ role: "user", content: `Escribí una guía práctica para la Academia DEVISEBIT (lectores: dueños, gerentes y equipos de pymes e instituciones argentinas, no técnicos), en español rioplatense, clara, concreta y accionable, de 600 a 900 palabras. Tema: ${tema}.
@@ -34,10 +34,10 @@ Respondé SOLO un JSON: {"titulo":"...","bajada":"...(1 oración)","categoria":"
   }).catch(() => null)
   let o: any = null
   try { const j = await r!.json(); o = JSON.parse(((j.content ?? []).map((x: any) => x.text ?? "").join("")).match(/\{[\s\S]*\}/)![0]) } catch {}
-  if (!o?.contenido) redirect("/academia-admin?err=La%20IA%20no%20pudo%20escribirla%20ahora")
+  if (!o?.contenido) redirect("/sistema?err=La%20IA%20no%20pudo%20escribirla%20ahora")
   await q("insert into am_guias(titulo,bajada,categoria,contenido,publicada,slug) values ($1,$2,$3,$4,false,$5)", [o.titulo, o.bajada, o.categoria, o.contenido, slugDe(o.titulo)])
   await audit(u, "academia_guia_ia", "am_guia", o.titulo)
-  redirect("/academia-admin?ok=Borrador%20creado%3A%20revisalo%20y%20public%C3%A1lo")
+  redirect("/sistema?ok=Borrador%20creado%3A%20revisalo%20y%20public%C3%A1lo")
 }
 
 async function guardarProducto(fd: FormData) {
@@ -48,7 +48,7 @@ async function guardarProducto(fd: FormData) {
   const est = ["venta", "lista_espera", "oculto"].includes(String(fd.get("estado"))) ? String(fd.get("estado")) : "lista_espera"
   await q("update am_productos set titulo=$1,bajada=$2,descripcion=$3,precio=$4,estado=$5,archivo_url=$6 where id=$7", [s(fd.get("titulo")), s(fd.get("bajada")), String(fd.get("descripcion") ?? ""), precio ? Number(precio.replace(/\./g, "").replace(",", ".")) || null : null, est, s(fd.get("archivo_url")), id])
   await audit(u, "academia_producto", "am_producto", id, est)
-  revalidatePath("/academia-admin")
+  revalidatePath("/sistema")
 }
 
 export default async function AcademiaAdmin({ searchParams }: { searchParams: { ok?: string; err?: string } }) {

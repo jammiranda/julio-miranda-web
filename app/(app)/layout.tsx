@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { headers, cookies } from "next/headers"
-import { requerir, cerrarSesion, ROL_NOMBRE, espacioDeRuta, INICIO_ESPACIO, type Espacio } from "@/lib/auth"
+import { requerir, cerrarSesion, ROL_NOMBRE, espacioDelHost, URL_ESPACIO, type Espacio } from "@/lib/auth"
 import { one } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { avisos, marcarAvisos, restaurarAvisos } from "@/lib/avisos"
@@ -32,13 +31,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const nuevos = av.filter((x) => !x.leido)
   const total = nuevos.reduce((a, x) => a + x.n, 0)
   const altas = nuevos.filter((x) => x.nivel === "alta").length
-  // Dos sistemas separados: Comercial y Academia. Cada usuario ve los que tiene habilitados.
-  const ruta = headers().get("x-ruta") ?? "/"
-  const deRuta = espacioDeRuta(ruta)
-  const ultimo = cookies().get("db_espacio")?.value as Espacio | undefined
-  const espacio: Espacio = deRuta ?? (ultimo && u.espacios.includes(ultimo) ? ultimo : u.espacios[0])
-  if (!u.espacios.includes(espacio)) redirect(INICIO_ESPACIO[u.espacios[0]])
-  const ep = { inicial: espacio, espacios: u.espacios }
+  // Dos sistemas separados por dominio: sistema.devisebit.com (Comercial) y academia.devisebit.com/sistema (Academia)
+  const espacio: Espacio = espacioDelHost()
+  if (!u.espacios.includes(espacio)) redirect(URL_ESPACIO[u.espacios[0]])
+  const ep = { espacio, espacios: u.espacios }
   return (
     <div className="min-h-screen">
       <header className="bg-white border-b border-[#E2E5EA] sticky top-0 z-20">
@@ -61,7 +57,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 <ul className="m-0 p-0 list-none max-h-[60vh] overflow-auto">
                   {av.map((x, i) => (
                     <li key={x.clave} className={`flex items-stretch border-b border-[#EEF0F3] ${x.leido ? "opacity-55" : ""}`}>
-                      <Link href={x.href} className="flex flex-1 gap-3 pl-4 pr-2 py-3 hover:bg-[#F8F9FB]">
+                      <Link href={espacio === "academia" && !x.href.startsWith("/sistema") ? URL_ESPACIO.comercial + x.href : x.href} className="flex flex-1 gap-3 pl-4 pr-2 py-3 hover:bg-[#F8F9FB]">
                         <span className={`mt-1 w-2.5 h-2.5 rounded-full shrink-0 ${x.leido ? "bg-slate-300" : x.nivel === "alta" ? "bg-red-600" : "bg-amber-500"}`} />
                         <span className="flex-1"><span className="font-semibold text-[#0E1116]">{x.t}</span><span className="block text-xs text-[#4A515C]">{x.leido ? "Leído · " : ""}{x.d}</span></span>
                         <span className="font-extrabold text-[#0E1116]">{x.n}</span>
@@ -94,11 +90,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </details>
           </div>
         </div>
-        <EspacioMenu {...ep} rol={u.rol} />
+        <EspacioMenu espacio={espacio} rol={u.rol} />
       </header>
       <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
-      <EspacioRapidos {...ep} />
-      <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6"><Redes /><EspacioPie {...ep} /></footer>
+      <EspacioRapidos espacio={espacio} />
+      <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6"><Redes /><EspacioPie espacio={espacio} /></footer>
     </div>
   )
 }
