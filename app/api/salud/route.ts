@@ -20,6 +20,8 @@ export async function GET() {
     await asegurarPerfil().catch(() => null)
     const wa = await estadoPerfil().catch(() => null)
     const gc = await gcalConfig().catch(() => null)
+    const td = await one<{ p: any; pr: any }>("select (select json_agg(json_build_object('slug',slug,'estado',estado)) from am_productos where slug like '%transformacion%') p, (select json_agg(json_build_object('producto',producto,'activo',activo)) from db_precios where linea='Transformación digital' or producto like 'Taller%' or producto like 'Diagn%') pr").catch(() => null)
+    const equipoCal = await one<{ n: number }>("select count(*)::int n from usuarios where activo and rol in ('gerente','coordinacion') and email is not null and email <> ''").catch(() => null)
     const gcPrueba = gc?.url ? await probarGcal().catch(() => null) : null
     return NextResponse.json({
       ok: true, db_ms: Date.now() - t0,
@@ -28,7 +30,8 @@ export async function GET() {
       horas_desde_ultima_respuesta_bot: b?.h != null ? Math.round(b.h) : null,
       whatsapp_configurado: !!(process.env.WA_PHONE_ID || process.env.WA_DB_PHONE_ID) && !!(process.env.WA_TOKEN || process.env.WA_DB_TOKEN),
       whatsapp_perfil: wa ? { perfil: wa.perfil ?? null, foto: wa.foto ?? null, plantillas: wa.plantillas ?? null } : null,
-      google_calendar: { url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null },
+      academia_transformacion: td?.p ?? null, precios_transformacion: td?.pr ?? null,
+      google_calendar: { equipo_con_email: equipoCal?.n ?? null, url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null },
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
       firma_webhook_configurada: !!process.env.WA_APP_SECRETS,

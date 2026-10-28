@@ -125,6 +125,12 @@ export async function sugerencias(n = 6) {
 export const linkAgenda = (token: string) => `${URL_SISTEMA}/agendar/${token}`
 export const linkVideo = (token: string) => `https://meet.jit.si/DEVISEBIT-${token}`
 
+/** Emails del equipo (gerencia y coordinación) que reciben cada reunión en su calendario personal. */
+async function invitadosEquipo() {
+  const us = await q<{ email: string }>("select email from usuarios where activo and rol in ('gerente','coordinacion') and email is not null and email <> ''").catch(() => [])
+  return us.map((u) => u.email.trim().toLowerCase())
+}
+
 /** Reserva un turno para una consulta. Devuelve el texto de confirmación. */
 export async function reservar(cid: number, inicio: Date, datos: { nombre?: string | null; email?: string | null; telefono?: string | null; modalidad?: string | null; notas?: string | null } = {}) {
   const c = await one<any>("select id, nombre, organizacion, email, telefono, motivo, brief_token, chat_id from consultas where id=$1", [cid])
@@ -142,7 +148,7 @@ export async function reservar(cid: number, inicio: Date, datos: { nombre?: stri
     [cid, contacto?.id ?? null, nombre, email, tel, inicio, fin, modalidad, link, datos.notas ?? null],
   )
   const ev = await gcal({
-    accion: "crear", titulo: `DEVISEBIT · ${nombre ?? "Cliente"}${c.organizacion ? ` (${c.organizacion})` : ""}`, inicio: inicio.toISOString(), fin: fin.toISOString(), email: email ?? "",
+    accion: "crear", titulo: `DEVISEBIT · ${nombre ?? "Cliente"}${c.organizacion ? ` (${c.organizacion})` : ""}`, inicio: inicio.toISOString(), fin: fin.toISOString(), email: [email, ...(await invitadosEquipo())].filter(Boolean).join(","),
     lugar: link ?? (tel ? `Llamada al ${tel}` : ""), descripcion: `${modalidad === "llamada" ? `Llamada al ${tel ?? "cliente"}` : `Videollamada: ${link}`}\nNecesidad: ${c.motivo ?? "—"}\nFicha: ${URL_SISTEMA}/consultas/${cid}`,
   })
   if (ev?.id) await q("update db_reuniones set calendar_id=$1 where id=$2", [ev.id, r!.id])
