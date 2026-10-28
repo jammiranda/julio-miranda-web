@@ -56,6 +56,7 @@ html:not([data-marca="blanca"]) .k-white-only{display:none!important}
 .ktour-card .big{font:800 clamp(28px,5vw,42px)/1 "Inter Tight",Inter,sans-serif;color:var(--k-accent);margin:14px 0 22px;letter-spacing:-.02em}
 .ktour-card p{color:#4A515C;margin:0 0 6px;font-size:16px}
 .ktour-card .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ktour-card p.knote{font-size:14px;margin:-8px auto 18px;padding:8px 12px;background:#F4F5F7;border-radius:10px;display:inline-block}
 .ktour-card a,.ktour-card button{font:600 15px Inter,sans-serif;border-radius:10px;padding:11px 18px;cursor:pointer;text-decoration:none}
 .ktour-card a{background:var(--k-accent);color:#fff;border:0}
 .ktour-card button{background:#fff;border:1px solid #C3C8D1;color:#0B0D12}
@@ -168,10 +169,51 @@ main{max-width:1120px;margin:0 auto;padding:28px 20px 130px}
 .modal .card{width:min(460px,100%);padding:24px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0B0D12;color:#fff;padding:12px 18px;border-radius:10px;z-index:300;font-weight:500;max-width:calc(100% - 32px)}
 .print-only{display:none}
+/* informe bloqueado + formulario */
+.lockwrap{position:relative;width:100%;display:grid;place-items:center;min-height:300px;overflow:hidden;border-radius:12px}
+.lockwrap .blur{filter:blur(9px) saturate(.8);opacity:.55;width:100%;pointer-events:none;user-select:none}
+.lockover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:20px}
+.lockover .lk{width:52px;height:52px;border-radius:16px;background:var(--ink);color:#fff;display:grid;place-items:center;margin-bottom:4px}
+.lockover b{font:700 19px "Inter Tight",Inter,sans-serif}
+.lockover span{color:var(--mut);font-size:14.5px;max-width:32ch}
+.lockover .btn{margin-top:8px;padding:10px 16px}
+.incl{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:6px;font-size:14.5px}
+.incl li{display:flex;gap:8px;align-items:flex-start}
+.incl svg{flex:none;margin-top:3px}
+.leadf{padding:26px;margin-bottom:18px}
+@media (max-width:640px){.leadf{padding:20px}}
+.leadf h2{font-size:clamp(22px,2.4vw,28px);margin-bottom:4px}
+.leadf .sub{margin:0 0 6px;color:var(--mut)}
+.leadf fieldset{border:0;margin:0;padding:0;min-width:0}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media (max-width:700px){.lgrid{grid-template-columns:1fr}}
+.leadf .field{margin:12px 0 0}
+.leadf .field input{font-size:16px;min-height:46px}
+.leadf .field input[aria-invalid="true"]{border-color:#B42318;box-shadow:0 0 0 1px #B42318}
+.leadf .opt-l{font-weight:500;color:var(--mut);font-size:13px}
+.err{color:#B42318;font-size:13.5px;font-weight:600;margin:2px 0 0}
+.err:empty,.sug:empty{display:none}
+.sug{font-size:14px;margin:4px 0 0;color:var(--ink)}
+.sug button{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--k-accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;font-size:14.5px}
+.chk input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--k-accent)}
+.chk a,.chk .lnk{color:var(--k-accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.hp{position:absolute!important;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+.leadf .send{width:100%;margin-top:18px;font-size:16px;padding:14px}
+.leadf .send[aria-busy="true"]{opacity:.8;cursor:progress}
+.spin{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.legal{font-size:12.5px;color:var(--mut);margin:10px 0 0;text-align:center}
+.notice{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;margin-bottom:18px;font-size:15px}
+.notice.ok{background:#E7F4EE;border:1px solid #A9D8C3;color:#0B4A36}
+.notice.warn{background:#FFF6E0;border:1px solid #EBCB7A;color:#5C4200}
+.notice svg{flex:none;margin-top:2px}
+.notice:focus{outline:none}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
 @media print{
   @page{size:A4;margin:14mm}
   body{background:#fff;font-size:12px}
-  .top,.ctas,.no-print,.toast{display:none!important}
+  .top,.ctas,.no-print,.toast,.leadf,.notice{display:none!important}
   main{padding:0;max-width:none}
   .card{border:1px solid #ccc;break-inside:avoid}
   .rgrid{grid-template-columns:1fr 1fr}
@@ -195,6 +237,8 @@ const KIT=(()=>{
   const white=Q.get("marca")==="blanca";
   const showSel=!white||Q.get("selector")==="1";
   const product=(window.DEMO&&DEMO.product)||"Demo";
+  const basic=!!(window.DEMO&&DEMO.basic);
+  const basicNote=basic?`<p class="knote">Esto es una muestra: el sistema completo tiene más módulos.</p>`:"";
   const SITE="https://www.devisebit.com/";
   const contact=SITE+"contacto?tema="+encodeURIComponent("Demo: "+product)+"#formulario";
   const brandName=white?"Tu Marca":"DEVISEBIT";
@@ -208,7 +252,7 @@ const KIT=(()=>{
   function bar(){
     const b=document.createElement("div");b.className="kbar";b.setAttribute("role","region");b.setAttribute("aria-label","Aviso de demo");
     const sel=showSel?`<span class="kseg"><span id="kselLbl">Marca:</span><span class="kseg-g" role="group" aria-labelledby="kselLbl"><button type="button" data-kbrand="devisebit" aria-pressed="${!white}">DEVISEBIT</button><button type="button" data-kbrand="blanca" aria-pressed="${white}">Tu marca</button></span></span>`:"";
-    b.innerHTML=`<div class="kbar-in"><div class="kbar-msg"><span class="kbar-dot" aria-hidden="true"></span><span>Demo con datos de ejemplo${white?"":" ·"}</span></div>${white?"":`<a class="kcta" href="${contact}">Quiero esto para mi organización</a>`}<button type="button" class="kbtn" id="kTourBtn">▶ <span class="kd">Ver recorrido guiado</span><span class="km">Recorrido</span></button><span class="kbr" aria-hidden="true"></span>${sel}${white?"":`<a class="klink" href="${SITE}">Inicio</a>`}</div>`;
+    b.innerHTML=`<div class="kbar-in"><div class="kbar-msg"><span class="kbar-dot" aria-hidden="true"></span><span>${basic?"Demo con funciones básicas y datos de ejemplo":"Demo con datos de ejemplo"}${white?"":" ·"}</span></div>${white?"":`<a class="kcta" href="${contact}">Quiero esto para mi organización</a>`}<button type="button" class="kbtn" id="kTourBtn">▶ <span class="kd">Ver recorrido guiado</span><span class="km">Recorrido</span></button><span class="kbr" aria-hidden="true"></span>${sel}${white?"":`<a class="klink" href="${SITE}">Inicio</a>`}</div>`;
     document.body.prepend(b);
     b.querySelectorAll("[data-kbrand]").forEach(x=>x.onclick=()=>{const v=x.dataset.kbrand;location.href=url({marca:v==="blanca"?"blanca":null,selector:v==="blanca"?"1":Q.get("selector")})});
     b.querySelector("#kTourBtn").onclick=()=>{location.href=url({tour:"1"})};
@@ -250,8 +294,8 @@ const KIT=(()=>{
     cancelAnimationFrame(raf);document.documentElement.classList.remove("ktour-on");[cur,ring,cap,shield].forEach(x=>x&&x.remove());
     const o=document.createElement("div");o.className="ktour-end";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","kEndT");
     o.innerHTML=white
-      ?`<div class="ktour-card"><h2 id="kEndT">Pedí tu demo</h2><p>Lo armamos con tus datos y tu marca.</p><div class="big">${esc(product)}</div><div class="row"><button type="button" id="kEndBack">Seguir explorando</button></div></div>`
-      :`<div class="ktour-card"><h2 id="kEndT">¿Lo querés para tu organización?</h2><p>Lo adaptamos a tu marca, tus datos y tu equipo.</p><div class="big">devisebit.com</div><div class="row"><a href="${contact}">Quiero esto para mi organización</a><button type="button" id="kEndBack">Seguir explorando</button></div></div>`;
+      ?`<div class="ktour-card"><h2 id="kEndT">Pedí tu demo</h2><p>Lo armamos con tus datos y tu marca.</p><div class="big">${esc(product)}</div>${basicNote}<div class="row"><button type="button" id="kEndBack">Seguir explorando</button></div></div>`
+      :`<div class="ktour-card"><h2 id="kEndT">¿Lo querés para tu organización?</h2><p>Lo adaptamos a tu marca, tus datos y tu equipo.</p><div class="big">devisebit.com</div>${basicNote}<div class="row"><a href="${contact}">Quiero esto para mi organización</a><button type="button" id="kEndBack">Seguir explorando</button></div></div>`;
     document.body.appendChild(o);o.querySelector("#kEndBack").onclick=()=>{o.remove();history.replaceState(null,"",url({tour:null}));const t=document.getElementById("kTourBtn");if(t)t.hidden=false};
     o.querySelector("#kEndBack").focus({preventScroll:true});
     window.__tourDone=true;
@@ -321,7 +365,7 @@ function dimScore(){const o={};DIMS.forEach(([k])=>{const v=Q.map((q,i)=>q.d===k
 function level(avg){return LEVELS.find(l=>avg<l[1])}
 const V={};
 V.intro=()=>`<div class="intro"><div><div class="eyebrow">Autodiagnóstico gratuito · 5 minutos</div><h1>¿Qué tan digital es <em>tu organización</em>?</h1><p class="lead">Respondé 12 preguntas simples y obtené tu nivel de madurez digital, un mapa por dimensión y las 3 mejoras que más te conviene encarar primero.</p>
-<ul class="facts"><li><b>12</b> preguntas</li><li><b>6</b> dimensiones</li><li>Resultado <b>al instante</b></li><li><b>Sin registrarte</b></li></ul>
+<ul class="facts"><li><b>12</b> preguntas</li><li><b>6</b> dimensiones</li><li>Resultado <b>al instante</b></li><li>Informe completo <b>por email</b></li></ul>
 <div class="dims" aria-label="Dimensiones que se evalúan">${DIMS.map(d=>`<span>${d[1]}</span>`).join("")}</div>
 <div class="peek" aria-label="Qué vas a obtener"><div><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="var(--k-accent-soft)"/><path d="M11 27h18M14 27v-6M20 27V13M26 27v-9" stroke="var(--k-accent)" stroke-width="3" stroke-linecap="round"/></svg><b>Tu nivel</b><span>De Inicial a Líder, con puntaje de 0 a 100</span></div>
 <div><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="var(--k-accent-soft)"/><polygon points="20,9 30,15 30,26 20,31 10,26 10,15" fill="none" stroke="var(--k-accent)" stroke-width="2.4"/><polygon points="20,14 26,18 25,24 20,26 14,23 15,17" fill="var(--k-accent)" opacity=".5"/></svg><b>Mapa radar</b><span>Tu puntaje en cada dimensión</span></div>
@@ -330,7 +374,7 @@ V.intro=()=>`<div class="intro"><div><div class="eyebrow">Autodiagnóstico gratu
 <div class="field"><label for="org">Nombre de la organización</label><input id="org" placeholder="Por ejemplo: Cooperativa del Valle" value="${esc(S.org)}" autocomplete="organization"></div>
 <div class="field"><label for="rubro">Rubro</label><select id="rubro">${["Salud","Educación","Comercio","Servicios profesionales","Industria","Organismo público","ONG o cooperativa"].map(r=>`<option ${S.rubro===r?"selected":""}>${r}</option>`).join("")}</select></div>
 <div class="field"><label for="size">Tamaño</label><select id="size">${["1 a 10 personas","11 a 50 personas","51 a 200 personas","Más de 200 personas"].map(r=>`<option ${S.size===r?"selected":""}>${r}</option>`).join("")}</select></div>
-<button class="btn btn-p" type="submit" id="startB">Empezar el diagnóstico →</button><p class="small" style="margin:10px 0 0;text-align:center">Demo: tus respuestas no se guardan ni se envían.</p></form></div>`;
+<button class="btn btn-p" type="submit" id="startB">Empezar el diagnóstico →</button><p class="small" style="margin:10px 0 0;text-align:center">Tus respuestas solo se envían si al final pedís el informe completo.</p></form></div>`;
 V.q=()=>{
   const q=Q[S.i],dn=DIMS.find(d=>d[0]===q.d)[1],done=S.a.filter(x=>x!=null).length,ds=DIMS.map(([k,n])=>{const idx=Q.map((x,i)=>x.d===k?i:-1).filter(i=>i>=0);return{k,n,done:idx.every(i=>S.a[i]!=null),cur:q.d===k}});
   return `<div class="qwrap"><div><div class="pg"><span>Pregunta ${S.i+1} de 12</span><div class="bar" role="progressbar" aria-label="Avance del cuestionario" aria-valuemin="0" aria-valuemax="12" aria-valuenow="${done}"><i style="width:${done/12*100}%"></i></div><span>${Math.round(done/12*100)}%</span></div>
@@ -354,16 +398,81 @@ function radar(sc){
   <polygon points="${poly(bench)}" fill="none" stroke="#6B7280" stroke-width="2" stroke-dasharray="5 5"/>
   <g class="rpoly" style="transform-origin:${cx}px ${cy}px"><polygon points="${poly(mine)}" fill="${KIT.accent}" fill-opacity=".18" stroke="${KIT.accent}" stroke-width="2.5" stroke-linejoin="round"/>${dots}</g>${lab}</svg>`;
 }
-V.res=()=>{
-  const sc=dimScore(),avg=S.a.reduce((a,b)=>a+b,0)/12,lv=level(avg),li=LEVELS.indexOf(lv),pct=Math.round((avg-1)/3*100);
+const API="https://sistema.devisebit.com/api/demos/diagnostico";
+const PRIV="https://www.devisebit.com/privacidad";
+const DIMKEY={proc:"procesos",datos:"datos",aten:"atencion",equipo:"equipo",tec:"tecnologia",seg:"seguridad"};
+S.unlocked=false;S.sent=null;S.lead={nombre:"",email:"",organizacion:"",telefono:""};S.sugSkip="";
+const to100=v=>Math.max(0,Math.min(100,Math.round((v-1)/3*100)));
+function results(){
+  const sc=dimScore(),avg=S.a.reduce((a,b)=>a+b,0)/12,lv=level(avg),li=LEVELS.indexOf(lv),pct=to100(avg);
   const low=Q.map((q,i)=>({i,v:S.a[i],p:PRIO[q.d]})).sort((a,b)=>a.v-b.v||a.p-b.p||a.i-b.i).slice(0,3);
+  return {sc,avg,lv,li,pct,low};
+}
+/* --- validación de email --- */
+const DISPOSABLE=["mailinator","guerrillamail","guerrillamailblock","grr","10minutemail","10minutemail","tempmail","temp-mail","tempmailo","yopmail","trashmail","sharklasers","getnada","nada","dispostable","maildrop","mailnesia","throwawaymail","fakeinbox"];
+const DISPOSABLE_FULL=["grr.la","guerrillamail.info","pokemail.net","spam4.me","10minutemail.net","temp-mail.org","tempmail.dev","yopmail.fr","yopmail.net","trashmail.de","trashmail.net","getnada.com","maildrop.cc","dispostable.com","mailinator.com","sharklasers.com"];
+const KNOWN=["gmail.com","hotmail.com","hotmail.com.ar","outlook.com","outlook.com.ar","live.com","live.com.ar","yahoo.com","yahoo.com.ar","icloud.com"];
+const LEGIT=KNOWN.concat(["mail.com","aol.com","msn.com","me.com","proton.me","protonmail.com","fibertel.com.ar","speedy.com.ar","arnet.com.ar","ciudad.com.ar","gmx.com","zoho.com"]);
+const TYPO={"gmal.com":"gmail.com","gmial.com":"gmail.com","gmai.com":"gmail.com","gamil.com":"gmail.com","gnail.com":"gmail.com","gmaill.com":"gmail.com","gmail.com.ar":"gmail.com","gmail.co":"gmail.com","gmail.con":"gmail.com","gmail.cm":"gmail.com","gmail.om":"gmail.com","hotmial.com":"hotmail.com","hotmal.com":"hotmail.com","hotmai.com":"hotmail.com","hotmil.com":"hotmail.com","hotamil.com":"hotmail.com","hotmail.con":"hotmail.com","hotmail.co":"hotmail.com","hotmail.com.ra":"hotmail.com.ar","outlok.com":"outlook.com","outloo.com":"outlook.com","outlook.con":"outlook.com","yaho.com":"yahoo.com","yahoo.con":"yahoo.com","yahoo.com.ra":"yahoo.com.ar","iclod.com":"icloud.com","icloud.con":"icloud.com","live.con":"live.com"};
+function lev(a,b){const m=a.length,n=b.length;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+function emailInfo(raw){
+  const e=String(raw||"").trim();
+  if(!e)return{err:"Escribí tu email para recibir el informe."};
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)||/\.\.|@\.|\.@/.test(e)||e.length>254)return{err:"Revisá el email: tiene que ser del tipo nombre@dominio.com."};
+  const [user,dom0]=[e.slice(0,e.lastIndexOf("@")),e.slice(e.lastIndexOf("@")+1)];const dom=dom0.toLowerCase();
+  if(!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(dom))return{err:"Revisá el dominio del email (lo que va después de la @)."};
+  const labels=dom.split(".");
+  if(DISPOSABLE_FULL.includes(dom)||labels.slice(0,-1).some(l=>DISPOSABLE.includes(l)))return{err:"Usá un email permanente: a las casillas temporales no les llega el informe."};
+  let fix=TYPO[dom]||null;
+  if(!fix&&!LEGIT.includes(dom)){
+    const t=dom.replace(/\.(con|cmo|comm|vom|xom|cpm|ocm)$/,".com").replace(/\.com\.(ra|rr)$/,".com.ar");
+    if(t!==dom)fix=t;
+    else{let best=null,bd=9;for(const k of KNOWN){const d=lev(dom,k);if(d<bd){bd=d;best=k}}if(best&&bd>0&&bd<=2&&dom.length>5)fix=best}
+  }
+  return{email:e,sug:fix?user+"@"+fix:null};
+}
+function radarLocked(){
+  const fake={proc:2.9,datos:2.1,aten:3.2,equipo:2.4,tec:3.4,seg:1.9};
+  return `<div class="lockwrap"><div class="blur" aria-hidden="true">${radar(fake)}</div>
+  <div class="lockover"><span class="lk" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></span>
+  <b>Tu mapa por dimensión</b><span>Se desbloquea junto con tus 3 prioridades al pedir el informe completo.</span>
+  <a class="btn btn-d" href="#leadF" id="goLead">Completar mis datos</a></div></div>`;
+}
+const CHK=`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function leadForm(){
+  const L=S.lead,org=L.organizacion||S.org||"";
+  const priv=KIT.white?`<button type="button" class="lnk" id="privB">política de privacidad</button>`:`<a href="${PRIV}" target="_blank" rel="noopener">política de privacidad</a>`;
+  return `<section class="card leadf" id="leadF" aria-labelledby="lfT" tabindex="-1"><h2 id="lfT">Recibí tu informe completo</h2><p class="sub">Te lo mandamos por email y lo ves acá mismo: mapa por dimensión, comparación con organizaciones similares y tus 3 prioridades con un primer paso.</p>
+  <form id="lf" novalidate><fieldset id="lfS"><legend class="hp">Tus datos</legend><div class="lgrid">
+  <div class="field"><label for="fN">Nombre</label><input id="fN" name="nombre" autocomplete="name" required maxlength="80" value="${esc(L.nombre)}" aria-describedby="eN"><p class="err" id="eN"></p></div>
+  <div class="field"><label for="fE">Email</label><input id="fE" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" spellcheck="false" autocapitalize="off" value="${esc(L.email)}" aria-describedby="eE sE"><p class="err" id="eE" aria-live="polite"></p><p class="sug" id="sE" aria-live="polite"></p></div>
+  <div class="field"><label for="fO">Organización <span class="opt-l">(opcional)</span></label><input id="fO" name="organizacion" autocomplete="organization" maxlength="120" value="${esc(org)}"></div>
+  <div class="field"><label for="fW">WhatsApp <span class="opt-l">(opcional)</span></label><input id="fW" name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="Por ejemplo: 11 2345-6789" value="${esc(L.telefono)}" aria-describedby="eW"><p class="err" id="eW"></p></div>
+  </div>
+  <div class="hp" aria-hidden="true"><label for="fWeb">Sitio web (dejalo vacío)</label><input id="fWeb" name="website" tabindex="-1" autocomplete="off"></div>
+  <div class="chk"><input type="checkbox" id="fA" required aria-describedby="eA"><label for="fA">Acepto la ${priv}.</label></div><p class="err" id="eA"></p>
+  <button class="btn btn-p send" type="submit" id="sendB">Recibir mi informe completo</button>
+  <p class="legal">Usamos tus datos solo para enviarte el informe y, si lo pedís, ayudarte con un plan.</p></fieldset></form></section>`;
+}
+V.res=()=>{
+  const {sc,avg,lv,li,pct,low}=results();
   const org=S.org.trim()||"tu organización";const d=new Date().toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"});
-  return `<div class="rh"><div><div class="eyebrow">Resultado del autodiagnóstico · ${esc(S.rubro)} · ${esc(S.size)}</div><h1>Madurez digital de ${esc(org)}</h1><p class="print-only small">Generado el ${d}. Autodiagnóstico orientativo con datos de ejemplo.</p></div>
-  <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-s" id="printB">🖨 Imprimir resultado</button><button class="btn btn-s" id="againB">Volver a empezar</button></div></div>
-  <div class="rgrid"><section class="card score" aria-labelledby="lvT"><div class="eyebrow" id="lvT">Tu nivel</div><div class="lvl"><div class="big">${pct}<small>/100</small></div><div><span class="badge" id="lvB">${lv[0]}</span><div class="small" style="margin-top:6px">Promedio ${avg.toFixed(1)} de 4</div></div></div>
-  <p style="margin:0">${lv[2]}</p><div class="ladder" aria-label="Niveles">${LEVELS.map((l,i)=>`<div class="${i===li?"on":""}" ${i===li?'aria-current="true"':""}>${l[0]}</div>`).join("")}</div>
+  const head=`<div class="rh"><div><div class="eyebrow">Resultado del autodiagnóstico · ${esc(S.rubro)} · ${esc(S.size)}</div><h1>Madurez digital de ${esc(org)}</h1><p class="print-only small">Generado el ${d}. Autodiagnóstico orientativo.</p></div>
+  <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap">${S.unlocked?`<button class="btn btn-s" id="printB">🖨 Imprimir resultado</button>`:""}<button class="btn btn-s" id="againB">Volver a empezar</button></div></div>`;
+  const lvlBlock=`<div class="eyebrow" id="lvT">Tu nivel</div><div class="lvl"><div class="big">${pct}<small>/100</small></div><div><span class="badge" id="lvB">${lv[0]}</span><div class="small" style="margin-top:6px">Puntaje general</div></div></div>
+  <p style="margin:0">${lv[2]}</p><div class="ladder" aria-label="Niveles">${LEVELS.map((l,i)=>`<div class="${i===li?"on":""}" ${i===li?'aria-current="true"':""}>${l[0]}</div>`).join("")}</div>`;
+  if(!S.unlocked){
+    return head+`<div class="rgrid"><section class="card score" aria-labelledby="lvT">${lvlBlock}
+    <div class="eyebrow" style="margin-top:6px">Tu informe completo incluye</div><ul class="incl"><li>${CHK}El puntaje de cada una de las 6 dimensiones</li><li>${CHK}El mapa radar comparado con organizaciones similares</li><li>${CHK}Tus 3 prioridades, con un primer paso concreto</li></ul></section>
+    <section class="card radar" aria-label="Mapa por dimensión (bloqueado)">${radarLocked()}</section></div>${leadForm()}`;
+  }
+  const n=S.sent;
+  const notice=n?(n.ok
+    ?`<div class="notice ok no-print" id="notice" role="status" tabindex="-1"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Te mandamos el informe a <b>${esc(n.email)}</b>. Si no lo ves, revisá promociones o spam.</span></div>`
+    :`<div class="notice warn no-print" id="notice" role="status" tabindex="-1"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16.5v.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>No pudimos enviarte el email ahora; podés imprimir el resultado.</span></div>`):"";
+  return notice+head+`<div class="rgrid"><section class="card score" aria-labelledby="lvT">${lvlBlock}
   <div class="dbars" style="margin-top:6px">${DIMS.map(([k,n])=>`<div class="dbar"><span>${n}</span><span class="t"><i style="width:${sc[k]/4*100}%"></i></span><b>${sc[k].toFixed(1)}</b></div>`).join("")}</div></section>
-  <section class="card radar" aria-label="Gráfico radar">${radar(sc)}<div class="legend"><span><i style="background:${KIT.accent}"></i>${esc(S.org.trim()||"Tu organización")}</span><span><i style="background:repeating-linear-gradient(90deg,#6B7280 0 5px,transparent 5px 8px)"></i>Promedio de organizaciones similares (ejemplo)</span></div></section></div>
+  <section class="card radar" aria-label="Gráfico radar">${radar(sc)}<div class="legend"><span><i style="background:${KIT.accent}"></i>${esc(S.org.trim()||"Tu organización")}</span><span><i style="background:repeating-linear-gradient(90deg,#6B7280 0 5px,transparent 5px 8px)"></i>Promedio de organizaciones similares (referencia)</span></div></section></div>
   <section class="recs" aria-labelledby="rcT"><h2 id="rcT">Tus 3 prioridades</h2><p class="small" style="margin:0">Ordenadas según tus respuestas más bajas y su impacto en el día a día.</p>
   ${low.map((x,k)=>{const q=Q[x.i];return `<article class="card rec"><span class="num">${k+1}</span><div><span class="tag">${esc(DIMS.find(d=>d[0]===q.d)[1])} · respondiste ${x.v} de 4</span><h3>${esc(q.r[0])}</h3><p>${esc(q.r[1])}</p><div class="first"><b>Primer paso:</b> ${esc(q.r[2])}</div></div></article>`}).join("")}</section>
   <section class="card ctas" aria-labelledby="ctT"><div><h2 id="ctT">¿Querés avanzar con un plan concreto?</h2><p>Te ayudamos a convertir estas prioridades en un plan de 90 días.</p></div>
@@ -372,15 +481,65 @@ V.res=()=>{
 function render(focus){$("#view").innerHTML=V[S.step]();bind();if(focus)$("#view").focus({preventScroll:true})}
 function answer(v){S.a[S.i]=v;render();clearTimeout(answer.t);answer.t=setTimeout(()=>{if(S.step==="q"&&S.a[S.i]===v)next()},380)}
 let kb=false;addEventListener("keydown",()=>kb=true,true);addEventListener("pointerdown",()=>kb=false,true);
-function next(){if(S.a[S.i]==null)return;if(S.i<11){S.i++;render();const c=$('.opt[tabindex="0"]');if(kb&&c)c.focus({preventScroll:true})}else{S.step="res";render(true);window.scrollTo({top:0});const p=$(".rpoly");if(p&&p.animate)p.animate([{transform:"scale(0)",opacity:0},{transform:"scale(1)",opacity:1}],{duration:700,easing:"cubic-bezier(.3,.7,.2,1)"})}}
+function popRadar(){const p=$(".rpoly");if(p&&p.animate)p.animate([{transform:"scale(0)",opacity:0},{transform:"scale(1)",opacity:1}],{duration:700,easing:"cubic-bezier(.3,.7,.2,1)"})}
+function next(){if(S.a[S.i]==null)return;if(S.i<11){S.i++;render();const c=$('.opt[tabindex="0"]');if(kb&&c)c.focus({preventScroll:true})}else{S.step="res";S.unlocked=false;S.sent=null;render(true);window.scrollTo({top:0})}}
+function setErr(id,inputId,msg){const e=$("#"+id);if(e)e.textContent=msg||"";const i=inputId&&$("#"+inputId);if(i){if(msg)i.setAttribute("aria-invalid","true");else i.removeAttribute("aria-invalid")}}
+function showSug(s){const el=$("#sE");if(!el)return;if(!s){el.innerHTML="";return}if(el.dataset.s===s&&el.querySelector("#sugB"))return;el.dataset.s=s;el.innerHTML=`¿Quisiste decir <button type="button" id="sugB">${esc(s)}</button>?`;$("#sugB").onmousedown=e=>e.preventDefault();$("#sugB").onclick=()=>{const i=$("#fE");i.value=s;el.innerHTML="";setErr("eE","fE","");S.sugSkip="";i.focus()}}
+function checkEmail(final){
+  const i=$("#fE"),r=emailInfo(i.value);
+  if(r.err){if(final||i.value.trim())setErr("eE","fE",r.err);showSug(null);return false}
+  setErr("eE","fE","");showSug(r.sug);
+  if(final&&r.sug&&S.sugSkip!==r.email){S.sugSkip=r.email;setErr("eE","fE","Revisá el email antes de enviar. Si está bien escrito, tocá de nuevo el botón.");return false}
+  return true;
+}
+function validate(){
+  let first=null;const mark=(ok,el)=>{if(!ok&&!first)first=el};
+  const n=$("#fN").value.trim();setErr("eN","fN",n.length<2?"Escribí tu nombre.":"");mark(n.length>=2,$("#fN"));
+  mark(checkEmail(true),$("#fE"));
+  const w=$("#fW").value.trim(),dg=w.replace(/\D/g,"");const wOk=!w||(dg.length>=8&&dg.length<=15&&/^[\d\s()+.-]+$/.test(w));
+  setErr("eW","fW",wOk?"":"Revisá el número: incluí la característica, por ejemplo 11 2345-6789.");mark(wOk,$("#fW"));
+  const a=$("#fA").checked;setErr("eA","fA",a?"":"Para enviarte el informe necesitamos que aceptes la política de privacidad.");mark(a,$("#fA"));
+  if(first)first.focus();
+  return !first;
+}
+function payload(){
+  const {sc,lv,pct,low}=results();const dims={};DIMS.forEach(([k])=>dims[DIMKEY[k]]=to100(sc[k]));
+  return{nombre:$("#fN").value.trim(),email:$("#fE").value.trim(),organizacion:$("#fO").value.trim(),telefono:$("#fW").value.trim(),website:$("#fWeb").value,acepta:true,
+    puntaje:pct,nivel:lv[0],dimensiones:dims,prioridades:low.map(x=>({titulo:Q[x.i].r[0],paso:Q[x.i].r[2]})),respuestas:S.a.slice(),marca:KIT.white?"blanca":"devisebit",origen:location.href};
+}
+async function sendLead(e){
+  e&&e.preventDefault();
+  const btn=$("#sendB");if(!btn||btn.getAttribute("aria-busy")==="true")return;
+  if(!validate())return;
+  const body=payload();S.lead={nombre:body.nombre,email:body.email,organizacion:body.organizacion,telefono:body.telefono};
+  btn.setAttribute("aria-busy","true");btn.innerHTML=`<span class="spin" aria-hidden="true"></span>Enviando…`;$("#lfS").disabled=true;$("#leadF").setAttribute("aria-busy","true");
+  let ok=false;
+  if(new URLSearchParams(location.search).get("tour")==="1"){await new Promise(r=>setTimeout(r,900));ok=true}
+  else{
+    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),15000);
+    try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(body),signal:ctl.signal,mode:"cors",credentials:"omit"});
+      const j=await r.json().catch(()=>null);ok=!!(r.ok&&j&&j.ok===true);if(!ok&&j&&j.error)console.info("diagnostico:",j.error)}
+    catch(err){ok=false}finally{clearTimeout(t)}
+  }
+  S.unlocked=true;S.sent={ok,email:body.email};render();
+  window.scrollTo({top:0});const nt=$("#notice");if(nt)nt.focus({preventScroll:true});popRadar();
+}
+function privacy(){const r=$("#modalRoot"),prev=document.activeElement;r.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="pT"><div class="card"><h2 id="pT" style="font-size:22px">Política de privacidad</h2><p>Usamos tus datos solo para enviarte el informe del autodiagnóstico y, si lo pedís, contactarte para ayudarte con un plan. No los compartimos con terceros y podés pedir que los borremos cuando quieras.</p><div style="display:flex;justify-content:flex-end"><button type="button" class="btn btn-p" id="pC">Entendido</button></div></div></div>`;
+  const close=()=>{r.innerHTML="";prev&&prev.focus()};$("#pC").onclick=close;r.firstChild.onkeydown=e=>{if(e.key==="Escape"||e.key==="Tab"){e.preventDefault();if(e.key==="Escape")close()}};$("#pC").focus()}
 function bind(){
   const f=$("#startF");if(f)f.onsubmit=e=>{e.preventDefault();S.org=$("#org").value;S.rubro=$("#rubro").value;S.size=$("#size").value;S.step="q";S.i=0;render();window.scrollTo({top:0});const c=$(".opt");if(kb&&c)c.focus({preventScroll:true})};
   $$(".opt").forEach((b,j,all)=>{b.onclick=()=>answer(+b.dataset.v);b.onkeydown=e=>{if(["ArrowDown","ArrowRight","ArrowUp","ArrowLeft"].includes(e.key)){e.preventDefault();const n=all[(j+(e.key==="ArrowDown"||e.key==="ArrowRight"?1:3))%4];n.focus()}}});
   const p=$("#prev");if(p)p.onclick=()=>{if(S.i>0){S.i--;render()}};
   const n=$("#next");if(n)n.onclick=next;
   const pr=$("#printB");if(pr)pr.onclick=()=>window.print();
-  const ag=$("#againB");if(ag)ag.onclick=()=>{S.step="intro";S.i=0;S.a=Array(12).fill(null);render(true);window.scrollTo({top:0})};
+  const ag=$("#againB");if(ag)ag.onclick=()=>{S.step="intro";S.i=0;S.a=Array(12).fill(null);S.unlocked=false;S.sent=null;render(true);window.scrollTo({top:0})};
   const mb=$("#meetB");if(mb&&KIT.white)mb.onclick=e=>{e.preventDefault();meet()};
+  const lf=$("#lf");if(lf){lf.onsubmit=sendLead;
+    const fe=$("#fE");fe.onblur=()=>checkEmail(false);fe.oninput=()=>{if($("#eE").textContent)setErr("eE","fE","");if($("#sE").textContent){const r=emailInfo(fe.value);showSug(r.sug||null)}};
+    $("#fN").oninput=()=>setErr("eN","fN","");$("#fW").oninput=()=>setErr("eW","fW","");$("#fA").onchange=()=>setErr("eA","fA","");
+    const pv=$("#privB");if(pv)pv.onclick=privacy;
+    const gl=$("#goLead");if(gl)gl.onclick=e=>{e.preventDefault();$("#leadF").scrollIntoView({behavior:"smooth",block:"start"});$("#fN").focus({preventScroll:true})};
+  }
 }
 function meet(){const r=$("#modalRoot"),prev=document.activeElement;r.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT"><form class="card" id="mf"><h2 id="mT" style="font-size:22px">Agendá una reunión</h2><p class="small">Dejanos un email y te escribimos para coordinar.</p><div class="field"><label for="mE">Email</label><input id="mE" type="email" required></div><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn btn-s" id="mC">Cancelar</button><button class="btn btn-p">Enviar</button></div></form></div>`;
   const close=()=>{r.innerHTML="";prev&&prev.focus()};$("#mC").onclick=close;r.firstChild.onkeydown=e=>{if(e.key==="Escape")close()};$("#mE").focus();$("#mf").onsubmit=e=>{e.preventDefault();close();toast("¡Listo! Te escribimos para coordinar (simulado).")}}
@@ -394,8 +553,10 @@ KIT.init(()=>[
  {say:"Cada pregunta tiene 4 opciones, de la más básica a la más avanzada.",hold:5600,do:async T=>{await T.show(".opts");await answerN(T,0,3)}},
  {say:"La barra muestra el avance y, al costado, las 6 dimensiones que se evalúan.",hold:5400,do:async T=>{await answerN(T,3,7);await T.show(".side")}},
  {say:"Equipo, tecnología y seguridad: unas preguntas más y listo.",hold:5000,do:async T=>{await answerN(T,7,12)}},
- {say:"El resultado: tu nivel de madurez y el puntaje de cada dimensión.",hold:4400,do:async T=>{await T.sleep(400);await T.show(".score")}},
- {say:"El gráfico radar compara tu organización con otras parecidas.",hold:4200,do:async T=>{await T.show(".radar")}},
+ {say:"Al instante ves tu nivel y el puntaje general. El mapa completo se desbloquea con tu email.",hold:4600,do:async T=>{await T.sleep(400);await T.show(".score");await T.sleep(600);await T.show(".lockover")}},
+ {say:"Dejás tu nombre y tu email, y aceptás la política de privacidad.",hold:3400,do:async T=>{await T.type("#fN","Laura Gómez",{speed:45});await T.type("#fE","laura.gomez@ejemplo.com",{speed:35});await T.click("#fA",{ring:false})}},
+ {say:"Con un clic recibís el informe completo por email y se abre acá mismo.",hold:3800,do:async T=>{await T.click("#sendB");await T.sleep(1300);await T.show("#notice")}},
+ {say:"Tu puntaje en cada dimensión y el gráfico radar, comparado con organizaciones parecidas.",hold:4200,do:async T=>{await T.show(".score");await T.sleep(500);await T.show(".radar")}},
  {say:"Y las 3 prioridades, con un primer paso concreto para cada una.",hold:5000,do:async T=>{await T.show(".recs h2",{block:"start"});await T.sleep(900);await T.show(".rec")}},
  {say:"Podés imprimir el resultado, descargar la guía o agendar una reunión.",hold:4400,do:async T=>{await T.show(".ctas")}}
 ]);
