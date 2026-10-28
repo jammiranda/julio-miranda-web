@@ -78,6 +78,11 @@ REGLAS:
 - Integraciones: podemos conectar con lo que ya usa el cliente (Tango, Odoo, SAP, Salesforce, HubSpot, ARCA, pasarelas de pago, bancos, Excel, APIs propias). Trabajamos por etapas: diagnóstico sin cargo, propuesta con alcance y plazo por escrito, avances visibles cada 1 o 2 semanas arrancando por una primera versión (MVP), y después capacitación y soporte.
 - Extracción de datos de la web: monitoreo diario de precios y stock de la competencia, catálogos de proveedores, licitaciones y boletines oficiales, entregados limpios en un tablero, Excel o API. Para cotizar preguntá cuántos sitios, cada cuánto y si son públicos o requieren usuario y clave.
 - No recomiendes herramientas externas ni otras empresas para que "lo haga solo": DEVISEBIT lo entrega llave en mano.
+- Extracción de datos: solo de información pública o con acceso autorizado por el titular de la cuenta. Si piden entrar con usuario y clave de otra persona o de un competidor, decí con claridad que eso no lo hacemos porque puede ser ilegal y viola los términos del sitio, y ofrecé la alternativa con datos públicos.
+- REFERENCIAS: nunca prometas nombres, teléfonos ni contactos de clientes, ni que alguien del equipo los va a pasar. Ofrecé los casos públicos (www.devisebit.com/casos-de-exito) y decí que las referencias directas se coordinan solo con autorización de cada cliente.
+- SOPORTE Y GARANTÍAS: no digas que el soporte, el monitoreo o las copias de seguridad están incluidos ni prometas tiempos de respuesta. Decí que son un servicio que se define en la propuesta, con alcance y condiciones por escrito.
+- Certificaciones, normas y requisitos legales (ISO, ley 25.326 u otras): no confirmes ni niegues nada que no esté en la INFORMACIÓN OFICIAL. Decí que lo confirma el equipo por escrito.
+- Licitaciones, organismos públicos y pliegos: derivá a Julio Miranda (area="comercial"), no a desarrollo.
 - Nunca dejes a la persona sin respuesta ni le digas solo "te derivo": respondé lo que preguntó y proponé el próximo paso.
 - No inventes datos, precios, plazos, horarios ni coberturas que no estén arriba. Para los paquetes usá los precios exactos de la LISTA DE PRECIOS. Para proyectos a medida podés mencionar los RANGOS DE REFERENCIA del catálogo, como "proyectos de este tipo suelen ir de X a Y según alcance; el precio final es fijo y por escrito". Nunca inventes descuentos.
 - Cuando pidan información, brochure, precios, ejemplos, cómo pagar, cómo agendar o el brief, mandá el link correspondiente en ese mismo mensaje.
@@ -249,7 +254,8 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     const libres = await sugerencias(8).catch(() => [])
     const yaReunion = await one<{ inicio: Date }>("select inicio from db_reuniones where consulta_id=$1 and estado='confirmada' and inicio > now() order by inicio limit 1", [cid])
     const quienEs = perfil ? `CONTEXTO DEL CANAL: la persona escribe por ${canal === "instagram" ? "Instagram" : "WhatsApp"} y su nombre de perfil es "${perfil}". Podés saludarla por su primer nombre si parece un nombre real (no un alias o el nombre de un negocio), pero confirmá el nombre completo antes de usarlo en "datos".\n` : ""
-    const ctx = `${quienEs}CATÁLOGO CON RANGOS DE REFERENCIA, PLAZOS Y LINKS (solo estos números):
+    const ahora = new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    const ctx = `FECHA Y HORA ACTUAL EN ARGENTINA: ${ahora}. Usala para saber si el equipo está en horario; si la persona dice otro día, guiate por esta fecha.\n${quienEs}CATÁLOGO CON RANGOS DE REFERENCIA, PLAZOS Y LINKS (solo estos números):
 ${cat.map((s) => `- ${s.nombre}${s.rango ? `: ${s.rango}` : ""}${s.plazo ? ` · plazo típico ${s.plazo}` : ""}${s.link ? ` · ${s.link}` : ""}`).join("\n")}
 Casos y trabajos: www.devisebit.com/trabajos · Productos: www.devisebit.com/productos
 ${yaReunion ? `Esta persona YA tiene una reunión agendada (${new Date(yaReunion.inicio).toISOString()}): no ofrezcas otra salvo que pida cambiarla.` : `HORARIOS LIBRES (clave → cómo decirlo): ${libres.map((s) => `${s.clave} → ${s.texto}`).join(" | ")}${agenda ? `\nLink de agenda de ESTA persona (para que elija otro horario): ${agenda}` : ""}`}
