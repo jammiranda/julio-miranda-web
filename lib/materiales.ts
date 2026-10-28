@@ -8,7 +8,7 @@ export type Material = { k: string; n: string; link: string; texto: (nombre?: st
 const hola = (n?: string | null) => (n ? `${n.split(" ")[0]}, ` : "")
 
 export const MATERIALES: Material[] = [
-  { k: "brochure", n: "Brochure de páginas web (PDF)", link: "https://www.devisebit.com/webs/brochure", texto: (n) => `${hola(n)}te paso el brochure con paquetes, abonos, formas de pago y garantías. Se descarga en PDF desde el botón de arriba: https://www.devisebit.com/webs/brochure` },
+  { k: "brochure", n: "Folleto de páginas web (PDF)", link: `${MV}/folletos/devisebit-webs.pdf`, texto: (n) => `${hola(n)}te paso el folleto de páginas web, con qué incluye y cómo trabajamos: ${MV}/folletos/devisebit-webs.pdf` },
   { k: "lista", n: "Lista de precios", link: `${URL_SISTEMA}/lista-precios`, texto: (n) => `${hola(n)}acá tenés la lista de precios vigente de DEVISEBIT, con qué incluye cada servicio: ${URL_SISTEMA}/lista-precios` },
   { k: "webs", n: "Landing · Páginas web", link: "https://www.devisebit.com/webs", texto: (n) => `${hola(n)}acá ves los paquetes de páginas web, trabajos y cómo arrancamos: https://www.devisebit.com/webs` },
   { k: "whatsapp", n: "Landing · Agentes de WhatsApp", link: "https://www.devisebit.com/whatsapp", texto: (n) => `${hola(n)}acá ves cómo funcionan los agentes de WhatsApp con IA y sus planes: https://www.devisebit.com/whatsapp` },
