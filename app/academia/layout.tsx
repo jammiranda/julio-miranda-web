@@ -42,13 +42,13 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
             <span className="text-lg font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
             <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.14em] sm:tracking-[0.22em] text-white/70">Academia</span>
           </Link>
-          <nav aria-label="Academia" className="hidden md:flex items-center gap-1 text-sm">
+          <nav aria-label="Academia" className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-sm whitespace-nowrap">
             {MENU.map((i) => (
-              <Link key={i.href} href={i.href} className="px-3 py-3 rounded-lg text-white/85 hover:text-white hover:bg-white/10 no-underline">{i.label}</Link>
+              <Link key={i.href} href={i.href} className="px-2.5 xl:px-3 py-3 rounded-lg text-white/85 hover:text-white hover:bg-white/10 no-underline">{i.label}</Link>
             ))}
             <a href="/#suscribirme" className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[44px]">Suscribirme</a>
           </nav>
-          <div className="md:hidden flex items-center gap-1">
+          <div className="lg:hidden flex items-center gap-1">
             <a href="/#suscribirme" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[40px] px-3">Suscribirme</a>
             <MenuMovil items={MENU} />
           </div>

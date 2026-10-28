@@ -34,7 +34,7 @@ export default function MenuMovil({ items }: { items: Item[] }) {
         aria-controls="acad-menu"
         aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
         onClick={() => setAbierto((v) => !v)}
-        className="md:hidden inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-xl text-white hover:bg-white/10"
+        className="lg:hidden inline-flex items-center justify-center w-11 h-11 -mr-2 rounded-xl text-white hover:bg-white/10"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           {abierto ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
@@ -44,7 +44,7 @@ export default function MenuMovil({ items }: { items: Item[] }) {
         id="acad-menu"
         ref={panel}
         hidden={!abierto}
-        className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-[#0E1116] border-t border-white/10 overflow-y-auto overscroll-contain"
+        className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-[#0E1116] border-t border-white/10 overflow-y-auto overscroll-contain"
         style={{ top: "calc(3.5rem + env(safe-area-inset-top))", paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
       >
         <nav aria-label="Menú de la Academia" className="px-4 pt-2 flex flex-col">
