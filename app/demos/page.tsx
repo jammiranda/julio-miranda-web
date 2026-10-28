@@ -2,7 +2,7 @@ import Link from "next/link"
 import { PlayCircle, MousePointerClick } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { DEMOS, demoUrl } from "@/lib/demos"
+import { DEMOS, demoUrl, videoUrl } from "@/lib/demos"
 
 export const metadata = {
   title: "Demos para probar · DEVISEBIT",
@@ -18,7 +18,7 @@ export default function Demos() {
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-14 pb-16 flex flex-col gap-4">
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Demos</p>
             <h1 className="m-0 font-tight text-[34px] md:text-[52px] leading-[1.05] font-extrabold max-w-[820px]">Probalo vos mismo, ahora.</h1>
-            <p className="m-0 text-lg text-[#C3C8D1] max-w-[720px]">Cada demo funciona en tu navegador, sin registrarte, con datos de ejemplo. Podés tocar todo, o ver el recorrido guiado de un minuto.</p>
+            <p className="m-0 text-lg text-[#C3C8D1] max-w-[720px]">Cada demo funciona en tu navegador, sin registrarte, con datos de ejemplo. Podés tocar todo, ver el recorrido guiado o mirar el video de un minuto.</p>
           </div>
           <div className="db-scan"><i /></div>
         </section>
@@ -32,11 +32,13 @@ export default function Demos() {
                 <p className="m-0 text-xs font-semibold uppercase tracking-[0.08em] text-[#8A919C]">{d.para}</p>
                 <div className="mt-auto pt-3 flex flex-col gap-2 border-t border-[#E2E5EA]">
                   <a href={demoUrl(d.slug)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 text-sm font-bold text-white transition-colors"><MousePointerClick size={16} aria-hidden="true" /> Probar la demo</a>
-                  {d.video ? (
-                    <a href={d.video} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#C3C8D1] hover:border-[#C8231F] px-4 py-2.5 text-sm font-bold transition-colors"><PlayCircle size={16} aria-hidden="true" /> Ver el video</a>
-                  ) : (
-                    <a href={`${demoUrl(d.slug)}?tour=1`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#C3C8D1] hover:border-[#C8231F] px-4 py-2.5 text-sm font-bold transition-colors"><PlayCircle size={16} aria-hidden="true" /> Ver el recorrido guiado</a>
-                  )}
+                  <a href={`${demoUrl(d.slug)}?tour=1`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#C3C8D1] hover:border-[#C8231F] px-4 py-2.5 text-sm font-bold transition-colors"><MousePointerClick size={16} aria-hidden="true" /> Recorrido guiado</a>
+                  <details className="group rounded-xl border border-[#C3C8D1] open:border-[#C8231F]">
+                    <summary className="list-none cursor-pointer inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold [&::-webkit-details-marker]:hidden"><PlayCircle size={16} aria-hidden="true" /> Ver el video (1 min)</summary>
+                    <video src={videoUrl(d.slug)} controls preload="none" playsInline className="w-full rounded-b-xl bg-black aspect-video">
+                      <a href={videoUrl(d.slug)}>Descargar el video</a>
+                    </video>
+                  </details>
                 </div>
               </li>
             ))}
