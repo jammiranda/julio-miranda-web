@@ -1,0 +1,194 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  /* Updated primary colors to match Devise Bit red branding */
+  --primary: oklch(0.55 0.22 15);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  /* Updated chart colors to incorporate red brand palette */
+  --chart-1: oklch(0.55 0.22 15);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.55 0.22 15);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  /* Updated dark mode primary to maintain brand consistency */
+  --primary: oklch(0.65 0.25 15);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  /* Updated dark mode chart colors */
+  --chart-1: oklch(0.65 0.25 15);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.65 0.25 15);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+/* Updated scrollbar colors to match new brand palette */
+::-webkit-scrollbar-thumb {
+  background: #ef4444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #dc2626;
+}
+
+/* ===== DEVISEBIT rediseño 2026 ===== */
+body{font-family:var(--font-inter),Inter,system-ui,sans-serif}
+.font-tight{font-family:var(--font-tight),"Inter Tight",var(--font-inter),sans-serif}
+@keyframes db-gridmove{from{background-position:0 0,0 0}to{background-position:64px 64px,64px 64px}}
+@keyframes db-pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.75;transform:scale(1.08)}}
+@keyframes db-scan{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+@keyframes db-rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes db-blink{0%,100%{opacity:1}50%{opacity:.2}}
+.db-tech{position:relative;overflow:hidden;isolation:isolate}
+.db-tech::before{content:"";position:absolute;inset:-64px;z-index:-2;background-image:linear-gradient(rgba(255,106,99,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(255,106,99,.09) 1px,transparent 1px);background-size:64px 64px;animation:db-gridmove 12s linear infinite}
+.db-tech::after{content:"";position:absolute;width:720px;height:720px;right:-200px;top:-260px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(200,35,31,.45),transparent 65%);animation:db-pulse 6s ease-in-out infinite;pointer-events:none}
+.db-scan{position:absolute;left:0;right:0;bottom:0;height:2px;overflow:hidden}
+.db-scan i{display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,#FF6A63,transparent);animation:db-scan 3.5s linear infinite}
+.db-rise{animation:db-rise .8s ease-out both}
+.db-rise2{animation:db-rise .8s .15s ease-out both}
+.db-rise3{animation:db-rise .8s .3s ease-out both}
+.db-card{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.db-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(14,17,22,.12);border-color:#C8231F}
+.db-live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2BD576;margin-right:8px;animation:db-blink 1.4s infinite}
+@media (prefers-reduced-motion:reduce){.db-tech::before,.db-tech::after,.db-scan i,.db-rise,.db-rise2,.db-rise3,.db-live{animation:none}}
+
+/* ===== DEVISEBIT movimiento ===== */
+.db-anim{opacity:0;transform:translateY(28px) scale(.985);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.db-anim.db-in{opacity:1;transform:none}
+.db-card{position:relative;overflow:hidden}
+.db-card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s ease;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(200,35,31,.12),transparent 70%)}
+.db-card:hover::after{opacity:1}
+.db-dark.db-card::after,.db-tech .db-card::after{background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(255,106,99,.22),transparent 70%)}
+.db-tech .db-card:hover{box-shadow:0 18px 40px rgba(0,0,0,.45);border-color:#FF6A63}
+@keyframes db-kb{0%{transform:scale(1)}100%{transform:scale(1.08) translate(-1.5%,-1%)}}
+.db-kb{animation:db-kb 14s ease-in-out infinite alternate}
+@keyframes db-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.db-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.db-marquee-track{display:flex;gap:12px;width:max-content;animation:db-marquee 40s linear infinite}
+.db-marquee:hover .db-marquee-track{animation-play-state:paused}
+@keyframes db-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.db-tech .db-rise2 > div:nth-child(odd){animation:db-float 6s ease-in-out infinite}
+.db-tech .db-rise2 > div:nth-child(even){animation:db-float 6s 1.5s ease-in-out infinite}
+section img{transition:transform .7s ease,filter .4s ease}
+@media (prefers-reduced-motion:reduce){.db-anim{opacity:1;transform:none;transition:none}.db-kb,.db-marquee-track,.db-tech .db-rise2>div{animation:none}}
