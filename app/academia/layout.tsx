@@ -24,6 +24,7 @@ const MENU = [
   { href: "/cursos", label: "Cursos" },
   { href: "/guias", label: "Guías" },
   { href: "/videos", label: "Videos" },
+  { href: "/equipo", label: "Equipo" },
   { href: "/productos/kit-ia-pymes", label: "Kit IA" },
   { href: urlPortal("/cursos"), label: "Mi cuenta" },
 ]
