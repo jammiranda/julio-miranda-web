@@ -1,4 +1,5 @@
 import { q, one } from "./db"
+import { DEMOS, demoInfo, validarEmail, crearAcceso, enviarAcceso } from "./demos"
 import { BOTS, EQUIPO, NOMBRE_BOT, type Empresa } from "./bots/conocimiento"
 import { preciosParaBot } from "./precios"
 import { MATERIALES } from "./materiales"
@@ -10,7 +11,7 @@ import { sugerencias, reservar, deLocal, linkAgenda } from "./agenda"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
 type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string }
-type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado; reunion?: string | null; area?: string | null }
+type Resultado = { respuestas: string[]; datos: Record<string, string | null>; derivar: boolean; pedidoHumano?: boolean; estado: Estado; reunion?: string | null; area?: string | null; demo?: string | null }
 const norm = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
 
 /** Preguntas de calificación, en orden. Se hacen de a una, como lo haría una persona de atención. */
@@ -96,7 +97,9 @@ REGLAS:
 
 - AGENDA: cuando la persona elija un horario que esté EXACTAMENTE en HORARIOS LIBRES, poné su clave en "reunion" (por ejemplo "2026-10-27T10:00") y en "respuesta" solo una línea de confirmación (el sistema agrega fecha, link y recordatorio). Si pide un día u hora que no está, ofrecé los más cercanos de la lista o el link de agenda. Nunca inventes horarios.
 
-Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false,"area":null,"reunion":null}
+- DEMOS: hay demos interactivas privadas (con datos de ejemplo) de: ${DEMOS.map((d) => `${d.slug} = ${d.titulo}`).join("; ")}. Si la persona quiere ver cómo funciona un producto, ofrecéle la demo. Para mandarla necesitás su email (pedíselo si no lo dio). Cuando tengas el email, poné en "demo" el slug del producto (o "todas") y en "respuesta" decile que se la mandaste a su correo con un link personal y que también puede pedir una presentación con el sistema completo. Nunca escribas links de demos vos: los genera el sistema. El autodiagnóstico gratuito es público: www.devisebit.com/demos/transformacion-digital.html
+
+Respondé SOLO un JSON: {"respuesta":"texto para enviar","datos":{${b.datos.map((d) => `"${d.k}":null`).join(",")}},"derivar":false,"area":null,"reunion":null,"demo":null}
 En "datos" poné solo lo que la persona dijo explícitamente en toda la conversación.`
 }
 
@@ -124,7 +127,7 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
     if (!m) return null
     const o = JSON.parse(m[0])
     if (!o.respuesta) return null
-    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, area: typeof o.area === "string" ? o.area : null, estado: {}, reunion: typeof o.reunion === "string" ? o.reunion : null }
+    return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, area: typeof o.area === "string" ? o.area : null, estado: {}, reunion: typeof o.reunion === "string" ? o.reunion : null, demo: typeof o.demo === "string" ? o.demo : null }
   } catch {
     return null
   }
@@ -271,6 +274,20 @@ ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; c
 
   const d = res.datos ?? {}
   const v = (k: string) => (d[k] && d[k] !== "-" ? String(d[k]) : null)
+  if (res.demo) {
+    // Bit ofrece la demo: se crea un link personal y se manda por email
+    const mail = v("email") ?? (await one<{ email: string | null }>("select email from consultas where id=$1", [cid]))?.email ?? null
+    const val = await validarEmail(mail)
+    if (val.ok) {
+      const demos = res.demo === "todas" || !demoInfo(res.demo) ? DEMOS.map((x) => x.slug) : [res.demo]
+      const ct = await one<{ id: number }>("select id from db_contactos where lower(email)=$1", [val.email])
+      const a = await crearAcceso({ email: val.email, nombre: v("nombre") ?? perfil ?? null, demos, origen: "bot", por: "Bit", contactoId: ct?.id ?? null }).catch(() => null)
+      const env = a ? await enviarAcceso(a).catch(() => ({ ok: false })) : { ok: false }
+      if (!env.ok) res.respuestas = [`Uy, no pude mandarte la demo a ${val.email} 🙈 ¿Está bien escrito? Si querés, te la pasa una persona del equipo por acá.`]
+    } else {
+      res.respuestas = [mail ? `Mmm, ese email no parece válido (${mail}). ¿Me lo pasás de nuevo así te mando la demo?` : "¡Genial! ¿A qué email te mando la demo? Te llega un link personal para probarla."]
+    }
+  }
   await q(
     `update consultas set nombre=coalesce($1,nombre), motivo=coalesce($2,motivo), organizacion=coalesce($3,organizacion),
        email=coalesce($4,email), necesita_humano=necesita_humano or $5, actualizado=now() where id=$6`,

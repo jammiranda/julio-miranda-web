@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Academia en línea · Demo interactiva</title>
+<meta name="description" content="Probá una plataforma de cursos completa: catálogo, inscripción, aula con videos, clase en vivo con asistencia, examen, certificado verificable y panel de administración. Demo con datos de ejemplo.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap">
+<style>
+/* ===== Kit de demo: barra superior, marca y recorrido guiado ===== */
+:root{--k-accent:#C8231F;--k-accent-2:#9E1A17;--k-accent-soft:#FBEAEA;--k-ink:#0B0D12;--k-gray:#4A515C;--kbar-h:36px}
+html[data-marca="blanca"]{--k-accent:#1D4E89;--k-accent-2:#153A66;--k-accent-soft:#E7EEF7}
+body{padding-top:var(--kbar-h)}
+.kbar{position:fixed;inset:0 0 auto 0;z-index:9000;background:#0B0D12;color:#E9EBEF;font:500 13px/1.3 Inter,system-ui,sans-serif;border-bottom:1px solid #22262E}
+.kbar-in{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:6px 16px;min-height:36px;box-sizing:border-box;max-width:1600px;margin:0 auto}
+.kbar-msg{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.kbar-dot{width:7px;height:7px;border-radius:50%;background:#F5B83D;flex:none}
+.kbar a,.kbar button{font:inherit;color:inherit}
+.kbar .kcta{background:var(--k-accent);color:#fff;text-decoration:none;padding:4px 10px;border-radius:6px;font-weight:600;white-space:nowrap}
+.kbar .kcta:hover{background:var(--k-accent-2)}
+.kbar-tools{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.kbar .klink{color:#E9EBEF;text-decoration:underline;text-underline-offset:3px}
+.kbar .kbtn{background:transparent;border:1px solid #3A404B;border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap}
+.kbar .kbtn:hover{border-color:#8A93A3}
+.kseg{display:inline-flex;align-items:center;gap:6px;color:#AEB4BF}
+.kseg span{white-space:nowrap}
+.kseg-g{display:inline-flex;border:1px solid #3A404B;border-radius:6px;overflow:hidden}
+.kseg-g button{background:transparent;border:0;padding:3px 8px;cursor:pointer;color:#C9CED6}
+.kseg-g button[aria-pressed="true"]{background:#E9EBEF;color:#0B0D12;font-weight:600}
+.kbar :focus-visible,.ktour-card :focus-visible{outline:2px solid #F5B83D;outline-offset:2px}
+.kbar-in>*{flex:none}.kbr{display:none}.kbar-msg{order:1}.kcta{order:2}#kTourBtn{order:3;margin-left:auto}.kseg{order:4}.klink{order:5}
+.kbtn .km{display:none}
+@media (max-width:640px){.kbar{font-size:12px}.kbar-in{padding:5px 12px;gap:5px 8px}.klink{order:2}#kTourBtn{order:3}.kbr{display:block;order:4;flex-basis:100%;height:0}.kcta{order:5}.kseg{order:6;margin-left:auto}
+ .kseg>span:first-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.kseg-g button{padding:3px 7px;font-size:11.5px}.kbtn .kd{display:none}.kbtn .km{display:inline}.kbar .kcta{padding:3px 9px}}
+main:focus,[tabindex="-1"]:focus{outline:none}
+.klogo{display:inline-flex;align-items:center;gap:0;font:800 1em/1 "Inter Tight",Inter,system-ui,sans-serif;letter-spacing:-.01em;white-space:nowrap}
+.klogo .r{color:#C8231F}
+.klogo .km{margin-right:.45em;width:1.5em;height:1.5em;border-radius:.4em;background:var(--k-accent);display:inline-grid;place-items:center;color:#fff;font-size:.62em;letter-spacing:0}
+html[data-marca="blanca"] .k-dvb-only{display:none!important}
+html:not([data-marca="blanca"]) .k-white-only{display:none!important}
+/* recorrido */
+.ktour-shield{position:fixed;inset:0;z-index:9500;background:transparent;cursor:default}
+.ktour-ring{position:fixed;z-index:9510;pointer-events:none;border-radius:10px;box-shadow:0 0 0 3px #F5B83D,0 0 0 9999px rgba(11,13,18,.28);transition:all .45s cubic-bezier(.3,.7,.2,1);opacity:0}
+.ktour-cursor{position:fixed;z-index:9600;left:50%;top:50%;width:28px;height:28px;pointer-events:none;transition:left .75s cubic-bezier(.4,.1,.2,1),top .75s cubic-bezier(.4,.1,.2,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.ktour-cursor.click::after{content:"";position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;border:3px solid #F5B83D;animation:kclick .5s ease-out}
+@keyframes kclick{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}
+.ktour-cap{position:fixed;z-index:9700;left:50%;bottom:22px;transform:translateX(-50%);width:min(920px,calc(100% - 24px));box-sizing:border-box;background:rgba(11,13,18,.94);color:#fff;border-radius:14px;padding:16px 22px 16px 22px;font:600 clamp(17px,2.1vw,24px)/1.35 "Inter Tight",Inter,system-ui,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.35);display:flex;gap:14px;align-items:flex-start}
+.ktour-cap .n{flex:none;font:700 13px/1 Inter,system-ui,sans-serif;background:var(--k-accent);border-radius:999px;padding:6px 9px;margin-top:3px}
+.ktour-cap .t{flex:1}
+.ktour-cap button{flex:none;background:transparent;border:1px solid #4A515C;color:#C9CED6;border-radius:8px;font:500 12px Inter,sans-serif;padding:5px 8px;cursor:pointer}
+.ktour-end{position:fixed;inset:0;z-index:9800;display:grid;place-items:center;background:rgba(11,13,18,.72);padding:16px}
+.ktour-card{background:#fff;color:#0B0D12;border-radius:20px;padding:36px 32px;max-width:520px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4);font-family:Inter,system-ui,sans-serif}
+.ktour-card h2{font:800 clamp(26px,4vw,36px)/1.15 "Inter Tight",Inter,sans-serif;margin:0 0 10px;letter-spacing:-.02em}
+.ktour-card .big{font:800 clamp(28px,5vw,42px)/1 "Inter Tight",Inter,sans-serif;color:var(--k-accent);margin:14px 0 22px;letter-spacing:-.02em}
+.ktour-card p{color:#4A515C;margin:0 0 6px;font-size:16px}
+.ktour-card .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ktour-card a,.ktour-card button{font:600 15px Inter,sans-serif;border-radius:10px;padding:11px 18px;cursor:pointer;text-decoration:none}
+.ktour-card a{background:var(--k-accent);color:#fff;border:0}
+.ktour-card button{background:#fff;border:1px solid #C3C8D1;color:#0B0D12}
+@media print{.kbar,.ktour-cap,.ktour-cursor,.ktour-ring,.ktour-shield,.ktour-end{display:none!important}body{padding-top:0!important}}
+html.ktour-on .toast{bottom:auto!important;top:calc(var(--kbar-h) + 72px)!important}
+
+:root{--bg:#F4F5F7;--sf:#fff;--line:#E2E5EA;--ink:#0B0D12;--mut:#4A515C;--mut2:#6B7280;--ok:#13795B;--ok-s:#E3F4EC;--warn:#8A5A00;--warn-s:#FFF4DB;--live:#C8231F;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Inter Tight",Inter,sans-serif;letter-spacing:-.015em;margin:0}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--k-accent);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* cabecera de la app */
+.app-h{position:sticky;top:var(--kbar-h);z-index:50;background:var(--sf);border-bottom:1px solid var(--line)}
+.app-h-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:12px 20px}
+.brandbox{display:flex;align-items:center;gap:10px;font-size:19px;flex:none}
+.brandbox .sep{width:1px;height:20px;background:var(--line)}
+.brandbox small{font:600 14px Inter,sans-serif;color:var(--mut)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;padding:8px 12px;border-radius:9px;cursor:pointer;color:var(--mut);font-weight:600;white-space:nowrap;font-size:14px}
+.tab:hover{background:var(--bg);color:var(--ink)}
+.tab[aria-current="page"]{background:var(--k-accent-soft);color:var(--k-accent)}
+.who{display:flex;align-items:center;gap:8px;flex:none;font-size:13px;color:var(--mut)}
+.av{width:32px;height:32px;border-radius:50%;display:inline-grid;place-items:center;font:700 12px Inter,sans-serif;color:#fff;flex:none}
+@media (max-width:860px){.app-h-in{flex-wrap:wrap;gap:8px 12px;padding:10px 16px}.tabs{order:3;flex-basis:100%}.who span{display:none}}
+main{max-width:1240px;margin:0 auto;padding:24px 20px 120px}
+@media (max-width:640px){main{padding:18px 16px 120px}}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:var(--r)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer;border:1px solid transparent;text-decoration:none;font-size:14.5px}
+.btn-p{background:var(--k-accent);color:#fff}.btn-p:hover{background:var(--k-accent-2)}
+.btn-s{background:var(--sf);border-color:#C3C8D1;color:var(--ink)}.btn-s:hover{border-color:var(--ink)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--mut)}
+.pill.ok{background:var(--ok-s);color:var(--ok)}.pill.warn{background:var(--warn-s);color:var(--warn)}.pill.acc{background:var(--k-accent-soft);color:var(--k-accent)}
+.muted{color:var(--mut)}
+.eyebrow{font:700 12px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+/* catálogo */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;align-items:center;padding:28px;margin-bottom:20px;background:linear-gradient(120deg,#0B0D12 0%,#1B2130 100%);color:#fff;border:0;overflow:hidden;position:relative}
+.hero h1{font-size:clamp(26px,3.4vw,40px);line-height:1.08;margin:8px 0 10px}
+.hero p{color:#C9CED6;margin:0 0 18px;max-width:52ch}
+.hero .eyebrow{color:#AEB4BF}
+.hero .stats{display:flex;gap:22px;flex-wrap:wrap}
+.hero .stats b{display:block;font:800 24px "Inter Tight",sans-serif}
+.hero .stats span{font-size:13px;color:#AEB4BF}
+.hero svg{width:100%;height:auto;max-height:220px}
+@media (max-width:760px){.hero{grid-template-columns:1fr;padding:22px}.hero svg{display:none}}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+.chip{border:1px solid var(--line);background:var(--sf);border-radius:999px;padding:6px 13px;cursor:pointer;font-size:13.5px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.search{margin-left:auto;position:relative}
+.search input{border:1px solid #C3C8D1;border-radius:10px;padding:8px 12px 8px 34px;width:240px;background:var(--sf)}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%)}
+@media (max-width:640px){.search{margin-left:0;width:100%}.search input{width:100%}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.course{display:flex;flex-direction:column;overflow:hidden;transition:box-shadow .2s,transform .2s}
+.course:hover{box-shadow:0 10px 30px rgba(11,13,18,.08);transform:translateY(-2px)}
+.course .cover{aspect-ratio:16/8;display:block;width:100%}
+.course .body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.course h3{font-size:18px;line-height:1.25}
+.course .meta{display:flex;gap:6px;flex-wrap:wrap}
+.course .row{display:flex;gap:8px;margin-top:auto;padding-top:8px}
+.course .row .btn{flex:1;padding:9px 10px}
+.empty{padding:40px;text-align:center;color:var(--mut)}
+/* modal */
+.modal{position:fixed;inset:0;z-index:200;background:rgba(11,13,18,.55);display:grid;place-items:center;padding:16px}
+.modal .card{width:min(560px,100%);max-height:calc(100vh - 80px);overflow:auto;padding:24px}
+.modal h2{font-size:24px;margin-bottom:4px}
+.field{display:flex;flex-direction:column;gap:5px;margin:12px 0}
+.field label{font-weight:600;font-size:14px}
+.field input,.field select{border:1px solid #9AA1AD;border-radius:10px;padding:10px 12px;background:#fff}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--mut);margin:12px 0}
+.err{color:#B42318;font-size:13px;min-height:18px}
+.syl{margin:12px 0;padding:0;list-style:none;border:1px solid var(--line);border-radius:12px}
+.syl li{padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:10px;font-size:14px}
+.syl li:first-child{border-top:0}
+.syl .n{color:var(--mut);font-variant-numeric:tabular-nums;width:22px}
+/* aula */
+.aula{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:960px){.aula{grid-template-columns:1fr}}
+.player{background:#0B0D12;border-radius:var(--r);overflow:hidden;position:relative;aspect-ratio:16/9;color:#fff;user-select:none}
+.player svg.poster{position:absolute;inset:0;width:100%;height:100%}
+.player .big{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;border:0;background:var(--k-accent);color:#fff;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.player .big:hover{transform:translate(-50%,-50%) scale(1.05)}
+.player .sub{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);background:rgba(0,0,0,.72);padding:6px 12px;border-radius:6px;font-size:clamp(13px,1.6vw,16px);max-width:86%;text-align:center}
+.player .ctrl{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,.75));display:flex;align-items:center;gap:12px;font-size:13px;font-variant-numeric:tabular-nums}
+.player .ctrl button{background:none;border:0;color:#fff;cursor:pointer;padding:4px;display:grid;place-items:center}
+.player .bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden}
+.player .bar i{display:block;height:100%;width:0;background:var(--k-accent)}
+html[data-marca="blanca"] .player .bar i{background:#7FA8DA}
+.lesson-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:16px 0 6px;flex-wrap:wrap}
+.lesson-h h2{font-size:22px}
+.prog{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ok);transition:width .6s cubic-bezier(.3,.7,.2,1)}
+.lessons{list-style:none;margin:0;padding:0}
+.lessons li{border-top:1px solid var(--line)}
+.lessons button{width:100%;text-align:left;background:none;border:0;padding:12px 16px;display:flex;gap:12px;align-items:center;cursor:pointer;font-size:14px}
+.lessons button:hover{background:var(--bg)}
+.lessons button[aria-current="true"]{background:var(--k-accent-soft)}
+.lessons .st{width:24px;height:24px;border-radius:50%;border:2px solid #9AA1AD;display:grid;place-items:center;flex:none}
+.lessons .st.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.lessons .st.lock{border-style:dashed}
+.lessons small{display:block;color:var(--mut);font-size:12.5px}
+.side-h{padding:16px}
+.notes{padding:16px;margin-top:16px}
+/* en vivo */
+.live-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}
+@media (max-width:960px){.live-wrap{grid-template-columns:1fr}}
+.stage{background:#0B0D12;border-radius:var(--r);aspect-ratio:16/9;position:relative;overflow:hidden}
+.stage svg{width:100%;height:100%;display:block}
+.badge-live{position:absolute;left:14px;top:14px;background:var(--live);color:#fff;font:700 12px Inter,sans-serif;padding:4px 9px;border-radius:6px;display:flex;gap:6px;align-items:center}
+.badge-live i{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.25}}
+.tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{background:#1B2130;border-radius:10px;aspect-ratio:4/3;display:grid;place-items:center;position:relative;color:#fff}
+.tile span{position:absolute;left:6px;bottom:4px;font-size:11px;color:#E9EBEF}
+.chat{display:flex;flex-direction:column;height:100%;min-height:380px}
+.chat .msgs{flex:1;overflow:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;max-height:420px}
+.chat .m{font-size:14px}.chat .m b{font-weight:600}
+.chat .m small{color:var(--mut)}
+.att{padding:16px;border-bottom:1px solid var(--line)}
+/* examen */
+.q{padding:20px;margin-bottom:14px}
+.q fieldset{border:0;margin:0;padding:0}
+.q legend{font:700 18px "Inter Tight",sans-serif;margin-bottom:10px;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:10px;margin:8px 0;cursor:pointer}
+.opt:hover{border-color:#9AA1AD}
+.opt input{margin-top:3px;accent-color:var(--k-accent)}
+.opt.right{border-color:var(--ok);background:var(--ok-s)}.opt.wrong{border-color:#B42318;background:#FDECEA}
+.result{padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+/* certificado */
+.cert-wrap{overflow:auto}
+.cert{width:100%;max-width:920px;margin:0 auto;display:block;background:#fff;border-radius:6px;box-shadow:0 20px 50px rgba(11,13,18,.12)}
+.cert-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+/* verificar */
+.verify{max-width:640px;margin:0 auto}
+.verify form{display:flex;gap:10px;flex-wrap:wrap}
+.verify input{flex:1;min-width:200px;border:1px solid #9AA1AD;border-radius:10px;padding:12px 14px;font:600 17px/1 "Inter",monospace;letter-spacing:.06em;text-transform:uppercase}
+.vres{margin-top:16px;padding:20px;display:flex;gap:14px;align-items:flex-start}
+.vres .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none}
+.vres dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0 0;font-size:14px}
+.vres dt{color:var(--mut)}
+/* admin */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{padding:16px}
+.kpi .v{font:800 30px/1.1 "Inter Tight",sans-serif;margin:6px 0 2px}
+.kpi small{color:var(--mut)}
+.kpi .d{color:var(--ok);font-weight:600;font-size:13px}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+@media (max-width:960px){.two{grid-template-columns:1fr}}
+.panel{padding:18px}
+.panel h3{font-size:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:600;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.new td{background:#FFFBEA}
+.mini{height:8px;border-radius:5px;background:var(--line);overflow:hidden;width:110px;display:inline-block;vertical-align:middle;margin-right:8px}
+.mini i{display:block;height:100%;background:var(--ok)}
+.hb{display:grid;grid-template-columns:150px 1fr 40px;gap:10px;align-items:center;font-size:13.5px;margin:9px 0}
+.hb .t{height:12px;background:var(--bg);border-radius:6px;overflow:hidden}.hb .t i{display:block;height:100%;background:var(--k-accent);border-radius:6px}
+@media (max-width:640px){.hb{grid-template-columns:110px 1fr 34px}}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar select,.toolbar input{border:1px solid #9AA1AD;border-radius:9px;padding:7px 10px;background:#fff;font-size:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0B0D12;color:#fff;padding:12px 18px;border-radius:10px;z-index:300;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px)}
+.foot{max-width:1240px;margin:0 auto;padding:0 20px 40px;color:var(--mut);font-size:13px;display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between}
+@media print{.app-h,.foot,.cert-actions,.toast{display:none!important}main{padding:0}.no-print{display:none!important}.cert{box-shadow:none}}
+</style>
+</head>
+<body>
+<header class="app-h">
+  <div class="app-h-in">
+    <div class="brandbox"><span data-k-logo></span><span class="sep" aria-hidden="true"></span><small>Academia</small></div>
+    <nav class="tabs" aria-label="Secciones">
+      <button class="tab" data-v="catalogo">Catálogo</button>
+      <button class="tab" data-v="aula">Mi aula</button>
+      <button class="tab" data-v="vivo">Clase en vivo</button>
+      <button class="tab" data-v="examen">Examen</button>
+      <button class="tab" data-v="verificar">Verificar certificado</button>
+      <button class="tab" data-v="admin">Administración</button>
+    </nav>
+    <div class="who" id="who"></div>
+  </div>
+</header>
+<main id="view" tabindex="-1"></main>
+<div class="foot"><span>Institución y datos de ejemplo. Recargá la página para empezar de nuevo.</span><span>Plataforma de cursos · <span data-k-name></span></span></div>
+<div id="modalRoot"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script>
+window.DEMO={product:"Plataforma de cursos"};
+/* ===== Kit de demo: barra superior, marca y recorrido guiado ===== */
+const KIT=(()=>{
+  const Q=new URLSearchParams(location.search);
+  const white=Q.get("marca")==="blanca";
+  const showSel=!white||Q.get("selector")==="1";
+  const product=(window.DEMO&&DEMO.product)||"Demo";
+  const SITE="https://www.devisebit.com/";
+  const contact=SITE+"contacto?tema="+encodeURIComponent("Demo: "+product)+"#formulario";
+  const brandName=white?"Tu Marca":"DEVISEBIT";
+  document.documentElement.dataset.marca=white?"blanca":"devisebit";
+  const accent=white?"#1D4E89":"#C8231F";
+  const logo=(sub)=>white
+    ?`<span class="klogo"><span class="km" aria-hidden="true">TM</span><span>Tu Marca</span></span>`
+    :`<span class="klogo" aria-label="DEVISEBIT"><span>DEVISE</span><span class="r">BIT</span></span>`;
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function url(over){const q=new URLSearchParams(location.search);for(const k in over){if(over[k]==null)q.delete(k);else q.set(k,over[k])}const s=q.toString();return location.pathname+(s?"?"+s:"")+location.hash}
+  function bar(){
+    const b=document.createElement("div");b.className="kbar";b.setAttribute("role","region");b.setAttribute("aria-label","Aviso de demo");
+    const sel=showSel?`<span class="kseg"><span id="kselLbl">Marca:</span><span class="kseg-g" role="group" aria-labelledby="kselLbl"><button type="button" data-kbrand="devisebit" aria-pressed="${!white}">DEVISEBIT</button><button type="button" data-kbrand="blanca" aria-pressed="${white}">Tu marca</button></span></span>`:"";
+    b.innerHTML=`<div class="kbar-in"><div class="kbar-msg"><span class="kbar-dot" aria-hidden="true"></span><span>Demo con datos de ejemplo${white?"":" ·"}</span></div>${white?"":`<a class="kcta" href="${contact}">Quiero esto para mi organización</a>`}<button type="button" class="kbtn" id="kTourBtn">▶ <span class="kd">Ver recorrido guiado</span><span class="km">Recorrido</span></button><span class="kbr" aria-hidden="true"></span>${sel}${white?"":`<a class="klink" href="${SITE}">Inicio</a>`}</div>`;
+    document.body.prepend(b);
+    b.querySelectorAll("[data-kbrand]").forEach(x=>x.onclick=()=>{const v=x.dataset.kbrand;location.href=url({marca:v==="blanca"?"blanca":null,selector:v==="blanca"?"1":Q.get("selector")})});
+    b.querySelector("#kTourBtn").onclick=()=>{location.href=url({tour:"1"})};
+    const fit=()=>document.documentElement.style.setProperty("--kbar-h",b.offsetHeight+"px");
+    fit();addEventListener("resize",fit);if(window.ResizeObserver)new ResizeObserver(fit).observe(b);
+    if(Q.get("tour")==="1")b.querySelector("#kTourBtn").hidden=true;
+  }
+  function applyBrand(root=document){
+    root.querySelectorAll("[data-k-logo]").forEach(e=>e.innerHTML=logo());
+    root.querySelectorAll("[data-k-name]").forEach(e=>e.textContent=brandName);
+  }
+  /* ---------- recorrido guiado ---------- */
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  let cur,ring,cap,shield,stopped=false,total=0,idx=0,ringEl=null,raf=0;
+  const cursorSVG=`<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M3 2l7.5 19 2.6-7.9L21 10.5z" fill="#fff" stroke="#0B0D12" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+  function el(sel){return typeof sel==="string"?document.querySelector(sel):sel}
+  function track(){if(ring&&ringEl&&!ringEl.isConnected)ring.style.opacity=0;else if(ringEl&&ring){const r=ringEl.getBoundingClientRect();Object.assign(ring.style,{left:r.left-6+"px",top:r.top-6+"px",width:r.width+12+"px",height:r.height+12+"px",opacity:r.width?1:0})}raf=requestAnimationFrame(track)}
+  async function show(sel,opt={}){
+    const e=el(sel);if(!e)return null;
+    const r0=e.getBoundingClientRect(),capH=cap?cap.offsetHeight+40:120;
+    if(r0.top<parseInt(getComputedStyle(document.documentElement).getPropertyValue("--kbar-h"))+10||r0.bottom>innerHeight-capH){e.scrollIntoView({block:opt.block||"center",behavior:"smooth"});await sleep(650)}
+    {const r1=e.getBoundingClientRect();if(r1.left<0||r1.right>innerWidth){e.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});await sleep(500)}}
+    ringEl=opt.ring===false?null:e;if(!ringEl&&ring)ring.style.opacity=0;
+    const r=e.getBoundingClientRect();cur.style.transitionDuration=(opt.wait?opt.wait*.85/1000:.75)+"s";
+    cur.style.left=Math.min(innerWidth-30,r.left+Math.min(r.width/2,r.width-8))+"px";cur.style.top=r.top+Math.min(r.height/2,22)+"px";
+    await sleep(opt.wait||800);return e;
+  }
+  async function click(sel,opt){const e=await show(sel,opt);if(!e)return;cur.classList.remove("click");void cur.offsetWidth;cur.classList.add("click");await sleep(180);e.focus&&e.focus({preventScroll:true});e.click();await sleep(350);return e}
+  async function type(sel,text,opt={}){
+    const e=await show(sel,opt);if(!e)return;e.focus({preventScroll:true});
+    const proto=e.tagName==="TEXTAREA"?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;const set=Object.getOwnPropertyDescriptor(proto,"value").set;
+    set.call(e,"");e.dispatchEvent(new Event("input",{bubbles:true}));
+    for(const ch of text){set.call(e,e.value+ch);e.dispatchEvent(new Event("input",{bubbles:true}));await sleep(opt.speed||55)}
+    e.dispatchEvent(new Event("change",{bubbles:true}));await sleep(250);return e;
+  }
+  async function pick(sel,value){const e=await show(sel);if(!e)return;e.value=value;e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}));await sleep(300);return e}
+  function say(t){idx++;cap.querySelector(".n").textContent=idx+" / "+total;cap.querySelector(".t").textContent=t}
+  function end(){
+    cancelAnimationFrame(raf);document.documentElement.classList.remove("ktour-on");[cur,ring,cap,shield].forEach(x=>x&&x.remove());
+    const o=document.createElement("div");o.className="ktour-end";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","kEndT");
+    o.innerHTML=white
+      ?`<div class="ktour-card"><h2 id="kEndT">Pedí tu demo</h2><p>Lo armamos con tus datos y tu marca.</p><div class="big">${esc(product)}</div><div class="row"><button type="button" id="kEndBack">Seguir explorando</button></div></div>`
+      :`<div class="ktour-card"><h2 id="kEndT">¿Lo querés para tu organización?</h2><p>Lo adaptamos a tu marca, tus datos y tu equipo.</p><div class="big">devisebit.com</div><div class="row"><a href="${contact}">Quiero esto para mi organización</a><button type="button" id="kEndBack">Seguir explorando</button></div></div>`;
+    document.body.appendChild(o);o.querySelector("#kEndBack").onclick=()=>{o.remove();history.replaceState(null,"",url({tour:null}));const t=document.getElementById("kTourBtn");if(t)t.hidden=false};
+    o.querySelector("#kEndBack").focus({preventScroll:true});
+    window.__tourDone=true;
+  }
+  async function run(steps){
+    window.__tourDone=false;total=steps.length;idx=0;
+    shield=document.createElement("div");shield.className="ktour-shield";shield.title="Recorrido en curso";
+    ring=document.createElement("div");ring.className="ktour-ring";
+    cur=document.createElement("div");cur.className="ktour-cursor";cur.innerHTML=cursorSVG;
+    cap=document.createElement("div");cap.className="ktour-cap";cap.setAttribute("role","status");cap.setAttribute("aria-live","polite");
+    cap.innerHTML=`<span class="n"></span><span class="t"></span><button type="button">Salir</button>`;
+    document.body.append(shield,ring,cur,cap);document.documentElement.classList.add("ktour-on");track();
+    cap.querySelector("button").onclick=()=>{stopped=true};
+    addEventListener("keydown",e=>{if(e.key==="Escape")stopped=true});
+    const T={show,click,type,pick,sleep,el};
+    for(const s of steps){
+      if(stopped)break;
+      say(s.say);const t0=Date.now();
+      try{await s.do(T)}catch(e){console.warn("tour",e)}
+      const left=(s.hold||3000)-(Date.now()-t0);if(left>0)await sleep(left);
+    }
+    end();
+  }
+  function init(steps){
+    bar();applyBrand();
+    if(Q.get("tour")==="1")setTimeout(()=>run(typeof steps==="function"?steps():steps),700);
+  }
+  return {white,brandName,contact,SITE,logo,applyBrand,init,run,esc,accent};
+})();
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=KIT.esc;
+const INST="Instituto Arrayán";
+const ICON={
+  play:`<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>`,
+  pause:`<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>`,
+  play18:`<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>`,
+  check:`<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  lock:`<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z" fill="none" stroke="#6B7280" stroke-width="2.4"/></svg>`,
+  search:`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="#6B7280" stroke-width="2"/><path d="M20 20l-4-4" stroke="#6B7280" stroke-width="2" stroke-linecap="round"/></svg>`,
+  shield:`<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 12.5l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+  x:`<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`
+};
+const COURSES=[
+ {id:"ia",t:"Inteligencia artificial para el trabajo diario",cat:"Tecnología",lvl:"Inicial",hrs:12,mod:"Online + 1 clase en vivo",c:"#1E3A5F",c2:"#4F7CAC",prof:"Laura Gaitán",
+  desc:"Usá asistentes de IA para escribir, resumir y ordenar información, con criterio y cuidando los datos.",
+  les:[["Qué es (y qué no es) la IA generativa","8:40"],["Cómo pedirle bien las cosas: prompts claros","11:15"],["Resúmenes, mails y planillas en minutos","9:50"],["Datos sensibles: qué nunca compartir","7:30"]],
+  exam:[["¿Qué conviene incluir en un buen pedido a un asistente de IA?",["Solo una palabra clave","Contexto, objetivo y formato esperado","El nombre del programa"],1],
+        ["¿Qué hacés con un texto que te devuelve la IA?",["Lo revisás y lo ajustás antes de usarlo","Lo enviás tal cual","Lo borrás siempre"],0],
+        ["¿Cuál de estos datos NO deberías pegar en un asistente público?",["Un texto de una web pública","La historia clínica de una persona","Una receta de cocina"],1]]},
+ {id:"aten",t:"Atención al público con calidez",cat:"Personas",lvl:"Inicial",hrs:8,mod:"Online a tu ritmo",c:"#7A3B12",c2:"#D08A4E",prof:"Martín Olguín",
+  desc:"Herramientas concretas para escuchar, responder reclamos y dejar a cada persona mejor de lo que llegó.",
+  les:[["Escucha activa en la práctica","7:20"],["Cómo responder un reclamo sin discutir","10:05"],["Mensajes escritos: WhatsApp y mail","8:45"],["Cuidar tu energía en días intensos","6:30"]],
+  exam:[["Frente a un reclamo, lo primero es…",["Explicar las reglas","Escuchar y reconocer el problema","Derivar enseguida"],1],["Un buen mensaje escrito es…",["Largo y formal","Claro, breve y con el próximo paso","Con muchas mayúsculas"],1],["Para cerrar una atención conviene…",["Confirmar que la persona tiene lo que necesita","Cortar rápido","No decir nada"],0]]},
+ {id:"excel",t:"Planillas de cálculo para la gestión",cat:"Tecnología",lvl:"Intermedio",hrs:16,mod:"Online + 2 clases en vivo",c:"#14532D",c2:"#4C9A6A",prof:"Diego Ferreyra",
+  desc:"Tablas, filtros, tablas dinámicas y tableros simples para ordenar la información del área.",
+  les:[["Datos ordenados desde el inicio","9:10"],["Fórmulas que vas a usar siempre","12:40"],["Tablas dinámicas sin miedo","13:05"],["Un tablero en una sola hoja","10:20"]],
+  exam:[["¿Para qué sirve una tabla dinámica?",["Para resumir datos rápidamente","Para cambiar colores","Para imprimir"],0],["Un buen dato ordenado tiene…",["Celdas combinadas","Una fila por registro y encabezados claros","Muchos colores"],1],["¿Qué conviene en un tablero?",["Pocas cifras clave y claras","Todas las columnas","Solo texto"],0]]},
+ {id:"lider",t:"Liderazgo de equipos pequeños",cat:"Personas",lvl:"Intermedio",hrs:10,mod:"Online + 1 clase en vivo",c:"#4C1D5E",c2:"#9B6BB0",prof:"Carolina Sosa",
+  desc:"Reuniones que sirven, objetivos claros y conversaciones difíciles bien llevadas.",
+  les:[["Del hacer al coordinar","8:00"],["Reuniones cortas y útiles","9:30"],["Objetivos que se entienden","10:10"],["Conversaciones difíciles","11:45"]],
+  exam:[["Una reunión útil termina con…",["Tareas, responsables y fechas","Un café","Otra reunión sin tema"],0],["Un objetivo claro es…",["Ambiguo para dar libertad","Concreto y medible","Secreto"],1],["Ante un conflicto en el equipo…",["Lo ignorás","Hablás en privado y con hechos concretos","Lo comentás en el grupo"],1]]},
+ {id:"mkt",t:"Marketing digital para pymes",cat:"Negocios",lvl:"Inicial",hrs:12,mod:"Online a tu ritmo",c:"#7F1D1D",c2:"#D35D5D",prof:"Julieta Paz",
+  desc:"Redes, web y mensajes para conseguir consultas reales sin gastar de más.",
+  les:[["Tu cliente ideal en una página","7:50"],["Contenido que trae consultas","10:30"],["Tu web como vendedora","9:20"],["Medir lo que importa","8:15"]],
+  exam:[["¿Qué conviene medir primero?",["Consultas y ventas que llegan","Solo los me gusta","Nada"],0],["El contenido que funciona…",["Resuelve dudas de tus clientes","Habla solo de la empresa","Se publica una vez al año"],0],["Tu web debería…",["Tener un llamado a la acción claro","Esconder el contacto","Cargar lento"],0]]},
+ {id:"redac",t:"Redacción clara para el trabajo",cat:"Negocios",lvl:"Inicial",hrs:6,mod:"Online a tu ritmo",c:"#134E4A",c2:"#4FA59B",prof:"Tomás Ledesma",
+  desc:"Escribí informes, mails y notas que se entiendan a la primera.",
+  les:[["Una idea por oración","6:40"],["Del borrador al texto final","8:25"],["Mails que se responden","7:10"],["Informes cortos y útiles","9:00"]],
+  exam:[["Un texto claro usa…",["Oraciones cortas y palabras simples","Palabras difíciles","Párrafos de una página"],0],["Antes de enviar un mail…",["Lo releés y revisás el asunto","Lo mandás sin leer","Agregás a todos en copia"],0],["Un informe útil empieza…",["Con la conclusión principal","Con la historia completa","Sin título"],0]]}
+];
+const CATS=["Todos","Tecnología","Personas","Negocios"];
+const CERTS={
+ "ARR-7KQ4-M2XD":{n:"Marina Quiroga",c:"Atención al público con calidez",f:"12/09/2026",h:8},
+ "ARR-4HT9-QB8N":{n:"Ramiro Benavídez",c:"Planillas de cálculo para la gestión",f:"03/10/2026",h:16},
+ "ARR-9WE2-LF5C":{n:"Lucía Arancibia",c:"Liderazgo de equipos pequeños",f:"21/10/2026",h:10}
+};
+const NAMES=["Marina Quiroga","Ramiro Benavídez","Lucía Arancibia","Federico Gil Navarro","Antonella Rivero","Gonzalo Peralta","Micaela Funes","Joaquín Arce","Valentina Lucero","Ezequiel Moyano","Florencia Agüero","Nicolás Barrionuevo","Camila Zárate","Matías Ojeda","Rocío Videla","Agustín Pereyra","Brenda Ocampo","Leandro Tula","Paula Correa","Santiago Coria","Daiana Sosa","Hernán Godoy","Carla Villegas","Iván Domínguez"];
+const AVC=["#1E3A5F","#7A3B12","#14532D","#4C1D5E","#7F1D1D","#134E4A","#334155","#854D0E"];
+let seed=2009;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const STUD=NAMES.map((n,i)=>{const c=COURSES[i%6];const p=Math.round(rnd()*100);return{n,c:c.t,cid:c.id,p:i<3?100:p,a:Math.round(55+rnd()*45),last:["hoy","ayer","hace 2 días","hace 3 días","hace 1 semana","hace 2 semanas"][Math.floor(rnd()*6)],st:i<3?"Certificado":p>85?"Por rendir":p<15?"Recién empieza":"Cursando"}});
+const S={view:"catalogo",cat:"Todos",q:"",user:null,cid:null,seen:new Set(),cur:0,att:false,attAt:"",ans:{},examDone:false,score:0,cert:null,vcode:"",vres:null,adminCourse:"Todos",adminQ:""};
+const ini=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase();
+const avc=n=>AVC[[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%AVC.length];
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(t._t);t._t=setTimeout(()=>t.hidden=true,3000)}
+function course(id){return COURSES.find(c=>c.id===id)}
+function cover(c,i){
+  const sh=[0,1,2,3,4,5][i%6];
+  const art=[
+    `<circle cx="300" cy="40" r="120" fill="${c.c2}" opacity=".55"/><circle cx="330" cy="150" r="60" fill="#fff" opacity=".12"/><path d="M40 150 L120 70 L200 150" stroke="#fff" stroke-width="10" fill="none" opacity=".5"/>`,
+    `<rect x="230" y="-20" width="160" height="160" rx="30" transform="rotate(20 310 60)" fill="${c.c2}" opacity=".6"/><circle cx="90" cy="130" r="40" fill="#fff" opacity=".14"/>`,
+    `${[0,1,2,3,4].map(k=>`<rect x="${210+k*34}" y="${150-(k+1)*22}" width="24" height="${(k+1)*22}" rx="4" fill="${c.c2}" opacity="${.45+k*.1}"/>`).join("")}`,
+    `<circle cx="280" cy="90" r="34" fill="${c.c2}"/><circle cx="210" cy="70" r="22" fill="${c.c2}" opacity=".7"/><circle cx="345" cy="62" r="22" fill="${c.c2}" opacity=".7"/><path d="M180 170c20-50 180-50 200 0" fill="${c.c2}" opacity=".45"/>`,
+    `<path d="M200 160 L300 40 L400 160z" fill="${c.c2}" opacity=".55"/><circle cx="330" cy="70" r="16" fill="#fff" opacity=".5"/><path d="M30 60h120M30 85h80" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".18"/>`,
+    `${[0,1,2,3].map(k=>`<rect x="220" y="${36+k*28}" width="${150-k*26}" height="12" rx="6" fill="${c.c2}" opacity="${.8-k*.12}"/>`).join("")}`
+  ][sh];
+  return `<svg class="cover" viewBox="0 0 400 200" role="img" aria-label="Portada del curso ${esc(c.t)}"><rect width="400" height="200" fill="${c.c}"/>${art}<text x="24" y="40" fill="#fff" opacity=".85" font-family="Inter,sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">${esc(c.cat.toUpperCase())}</text></svg>`;
+}
+/* ---------- vistas ---------- */
+const V={};
+V.catalogo=()=>{
+  const list=COURSES.filter(c=>(S.cat==="Todos"||c.cat===S.cat)&&(!S.q||(c.t+" "+c.desc).toLowerCase().includes(S.q.toLowerCase())));
+  return `<section class="card hero" aria-labelledby="hT"><div><div class="eyebrow">${INST} · Formación en línea</div><h1 id="hT">Aprendé a tu ritmo, con clases en vivo y certificado verificable</h1><p>Cursos cortos y prácticos para equipos de trabajo. Inscribite, mirá las clases desde el celular y rendí el examen cuando estés listo.</p>
+  <div class="stats"><div><b>1.248</b><span>alumnos formados</span></div><div><b>6</b><span>cursos abiertos</span></div><div><b>94%</b><span>los recomienda</span></div></div></div>
+  <svg viewBox="0 0 320 220" aria-hidden="true"><rect x="20" y="20" width="250" height="160" rx="14" fill="#1F2737" stroke="#3A404B"/><rect x="36" y="38" width="218" height="104" rx="8" fill="#2B3446"/><circle cx="145" cy="90" r="24" fill="var(--k-accent)"/><path d="M139 79v22l17-11z" fill="#fff"/><rect x="36" y="154" width="140" height="6" rx="3" fill="#3A404B"/><rect x="36" y="154" width="90" height="6" rx="3" fill="#13A06F"/><rect x="190" y="110" width="118" height="92" rx="12" fill="#fff"/><text x="204" y="136" font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#0B0D12">Certificado</text><rect x="204" y="146" width="88" height="5" rx="2.5" fill="#E2E5EA"/><rect x="204" y="158" width="64" height="5" rx="2.5" fill="#E2E5EA"/><circle cx="284" cy="182" r="10" fill="var(--k-accent)"/></svg></section>
+  <div class="filters" role="group" aria-label="Filtrar por categoría">${CATS.map(c=>`<button class="chip" data-cat="${c}" aria-pressed="${S.cat===c}">${c}</button>`).join("")}
+  <label class="search"><span class="sr">Buscar cursos</span>${ICON.search}<input id="q" type="search" placeholder="Buscar un curso" value="${esc(S.q)}"></label></div>
+  <div class="grid">${list.map(c=>{const i=COURSES.indexOf(c),mine=S.cid===c.id;return `<article class="card course" id="c-${c.id}">${cover(c,i)}<div class="body"><div class="meta"><span class="pill">${c.lvl}</span><span class="pill">${c.hrs} h</span>${mine?`<span class="pill ok">Inscripto</span>`:""}</div><h3>${esc(c.t)}</h3><p class="muted" style="margin:0;font-size:14px">${esc(c.desc)}</p><div class="muted" style="font-size:13px">${esc(c.mod)} · Docente: ${esc(c.prof)}</div>
+  <div class="row"><button class="btn btn-s" data-detail="${c.id}">Ver programa</button>${mine?`<button class="btn btn-p" data-go="aula">Ir al aula</button>`:`<button class="btn btn-p" data-enroll="${c.id}">Inscribirme</button>`}</div></div></article>`}).join("")||`<div class="empty card">No encontramos cursos con esa búsqueda.</div>`}</div>`;
+};
+V.aula=()=>{
+  if(!S.cid)return `<div class="card empty"><h2 style="margin-bottom:8px">Tu aula está vacía</h2><p>Inscribite en un curso del catálogo y vas a ver acá tus clases, tu avance y tu certificado.</p><button class="btn btn-p" data-go="catalogo">Ver cursos</button></div>`;
+  const c=course(S.cid),l=c.les[S.cur],pct=Math.round(S.seen.size/c.les.length*100);
+  return `<div class="aula"><div><div class="player" id="player"><svg class="poster" viewBox="0 0 640 360" aria-hidden="true"><rect width="640" height="360" fill="${c.c}"/><circle cx="520" cy="80" r="160" fill="${c.c2}" opacity=".35"/><rect x="40" y="40" width="300" height="190" rx="12" fill="#fff" opacity=".1"/><text x="60" y="84" fill="#fff" font-family="Inter Tight,Inter,sans-serif" font-size="13" font-weight="700" opacity=".8">LECCIÓN ${S.cur+1}</text><foreignObject x="58" y="94" width="270" height="120"><div xmlns="http://www.w3.org/1999/xhtml" style="color:#fff;font:700 22px/1.2 Inter Tight,Inter,sans-serif">${esc(l[0])}</div></foreignObject><circle cx="500" cy="230" r="58" fill="#0B0D12" opacity=".25"/><circle cx="500" cy="205" r="26" fill="#F1D3BC"/><path d="M450 300c6-44 94-44 100 0z" fill="#0B0D12" opacity=".55"/><text x="440" y="330" fill="#fff" font-family="Inter,sans-serif" font-size="13" opacity=".85">${esc(c.prof)}</text></svg>
+    <button class="big" id="bigPlay" aria-label="Reproducir la lección">${ICON.play}</button><div class="sub" id="subt" hidden></div>
+    <div class="ctrl"><button id="pp" aria-label="Reproducir">${ICON.play18}</button><span id="tcur">0:00</span><div class="bar" role="progressbar" aria-label="Avance del video" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="pbar"></i></div><span>${l[1]}</span></div></div>
+    <div class="lesson-h"><div><div class="eyebrow">${esc(c.t)}</div><h2>${S.cur+1}. ${esc(l[0])}</h2></div>
+    ${S.seen.has(S.cur)?`<span class="pill ok">${ICON.check} Vista</span>`:`<button class="btn btn-p" id="markSeen">Marcar como vista</button>`}</div>
+    <div class="card notes"><b>Material de la clase</b><p class="muted" style="margin:6px 0 0;font-size:14px">Resumen descargable y ejercicio práctico (en la demo no se descargan). Dudas: el foro del curso responde la docente en menos de 24 h.</p></div></div>
+  <aside class="card" aria-label="Contenido del curso"><div class="side-h"><div style="display:flex;justify-content:space-between;align-items:baseline"><b>Tu avance</b><span id="pctT" style="font:800 22px 'Inter Tight',sans-serif">${pct}%</span></div>
+    <div class="prog" role="progressbar" aria-label="Avance del curso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" style="margin-top:8px"><i style="width:${pct}%"></i></div>
+    <p class="muted" style="font-size:13px;margin:8px 0 0">${S.seen.size} de ${c.les.length} lecciones vistas${pct===100?" · ¡Ya podés rendir!":""}</p>${pct===100?`<button class="btn btn-p" data-go="examen" style="width:100%;margin-top:12px">Rendir el examen</button>`:""}</div>
+    <ul class="lessons">${c.les.map((x,i)=>`<li><button data-les="${i}" aria-current="${i===S.cur}"><span class="st ${S.seen.has(i)?"done":""}">${S.seen.has(i)?ICON.check:""}</span><span>${i+1}. ${esc(x[0])}<small>Video · ${x[1]}</small></span></button></li>`).join("")}
+    <li><button data-go="vivo"><span class="st ${S.att?"done":""}">${S.att?ICON.check:""}</span><span>Clase en vivo: taller práctico<small>${S.att?"Presente registrado":"Jueves 19 h"}</small></span></button></li>
+    <li><button data-go="examen"><span class="st ${S.examDone&&S.score>=2?"done":pct<100?"lock":""}">${S.examDone&&S.score>=2?ICON.check:pct<100?ICON.lock:""}</span><span>Examen final<small>${pct<100?"Se habilita al ver todas las lecciones":"3 preguntas · habilitado"}</small></span></button></li></ul></aside></div>`;
+};
+const CHAT=[["Prof. "+"Laura Gaitán","¡Bienvenidos! Arrancamos en un minuto."],["Gonzalo Peralta","Hola a todos, desde Villa Mercedes 👋"],["Micaela Funes","¿Se graba la clase?"],["Prof. Laura Gaitán","Sí, la grabación queda en el aula esta noche."],["Joaquín Arce","Muy claro el ejemplo del resumen"],["Antonella Rivero","¿Podemos usar esto con planillas?"]];
+V.vivo=()=>{
+  const c=course(S.cid)||COURSES[0];const pres=23+(S.att?1:0);
+  return `<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><div class="eyebrow">Clase en vivo · ${esc(c.t)}</div><h1 style="font-size:28px">Taller práctico con ${esc(c.prof)}</h1></div><span class="pill warn" id="clock">Empezó hace 4 min</span></div>
+  <div class="live-wrap"><div><div class="stage"><svg viewBox="0 0 640 360" role="img" aria-label="Pantalla compartida por la docente"><rect width="640" height="360" fill="#141925"/><rect x="40" y="36" width="560" height="288" rx="10" fill="#fff"/><rect x="40" y="36" width="560" height="44" rx="10" fill="${c.c}"/><rect x="40" y="66" width="560" height="14" fill="${c.c}"/><text x="64" y="64" fill="#fff" font-family="Inter,sans-serif" font-size="16" font-weight="700">${esc(c.les[1][0])}</text>
+  <rect x="64" y="104" width="250" height="14" rx="7" fill="#E2E5EA"/><rect x="64" y="130" width="210" height="14" rx="7" fill="#E2E5EA"/><rect x="64" y="156" width="230" height="14" rx="7" fill="#E2E5EA"/><rect x="64" y="196" width="230" height="100" rx="10" fill="${c.c2}" opacity=".25"/><rect x="340" y="104" width="236" height="192" rx="10" fill="#F4F5F7"/>${[0,1,2,3].map(k=>`<rect x="360" y="${126+k*40}" width="${180-k*30}" height="22" rx="5" fill="${c.c2}" opacity="${.85-k*.15}"/>`).join("")}
+  <rect x="470" y="280" width="150" height="60" rx="8" fill="#0B0D12"/><circle cx="510" cy="310" r="15" fill="#F1D3BC"/><text x="532" y="314" fill="#fff" font-family="Inter,sans-serif" font-size="11">${esc(c.prof.split(" ")[0])}</text></svg><span class="badge-live"><i></i>EN VIVO</span></div>
+  <div class="tiles" aria-label="Participantes">${NAMES.slice(3,9).map(n=>`<div class="tile"><span class="av" style="background:${avc(n)}">${ini(n)}</span><span>${esc(n.split(" ")[0])}</span></div>`).join("")}</div></div>
+  <aside class="card chat" aria-label="Asistencia y chat"><div class="att"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>Asistencia</b><div class="muted" style="font-size:13px" id="attN">${pres} presentes de 28 inscriptos</div></div>
+  ${S.att?`<span class="pill ok">${ICON.check} Presente ${esc(S.attAt)}</span>`:`<button class="btn btn-p" id="presente">Dar presente</button>`}</div>${S.user?"":`<p class="muted" style="font-size:12.5px;margin:8px 0 0">Para registrar tu presente primero inscribite en un curso.</p>`}</div>
+  <div class="msgs" id="msgs" aria-live="polite">${CHAT.slice(0,3).map(m=>`<div class="m"><b>${esc(m[0])}</b> <small>19:0${CHAT.indexOf(m)}</small><br>${esc(m[1])}</div>`).join("")}</div></aside></div>`;
+};
+V.examen=()=>{
+  if(!S.cid)return `<div class="card empty"><h2 style="margin-bottom:8px">Primero inscribite</h2><p>El examen se habilita dentro de cada curso.</p><button class="btn btn-p" data-go="catalogo">Ver cursos</button></div>`;
+  const c=course(S.cid);
+  if(S.seen.size<c.les.length)return `<div class="card empty"><h2 style="margin-bottom:8px">El examen se habilita al terminar las lecciones</h2><p>Te faltan ${c.les.length-S.seen.size} lecciones de “${esc(c.t)}”.</p><button class="btn btn-p" data-go="aula">Volver al aula</button></div>`;
+  const pass=S.examDone&&S.score>=2;
+  return `<div style="max-width:760px;margin:0 auto"><div class="eyebrow">${esc(c.t)}</div><h1 style="font-size:28px;margin-bottom:6px">Examen final</h1><p class="muted" style="margin-top:0">3 preguntas. Aprobás con 2 respuestas correctas. Podés rendir de nuevo si no llegás.</p>
+  ${S.examDone?`<div class="card result" role="status"><span class="pill ${pass?"ok":"warn"}" style="font-size:15px;padding:6px 12px">${S.score} de 3 correctas</span><div style="flex:1;min-width:200px"><b>${pass?"¡Aprobaste! Tu certificado ya está listo.":"Esta vez no alcanzó. Repasá y volvé a intentar."}</b></div>${pass?`<button class="btn btn-p" data-go="cert">Ver mi certificado</button>`:`<button class="btn btn-s" id="retry">Rendir de nuevo</button>`}</div>`:""}
+  <form id="exam">${c.exam.map((q,i)=>`<div class="card q"><fieldset><legend>${i+1}. ${esc(q[0])}</legend>${q[1].map((o,j)=>{const ch=S.ans[i]===j,cls=S.examDone?(j===q[2]?"right":ch?"wrong":""):"";return `<label class="opt ${cls}"><input type="radio" name="q${i}" value="${j}" ${ch?"checked":""} ${S.examDone?"disabled":""}><span>${esc(o)}</span></label>`}).join("")}</fieldset></div>`).join("")}
+  ${S.examDone?"":`<div class="err" id="exErr"></div><button class="btn btn-p" type="submit" id="sendExam">Enviar respuestas</button>`}</form></div>`;
+};
+function certSVG(cert,forPng){
+  const f=forPng?"Georgia,serif":"'Playfair Display',Georgia,serif",s=forPng?"Arial,sans-serif":"Inter,Arial,sans-serif",acc=KIT.accent;
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="cert" viewBox="0 0 1000 680" role="img" aria-label="Certificado de ${esc(cert.n)}"><rect width="1000" height="680" fill="#FFFDF8"/><rect x="24" y="24" width="952" height="632" fill="none" stroke="#0B0D12" stroke-width="2"/><rect x="36" y="36" width="928" height="608" fill="none" stroke="${acc}" stroke-width="1.2"/>
+  <path d="M36 120 L120 36 M880 644 L964 560" stroke="${acc}" stroke-width="1.2"/>
+  <text x="500" y="112" text-anchor="middle" font-family="${s}" font-size="15" letter-spacing="5" fill="#4A515C">${esc(INST.toUpperCase())}</text>
+  <text x="500" y="186" text-anchor="middle" font-family="${f}" font-size="56" font-weight="700" fill="#0B0D12">Certificado</text>
+  <text x="500" y="226" text-anchor="middle" font-family="${s}" font-size="17" fill="#4A515C">de aprobación otorgado a</text>
+  <text x="500" y="300" text-anchor="middle" font-family="${f}" font-size="48" font-style="italic" font-weight="500" fill="${acc}">${esc(cert.n)}</text>
+  <line x1="260" y1="322" x2="740" y2="322" stroke="#C3C8D1"/>
+  <text x="500" y="364" text-anchor="middle" font-family="${s}" font-size="17" fill="#4A515C">por haber completado y aprobado el curso</text>
+  <text x="500" y="404" text-anchor="middle" font-family="${s}" font-size="24" font-weight="700" fill="#0B0D12">${esc(cert.c)}</text>
+  <text x="500" y="438" text-anchor="middle" font-family="${s}" font-size="16" fill="#4A515C">Carga horaria: ${cert.h} horas · Fecha: ${cert.f}</text>
+  <line x1="150" y1="540" x2="380" y2="540" stroke="#0B0D12"/><text x="265" y="564" text-anchor="middle" font-family="${s}" font-size="14" fill="#4A515C">${esc(cert.p||"Laura Gaitán")} · Docente</text>
+  <path d="M190 528c18-30 40-8 58-24s30 14 52-6 30 10 48-2" stroke="#1E3A5F" stroke-width="2" fill="none"/>
+  <circle cx="500" cy="540" r="54" fill="none" stroke="${acc}" stroke-width="3"/><circle cx="500" cy="540" r="44" fill="${acc}" opacity=".1"/><text x="500" y="534" text-anchor="middle" font-family="${s}" font-size="12" font-weight="700" letter-spacing="2" fill="${acc}">APROBADO</text><text x="500" y="556" text-anchor="middle" font-family="${s}" font-size="11" fill="${acc}">${cert.f.slice(-4)}</text>
+  <text x="735" y="530" text-anchor="middle" font-family="${s}" font-size="13" fill="#4A515C">Código de verificación</text><text x="735" y="558" text-anchor="middle" font-family="'Courier New',monospace" font-size="22" font-weight="700" fill="#0B0D12" letter-spacing="2">${esc(cert.code)}</text><text x="735" y="582" text-anchor="middle" font-family="${s}" font-size="12" fill="#6B7280">Verificalo en Academia › Verificar certificado</text></svg>`;
+}
+V.cert=()=>{
+  if(!S.cert)return `<div class="card empty"><h2 style="margin-bottom:8px">Todavía no tenés certificados</h2><p>Terminá un curso y aprobá el examen para obtenerlo.</p><button class="btn btn-p" data-go="aula">Ir al aula</button></div>`;
+  return `<div style="text-align:center;margin-bottom:16px" class="no-print"><span class="pill ok">${ICON.check} Certificado emitido</span><h1 style="font-size:28px;margin-top:8px">¡Felicitaciones, ${esc(S.cert.n.split(" ")[0])}!</h1><p class="muted">Cualquier persona puede comprobar que es auténtico con el código.</p></div>
+  <div class="cert-wrap" id="certBox">${certSVG(S.cert)}</div>
+  <div class="cert-actions"><button class="btn btn-p" id="dlCert">Descargar imagen (PNG)</button><button class="btn btn-s" onclick="window.print()">Imprimir</button><button class="btn btn-s" data-go="verificar" data-code="${S.cert.code}">Verificar este código</button></div>`;
+};
+V.verificar=()=>{
+  const r=S.vres;
+  return `<div class="verify"><div class="eyebrow">Validación pública</div><h1 style="font-size:30px;margin:6px 0">Verificar certificado</h1><p class="muted">Pegá el código que figura en el certificado. Lo puede hacer cualquier empresa o institución, sin registrarse.</p>
+  <form id="vform" class="card" style="padding:16px"><label class="sr" for="vcode">Código de verificación</label><input id="vcode" placeholder="ARR-XXXX-XXXX" autocomplete="off" value="${esc(S.vcode)}"><button class="btn btn-p" type="submit">Verificar</button></form>
+  <p class="muted" style="font-size:13px">Probá con un código de ejemplo: <button class="btn btn-s" style="padding:3px 8px;font-size:13px" data-try="ARR-4HT9-QB8N">ARR-4HT9-QB8N</button>${S.cert?` o el tuyo: <button class="btn btn-s" style="padding:3px 8px;font-size:13px" data-try="${S.cert.code}">${S.cert.code}</button>`:""}</p>
+  ${r?r.ok?`<div class="card vres" role="status" id="vres"><span class="ic" style="background:var(--ok-s);color:var(--ok)">${ICON.shield}</span><div><b style="font-size:18px">Certificado válido</b><div class="muted" style="font-size:14px">Emitido por ${INST}.</div><dl><dt>Alumno/a</dt><dd style="margin:0">${esc(r.n)}</dd><dt>Curso</dt><dd style="margin:0">${esc(r.c)}</dd><dt>Fecha</dt><dd style="margin:0">${r.f}</dd><dt>Carga horaria</dt><dd style="margin:0">${r.h} horas</dd><dt>Código</dt><dd style="margin:0;font-family:monospace">${esc(r.code)}</dd></dl></div></div>`
+  :`<div class="card vres" role="status" id="vres"><span class="ic" style="background:#FDECEA;color:#B42318">${ICON.x}</span><div><b style="font-size:18px">No encontramos ese código</b><div class="muted" style="font-size:14px">Revisá que esté bien copiado (son 3 grupos separados por guiones).</div></div></div>`:""}</div>`;
+};
+V.admin=()=>{
+  let rows=STUD.slice();
+  if(S.user){const c=course(S.cid);rows.unshift({n:S.user.n,c:c.t,cid:c.id,p:Math.round(S.seen.size/c.les.length*100),a:S.att?100:0,last:"recién",st:S.cert?"Certificado":"Cursando",isNew:true})}
+  const f=rows.filter(r=>(S.adminCourse==="Todos"||r.c===S.adminCourse)&&(!S.adminQ||r.n.toLowerCase().includes(S.adminQ.toLowerCase())));
+  const avg=Math.round(rows.reduce((a,r)=>a+r.p,0)/rows.length),att=Math.round(rows.reduce((a,r)=>a+r.a,0)/rows.length);
+  const months=[["May",38],["Jun",44],["Jul",61],["Ago",57],["Sep",72],["Oct",84+(S.user?1:0)]],mx=90;
+  const byC=COURSES.map((c,i)=>[c.t,[31,22,19,14,12,9][i]+(S.cid===c.id?1:0)]).sort((a,b)=>b[1]-a[1]);
+  const certN=17+(S.cert?1:0);
+  return `<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><div class="eyebrow">Administración · ${INST}</div><h1 style="font-size:28px">Así va tu academia</h1></div><span class="pill">Octubre 2026 · datos de ejemplo</span></div>
+  <div class="kpis"><div class="card kpi"><small>Alumnos activos</small><div class="v">${312+(S.user?1:0)}</div><span class="d">+18 este mes</span></div><div class="card kpi"><small>Inscripciones vendidas</small><div class="v">${84+(S.user?1:0)}</div><span class="d">+17% vs. septiembre</span></div><div class="card kpi"><small>Avance promedio</small><div class="v">${avg}%</div><small>de las lecciones</small></div><div class="card kpi"><small>Asistencia en vivo</small><div class="v">${att}%</div><small>promedio de clases</small></div><div class="card kpi"><small>Certificados emitidos</small><div class="v">${certN}</div><small>este mes</small></div></div>
+  <div class="two"><section class="card panel" aria-labelledby="vT"><h3 id="vT">Ventas: inscripciones por mes <span class="pill">cantidad</span></h3>
+  <svg viewBox="0 0 520 220" role="img" aria-label="Inscripciones por mes: ${months.map(m=>m[0]+" "+m[1]).join(", ")}" style="width:100%;height:auto">${[0,30,60,90].map(v=>`<line x1="34" x2="510" y1="${190-v/mx*160}" y2="${190-v/mx*160}" stroke="#E2E5EA"/><text x="26" y="${194-v/mx*160}" text-anchor="end" font-size="11" fill="#6B7280" font-family="Inter">${v}</text>`).join("")}
+  ${months.map((m,i)=>{const h=m[1]/mx*160,x=52+i*78;return `<rect x="${x}" y="${190-h}" width="44" height="${h}" rx="5" fill="${i===5?"var(--k-accent)":"#9AA1AD"}"/><text x="${x+22}" y="${184-h}" text-anchor="middle" font-size="12" font-weight="700" fill="#0B0D12" font-family="Inter">${m[1]}</text><text x="${x+22}" y="208" text-anchor="middle" font-size="12" fill="#4A515C" font-family="Inter">${m[0]}</text>`}).join("")}</svg></section>
+  <section class="card panel" aria-labelledby="pcT"><h3 id="pcT">Ventas por curso <span class="pill">octubre</span></h3>${byC.map(([t,v])=>`<div class="hb"><span title="${esc(t)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t)}</span><span class="t"><i style="width:${v/32*100}%"></i></span><b>${v}</b></div>`).join("")}
+  <p class="muted" style="font-size:13px;margin:12px 0 0">Canales: web 58% · WhatsApp 27% · convenios con empresas 15%</p></section></div>
+  <section class="card panel" aria-labelledby="aT"><h3 id="aT">Alumnos <span class="toolbar"><label class="sr" for="fC">Filtrar por curso</label><select id="fC"><option>Todos</option>${COURSES.map(c=>`<option ${S.adminCourse===c.t?"selected":""}>${esc(c.t)}</option>`).join("")}</select><label class="sr" for="fQ">Buscar alumno</label><input id="fQ" type="search" placeholder="Buscar alumno" value="${esc(S.adminQ)}"></span></h3>
+  <div class="tbl-wrap"><table><thead><tr><th scope="col">Alumno/a</th><th scope="col">Curso</th><th scope="col">Avance</th><th scope="col">Asistencia</th><th scope="col">Último ingreso</th><th scope="col">Estado</th></tr></thead><tbody>
+  ${f.map(r=>`<tr class="${r.isNew?"new":""}"><td style="white-space:nowrap"><span class="av" style="background:${avc(r.n)};width:28px;height:28px;font-size:11px;margin-right:8px">${ini(r.n)}</span>${esc(r.n)}${r.isNew?` <span class="pill acc">Nuevo</span>`:""}</td><td style="min-width:200px">${esc(r.c)}</td><td style="white-space:nowrap"><span class="mini"><i style="width:${r.p}%"></i></span>${r.p}%</td><td>${r.a}%</td><td style="white-space:nowrap">${r.last}</td><td><span class="pill ${r.st==="Certificado"?"ok":r.st==="Por rendir"?"warn":""}">${r.st}</span></td></tr>`).join("")||`<tr><td colspan="6" class="muted">Sin resultados.</td></tr>`}</tbody></table></div></section>`;
+};
+/* ---------- render y eventos ---------- */
+let chatT=null,play=null;
+function go(v,focus){S.view=v;render();window.scrollTo({top:0});if(focus)$("#view").focus({preventScroll:true})}
+function render(){
+  stopPlay();clearInterval(chatT);
+  const map={cert:"examen"};
+  $$(".tab").forEach(t=>t.setAttribute("aria-current",t.dataset.v===(map[S.view]||S.view)?"page":"false"));
+  $("#view").innerHTML=V[S.view]();
+  $("#who").innerHTML=S.user?`<span>${esc(S.user.n)}</span><span class="av" style="background:${avc(S.user.n)}">${ini(S.user.n)}</span>`:`<span>Visitante</span><span class="av" style="background:#9AA1AD">?</span>`;
+  bind();
+}
+function bind(){
+  $$("[data-cat]").forEach(b=>b.onclick=()=>{S.cat=b.dataset.cat;render()});
+  const q=$("#q");if(q)q.oninput=()=>{S.q=q.value;const p=q.selectionStart;render();const n=$("#q");n.focus();n.setSelectionRange(p,p)};
+  $$("[data-go]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.code){S.vcode=b.dataset.code;S.vres=null}go(b.dataset.go,true)}));
+  $$("[data-enroll]").forEach(b=>b.onclick=()=>enroll(b.dataset.enroll));
+  $$("[data-detail]").forEach(b=>b.onclick=()=>detail(b.dataset.detail));
+  $$("[data-les]").forEach(b=>b.onclick=()=>{S.cur=+b.dataset.les;render()});
+  const ms=$("#markSeen");if(ms)ms.onclick=markSeen;
+  const bp=$("#bigPlay"),pp=$("#pp");if(bp){bp.onclick=togglePlay;pp.onclick=togglePlay}
+  const pr=$("#presente");if(pr)pr.onclick=()=>{if(!S.user){toast("Primero inscribite en un curso del catálogo.");return}const d=new Date();S.att=true;S.attAt=`${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;render();toast("Tu presente quedó registrado.")};
+  if(S.view==="vivo"){let k=3;chatT=setInterval(()=>{const m=$("#msgs");if(!m||k>=CHAT.length){clearInterval(chatT);return}m.insertAdjacentHTML("beforeend",`<div class="m"><b>${esc(CHAT[k][0])}</b> <small>19:0${k}</small><br>${esc(CHAT[k][1])}</div>`);m.scrollTop=m.scrollHeight;k++},2200)}
+  const ex=$("#exam");if(ex)ex.onsubmit=e=>{e.preventDefault();const c=course(S.cid);const a={};c.exam.forEach((q,i)=>{const r=ex.querySelector(`input[name=q${i}]:checked`);if(r)a[i]=+r.value});
+    if(Object.keys(a).length<3){$("#exErr").textContent="Respondé las 3 preguntas para enviar.";return}
+    S.ans=a;S.examDone=true;S.score=c.exam.filter((q,i)=>a[i]===q[2]).length;
+    if(S.score>=2&&!S.cert){const d=new Date(),A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",r=n=>Array.from({length:n},()=>A[Math.floor(Math.random()*A.length)]).join("");
+      S.cert={n:S.user.n,c:c.t,f:d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit",year:"numeric"}),h:c.hrs,p:c.prof,code:`ARR-${r(4)}-${r(4)}`};CERTS[S.cert.code]=S.cert}
+    render();window.scrollTo({top:0,behavior:"smooth"})};
+  const rt=$("#retry");if(rt)rt.onclick=()=>{S.examDone=false;S.ans={};render()};
+  const vf=$("#vform");if(vf)vf.onsubmit=e=>{e.preventDefault();verify($("#vcode").value)};
+  $$("[data-try]").forEach(b=>b.onclick=()=>{$("#vcode").value=b.dataset.try;verify(b.dataset.try)});
+  const dl=$("#dlCert");if(dl)dl.onclick=downloadCert;
+  const fC=$("#fC");if(fC)fC.onchange=()=>{S.adminCourse=fC.value;render()};
+  const fQ=$("#fQ");if(fQ)fQ.oninput=()=>{S.adminQ=fQ.value;const p=fQ.selectionStart;render();const n=$("#fQ");n.focus();n.setSelectionRange(p,p)};
+}
+function verify(v){const code=String(v||"").trim().toUpperCase();S.vcode=code;const c=CERTS[code];S.vres=c?{ok:true,...c,code}:{ok:false};render()}
+function markSeen(){const c=course(S.cid);S.seen.add(S.cur);const nx=c.les.findIndex((x,i)=>!S.seen.has(i));if(nx>=0)S.cur=nx;render();toast(S.seen.size===c.les.length?"¡Terminaste las lecciones! Ya podés rendir el examen.":"Lección marcada como vista.")}
+function stopPlay(){if(play){clearInterval(play.t);play=null}}
+function togglePlay(){
+  const bp=$("#bigPlay"),pp=$("#pp"),sub=$("#subt");
+  if(play){stopPlay();bp.hidden=false;pp.innerHTML=ICON.play18;pp.setAttribute("aria-label","Reproducir");return}
+  const c=course(S.cid),l=c.les[S.cur],[mm,ss]=l[1].split(":").map(Number),dur=mm*60+ss;
+  const lines=[`Hola, soy ${c.prof}. En esta clase vemos: ${l[0].toLowerCase()}.`,"Primero, un ejemplo concreto de todos los días.","Después lo practicamos paso a paso.","Al final tenés un ejercicio corto para hacer."];
+  bp.hidden=true;pp.innerHTML=ICON.pause;pp.setAttribute("aria-label","Pausar");sub.hidden=false;
+  let p=+($("#pbar").dataset.p||0);
+  play={t:setInterval(()=>{p=Math.min(100,p+1.25);const b=$("#pbar");if(!b){stopPlay();return}b.style.width=p+"%";b.dataset.p=p;b.parentElement.setAttribute("aria-valuenow",Math.round(p));const s=Math.round(dur*p/100);$("#tcur").textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;sub.textContent=lines[Math.min(3,Math.floor(p/25))];
+    if(p>=100){stopPlay();sub.textContent="Fin de la lección. Marcala como vista para avanzar.";pp.innerHTML=ICON.play18;}},100)};
+}
+function modal(html,onOpen){const r=$("#modalRoot");const prev=document.activeElement;r.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT">${html}</div>`;const m=r.firstChild;
+  const close=()=>{r.innerHTML="";prev&&prev.focus&&prev.focus()};m.addEventListener("click",e=>{if(e.target===m)close()});m.addEventListener("keydown",e=>{if(e.key==="Escape")close()});m.querySelectorAll("[data-close]").forEach(b=>b.onclick=close);
+  const f=m.querySelector("input,button");f&&f.focus();onOpen&&onOpen(m,close);return close}
+function detail(id){const c=course(id);modal(`<div class="card"><div class="eyebrow">${esc(c.cat)} · ${c.hrs} horas · ${esc(c.lvl)}</div><h2 id="mT">${esc(c.t)}</h2><p class="muted">${esc(c.desc)}</p><ol class="syl">${c.les.map((l,i)=>`<li><span class="n">${i+1}</span><span>${esc(l[0])} <span class="muted">· ${l[1]}</span></span></li>`).join("")}<li><span class="n">★</span><span>Clase en vivo, examen final y certificado verificable</span></li></ol>
+  <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><button class="btn btn-s" data-close>Cerrar</button>${S.cid===id?"":`<button class="btn btn-p" id="mEnroll">Inscribirme</button>`}</div></div>`,(m,close)=>{const b=m.querySelector("#mEnroll");if(b)b.onclick=()=>{close();enroll(id)}})}
+function enroll(id){
+  const c=course(id);
+  if(S.cid&&S.cid!==id){toast("En la demo podés cursar un curso por vez. Recargá la página para empezar otro.");return}
+  modal(`<form class="card" id="enf" novalidate><div class="eyebrow">Inscripción</div><h2 id="mT">${esc(c.t)}</h2><p class="muted" style="margin:0">Completá tus datos y empezás hoy mismo.</p>
+  <div class="field"><label for="enN">Nombre y apellido</label><input id="enN" autocomplete="name" value="${S.user?esc(S.user.n):""}"></div>
+  <div class="field"><label for="enE">Email</label><input id="enE" type="email" autocomplete="email" value="${S.user?esc(S.user.e):""}"></div>
+  <div class="field"><label for="enS">¿Cómo nos conociste?</label><select id="enS"><option>Redes sociales</option><option>Me lo recomendaron</option><option>Mi empresa tiene convenio</option><option>Buscador</option></select></div>
+  <label class="check"><input type="checkbox" id="enP" checked> Acepto la política de privacidad y recibir avisos del curso.</label>
+  <div class="err" id="enErr" role="alert"></div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><button type="button" class="btn btn-s" data-close>Cancelar</button><button class="btn btn-p" type="submit" id="enGo">Confirmar inscripción</button></div>
+  <p class="muted" style="font-size:12.5px;margin:12px 0 0">Demo: no se guarda ni se envía ningún dato.</p></form>`,(m,close)=>{
+    m.querySelector("#enf").onsubmit=e=>{e.preventDefault();const n=$("#enN").value.trim(),em=$("#enE").value.trim();
+      if(n.split(" ").filter(Boolean).length<2){$("#enErr").textContent="Escribí tu nombre y apellido.";$("#enN").focus();return}
+      if(!/^\S+@\S+\.\S+$/.test(em)){$("#enErr").textContent="Revisá el email.";$("#enE").focus();return}
+      if(!$("#enP").checked){$("#enErr").textContent="Para inscribirte tenés que aceptar la política de privacidad.";return}
+      S.user={n,e:em};S.cid=id;S.cur=0;close();go("aula",true);toast("¡Inscripción confirmada! Te mandamos la bienvenida por mail (simulado).")}})
+}
+function downloadCert(){
+  const svg=certSVG(S.cert,true).replace('class="cert" ','').replace(/var\(--k-accent\)/g,KIT.accent);
+  const img=new Image();img.onload=()=>{const cv=document.createElement("canvas");cv.width=2000;cv.height=1360;const x=cv.getContext("2d");x.drawImage(img,0,0,2000,1360);
+    cv.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`certificado-${S.cert.code}.png`;document.body.appendChild(a);a.click();a.remove();toast("Certificado descargado.")})};
+  img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+$$(".tab").forEach(t=>t.onclick=()=>go(t.dataset.v));
+render();
+/* ---------- recorrido guiado ---------- */
+KIT.init(()=>[
+ {say:"Este es el catálogo de cursos de una institución de ejemplo: filtros, búsqueda y programas.",hold:3600,do:async T=>{await T.click('[data-cat="Tecnología"]');await T.sleep(600);await T.show("#c-ia")}},
+ {say:"La inscripción es un formulario simple. Lo completamos como si fuéramos una alumna.",hold:5200,do:async T=>{await T.click('[data-enroll="ia"]');await T.type("#enN","Sofía Benítez",{speed:45});await T.type("#enE","sofia.benitez@correo.demo",{speed:30});await T.click("#enGo")}},
+ {say:"Ya está en su aula: cada lección tiene su video, con subtítulos y material.",hold:4200,do:async T=>{await T.click("#bigPlay");await T.sleep(1800);await T.show(".lessons")}},
+ {say:"Marca las lecciones como vistas y la barra de avance se actualiza sola.",hold:5200,do:async T=>{for(let i=0;i<4;i++){await T.click("#markSeen",{ring:false});await T.sleep(150)}await T.show(".side-h")}},
+ {say:"En la clase en vivo, con un clic da el presente y la asistencia queda registrada.",hold:4200,do:async T=>{await T.click('.tab[data-v="vivo"]');await T.sleep(500);await T.click("#presente")}},
+ {say:"Al terminar, rinde un examen corto de 3 preguntas.",hold:5200,do:async T=>{await T.click('.tab[data-v="examen"]');for(let i=0;i<3;i++){const q=course(S.cid).exam[i];await T.click(`#exam input[name=q${i}][value="${q[2]}"]`,{ring:false})}await T.click("#sendExam")}},
+ {say:"Aprobó: el certificado se genera al instante, listo para descargar o imprimir.",hold:4000,do:async T=>{await T.click('[data-go="cert"]');await T.show("#certBox")}},
+ {say:"Cualquier empresa puede verificarlo pegando el código en la página pública.",hold:4200,do:async T=>{await T.click('.tab[data-v="verificar"]');await T.type("#vcode",S.cert.code,{speed:60});await T.click('#vform button[type="submit"]');await T.show("#vres")}},
+ {say:"Y la administración ve alumnos, avance, asistencia y ventas en un solo lugar.",hold:4600,do:async T=>{await T.click('.tab[data-v="admin"]');await T.show(".kpis");await T.sleep(700);await T.show("table",{block:"start"})}}
+]);
+</script>
+</body>
+</html>

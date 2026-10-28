@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
-const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/consultas", "/api/whatsapp", "/api/crm", "/api/salud", "/api/visita", "/api/panel", "/v.js", "/brief", "/agendar", "/fichas", "/api/e/", "/baja", "/api/suscribir", "/api/cron", "/api/academia", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon", "/sw.js", "/robots.txt", "/sitemap.xml", "/descarga", "/gracias", "/lista-precios", "/portal", "/wa-perfil.jpg", "/marca/"]
+const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/consultas", "/api/whatsapp", "/api/crm", "/api/salud", "/api/visita", "/api/panel", "/api/demos", "/demo/", "/v.js", "/brief", "/agendar", "/fichas", "/api/e/", "/baja", "/api/suscribir", "/api/cron", "/api/academia", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon", "/sw.js", "/robots.txt", "/sitemap.xml", "/descarga", "/gracias", "/lista-precios", "/portal", "/wa-perfil.jpg", "/marca/"]
 export function middleware(req: NextRequest) {
   const p = req.nextUrl.pathname
   const host = (req.headers.get("host") ?? "").toLowerCase()

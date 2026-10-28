@@ -64,7 +64,7 @@ function itemsDe(espacio: Espacio, rol: string) {
         { href: "/proyectos", t: "Proyectos" },
         { href: "/servicios", t: "Servicios" },
         ...(edita ? [{ href: "/precios", t: "Precios" }, { href: "/portal-admin", t: "Portal y accesos" }, { href: "/email", t: "Envíos de email" }] : []),
-        ...(edita ? [{ href: "/bot", t: "Bot · Conocimiento" }, { href: "/agenda", t: "Agenda y avisos" }, { href: "/whatsapp-business", t: "WhatsApp Business" }] : []),
+        ...(edita ? [{ href: "/demos-admin", t: "Demos" }, { href: "/bot", t: "Bot · Conocimiento" }, { href: "/agenda", t: "Agenda y avisos" }, { href: "/whatsapp-business", t: "WhatsApp Business" }] : []),
         ...(rol === "gerente" ? [{ href: "/usuarios", t: "Usuarios" }, { href: "/auditoria", t: "Auditoría" }] : []),
         { href: "/ayuda", t: "Ayuda" },
       ]

@@ -247,6 +247,18 @@ update am_productos set estado='oculto' where slug='diagnostico-transformacion-d
 update am_productos set archivo_url='enc:private/guia-transformacion-digital.zip.enc', titulo='Guía de Transformación Digital + bonus', bajada='Guía práctica de 13 páginas en español e inglés, planilla de autodiagnóstico editable, reunión de 30 minutos sin cargo y el valor de la guía a cuenta del taller.', descripcion=E'## Qué te llevás\n- **Guía práctica de 13 páginas**, en español y en inglés: autodiagnóstico de madurez digital, cadena de valor y Canvas, hoja de ruta en 14 pasos, pilotos, gestión del cambio, indicadores y el **Programa Kit 4.0** (qué cofinancia y cómo se pide).\n- **Planilla de autodiagnóstico editable** (Excel): elegís el nivel en cada eje y te muestra tu etapa y el eje a mejorar primero. Incluye tablero de indicadores y la hoja de ruta para completar con tu equipo.\n\n## Bonus\n- **Reunión de 30 minutos sin cargo** con nuestro equipo para revisar tu autodiagnóstico.\n- **El valor de la guía queda a cuenta** si después contratás el taller o el diagnóstico.\n\n## Cómo la recibís\nPagás con Mercado Pago y te llega al instante el link de descarga por email (y en la página de confirmación). Es un archivo .zip con todo.\n\n## Para quién\nDirectores, gerentes y dueños de pymes, empresas familiares, gremios, mutuales y organismos que quieren ordenar la transformación digital con un método.\n\nElaborada por el equipo de DEVISEBIT a partir de su experiencia en proyectos y de su formación en la Diplomatura en Transformación Digital (Universidad de Belgrano).' where slug='guia-transformacion-digital' and archivo_url='enc:private/guia-transformacion-digital.enc';
 alter table em_campanias add column if not exists estilo text not null default 'clasico';
 alter table usuarios add column if not exists espacios text[] not null default '{comercial,academia}';
+create table if not exists demo_accesos (
+  id serial primary key, token text unique not null, email text not null, nombre text, demos text[] not null, blanca boolean not null default false,
+  expira timestamptz not null, origen text, creado_por text, contacto_id int references db_contactos(id) on delete set null,
+  visitas int not null default 0, ultima timestamptz, vistas jsonb not null default '{}'::jsonb, revocado boolean not null default false,
+  creado timestamptz not null default now()
+);
+create index if not exists demo_accesos_email on demo_accesos(lower(email));
+create table if not exists demo_diagnosticos (
+  id serial primary key, email text not null, nombre text, organizacion text, telefono text, puntaje int, nivel text,
+  dimensiones jsonb, prioridades jsonb, respuestas jsonb, marca text, origen text, contacto_id int references db_contactos(id) on delete set null,
+  enviado boolean not null default false, creado timestamptz not null default now()
+);
 alter table em_campanias add column if not exists portada text;
 alter table db_proyectos add column if not exists fase text not null default 'inicio';
 create table if not exists db_hitos (

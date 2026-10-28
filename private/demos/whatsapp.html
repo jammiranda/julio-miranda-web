@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Asistente de WhatsApp con IA · Demo interactiva</title>
+<meta name="description" content="Probá una simulación de asistente de WhatsApp: responde consultas, da turnos con botones, deriva a una persona y muestra un tablero en vivo. Para clínicas, gremios, comercios e inmobiliarias.">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0D12; --gray:#4A515C; --muted:#5F6672; --line:#E3E6EB; --line-2:#EEF0F3;
+  --bg:#F4F5F7; --card:#FFFFFF;
+  --accent:#C8231F; --accent-ink:#A11B18; --accent-soft:#FCECEB; --accent-line:#F2C4C2;
+  --ok:#126B34; --ok-soft:#DCF5E4; --warn:#8A4B08; --warn-soft:#FDF0D5; --bad:#B42318; --bad-soft:#FDE7E5;
+  --info:#1E4FA8; --info-soft:#E4ECFA;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 2px rgba(11,13,18,.06),0 4px 14px rgba(11,13,18,.06);
+  --shadow-lg:0 10px 40px rgba(11,13,18,.18);
+  --topbar-h:36px;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-tight:"Inter Tight","Inter",system-ui,sans-serif;
+}
+html[data-brand="blanca"]{ --accent:#1D4E89; --accent-ink:#163C6A; --accent-soft:#E7EEF7; --accent-line:#BFD0E6; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;padding-top:var(--topbar-h);min-height:100vh}
+h1,h2,h3,h4{font-family:var(--font-tight);margin:0;letter-spacing:-.01em;line-height:1.2}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent-ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+[hidden]{display:none!important}
+
+/* ---------- Barra demo ---------- */
+.dv-topbar{position:fixed;top:0;left:0;right:0;z-index:8000;background:#0B0D12;color:#E9EBEF;font-size:12.5px;min-height:36px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;padding:5px 12px}
+.dv-topbar .dv-tb-text{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.dv-topbar .dv-dot{width:7px;height:7px;border-radius:50%;background:#3DDC84;box-shadow:0 0 0 3px rgba(61,220,132,.18)}
+.dv-topbar .dv-tb-cta{display:inline-flex;align-items:center;gap:6px;background:#C8231F;color:#fff;text-decoration:none;font-weight:600;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.dv-topbar .dv-tb-cta:hover{background:#A11B18}
+.dv-topbar .dv-tb-link{color:#E9EBEF;text-decoration:underline;text-underline-offset:3px}
+.dv-topbar .dv-tb-link:hover{color:#fff}
+.dv-topbar :focus-visible{outline-color:#fff}
+.dv-seg{display:inline-flex;align-items:center;gap:6px;color:#B9BEC7}
+.dv-seg-btns{display:inline-flex;background:#1C2029;border-radius:999px;padding:2px}
+.dv-seg button{background:transparent;border:0;color:#C9CDD4;padding:2px 9px;border-radius:999px;cursor:pointer;font-size:12px}
+.dv-seg button[aria-pressed="true"]{background:#E9EBEF;color:#0B0D12;font-weight:600}
+
+/* ---------- Logos ---------- */
+.dv-logo{font-family:var(--font-tight);font-weight:800;letter-spacing:.02em;color:var(--ink);white-space:nowrap;display:inline-flex;align-items:center}
+.dv-logo b{color:#C8231F;font-weight:800}
+.dv-logo .tm-mark{margin-right:8px;width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-grid;place-items:center}
+.dv-logo.on-dark{color:#fff}
+
+/* ---------- Componentes comunes ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:9px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;line-height:1.2;min-height:38px;transition:background .15s,border-color .15s,box-shadow .15s}
+.btn:hover{background:#F7F8FA;border-color:#D3D7DE}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-ink);border-color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:rgba(11,13,18,.05)}
+.btn.sm{padding:5px 10px;min-height:32px;font-size:13px}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.ok:hover{background:#106631}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn svg{flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;line-height:1.5}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.info{background:var(--info-soft);color:var(--info)}
+.badge.neutral{background:#EEF0F3;color:var(--gray)}
+.badge.accent{background:var(--accent-soft);color:var(--accent-ink)}
+.badge.plain::before{display:none}
+.field{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--gray)}
+.input,select.input,textarea.input{border:1px solid #CDD2DA;border-radius:9px;padding:8px 11px;background:#fff;min-height:40px;font-weight:400;color:var(--ink);font-size:14.5px;width:100%}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input::placeholder{color:#7A818C}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{padding:14px 16px}
+.kpi .k-label{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.kpi .k-value{font-family:var(--font-tight);font-size:28px;font-weight:700;margin-top:4px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .k-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.kpi .k-sub .up{color:var(--ok);font-weight:600}
+.flash{animation:dvflash 1.1s ease}
+@keyframes dvflash{0%{background:var(--accent-soft)}100%{background:var(--card)}}
+.table-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:#FAFBFC}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.tbl tr.row-click{cursor:pointer}
+.tbl tr.row-click:hover td{background:#F8F9FB}
+.tbl tr.is-new td{background:var(--accent-soft)}
+.avatar{width:34px;height:34px;border-radius:50%;display:inline-grid;place-items:center;font-weight:700;font-size:13px;flex:none;color:#fff;background:#4A515C}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.spacer{flex:1}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--font);fill:#5F6672;font-size:11px}
+.chart .val{fill:#0B0D12;font-weight:600}
+.hbars{display:flex;flex-direction:column;gap:9px}
+.hbar{display:grid;grid-template-columns:minmax(110px,38%) 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+.hbar .track{display:block;height:10px;background:#EEF0F3;border-radius:999px;overflow:hidden}
+.hbar .fill{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.hbar .num{font-variant-numeric:tabular-nums;font-weight:600;min-width:34px;text-align:right}
+
+/* Toast */
+.dv-toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:9700;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(92vw,440px)}
+.dv-toast{background:#0B0D12;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow-lg);animation:dvtoast .25s ease;display:flex;gap:10px;align-items:center}
+.dv-toast svg{flex:none;color:#3DDC84}
+@keyframes dvtoast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Dialog */
+dialog.dv-dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 60px);box-shadow:var(--shadow-lg);color:var(--ink)}
+dialog.dv-dialog::backdrop{background:rgba(11,13,18,.45)}
+.dlg-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.dlg-head h2{font-size:18px}
+.dlg-body{padding:16px 18px;overflow:auto}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);background:#FAFBFC}
+.icon-btn{border:0;background:transparent;width:36px;height:36px;border-radius:8px;display:inline-grid;place-items:center;cursor:pointer;color:var(--gray)}
+.icon-btn:hover{background:#EEF0F3}
+
+/* Botón recorrido */
+.dv-tour-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent-ink);padding:6px 12px;border-radius:999px;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;min-height:34px}
+.dv-tour-btn:hover{background:#fff}
+.dv-tour-float{position:fixed;right:16px;bottom:16px;z-index:7000;box-shadow:var(--shadow)}
+
+/* ---------- Recorrido guiado ---------- */
+.dv-shield{position:fixed;inset:0;z-index:9000;background:transparent;cursor:none}
+.dv-cursor{position:fixed;left:0;top:0;z-index:9600;width:28px;height:28px;pointer-events:none;transition:transform .75s cubic-bezier(.45,.05,.25,1);transform:translate(50vw,60vh);filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+.dv-cursor .ripple{position:absolute;left:-14px;top:-14px;width:30px;height:30px;border-radius:50%;border:3px solid var(--accent);opacity:0}
+.dv-cursor.clicking .ripple{animation:dvripple .55s ease-out}
+@keyframes dvripple{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.9)}}
+.dv-ring{position:fixed;z-index:8900;pointer-events:none;border:3px solid var(--accent);border-radius:12px;box-shadow:0 0 0 9999px rgba(11,13,18,.12),0 0 0 6px var(--accent-soft);transition:all .45s cubic-bezier(.45,.05,.25,1);opacity:0}
+.dv-ring.on{opacity:1}
+.dv-caption{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:9500;width:min(860px,calc(100vw - 24px));background:rgba(11,13,18,.94);color:#fff;border-radius:16px;padding:16px 20px 14px;box-shadow:var(--shadow-lg);display:flex;gap:16px;align-items:flex-start;transition:top .3s,bottom .3s}
+.dv-caption.top{bottom:auto;top:calc(var(--topbar-h) + 12px)}
+.dv-caption .cap-num{flex:none;width:38px;height:38px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font-family:var(--font-tight);font-weight:800;font-size:18px}
+.dv-caption .cap-text{font-family:var(--font-tight);font-size:clamp(17px,2.2vw,23px);font-weight:600;line-height:1.3;flex:1;min-height:38px;display:flex;align-items:center}
+.dv-caption .cap-skip{flex:none;align-self:center;background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer}
+.dv-caption .cap-bar{position:absolute;left:20px;right:20px;bottom:7px;height:3px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}
+.dv-caption .cap-bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.dv-final{position:fixed;inset:0;z-index:9800;background:rgba(11,13,18,.72);display:grid;place-items:center;padding:20px;animation:dvtoast .35s ease}
+.dv-final .box{background:#fff;border-radius:20px;padding:34px 30px;max-width:520px;width:100%;text-align:center;box-shadow:var(--shadow-lg)}
+.dv-final h2{font-size:clamp(24px,4vw,32px);margin:14px 0 6px}
+.dv-final .big{font-family:var(--font-tight);font-size:clamp(22px,3.6vw,30px);font-weight:800;color:var(--accent);margin:4px 0 18px}
+.dv-final .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+@media (max-width:640px){
+  .dv-topbar{font-size:11.5px;gap:4px 8px;padding:5px 8px}
+  .dv-topbar .dv-tb-cta{padding:3px 9px}
+  #dv-seg-l{display:none}
+  .dv-topbar .dv-tb-text{order:0}.dv-topbar .dv-tb-link{order:1}.dv-topbar .dv-tb-cta{order:2}.dv-topbar .dv-seg{order:3}
+  .dv-seg button{padding:2px 8px}
+  .dv-caption{padding:12px 14px 13px;gap:10px;bottom:12px}
+  .dv-caption .cap-num{width:30px;height:30px;font-size:15px}
+  .dv-caption .cap-text{min-height:30px}
+  .dv-caption .cap-skip{display:none}
+  .dv-caption .cap-bar{left:14px;right:14px;bottom:5px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- Shell de aplicación (sidebar) ---------- */
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - var(--topbar-h))}
+.side{background:#0E1117;color:#D5D9E0;display:flex;flex-direction:column;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow:auto}
+.side-brand{padding:18px 18px 14px;border-bottom:1px solid #1E232C}
+.side-brand .prod{font-size:12px;color:#9AA2AE;margin-top:3px}
+.side-org{display:flex;gap:10px;align-items:center;margin:14px 12px 6px;padding:10px;background:#161A22;border-radius:10px}
+.side-org .o-name{font-size:13px;font-weight:600;color:#fff;line-height:1.25}
+.side-org .o-sub{font-size:11.5px;color:#9AA2AE}
+.side-nav{display:flex;flex-direction:column;gap:2px;padding:10px 10px}
+.side-nav .nav-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8A93A0;padding:12px 10px 6px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;color:#D5D9E0;padding:9px 11px;border-radius:9px;font-weight:500;font-size:14.5px;cursor:pointer;min-height:40px;white-space:nowrap}
+.nav-btn:hover{background:#1A1F28;color:#fff}
+.nav-btn[aria-current="page"]{background:var(--accent);color:#fff;font-weight:600}
+.nav-btn .cnt{margin-left:auto;background:#2A303B;color:#fff;font-size:11.5px;border-radius:999px;padding:1px 8px}
+.nav-btn[aria-current="page"] .cnt{background:rgba(255,255,255,.25)}
+.nav-btn.new-mod{animation:dvnew 1.4s ease}
+@keyframes dvnew{0%{background:rgba(255,255,255,.35)}100%{background:transparent}}
+.side :focus-visible{outline-color:#fff}
+.side-foot{margin-top:auto;padding:12px;border-top:1px solid #1E232C;display:flex;gap:10px;align-items:center;font-size:13px}
+.side-foot .u-name{color:#fff;font-weight:600}
+.side-foot .u-role{color:#9AA2AE;font-size:12px}
+.main{min-width:0;display:flex;flex-direction:column}
+.main-head{display:flex;align-items:center;gap:12px;padding:16px 28px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:var(--topbar-h);z-index:50}
+.main-head h1{font-size:21px}
+.main-head .crumb{font-size:12.5px;color:var(--muted)}
+.content{padding:22px 28px 60px;max-width:1280px;width:100%}
+.view{display:flex;flex-direction:column;gap:18px}
+.panel{padding:16px 18px}
+.panel-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.panel-h h2,.panel-h h3{font-size:16px}
+.cols-2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{position:relative;flex:1;min-width:220px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search .input{padding-left:36px}
+.tabs-inline{display:inline-flex;background:#EEF0F3;border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.tabs-inline button{border:0;background:transparent;padding:6px 12px;border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--gray);min-height:34px}
+.tabs-inline button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+.err{color:var(--bad);font-size:12.5px;font-weight:500}
+.cards-m{display:none}
+@media (max-width:900px){
+  .shell{display:block}
+  .side{position:static;height:auto;overflow:visible}
+  .side-brand{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0}
+  .side-brand .prod{margin:0}
+  .side-org,.side-foot,.side-nav .nav-lbl{display:none}
+  .side-nav{flex-direction:row;overflow-x:auto;padding:0 10px 10px;gap:4px;scrollbar-width:none}
+  .side-nav::-webkit-scrollbar{display:none}
+  .nav-btn{width:auto;flex:none;padding:7px 12px;font-size:14px;min-height:38px;background:#161A22}
+  .nav-btn .cnt{display:none}
+  .main-head{padding:12px 14px;position:static}
+  .main-head h1{font-size:18px}
+  .content{padding:14px 14px 50px}
+  .cols-2{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:12px}
+  .kpi .k-value{font-size:23px}
+  .kpi .k-label{font-size:11.5px}
+  .hide-m{display:none!important}
+  .tbl-m-hide{display:none}
+  .cards-m{display:flex;flex-direction:column;gap:8px}
+}
+
+dialog.dv-dialog.nonmodal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);margin:0;z-index:8500}
+.dv-backdrop{position:fixed;inset:0;background:rgba(11,13,18,.45);z-index:8450}
+body.dv-touring .dv-toasts{bottom:auto;top:calc(var(--topbar-h) + 14px)}
+@media (max-width:900px){ .filters select.input{flex:1 1 140px;width:auto!important} }
+
+.link-btn{background:none;border:0;padding:0;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;font-size:14.5px}
+.link-btn:hover{color:var(--accent-ink);text-decoration:underline}
+@media (max-width:640px){ .chart text{font-size:17px} }
+
+/* ---------- Demo WhatsApp ---------- */
+.app-head{display:flex;align-items:center;gap:14px;padding:12px 24px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.app-head h1{font-size:18px}
+.app-head .sep{width:1px;height:22px;background:var(--line)}
+.head-note{font-size:12.5px;color:var(--warn);background:var(--warn-soft);padding:3px 10px;border-radius:999px;font-weight:600}
+.toolbar{display:flex;align-items:center;gap:12px;padding:12px 24px 0;flex-wrap:wrap;max-width:1240px;margin:0 auto}
+.toolbar .lbl{font-size:13px;font-weight:600;color:var(--gray)}
+.rubros{display:inline-flex;gap:6px;flex-wrap:wrap}
+.rubro{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;min-height:38px}
+.rubro:hover{border-color:#C9CED6}
+.rubro[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.mtabs{display:none}
+.wa-layout{display:grid;grid-template-columns:400px 1fr;gap:28px;padding:18px 24px 40px;max-width:1240px;margin:0 auto;align-items:start}
+/* Teléfono */
+.phone{background:#101114;border-radius:44px;padding:11px;box-shadow:0 30px 60px rgba(11,13,18,.22),inset 0 0 0 2px #2a2c31;position:sticky;top:calc(var(--topbar-h) + 14px)}
+.screen{border-radius:34px;overflow:hidden;display:flex;flex-direction:column;height:min(760px, calc(100vh - var(--topbar-h) - 150px));min-height:560px;background:#EFEAE2}
+.wa-status{height:26px;background:#075E54;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-weight:600}
+.wa-head{background:#075E54;color:#fff;display:flex;align-items:center;gap:10px;padding:8px 12px 10px}
+.wa-head .avatar{width:38px;height:38px;border:2px solid rgba(255,255,255,.25)}
+.wa-head .name{font-weight:600;font-size:15.5px;line-height:1.15}
+.wa-head .sub{font-size:12.5px;opacity:.92}
+.wa-msgs{flex:1;overflow-y:auto;padding:12px 10px 8px;display:flex;flex-direction:column;gap:6px;background-color:#EFEAE2;background-image:radial-gradient(rgba(11,13,18,.045) 1.2px,transparent 1.3px);background-size:16px 16px;scroll-behavior:smooth}
+.day{align-self:center;background:#fff;color:#56656C;font-size:12px;padding:3px 10px;border-radius:7px;box-shadow:0 1px 1px rgba(0,0,0,.06);margin:4px 0}
+.sys{align-self:center;background:#FFF5C4;color:#5A4A00;font-size:12.5px;padding:5px 11px;border-radius:8px;text-align:center;max-width:88%;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.msg{max-width:84%;padding:6px 9px 4px;border-radius:9px;font-size:14.5px;line-height:1.38;box-shadow:0 1px 1px rgba(0,0,0,.08);position:relative;white-space:pre-line;word-wrap:break-word;animation:pop .18s ease}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.msg.in{align-self:flex-start;background:#fff;border-top-left-radius:2px}
+.msg.out{align-self:flex-end;background:#D9FDD3;border-top-right-radius:2px}
+.msg.human{border-left:3px solid #E9A100}
+.msg .who{display:block;font-size:12.5px;font-weight:700;color:#8A5A00;margin-bottom:1px}
+.msg .meta{display:flex;justify-content:flex-end;align-items:center;gap:3px;font-size:11px;color:#56656C;margin-top:1px;float:right;margin-left:10px;position:relative;top:4px}
+.msg .meta svg{color:#3497C4}
+.msg::after{content:"";display:block;clear:both}
+.qr-btns{align-self:flex-start;display:flex;flex-direction:column;gap:4px;width:84%;max-width:300px}
+.qr-btn{background:#fff;border:0;border-radius:9px;padding:9px 10px;color:#00695C;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 1px 1px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px}
+.qr-btn:hover{background:#F6FBFA}
+.qr-btn:disabled{color:#56656C;cursor:default;opacity:.75}
+.loc{padding:4px!important;width:250px}
+.loc .map{border-radius:6px;overflow:hidden;display:block}
+.loc .cap{padding:6px 5px 2px;font-size:13.5px}
+.typing{align-self:flex-start;background:#fff;border-radius:9px;padding:10px 12px;display:flex;gap:4px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.typing i{width:7px;height:7px;border-radius:50%;background:#8A969C;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:7px 8px 2px;background:#EFEAE2;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:#fff;border:1px solid #CFE3DF;color:#00695C;border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:600;cursor:pointer;min-height:34px}
+.chip:hover{background:#F2FAF8}
+.wa-input{display:flex;gap:7px;padding:7px 8px 10px;background:#EFEAE2;align-items:center}
+.wa-input input{flex:1;border:0;border-radius:22px;padding:11px 15px;font-size:15px;background:#fff;min-height:44px;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.wa-input input:focus{outline:2px solid #00695C;outline-offset:1px}
+.wa-input .send{width:46px;height:46px;border-radius:50%;border:0;background:#00695C;color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
+.wa-input .send:hover{background:#00574C}
+/* Tablero */
+.board{display:flex;flex-direction:column;gap:16px;min-width:0}
+.board-head{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.board-head h2{font-size:22px}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ok);background:var(--ok-soft);padding:3px 10px;border-radius:999px}
+.live i{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
+.panel{padding:16px 18px}
+.panel h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.feed li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.feed li:last-child{border-bottom:0}
+.feed .txt{flex:1;min-width:0}
+.feed .nm{font-weight:600;font-size:14px}
+.feed .pv{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed li.me{background:var(--accent-soft);margin:0 -10px;padding:9px 10px;border-radius:8px}
+.note-box{font-size:13px;color:var(--gray);background:#fff;border:1px dashed #C9CED6;border-radius:10px;padding:10px 14px}
+.kpi.hl{border-color:var(--accent-line)}
+@media (min-width:861px){.dv-caption{left:auto;right:24px;transform:none;width:min(760px,calc(100vw - 500px))}}
+@media (max-width:1100px){.wa-layout{grid-template-columns:380px 1fr;gap:20px}.grid2{grid-template-columns:1fr}}
+@media (max-width:860px){
+  body{background:#fff}
+  .app-head{padding:10px 14px;gap:10px}
+  .app-head .sep,.app-head .head-logo,.app-head .head-note,.app-head .spacer{display:none}
+  .app-head h1{font-size:16px;flex:1}
+  .app-head .dv-tour-btn{padding:5px 10px;font-size:12.5px;min-height:32px}
+  .toolbar{padding:8px 14px 0;gap:6px}
+  .toolbar .lbl{display:none}
+  .rubros{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;padding-bottom:2px}
+  .rubro{flex:none;padding:6px 12px;font-size:13.5px;min-height:36px}
+  .mtabs{display:flex;margin:8px 14px 0;background:#EEF0F3;border-radius:10px;padding:3px}
+  .mtabs button{flex:1;border:0;background:transparent;padding:8px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px}
+  .mtabs button[aria-selected="true"]{background:#fff;box-shadow:var(--shadow)}
+  .mtabs .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:none}
+  .mtabs .dot.on{display:inline-block}
+  .wa-layout{display:block;padding:8px 0 0}
+  .phone{background:transparent;padding:0;border-radius:0;box-shadow:none;position:static}
+  .screen{border-radius:0;height:var(--phone-h,600px);min-height:420px}
+  .wa-status{display:none}
+  .wa-layout[data-tab="chat"] .board{display:none}
+  .wa-layout[data-tab="board"] .phone{display:none}
+  .board{padding:4px 14px 30px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:12px}
+  .kpi .k-value{font-size:24px}
+}
+</style>
+</head>
+<body>
+<header class="app-head">
+  <span class="head-logo" data-logo data-size="17"></span>
+  <span class="sep" aria-hidden="true"></span>
+  <h1>Asistente de WhatsApp con IA</h1>
+  <span class="head-note">Simulación: respuestas guionadas, sin IA real</span>
+  <span class="spacer"></span>
+  <span data-tour-slot></span>
+</header>
+
+<div class="toolbar">
+  <span class="lbl" id="rubro-lbl">Probalo para:</span>
+  <div class="rubros" role="group" aria-labelledby="rubro-lbl" id="rubros"></div>
+</div>
+<div class="mtabs" role="tablist" aria-label="Vista">
+  <button role="tab" id="tab-chat" aria-selected="true" aria-controls="phone">Chat</button>
+  <button role="tab" id="tab-board" aria-selected="false" aria-controls="board">Tablero <span class="dot" id="tab-dot" aria-hidden="true"></span></button>
+</div>
+
+<main class="wa-layout" id="layout" data-tab="chat">
+  <section class="phone" id="phone" aria-label="Chat de WhatsApp simulado">
+    <div class="screen">
+      <div class="wa-status" aria-hidden="true"><span id="clock">10:24</span><span>●●●● 4G ▮</span></div>
+      <div class="wa-head">
+        <span id="bot-avatar"></span>
+        <div><div class="name" id="bot-name">Asistente</div><div class="sub" id="bot-sub">en línea</div></div>
+      </div>
+      <div class="wa-msgs" id="msgs" role="log" aria-live="polite" aria-label="Mensajes"></div>
+      <div class="chips" id="chips" role="group" aria-label="Preguntas sugeridas"></div>
+      <form class="wa-input" id="form" autocomplete="off">
+        <label for="inp" class="sr-only">Escribí tu mensaje</label>
+        <input id="inp" type="text" placeholder="Escribí un mensaje" maxlength="200">
+        <button class="send" type="submit" aria-label="Enviar"></button>
+      </form>
+    </div>
+  </section>
+
+  <section class="board" id="board" aria-label="Tablero del asistente">
+    <div class="board-head">
+      <div>
+        <div class="muted small" id="org-line">Clínica Los Aromos</div>
+        <h2>Tablero del asistente</h2>
+      </div>
+      <span class="live"><i aria-hidden="true"></i> En vivo</span>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div class="card panel"><h3>Temas más consultados</h3><div id="topics"></div></div>
+      <div class="card panel"><h3>Últimas conversaciones</h3><ul class="feed" id="feed"></ul></div>
+    </div>
+    <p class="note-box">Esto es una simulación con respuestas guionadas por palabras clave, para que veas cómo funciona. En la versión real, el asistente usa IA entrenada con la información de tu organización, se conecta a tu número de WhatsApp y a tu agenda.</p>
+  </section>
+</main>
+
+<script>
+/* Kit común de demos: marca, barra superior, recorrido guiado, utilidades */
+(function(){
+  const qs = new URLSearchParams(location.search);
+  const brand = qs.get('marca') === 'blanca' ? 'blanca' : 'devisebit';
+  const showSelector = brand === 'devisebit' || qs.get('selector') === '1';
+  document.documentElement.setAttribute('data-brand', brand);
+
+  const DV = window.DV = {
+    brand, isWhite: brand === 'blanca',
+    brandName: brand === 'blanca' ? 'Tu Marca' : 'DEVISEBIT',
+    params: qs,
+    tourMode: qs.get('tour') === '1',
+  };
+
+  const esc = DV.esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  DV.$ = (s, r=document) => r.querySelector(s);
+  DV.$$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  DV.wait = ms => new Promise(r => setTimeout(r, ms));
+  DV.norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  DV.fmt = n => Number(n).toLocaleString('es-AR');
+  DV.initials = name => name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const palette = ['#4A515C','#1E4FA8','#0F766E','#7C3AED','#B45309','#BE185D','#166534','#9F1239','#334155','#0E7490'];
+  DV.avatarColor = s => { let h=0; for (const c of String(s)) h=(h*31+c.charCodeAt(0))>>>0; return palette[h%palette.length]; };
+  DV.avatar = (name, size) => `<span class="avatar" aria-hidden="true" style="background:${DV.avatarColor(name)}${size?`;width:${size}px;height:${size}px;font-size:${Math.round(size*.38)}px`:''}">${esc(DV.initials(name))}</span>`;
+
+  /* Logo: DEVISE + BIT (rojo) o "Tu Marca" */
+  DV.logo = (opts={}) => {
+    if (DV.isWhite) {
+      return `<span class="dv-logo${opts.dark?' on-dark':''}" style="font-size:${opts.size||18}px"><span class="tm-mark" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="4" height="4" rx="1" fill="#fff"/><rect x="7" y="1" width="4" height="4" rx="1" fill="#fff" opacity=".6"/><rect x="1" y="7" width="4" height="4" rx="1" fill="#fff" opacity=".6"/><rect x="7" y="7" width="4" height="4" rx="1" fill="#fff"/></svg></span>Tu Marca</span>`;
+    }
+    return `<span class="dv-logo${opts.dark?' on-dark':''}" style="font-size:${opts.size||18}px" aria-label="DEVISEBIT">DEVISE<b>BIT</b></span>`;
+  };
+
+  /* Utilidades de UI */
+  let toastWrap;
+  DV.toast = (msg) => {
+    if (!toastWrap) { toastWrap = document.createElement('div'); toastWrap.className='dv-toasts'; toastWrap.setAttribute('role','status'); toastWrap.setAttribute('aria-live','polite'); document.body.appendChild(toastWrap); }
+    const t = document.createElement('div'); t.className='dv-toast';
+    t.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>${esc(msg)}</span>`;
+    toastWrap.appendChild(t);
+    setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),320); }, 2800);
+  };
+  DV.flash = el => { if(!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+  DV.icon = (name, size=18) => {
+    const p = {
+      search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+      plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+      check:'<path d="M20 6 9 17l-5-5"/>', home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+      users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17.5 14.6c2.2.4 3.6 2 4 4.6"/>',
+      chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', file:'<path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/>',
+      card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>', logout:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+      building:'<path d="M4 21V5l8-2v18M12 8h8v13M8 9h.01M8 13h.01M8 17h.01M16 12h.01M16 16h.01"/>',
+      calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+      kanban:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/>',
+      puzzle:'<path d="M9 3h6v3a2 2 0 1 0 4 0V3h2v6h-3a2 2 0 1 0 0 4h3v8h-6v-3a2 2 0 1 0-4 0v3H3v-6h3a2 2 0 1 0 0-4H3V3z"/>',
+      clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', box:'<path d="m3 7 9-4 9 4v10l-9 4-9-4z"/><path d="m3 7 9 4 9-4M12 11v10"/>',
+      bot:'<rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01"/>', receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+      portal:'<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>', send:'<path d="m4 12 16-8-6 16-2-7z"/>',
+      play:'<path d="M7 4v16l13-8z"/>', phone:'<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/>',
+      pin:'<path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>', shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
+      gift:'<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S10 3 7.5 4.5 9 8 12 8zm0 0s2-5 4.5-3.5S15 8 12 8z"/>',
+      arrowR:'<path d="M5 12h14M13 6l6 6-6 6"/>', arrowL:'<path d="M19 12H5M11 6l-6 6 6 6"/>', mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+      alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>', menu:'<path d="M4 6h16M4 12h16M4 18h16"/>', chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+    }[name] || '';
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${p}</svg>`;
+  };
+
+  /* Gráfico de barras SVG */
+  DV.bars = (data, o={}) => {
+    const W = o.width||640, H = o.height||220, pl = 34, pr = 8, pt = 18, pb = 26;
+    const max = Math.max(1, ...data.map(d=>d.value)) * 1.08;
+    const p10 = Math.pow(10, Math.floor(Math.log10(max/5)));
+    const step = [1,2,2.5,5,10,20].map(m=>m*p10).find(s => Math.ceil(max/s) <= 5);
+    const nT = Math.ceil(max/step), nice = nT*step;
+    const iw = W-pl-pr, ih = H-pt-pb, bw = iw/data.length;
+    let g = '';
+    for (let i=0;i<=nT;i++){ const y = pt + ih - ih*i/nT; const v = step*i; g += `<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="#E9ECF0"/><text x="${pl-6}" y="${y+4}" text-anchor="end">${o.fmtAxis?o.fmtAxis(v):DV.fmt(Math.round(v))}</text>`; }
+    data.forEach((d,i)=>{
+      const h = ih * d.value / nice, x = pl + i*bw + bw*.18, w = bw*.64, y = pt+ih-h;
+      const col = d.highlight ? 'var(--accent)' : (o.color||'#9AA3AF');
+      g += `<g><title>${esc(d.label)}: ${esc(o.fmtVal?o.fmtVal(d.value):DV.fmt(d.value))}</title><rect x="${x}" y="${y}" width="${w}" height="${Math.max(h,1)}" rx="3" fill="${col}"/>`;
+      if (o.showVals || d.highlight) g += `<text class="val" x="${x+w/2}" y="${y-5}" text-anchor="middle">${esc(o.fmtVal?o.fmtVal(d.value):DV.fmt(d.value))}</text>`;
+      g += `<text x="${x+w/2}" y="${H-8}" text-anchor="middle">${esc(d.label)}</text></g>`;
+    });
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||'Gráfico de barras')}">${g}</svg>`;
+  };
+  DV.hbars = (data, o={}) => {
+    const max = Math.max(1, ...data.map(d=>d.value));
+    return `<div class="hbars" role="list">${data.map(d=>`<div class="hbar" role="listitem"><span>${esc(d.label)}</span><span class="track" aria-hidden="true"><span class="fill" style="width:${(d.value/max*100).toFixed(1)}%;${d.color?`background:${d.color}`:''}"></span></span><span class="num">${esc(o.fmt?o.fmt(d.value):DV.fmt(d.value))}</span></div>`).join('')}</div>`;
+  };
+  /* Barras horizontales en SVG (etiqueta arriba, valor a la derecha) */
+  DV.hbarsSvg = (data, o={}) => {
+    const W = 400, rowH = 42, max = Math.max(1, ...data.map(d=>d.value)); let g = '';
+    data.forEach((d,i) => { const y = i*rowH; const w = Math.max(3, (W) * d.value / max);
+      const v = o.fmt ? o.fmt(d.value) : DV.fmt(d.value);
+      g += `<g><title>${esc(d.label)}: ${esc(v)}</title><text x="0" y="${y+15}" style="font-size:13px;fill:#0B0D12">${esc(d.label)}</text><text x="${W}" y="${y+15}" text-anchor="end" style="font-size:13px;font-weight:600;fill:#0B0D12">${esc(v)}</text><rect x="0" y="${y+22}" width="${W}" height="10" rx="5" fill="#EEF0F3"/><rect x="0" y="${y+22}" width="${w}" height="10" rx="5" fill="${i===0?'var(--accent)':(d.color||'#7C8592')}"/></g>`; });
+    return `<svg class="chart" viewBox="0 -2 ${W} ${data.length*rowH}" role="img" aria-label="${esc(o.label||'Gráfico de barras')}">${g}</svg>`;
+  };
+  /* QR decorativo (no escaneable) */
+  DV.qr = (seed, size=140) => {
+    const n = 25; let s = 0; for (const c of String(seed)) s = (s*131 + c.charCodeAt(0)) >>> 0;
+    const rnd = () => (s = (s*1664525 + 1013904223) >>> 0) / 4294967296;
+    let r = '';
+    const finder = (x,y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#0B0D12"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#0B0D12"/>`;
+    const inF = (x,y) => (x<8&&y<8)||(x>n-9&&y<8)||(x<8&&y>n-9);
+    for (let y=0;y<n;y++) for (let x=0;x<n;x++){ if (inF(x,y)) continue; if (rnd()>.52) r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }
+    return `<svg width="${size}" height="${size}" viewBox="-1 -1 ${n+2} ${n+2}" role="img" aria-label="Código QR de la credencial (ilustrativo)" shape-rendering="crispEdges"><rect x="-1" y="-1" width="${n+2}" height="${n+2}" fill="#fff"/><g fill="#0B0D12">${r}</g>${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}</svg>`;
+  };
+
+  /* Diálogo */
+  DV.dialog = (id, title, bodyHTML, footHTML) => {
+    let d = document.getElementById(id);
+    if (!d) { d = document.createElement('dialog'); d.id = id; d.className = 'dv-dialog'; document.body.appendChild(d);
+      d.addEventListener('click', e => { if (e.target === d) d.close(); }); }
+    d.setAttribute('aria-labelledby', id+'-t');
+    d.innerHTML = `<div class="dlg-head"><h2 id="${id}-t">${title}</h2><span class="spacer"></span><button class="icon-btn" type="button" data-close aria-label="Cerrar">${DV.icon('x')}</button></div><div class="dlg-body">${bodyHTML}</div>${footHTML?`<div class="dlg-foot">${footHTML}</div>`:''}`;
+    DV.$$('[data-close]', d).forEach(b => b.addEventListener('click', ()=>d.close()));
+    if (!d.open) {
+      if (T.running) {
+        d.classList.add('nonmodal'); d.show(); if (document.activeElement) document.activeElement.blur();
+        const bd = document.createElement('div'); bd.className = 'dv-backdrop'; document.body.appendChild(bd);
+        d.addEventListener('close', () => bd.remove(), {once:true});
+      } else { d.classList.remove('nonmodal'); d.showModal(); }
+    }
+    return d;
+  };
+
+  /* Barra superior */
+  function buildTopbar(cfg){
+    const bar = document.createElement('div');
+    bar.className = 'dv-topbar'; bar.setAttribute('role','region'); bar.setAttribute('aria-label','Aviso de demo');
+    let html = `<span class="dv-tb-text"><span class="dv-dot" aria-hidden="true"></span>Demo con datos de ejemplo${DV.isWhite?'':' ·'}</span>`;
+    if (!DV.isWhite) {
+      const tema = encodeURIComponent('Demo: ' + cfg.product);
+      html += `<a class="dv-tb-cta" href="https://www.devisebit.com/contacto?tema=${tema}#formulario">Quiero esto para mi organización</a>`;
+      html += `<a class="dv-tb-link" href="https://www.devisebit.com/">Inicio</a>`;
+    }
+    if (showSelector) {
+      html += `<span class="dv-seg"><span id="dv-seg-l">Marca:</span><span class="dv-seg-btns" role="group" aria-labelledby="dv-seg-l"><button type="button" data-brand-set="devisebit" aria-pressed="${!DV.isWhite}">${DV.isWhite?'Original':'DEVISEBIT'}</button><button type="button" data-brand-set="blanca" aria-pressed="${DV.isWhite}">Tu marca</button></span></span>`;
+    }
+    bar.innerHTML = html;
+    document.body.prepend(bar);
+    DV.$$('[data-brand-set]', bar).forEach(b => b.addEventListener('click', () => {
+      const p = new URLSearchParams(location.search);
+      p.delete('tour');
+      if (b.dataset.brandSet === 'blanca') { p.set('marca','blanca'); p.set('selector','1'); } else { p.delete('marca'); p.delete('selector'); }
+      const q = p.toString(); location.href = location.pathname + (q?'?'+q:'');
+    }));
+    const setH = () => document.documentElement.style.setProperty('--topbar-h', bar.offsetHeight + 'px');
+    setH(); new ResizeObserver(setH).observe(bar);
+  }
+
+  /* ---------- Recorrido guiado ---------- */
+  class Abort extends Error {}
+  const T = DV.T = { aborted:false };
+  let cursor, ring, caption, shield;
+  const check = () => { if (T.aborted) throw new Abort(); };
+  const resolve = t => typeof t === 'string' ? DV.$(t) : (typeof t === 'function' ? t() : t);
+  T.wait = async ms => { check(); await DV.wait(ms); check(); };
+  T.move = async (target, {dwell=750} = {}) => {
+    const el = resolve(target); if (!el) return null;
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 60 || r0.bottom > innerHeight - 140 || r0.left < 0 || r0.right > innerWidth) { el.scrollIntoView({block:'center', inline:'nearest', behavior:'smooth'}); await T.wait(450); }
+    const r = el.getBoundingClientRect();
+    cursor.style.transform = `translate(${Math.round(r.left + Math.min(r.width/2, 40))}px, ${Math.round(r.top + r.height/2)}px)`;
+    placeCaption(r);
+    await T.wait(dwell);
+    return el;
+  };
+  T.click = async (target, o={}) => {
+    const el = await T.move(target, o); if (!el) { console.warn('tour: no encontrado', target); return null; }
+    cursor.classList.remove('clicking'); void cursor.offsetWidth; cursor.classList.add('clicking');
+    await T.wait(160);
+    if (el.focus) el.focus({preventScroll:true});
+    el.click();
+    await T.wait(o.after ?? 350);
+    return el;
+  };
+  T.type = async (target, text, o={}) => {
+    const el = await T.click(target, {after:150});
+    if (!el) return;
+    const setter = Object.getOwnPropertyDescriptor(el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set;
+    if (o.clear !== false) { setter.call(el, ''); el.dispatchEvent(new Event('input',{bubbles:true})); }
+    for (const ch of text) { setter.call(el, el.value + ch); el.dispatchEvent(new Event('input',{bubbles:true})); await T.wait(o.speed || 55); }
+    await T.wait(250);
+    return el;
+  };
+  T.select = async (target, value) => {
+    const el = await T.move(target, {dwell:600}); if (!el) return;
+    cursor.classList.remove('clicking'); void cursor.offsetWidth; cursor.classList.add('clicking');
+    el.value = value; el.dispatchEvent(new Event('change',{bubbles:true})); el.dispatchEvent(new Event('input',{bubbles:true}));
+    await T.wait(450);
+  };
+  T.ring = async (target, pad=6) => {
+    const el = resolve(target); if (!el) { ring.classList.remove('on'); return; }
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 50 || r0.bottom > innerHeight - 120) { el.scrollIntoView({block: r0.height > innerHeight*.6 ? 'start':'center', behavior:'smooth'}); await T.wait(450); }
+    const r = el.getBoundingClientRect();
+    Object.assign(ring.style, {left:(r.left-pad)+'px', top:(r.top-pad)+'px', width:(r.width+pad*2)+'px', height:(r.height+pad*2)+'px'});
+    ring.classList.add('on'); placeCaption(r);
+  };
+  T.unring = () => ring && ring.classList.remove('on');
+  T.drag = async (from, to, onDrop) => {
+    const a = await T.move(from, {dwell:600}); const b = resolve(to); if (!a || !b) return;
+    const ra = a.getBoundingClientRect();
+    const ghost = a.cloneNode(true);
+    Object.assign(ghost.style,{position:'fixed',left:ra.left+'px',top:ra.top+'px',width:ra.width+'px',margin:0,zIndex:9550,pointerEvents:'none',transition:'transform .9s cubic-bezier(.45,.05,.25,1)',boxShadow:'0 14px 34px rgba(0,0,0,.25)',transform:'rotate(2deg)'});
+    document.body.appendChild(ghost); a.style.opacity = '.35';
+    cursor.classList.add('clicking');
+    await T.wait(120);
+    const rb = b.getBoundingClientRect();
+    const dx = rb.left + rb.width/2 - (ra.left + ra.width/2), dy = rb.top + 60 - ra.top;
+    ghost.style.transform = `translate(${dx}px, ${dy}px) rotate(2deg)`;
+    cursor.style.transform = `translate(${Math.round(rb.left + rb.width/2)}px, ${Math.round(rb.top + 70)}px)`;
+    await T.wait(950);
+    ghost.remove(); a.style.opacity = '';
+    onDrop(); await T.wait(400);
+  };
+  function placeCaption(r){
+    if (!caption) return;
+    const capH = caption.offsetHeight + 40;
+    const lowZone = innerHeight - capH;
+    caption.classList.toggle('top', r && r.bottom > lowZone && r.top > capH + 60);
+  }
+  function setCaption(i, n, text){
+    caption.querySelector('.cap-num').textContent = i;
+    caption.querySelector('.cap-text').textContent = text;
+    caption.querySelector('.cap-bar i').style.width = (i/n*100)+'%';
+  }
+  function finalCard(cfg){
+    T.running = false; document.body.classList.remove('dv-touring');
+    T.unring(); shield && shield.remove(); cursor && cursor.remove(); caption && caption.remove(); ring && ring.remove();
+    const f = document.createElement('div'); f.className = 'dv-final'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-labelledby','dv-final-t');
+    if (DV.isWhite) {
+      f.innerHTML = `<div class="box">${DV.logo({size:22})}<h2 id="dv-final-t">¿Lo querés para tu organización?</h2><p class="big">Pedí tu demo</p><div class="acts"><button class="btn primary" type="button" data-again>Ver de nuevo</button><button class="btn" type="button" data-keep>Seguir probando</button></div></div>`;
+    } else {
+      const tema = encodeURIComponent('Demo: ' + cfg.product);
+      f.innerHTML = `<div class="box">${DV.logo({size:22})}<h2 id="dv-final-t">¿Lo querés para tu organización?</h2><p class="big">devisebit.com</p><div class="acts"><a class="btn primary" href="https://www.devisebit.com/contacto?tema=${tema}#formulario">Quiero esto para mi organización</a><button class="btn" type="button" data-keep>Seguir probando</button></div></div>`;
+    }
+    document.body.appendChild(f);
+    const keep = f.querySelector('[data-keep]');
+    keep.addEventListener('click', () => { const p = new URLSearchParams(location.search); p.delete('tour'); const q=p.toString(); location.href = location.pathname + (q?'?'+q:''); });
+    const again = f.querySelector('[data-again]'); if (again) again.addEventListener('click', () => location.reload());
+    (f.querySelector('a,button')).focus({preventScroll:true});
+    window.__tourDone = true;
+  }
+  async function runTour(cfg){
+    T.aborted = false; T.running = true; window.__tourDone = false; document.body.classList.add('dv-touring');
+    shield = document.createElement('div'); shield.className = 'dv-shield'; shield.setAttribute('aria-hidden','true');
+    ring = document.createElement('div'); ring.className = 'dv-ring';
+    cursor = document.createElement('div'); cursor.className = 'dv-cursor'; cursor.setAttribute('aria-hidden','true');
+    cursor.innerHTML = `<span class="ripple"></span><svg width="28" height="28" viewBox="0 0 28 28"><path d="M3 2l19 11.5-8.2 1.6 4.9 9.1-3.6 1.9-4.9-9.1L4 23z" fill="#0B0D12" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+    caption = document.createElement('div'); caption.className = 'dv-caption'; caption.setAttribute('role','status'); caption.setAttribute('aria-live','polite');
+    caption.innerHTML = `<span class="cap-num" aria-hidden="true">1</span><span class="cap-text"></span><button type="button" class="cap-skip">Saltar recorrido</button><span class="cap-bar" aria-hidden="true"><i></i></span>`;
+    document.body.append(shield, ring, cursor, caption);
+    caption.querySelector('.cap-skip').addEventListener('click', () => { T.aborted = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') T.aborted = true; });
+    const steps = cfg.tour;
+    const t0 = performance.now();
+    try {
+      for (let i=0;i<steps.length;i++){
+        const st = steps[i];
+        T.unring();
+        setCaption(i+1, steps.length, st.text);
+        await T.wait(st.lead ?? 500);
+        if (st.do) await st.do(T);
+        await T.wait(st.hold ?? 2800);
+      }
+    } catch(e) { if (!(e instanceof Abort)) console.error(e); }
+    window.__tourMs = Math.round(performance.now() - t0);
+    finalCard(cfg);
+  }
+
+  DV.start = (cfg) => {
+    DV.cfg = cfg;
+    document.title = cfg.title || document.title;
+    buildTopbar(cfg);
+    DV.$$('[data-logo]').forEach(el => el.innerHTML = DV.logo({size: +el.dataset.size || 18, dark: el.hasAttribute('data-dark')}));
+    DV.$$('[data-brand-name]').forEach(el => el.textContent = DV.brandName);
+    if (DV.isWhite) DV.$$('[data-dv-only]').forEach(el => el.remove()); else DV.$$('[data-white-only]').forEach(el => el.remove());
+    if (cfg.init) cfg.init();
+    if (!DV.tourMode) {
+      const b = document.createElement('button'); b.type='button'; b.className='dv-tour-btn';
+      b.innerHTML = `${DV.icon('play',14)} Ver recorrido guiado`;
+      b.addEventListener('click', () => { const p = new URLSearchParams(location.search); p.set('tour','1'); location.href = location.pathname + '?' + p.toString(); });
+      const slot = DV.$('[data-tour-slot]');
+      if (slot) slot.appendChild(b); else { b.classList.add('dv-tour-float'); document.body.appendChild(b); }
+    } else {
+      setTimeout(() => runTour(cfg), 900);
+    }
+  };
+})();
+
+</script>
+<script>
+(function(){
+const {$, $$, esc, norm, wait} = DV;
+
+/* ---------- Fechas para turnos ---------- */
+const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+function nextDays(n){ const out=[]; const d=new Date(); d.setHours(12); while(out.length<n){ d.setDate(d.getDate()+1); if(d.getDay()!==0) out.push(new Date(d)); } return out; }
+const fd = d => `${DIAS[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+const [d1,d2,d3] = nextDays(3);
+const code = p => p + '-' + Math.floor(1000 + Math.random()*9000);
+
+/* ---------- Guiones por rubro ---------- */
+const RUBROS = {
+  clinica: {
+    label:'Clínica', org:'Clínica Los Aromos', bot:'Clínica Los Aromos', human:'Carla', area:'Atención al paciente', turnoLbl:'Turnos dados',
+    welcome:'¡Hola! Soy el asistente virtual de Clínica Los Aromos 👋\nTe ayudo con turnos, horarios, requisitos y cómo llegar. ¿Qué necesitás?',
+    chips:['Quiero sacar un turno','¿Qué horarios tienen?','¿Cuánto sale la consulta?','¿Qué tengo que llevar?','¿Dónde quedan?'],
+    turnos:{ text:'Tengo estos turnos con Clínica médica. Tocá el que te quede mejor:', slots:[`${fd(d1)} · 09:30`,`${fd(d1)} · 16:15`,`${fd(d2)} · 11:00`],
+      ok: s => `Listo, tu turno quedó confirmado ✅\n📅 ${s}\n🩺 Clínica médica · Dra. Paula Arrieta\nCódigo: ${code('T')}\n\nTe mando un recordatorio el día anterior. Si no podés venir, escribime "cancelar".` },
+    horarios:'Atendemos de lunes a viernes de 8 a 20 y los sábados de 8 a 13. La guardia funciona las 24 horas, todos los días.',
+    precios:'Los valores dependen de tu cobertura, así que te paso con una persona del equipo que te lo confirma enseguida.',
+    humanHi:'Hola, soy Carla de Atención al paciente 😊 Ya leí tu consulta. ¿Me decís qué cobertura tenés así te confirmo?',
+    requisitos:'Para tu turno traé:\n• DNI\n• Credencial de tu cobertura\n• Orden médica, si es con especialista\n\nTe pedimos llegar 10 minutos antes.',
+    ubic:{ text:'Estamos en Av. Libertad 2350, a media cuadra de la plaza. Hay estacionamiento por la calle lateral.', place:'Clínica Los Aromos', addr:'Av. Libertad 2350' },
+    extra:[],
+    feed:[['Sofía Benítez','Turno confirmado · Cardiología','ok','Turno dado'],['Ramiro Quiroga','¿Atienden los sábados?','ok','Resuelta'],['Elena Funes','Consulta por cobertura','warn','Derivada'],['Matías Ledesma','¿Qué tengo que llevar?','ok','Resuelta']],
+    base:{total:146,deriv:19,turnos:41,topics:{'Turnos':58,'Horarios':31,'Requisitos':22,'Precios y coberturas':17,'Ubicación':12,'Otros':6}}
+  },
+  gremio: {
+    label:'Gremio', org:'Unión Gremial Los Álamos', bot:'Unión Gremial Los Álamos', human:'Martín', area:'Secretaría Gremial', turnoLbl:'Turnos de asesoría',
+    welcome:'¡Hola! Soy el asistente de la Unión Gremial Los Álamos 👋\nTe ayudo con afiliación, beneficios, turnos de asesoría y datos de la sede. ¿En qué te ayudo?',
+    chips:['Quiero afiliarme','Turno con el abogado','¿Qué beneficios tengo?','¿Cuánto es la cuota?','¿Dónde queda la sede?'],
+    turnos:{ text:'Estos son los turnos libres para asesoría legal gratuita. Elegí uno:', slots:[`${fd(d1)} · 10:00`,`${fd(d2)} · 15:30`,`${fd(d3)} · 09:00`],
+      ok: s => `Turno reservado ✅\n📅 ${s}\n⚖️ Asesoría legal · Dr. Federico Paz\nCódigo: ${code('A')}\n\nTraé tu DNI y el último recibo de sueldo.` },
+    horarios:'La sede atiende de lunes a viernes de 9 a 17. La línea de urgencias gremiales funciona las 24 horas.',
+    precios:'La cuota depende de tu convenio y categoría. Te paso con alguien de la Secretaría Gremial que lo revisa con vos.',
+    humanHi:'Hola, soy Martín de la Secretaría Gremial. ¿En qué empresa trabajás? Así te digo exactamente cómo queda tu aporte.',
+    requisitos:'Para afiliarte necesitás:\n• DNI\n• Último recibo de sueldo\n• Completar la ficha (te la mando por acá)\n\nEl alta queda lista en 48 horas y ya podés usar los beneficios.',
+    ubic:{ text:'La sede central está en Rivadavia 845. También hay una delegación en el Parque Industrial, nave 4.', place:'Sede Central', addr:'Rivadavia 845' },
+    extra:[{ re:/benefici|descuento|turismo|util|subsidio/, topic:'Beneficios', text:'Con tu afiliación tenés:\n• Turismo y colonia de vacaciones\n• Kit escolar para tus hijos\n• Subsidio por nacimiento y casamiento\n• Descuentos en farmacias y comercios adheridos\n• Asesoría legal gratuita' }],
+    feed:[['Diego Arce','Alta de afiliación iniciada','ok','Resuelta'],['Valeria Moyano','Turno asesoría legal','ok','Turno dado'],['Julián Sosa','Consulta por aportes','warn','Derivada'],['Paola Giménez','Kit escolar 2027','ok','Resuelta']],
+    base:{total:118,deriv:14,turnos:23,topics:{'Afiliación':36,'Beneficios':33,'Turnos de asesoría':21,'Cuotas y aportes':14,'Horarios':9,'Ubicación':5}}
+  },
+  comercio: {
+    label:'Comercio', org:'Bazar & Hogar La Esquina', bot:'Bazar & Hogar La Esquina', human:'Lucas', area:'Ventas', turnoLbl:'Retiros reservados',
+    welcome:'¡Hola! Bienvenido a Bazar & Hogar La Esquina 👋\nTe ayudo con envíos, horarios, cambios y reservas para retirar. ¿Qué buscás?',
+    chips:['¿Hacen envíos?','¿Qué horarios tienen?','¿Precio de la cafetera?','Reservar un retiro','¿Cómo hago un cambio?'],
+    turnos:{ text:'¿Cuándo pasás a retirar? Elegí un horario y te lo dejamos preparado:', slots:[`Hoy · 17:00 a 18:00`,`${fd(d1)} · 10:00 a 11:00`,`${fd(d1)} · 18:00 a 19:00`],
+      ok: s => `Listo, reservamos tu retiro ✅\n🛍️ ${s}\nCódigo de retiro: ${code('R')}\n\nMostrá este código en la caja rápida.` },
+    horarios:'Abrimos de lunes a sábado de 9 a 20, de corrido. Los domingos, de 10 a 14.',
+    precios:'Para confirmarte precio y stock al momento, te paso con un vendedor. ¡Ya te responde!',
+    humanHi:'¡Hola! Soy Lucas, de Ventas. Tengo la cafetera en dos modelos. ¿La querés para retirar o con envío?',
+    requisitos:'Para cambios tenés 30 días con el ticket y el producto en su caja. Si fue un regalo, con el ticket de cambio alcanza.',
+    ubic:{ text:'Estamos en San Martín 1180, esquina Mitre. Hay estacionamiento para clientes en la cochera de al lado.', place:'Bazar & Hogar La Esquina', addr:'San Martín 1180' },
+    extra:[{ re:/envio|envian|domicilio|delivery|mandan/, topic:'Envíos', text:'Sí, hacemos envíos en el día si comprás antes de las 14 h. También podés retirar sin cargo en el local.' }],
+    feed:[['Carolina Ríos','Retiro reservado · Código R-2231','ok','Turno dado'],['Nicolás Paredes','¿Hacen envíos al barrio?','ok','Resuelta'],['Gabriela Ortiz','Stock de vajilla','warn','Derivada'],['Hernán Vera','Cambio sin ticket','ok','Resuelta']],
+    base:{total:204,deriv:33,turnos:28,topics:{'Precios y stock':61,'Envíos':47,'Horarios':38,'Cambios':24,'Retiros':19,'Ubicación':15}}
+  },
+  inmobiliaria: {
+    label:'Inmobiliaria', org:'Inmobiliaria Punto Norte', bot:'Inmobiliaria Punto Norte', human:'Florencia', area:'Asesoría comercial', turnoLbl:'Visitas agendadas',
+    welcome:'¡Hola! Soy el asistente de Inmobiliaria Punto Norte 👋\nTe muestro propiedades, agendo visitas y te cuento qué se necesita para alquilar. ¿Qué estás buscando?',
+    chips:['Busco depto de 2 ambientes','Quiero agendar una visita','¿Qué piden para alquilar?','¿Cuánto sale el alquiler?','¿Dónde está la oficina?'],
+    turnos:{ text:'Tengo estos horarios para visitar la propiedad. ¿Cuál te sirve?', slots:[`${fd(d1)} · 11:30`,`${fd(d2)} · 17:00`,`${fd(d3)} · 10:00`],
+      ok: s => `Visita agendada ✅\n📅 ${s}\n🏠 Depto 2 amb. · Barrio Norte\nTe acompaña: Florencia\nCódigo: ${code('V')}\n\nTe mando la ubicación exacta una hora antes.` },
+    horarios:'La oficina atiende de lunes a viernes de 9 a 18 y los sábados de 10 a 13. Las visitas se coordinan también fuera de ese horario.',
+    precios:'Los valores y condiciones te los confirma un asesor, porque cambian según la propiedad y el contrato. Te paso con Florencia.',
+    humanHi:'¡Hola! Soy Florencia, asesora comercial. Te cuento los valores actualizados. ¿Lo buscás para alquilar o para comprar?',
+    requisitos:'Para alquilar te pedimos:\n• DNI\n• Recibos de sueldo de los últimos 3 meses\n• Una garantía (propietaria o seguro de caución)\n\nPodés mandarnos todo por acá y lo revisamos en el día.',
+    ubic:{ text:'La oficina está en Belgrano 560, planta baja. Atendemos con cita o por orden de llegada.', place:'Inmobiliaria Punto Norte', addr:'Belgrano 560' },
+    extra:[{ re:/depto|departamento|casa|ambiente|propiedad|busco|monoambiente/, topic:'Propiedades', text:'Tengo 3 opciones que coinciden:\n🏠 2 amb. luminoso, balcón · Barrio Norte\n🏠 2 amb. con cochera · Centro\n🏠 3 amb. a estrenar · Los Pinos\n\n¿Querés que te agende una visita?', buttons:['Agendar una visita'] }],
+    feed:[['Agustina Molina','Visita agendada · 3 amb. Los Pinos','ok','Turno dado'],['Tomás Herrera','Requisitos para alquilar','ok','Resuelta'],['Romina Castro','Tasación de su casa','warn','Derivada'],['Facundo Ibarra','Deptos de 2 ambientes','ok','Resuelta']],
+    base:{total:97,deriv:16,turnos:18,topics:{'Propiedades':34,'Visitas':22,'Requisitos':17,'Precios':13,'Horarios':7,'Ubicación':4}}
+  }
+};
+const TOPIC_MAP = {
+  clinica:{turnos:'Turnos',horarios:'Horarios',precios:'Precios y coberturas',requisitos:'Requisitos',ubic:'Ubicación'},
+  gremio:{turnos:'Turnos de asesoría',horarios:'Horarios',precios:'Cuotas y aportes',requisitos:'Afiliación',ubic:'Ubicación'},
+  comercio:{turnos:'Retiros',horarios:'Horarios',precios:'Precios y stock',requisitos:'Cambios',ubic:'Ubicación'},
+  inmobiliaria:{turnos:'Visitas',horarios:'Horarios',precios:'Precios',requisitos:'Requisitos',ubic:'Ubicación'}
+};
+const INTENTS = [
+  ['humano', /\b(persona|humano|operador|asesor|alguien|vendedor)\b/],
+  ['cancelar', /\bcancel/],
+  ['precios', /precio|cuanto|cuesta|\bsale\b|valor|tarifa|cuota|costo|presupuesto|aporte/],
+  ['turnos', /turno|cita|reserv|agend|visita|retir|sacar/],
+  ['requisitos', /requisit|llevar|papeles|document|afili|piden|necesit|cambio|devol/],
+  ['horarios', /horario|\bhora|abren|cierran|atienden|abierto|sabado|domingo/],
+  ['ubic', /donde|ubicac|direcc|llegar|queda|sede|oficina|mapa/],
+  ['gracias', /gracias|genial|perfecto|buenisimo|joya/],
+  ['saludo', /^(hola|buenas|buen dia|buenos dias|buenas tardes|que tal)/],
+];
+
+/* ---------- Estado ---------- */
+let R, S;
+function resetState(key){
+  R = RUBROS[key]; R.key = key;
+  S = { total:0, deriv:0, turnos:0, topics:{}, human:false, fails:0, me:null };
+}
+
+/* ---------- Chat ---------- */
+const msgs = $('#msgs');
+const nowStr = () => { const d = new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
+const tick = '<svg width="16" height="11" viewBox="0 0 16 11" aria-hidden="true"><path d="M1 6l3 3 6-7M6 9l1 1 6-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function scroll(){ msgs.scrollTop = msgs.scrollHeight; }
+function add(html, cls){ const d = document.createElement('div'); d.className = cls; d.innerHTML = html; msgs.appendChild(d); scroll(); return d; }
+function bubble(text, who, opts={}){
+  const isOut = who === 'out';
+  const label = opts.human ? `<span class="who">${esc(R.human)} · ${esc(R.area)}</span>` : '';
+  return add(`${label}${esc(text)}<span class="meta">${nowStr()}${isOut?tick:''}</span>`, `msg ${isOut?'out':'in'}${opts.human?' human':''}`);
+}
+function buttons(list, onPick){
+  const wrap = add('', 'qr-btns'); wrap.setAttribute('role','group'); wrap.setAttribute('aria-label','Opciones');
+  list.forEach(t => { const b = document.createElement('button'); b.type='button'; b.className='qr-btn'; b.textContent = t;
+    b.addEventListener('click', () => { $$('button', wrap).forEach(x => x.disabled = true); onPick(t); }); wrap.appendChild(b); });
+  scroll(); return wrap;
+}
+async function botSays(text, opts={}){
+  $('#bot-sub').textContent = 'escribiendo…';
+  const t = add('<i></i><i></i><i></i>', 'typing'); t.setAttribute('aria-label','escribiendo');
+  await wait(opts.delay || (650 + Math.min(text.length*6, 700)));
+  t.remove(); $('#bot-sub').textContent = S.human ? `${R.human} · ${R.area}` : 'en línea';
+  return bubble(text, 'in', opts);
+}
+function showLocation(){
+  const svg = `<svg class="map" width="242" height="120" viewBox="0 0 242 120" aria-hidden="true"><rect width="242" height="120" fill="#E8EEE4"/><path d="M0 70h242M0 28h242M60 0v120M170 0v120" stroke="#fff" stroke-width="9"/><path d="M0 98 L242 52" stroke="#FCE7A7" stroke-width="7"/><rect x="72" y="36" width="88" height="26" rx="3" fill="#D7E3D0"/><rect x="180" y="78" width="50" height="34" rx="3" fill="#CFE0EA"/><path d="M121 40c-9 0-15 6.6-15 14.3 0 10 15 23.7 15 23.7s15-13.7 15-23.7C136 46.6 130 40 121 40z" fill="#E5463F"/><circle cx="121" cy="54" r="5" fill="#fff"/></svg>`;
+  add(`<span class="map">${svg}</span><div class="cap"><strong>${esc(R.ubic.place)}</strong><br><span style="color:#56656C">${esc(R.ubic.addr)}</span></div>`, 'msg in loc');
+}
+
+function detect(text){
+  const n = norm(text);
+  for (const ex of R.extra) if (ex.re.test(n)) return ['extra', ex];
+  for (const [k, re] of INTENTS) if (re.test(n)) return [k];
+  return ['fallback'];
+}
+function countTopic(intent, ex){
+  let t = ex ? ex.topic : (TOPIC_MAP[R.key][intent] || 'Otros');
+  if (['saludo','gracias','fallback','cancelar','humano'].includes(intent)) t = 'Otros';
+  S.topics[t] = (S.topics[t]||0) + 1;
+}
+async function handoff(text){
+  S.deriv++; S.human = true; meFeed('Derivada a una persona','warn','Derivada');
+  await botSays(text);
+  await wait(400);
+  add(`Conversación derivada a ${esc(R.area)} · ${esc(R.human)} se sumó al chat`, 'sys');
+  renderBoard(true);
+  await botSays(R.humanHi, {human:true, delay:1300});
+  buttons(['Volver al asistente'], async () => { S.human = false; $('#bot-sub').textContent='en línea'; await botSays('¡Acá estoy de nuevo! ¿Te ayudo con algo más?'); });
+}
+async function offerSlots(){
+  await botSays(R.turnos.text);
+  buttons(R.turnos.slots, async (slot) => {
+    bubble(slot, 'out');
+    S.turnos++; meFeed('Turno confirmado · ' + slot, 'ok', 'Turno dado'); renderBoard(true);
+    await botSays(R.turnos.ok(slot));
+  });
+}
+async function onUser(text){
+  text = text.trim(); if (!text) return;
+  bubble(text, 'out');
+  S.total++;
+  const [intent, ex] = detect(text);
+  countTopic(intent, ex);
+  if (!S.me || S.me.status !== 'Derivada') meFeed(text, 'ok', 'Resuelta');
+  renderBoard(true);
+  if (S.human && intent !== 'humano') { await botSays('Perfecto, ya lo reviso y te respondo en un momento.', {human:true, delay:1200}); return; }
+  switch(intent){
+    case 'extra': await botSays(ex.text); if (ex.buttons) buttons(ex.buttons, async t => { bubble(t,'out'); await offerSlots(); }); break;
+    case 'turnos': await offerSlots(); break;
+    case 'horarios': await botSays(R.horarios); break;
+    case 'precios': await handoff(R.precios); break;
+    case 'humano': await handoff('Dale, te paso con una persona del equipo.'); break;
+    case 'requisitos': await botSays(R.requisitos); break;
+    case 'ubic': await botSays(R.ubic.text); showLocation(); break;
+    case 'cancelar': await botSays('Listo, cancelé tu reserva. ¿Querés que te busque otro horario?'); buttons(['Sí, buscame otro'], async t => { bubble(t,'out'); await offerSlots(); }); break;
+    case 'gracias': await botSays('¡De nada! Cualquier cosa, escribime por acá. Que tengas un lindo día.'); break;
+    case 'saludo': await botSays('¡Hola! ¿En qué te puedo ayudar? Podés tocar una de las preguntas de abajo o escribirme.'); break;
+    default:
+      S.fails++;
+      if (S.fails >= 2) { S.fails = 0; await handoff('No quiero hacerte perder tiempo: te paso con una persona del equipo.'); }
+      else await botSays('Perdón, no estoy seguro de haberte entendido. Puedo ayudarte con turnos, horarios, requisitos o cómo llegar. ¿Me lo contás de otra forma?');
+  }
+}
+
+/* ---------- Tablero ---------- */
+function meFeed(preview, cls, status){ S.me = {preview, cls, status}; }
+function pct(){ const t = R.base.total + S.total, d = R.base.deriv + S.deriv; return t ? Math.round((t-d)/t*100) : 0; }
+function renderBoard(flash){
+  const kp = [
+    ['Consultas atendidas hoy', DV.fmt(R.base.total + S.total), S.total?`<span class="up">+${S.total}</span> en esta demo`:'desde las 00:00', 'k-total'],
+    ['Resueltas sin una persona', pct()+'%', 'el resto se derivó al equipo', 'k-pct'],
+    [R.turnoLbl, DV.fmt(R.base.turnos + S.turnos), S.turnos?`<span class="up">+${S.turnos}</span> en esta demo`:'confirmados por el asistente', 'k-turnos'],
+    ['Derivadas a una persona', DV.fmt(R.base.deriv + S.deriv), 'con el historial completo', 'k-deriv'],
+  ];
+  const prev = $('#kpis').dataset.v ? JSON.parse($('#kpis').dataset.v) : null;
+  $('#kpis').innerHTML = kp.map(k => `<div class="card kpi" id="${k[3]}"><div class="k-label">${k[0]}</div><div class="k-value">${k[1]}</div><div class="k-sub">${k[2]}</div></div>`).join('');
+  $('#kpis').dataset.v = JSON.stringify(kp.map(k=>k[1]));
+  if (flash && prev) kp.forEach((k,i) => { if (prev[i] !== k[1]) DV.flash($('#'+k[3])); });
+  const topics = Object.entries(R.base.topics).map(([label, v]) => ({label, value: v + (S.topics[label]||0)}));
+  Object.keys(S.topics).forEach(k => { if (!(k in R.base.topics)) topics.push({label:k, value:S.topics[k]}); });
+  topics.sort((a,b)=>b.value-a.value);
+  $('#topics').innerHTML = DV.hbars(topics.slice(0,6));
+  const rows = [];
+  if (S.me) rows.push(`<li class="me">${DV.avatar('Vos Demo')}<div class="txt"><div class="nm">Vos (esta demo)</div><div class="pv">${esc(S.me.preview)}</div></div><span class="badge ${S.me.cls}">${esc(S.me.status)}</span></li>`);
+  R.feed.slice(0, S.me?3:4).forEach(f => rows.push(`<li>${DV.avatar(f[0])}<div class="txt"><div class="nm">${esc(f[0])}</div><div class="pv">${esc(f[1])}</div></div><span class="badge ${f[2]}">${esc(f[3])}</span></li>`));
+  $('#feed').innerHTML = rows.join('');
+  if (flash && $('#layout').dataset.tab === 'chat') $('#tab-dot').classList.add('on');
+}
+
+/* ---------- Rubros ---------- */
+function setRubro(key){
+  resetState(key);
+  $$('#rubros .rubro').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === key));
+  $('#bot-name').textContent = R.bot;
+  $('#bot-avatar').innerHTML = DV.avatar(R.org, 38);
+  $('#org-line').textContent = R.org + ' · hoy';
+  msgs.innerHTML = '';
+  add('Hoy', 'day');
+  add('🔒 Simulación sin IA real: respuestas guionadas por palabras clave. No se envía nada a ningún número.', 'sys');
+  $('#chips').innerHTML = R.chips.map(c => `<button type="button" class="chip">${esc(c)}</button>`).join('');
+  $$('#chips .chip').forEach(c => c.addEventListener('click', () => onUser(c.textContent)));
+  renderBoard(false);
+  $('#tab-dot').classList.remove('on');
+  botSays(R.welcome, {delay:500});
+}
+const icons = {clinica:'shield', gremio:'users', comercio:'box', inmobiliaria:'building'};
+$('#rubros').innerHTML = Object.entries(RUBROS).map(([k,r]) => `<button type="button" class="rubro" data-k="${k}" aria-pressed="false">${DV.icon(icons[k],16)}${r.label}</button>`).join('');
+$$('#rubros .rubro').forEach(b => b.addEventListener('click', () => { if (b.getAttribute('aria-pressed') !== 'true') setRubro(b.dataset.k); }));
+
+$('#form').addEventListener('submit', e => { e.preventDefault(); const v = $('#inp').value; $('#inp').value=''; onUser(v); });
+document.querySelector('.send').innerHTML = DV.icon('send', 20);
+
+/* Pestañas en celular */
+function setTab(t){
+  $('#layout').dataset.tab = t;
+  $('#tab-chat').setAttribute('aria-selected', t==='chat'); $('#tab-board').setAttribute('aria-selected', t==='board');
+  if (t==='board') $('#tab-dot').classList.remove('on');
+  fitPhone();
+}
+$('#tab-chat').addEventListener('click', () => setTab('chat'));
+$('#tab-board').addEventListener('click', () => setTab('board'));
+function fitPhone(){
+  if (innerWidth > 860) return;
+  const scr = $('.screen'); const top = scr.getBoundingClientRect().top + scrollY;
+  document.documentElement.style.setProperty('--phone-h', Math.max(420, innerHeight - top) + 'px');
+}
+addEventListener('resize', fitPhone);
+setInterval(() => { $('#clock').textContent = nowStr(); }, 10000); $('#clock').textContent = nowStr();
+
+const mobile = () => innerWidth <= 860;
+DV.start({
+  product: 'Asistente de WhatsApp',
+  init(){ setRubro('clinica'); requestAnimationFrame(fitPhone); setTimeout(fitPhone, 300); },
+  tour: [
+    { text:'Elegís el rubro: el asistente se adapta a una clínica, un gremio, un comercio o una inmobiliaria.', do: async T => { await T.ring('#rubros'); await T.wait(600); await T.click('#rubros [data-k="clinica"]'); }, hold:1800 },
+    { text:'El paciente escribe por WhatsApp, a cualquier hora del día.', do: async T => { await T.type('#inp', 'Hola, quiero sacar un turno'); await T.click('.send'); }, hold:2200 },
+    { text:'El asistente le ofrece turnos libres con botones. Un toque y queda reservado.', do: async T => { await T.wait(1600); await T.click(() => $$('.qr-btns').pop().querySelector('.qr-btn')); await T.wait(1800); }, hold:2600 },
+    { text:'Pregunta cómo llegar y responde al instante, con la ubicación.', do: async T => { await T.click(() => $$('#chips .chip')[4]); await T.wait(1500); }, hold:2600 },
+    { text:'Si consulta precios, lo deriva a una persona del equipo, con todo el historial.', do: async T => { await T.type('#inp', '¿Cuánto sale la consulta?'); await T.click('.send'); await T.wait(3600); }, hold:2600 },
+    { text:'El tablero se actualiza en vivo: consultas, % resueltas sin una persona y turnos dados.', do: async T => { if (mobile()) await T.click('#tab-board', {after:500}); await T.ring('#kpis'); }, hold:3400 },
+    { text:'Y ves los temas más consultados para mejorar la atención.', do: async T => { await T.ring(() => $('#topics').closest('.panel')); }, hold:3000 },
+    { text:'Cambiás de rubro y cambia todo: preguntas, respuestas y agenda.', do: async T => { T.unring(); if (mobile()) await T.click('#tab-chat', {after:300}); await T.click('#rubros [data-k="inmobiliaria"]'); await T.wait(1200); await T.click(() => $$('#chips .chip')[0]); await T.wait(2200); }, hold:2400 },
+  ]
+});
+})();
+</script>
+</body>
+</html>
