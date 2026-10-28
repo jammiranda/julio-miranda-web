@@ -7,8 +7,8 @@ const IMG = "https://julio.devisebit.com/media/trabajos/"
 type Item = { t: string; d: string; c: string; img?: string }
 
 const ITEMS: Item[] = [
-  { c: "Destacados", t: "UTHGRA · ecosistema digital gremial", d: "Webs, app de afiliados, boletín y Academia USL para la seccional San Luis, con más de 1.000 inscriptos en un año.", img: "plataforma-academia.jpg" },
-  { c: "Destacados", t: "OSUTHGRA San Luis · gestión digital", d: "Sistema web administrativo de padrón, aportes y prestaciones, más marketing digital en redes." },
+  { c: "Destacados", t: "Comunidad USL · Academia", d: "Comunidad y academia online de un gremio de San Luis: webs, app de afiliados, boletín y cursos, con más de 1.000 inscriptos en un año.", img: "plataforma-academia.jpg" },
+  { c: "Destacados", t: "Obra social sindical · gestión digital", d: "Sistema web administrativo de padrón, aportes y prestaciones para una obra social de San Luis, más marketing digital en redes." },
   { c: "Destacados", t: "Municipio de Tigre · app Soy Tigre", d: "Desarrollo y soporte de la app municipal: registro de comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
   { c: "Destacados", t: "UBA · Modernización y Transformación Digital", d: "Seguimiento de proyectos, tableros en Power BI, expediente electrónico y documentación para la Subsecretaría." },
   { c: "Destacados", t: "UBA · votación electrónica del Consejo Superior", d: "Sistema de votación implementado para las sesiones del Consejo Superior." },
@@ -129,19 +129,19 @@ export default function TrabajosClient({ embedded = false }: { embedded?: boolea
             <article key={i.t} className="tb-card group rounded-2xl border border-gray-200 bg-white overflow-hidden hover:-translate-y-1 hover:shadow-xl transition-all duration-300" style={{ animationDelay: `${Math.min(k, 12) * 40}ms` }}>
               {i.img ? (
                 <div className="aspect-[16/10] overflow-hidden bg-gray-100">
-                  <img src={IMG + i.img} alt={i.t} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={IMG + i.img} alt={i.t} width={800} height={500} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               ) : (
                 <div className="aspect-[16/10] bg-[#0B0D12] relative overflow-hidden flex flex-col justify-between p-6">
                   <div className="tb-grid absolute inset-0 opacity-50" aria-hidden="true" />
                   <div className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full" style={{ background: "radial-gradient(closest-side,rgba(200,35,31,.45),transparent)" }} aria-hidden="true" />
                   <span className="relative text-[#FF6A63] font-mono text-sm">{"<"}{i.c.toLowerCase()}{" />"}</span>
-                  <span className="relative text-white text-2xl font-extrabold leading-tight max-w-[90%]">{i.t}</span>
+                  <span className="relative text-white text-2xl font-extrabold leading-tight max-w-[90%]" aria-hidden="true">{i.t}</span>
                 </div>
               )}
               <div className="p-5">
                 <p className="text-xs font-bold uppercase tracking-widest text-[#C8231F]">{i.c}</p>
-                <h2 className="text-lg font-bold mt-1 text-gray-900">{i.t}</h2>
+                <h3 className="text-lg font-bold mt-1 text-gray-900">{i.t}</h3>
                 <p className="text-gray-600 mt-1 text-[15px] leading-relaxed">{i.d}</p>
               </div>
             </article>

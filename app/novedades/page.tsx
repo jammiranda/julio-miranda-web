@@ -1,10 +1,15 @@
 import Link from "next/link"
+import { pageMeta } from "@/lib/seo"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbHero from "@/components/db-hero"
 import { posts } from "@/lib/posts"
 
-export const metadata = { title: "Novedades · DEVISEBIT", description: "Notas sobre software, IA y salud digital, con fuentes." }
+export const metadata = pageMeta(
+  "Novedades · DEVISEBIT",
+  "Notas semanales sobre software, inteligencia artificial y salud digital, siempre con sus fuentes. El blog de DEVISEBIT.",
+  "/novedades",
+)
 
 export default function NovedadesPage() {
   const list = [...posts].sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -12,7 +17,7 @@ export default function NovedadesPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <DbHero kicker="Novedades" title="Software, IA y salud digital." sub="Notas breves sobre lo que pasa en tecnología, siempre con sus fuentes. Una nueva cada semana." />
 
         <section className="bg-[#F5F6F8]">

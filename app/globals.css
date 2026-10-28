@@ -192,3 +192,8 @@ body{font-family:var(--font-inter),Inter,system-ui,sans-serif}
 .db-tech .db-rise2 > div:nth-child(even){animation:db-float 6s 1.5s ease-in-out infinite}
 section img{transition:transform .7s ease,filter .4s ease}
 @media (prefers-reduced-motion:reduce){.db-anim{opacity:1;transform:none;transition:none}.db-kb,.db-marquee-track,.db-tech .db-rise2>div{animation:none}}
+/* Foco visible y consistente para teclado (accesibilidad) */
+a:focus-visible,button:focus-visible,summary:focus-visible,[role="tab"]:focus-visible{outline:3px solid #FF6A63;outline-offset:3px;border-radius:8px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #C8231F;outline-offset:1px}
+.skip-link{position:absolute;left:12px;top:-60px;z-index:100;background:#C8231F;color:#fff;font-weight:700;padding:10px 16px;border-radius:10px;transition:top .15s}
+.skip-link:focus{top:12px}

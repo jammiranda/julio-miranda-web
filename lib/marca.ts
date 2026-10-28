@@ -16,7 +16,7 @@ export const WHATSAPP = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20
 // ── Equipo: líderes con equipos propios ──
 export const EQUIPO = [
   { name: "Julio", role: "Fundador y Director", d: "Más de 15 años liderando proyectos de software, datos y transformación digital en salud, gobierno y educación." },
-  { name: "Bárbara", role: "Líder de Proyectos", d: "Coordina cada proyecto de punta a punta: alcance, tiempos, pruebas y experiencia de usuario." },
+  { name: "Bárbara", role: "Coordinadora general", d: "Coordina la operación y cada proyecto de punta a punta: alcance, tiempos, pruebas y experiencia de usuario." },
   { name: "Pablo", role: "PM y Líder de Análisis", d: "Releva los procesos de cada cliente, los convierte en requerimientos claros y sigue el plan de trabajo." },
   { name: "Jonathan", role: "Líder de Desarrollo", d: "Conduce el equipo de desarrollo y la arquitectura de las plataformas que ponemos en producción." },
   { name: "Jime", role: "Líder de Diseño y Marketing", d: "Diseña la identidad, las interfaces y la comunicación digital de cada producto." },
@@ -61,12 +61,13 @@ export const ACADEMIA = {
 }
 
 // ── Cuentas de Instagram que gestionamos, hoy o en proyectos anteriores (casos de éxito) ──
-export const REDES_GESTIONADAS = [
+// Sin `ig`: la cuenta se muestra sin enlace ni @usuario (no se publica el nombre de la cuenta)
+export const REDES_GESTIONADAS: readonly { nombre: string; rubro: string; ig: string }[] = [
   { nombre: "Academia BA Emprende", rubro: "Gobierno de la Ciudad de Buenos Aires", ig: "academia_ba" },
   { nombre: "UBA Posgrados", rubro: "Universidad de Buenos Aires", ig: "ubaposgrados" },
-  { nombre: "Academia USL", rubro: "Academia online y comunidad", ig: "academia_usl" },
-  { nombre: "UTHGRA San Luis", rubro: "Gremio gastronómico y hotelero", ig: "uthgrasanluisoficial" },
-  { nombre: "UTHGRA Delegación Merlo", rubro: "Gremio · Merlo, San Luis", ig: "uthgramerlosanluis" },
+  { nombre: "Comunidad USL · Academia", rubro: "Academia online y comunidad", ig: "academia_usl" },
+  { nombre: "Gremio gastronómico · San Luis", rubro: "Gremio gastronómico y hotelero", ig: "" },
+  { nombre: "Gremio gastronómico · Merlo", rubro: "Delegación Merlo, San Luis", ig: "" },
   { nombre: "IPLIDO", rubro: "Instituto para la Igualdad de Oportunidades", ig: "iplido" },
   { nombre: "Centro Médico Sagrado Corazón", rubro: "Salud · Merlo, San Luis", ig: "centroscorazon" },
   { nombre: "San Patricio Servicios de Salud", rubro: "Salud", ig: "sanpatriciosalud" },

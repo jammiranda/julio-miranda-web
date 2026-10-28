@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Mail, MapPin, MessageCircle } from "lucide-react"
+import { Clock, Mail, MapPin, MessageCircle } from "lucide-react"
 import Redes from "@/components/redes"
 import { WHATSAPP } from "@/lib/marca"
 
@@ -23,7 +23,7 @@ const COLUMNAS = [
       { href: "/productos", label: "Productos" },
       { href: "/demos", label: "Pedí una demo" },
       { href: "/casos-de-exito", label: "Casos de éxito" },
-      { href: "/precios", label: "Lista de precios" },
+      { href: "https://sistema.devisebit.com/lista-precios", label: "Lista de precios" },
       { href: "https://academia.devisebit.com", label: "Academia" },
       { href: "/novedades", label: "Blog" },
     ],
@@ -71,11 +71,12 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 border-t border-white/10 pt-6 text-sm">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_1fr_1fr_auto] lg:gap-x-8 border-t border-white/10 pt-6 text-sm">
           <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 ${link}`}><MessageCircle size={16} aria-hidden="true" /> +54 9 11 7346-6490</a>
           <a href="mailto:info@devisebit.com" className={`flex items-center gap-2 ${link}`}><Mail size={16} aria-hidden="true" /> info@devisebit.com</a>
           <span className="flex items-center gap-2"><MapPin size={16} aria-hidden="true" /> Luna 24, Parque Patricios, CABA</span>
           <span className="flex items-center gap-2"><MapPin size={16} aria-hidden="true" /> Av. de los Lagos 7008, Nordelta</span>
+          <span className="flex items-center gap-2"><Clock size={16} aria-hidden="true" /> Lunes a viernes de 8 a 18 h</span>
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 justify-between text-xs text-[#8A919C]">

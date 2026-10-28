@@ -1,13 +1,15 @@
 import { Header } from "@/components/header"
+import { pageMeta } from "@/lib/seo"
 import { Footer } from "@/components/footer"
 import DbHero from "@/components/db-hero"
 import DbCvForm from "@/components/db-cv-form"
 import { MapPin, Mail } from "lucide-react"
 
-export const metadata = {
-  title: "Trabajá con nosotros · DEVISEBIT",
-  description: "Sumate al equipo de DEVISEBIT: desarrollo, datos, QA, diseño, proyectos y ciberseguridad.",
-}
+export const metadata = pageMeta(
+  "Trabajá con nosotros · DEVISEBIT",
+  "Sumate al equipo de DEVISEBIT: desarrollo, datos, QA, diseño, proyectos y ciberseguridad.",
+  "/trabaja-con-nosotros",
+)
 
 const WHY = [
   { t: "Tecnología actual", d: "Trabajamos con herramientas modernas, inteligencia artificial y metodologías ágiles." },
@@ -19,7 +21,7 @@ export default function TrabajaConNosotros() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <DbHero
           kicker="Trabajá con nosotros"
           title="Sumate a un equipo que pone sistemas en producción."

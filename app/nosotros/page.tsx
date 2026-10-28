@@ -1,14 +1,16 @@
 import Link from "next/link"
+import { pageMeta } from "@/lib/seo"
 import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { EQUIPO, EQUIPO_PIE } from "@/lib/marca"
 import DbHero from "@/components/db-hero"
 
-export const metadata = {
-  title: "Nosotros · DEVISEBIT",
-  description: "Desde 2009 desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Conocé al equipo.",
-}
+export const metadata = pageMeta(
+  "Nosotros · DEVISEBIT",
+  "Desde 2009 desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Conocé al equipo.",
+  "/nosotros",
+)
 
 const STATS = [
   { n: "17", l: "años en producción" },
@@ -27,7 +29,6 @@ const HITOS = [
 
 
 const LOGOS = [
-  { src: "/images/client-uthgra.png", alt: "UTHGRA" },
   { src: "/images/client-tigre-municipio.png", alt: "Municipio de Tigre" },
   { src: "/images/client-uba.png", alt: "Universidad de Buenos Aires" },
   { src: "/images/client-buenos-aires-ciudad.png", alt: "Gobierno de la Ciudad de Buenos Aires" },
@@ -56,7 +57,7 @@ export default function NosotrosPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <DbHero
           kicker="Quiénes somos"
           title="Tecnología que ordena organizaciones, desde 2009."

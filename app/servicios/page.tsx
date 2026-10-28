@@ -1,12 +1,14 @@
 import Link from "next/link"
+import { pageMeta } from "@/lib/seo"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { SOLUCIONES, NOMBRE_PRODUCTO } from "@/lib/marca"
 
-export const metadata = {
-  title: "Servicios · DEVISEBIT",
-  description: "Soluciones con precio publicado (webs, WhatsApp con IA, redes, sistemas y comunidades) y servicios a medida: desarrollo, IA, tableros, gestión de proyectos IT, transformación digital y soporte.",
-}
+export const metadata = pageMeta(
+  "Servicios · DEVISEBIT",
+  "Soluciones con precio publicado (webs, WhatsApp con IA, redes, sistemas y comunidades) y servicios a medida: desarrollo, IA, tableros, gestión de proyectos IT, transformación digital y soporte.",
+  "/servicios",
+)
 
 const SERVICES = [
   {
@@ -70,7 +72,7 @@ export default function ServiciosPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[72px] flex flex-col gap-4">
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Servicios</p>

@@ -1,10 +1,12 @@
 import { Header } from "@/components/header"
+import { pageMeta } from "@/lib/seo"
 import { Footer } from "@/components/footer"
 
-export const metadata = {
-  title: "Política de privacidad · DEVISEBIT",
-  description: "Cómo DEVISEBIT SRL trata los datos personales de quienes nos contactan por la web, WhatsApp, redes o correo.",
-}
+export const metadata = pageMeta(
+  "Política de privacidad · DEVISEBIT",
+  "Cómo DEVISEBIT SRL trata los datos personales de quienes nos contactan por la web, WhatsApp, redes o correo.",
+  "/privacidad",
+)
 
 const S = ({ t, children }: { t: string; children: React.ReactNode }) => (
   <section className="flex flex-col gap-3">
@@ -17,7 +19,7 @@ export default function PrivacidadPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[56px] flex flex-col gap-4">
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Legal</p>

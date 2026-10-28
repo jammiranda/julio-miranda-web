@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { pageMeta } from "@/lib/seo"
 import { MessageCircle, CalendarClock, FileText, Award } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -7,10 +8,11 @@ import Redes from "@/components/redes"
 import YoutubeUltimos from "@/components/youtube-ultimos"
 import { ACADEMIA } from "@/lib/marca"
 
-export const metadata = {
-  title: "Consultoría de Transformación Digital · DEVISEBIT",
-  description: "Diagnóstico de madurez digital, hoja de ruta, pilotos y capacitación con certificado para pymes, empresas familiares, gremios y organismos públicos.",
-}
+export const metadata = pageMeta(
+  "Consultoría de Transformación Digital · DEVISEBIT",
+  "Diagnóstico de madurez digital, hoja de ruta, pilotos y capacitación con certificado para pymes, empresas familiares, gremios y organismos públicos.",
+  "/transformacion-digital",
+)
 
 const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20quiero%20info%20sobre%20la%20consultor%C3%ADa%20de%20transformaci%C3%B3n%20digital"
 
@@ -44,7 +46,7 @@ export default function TransformacionDigitalPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <DbHero
           kicker="Consultoría de Transformación Digital"
           title="Tecnología con estrategia, para que tu organización crezca."

@@ -1,13 +1,15 @@
 import Image from "next/image"
+import { pageMeta } from "@/lib/seo"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbHero from "@/components/db-hero"
 
-export const metadata = {
-  title: "Alianzas estratégicas · DEVISEBIT",
-  description: "Trabajamos con socios especialistas en gestión, ciberseguridad y business intelligence para ofrecer un servicio integral.",
-}
+export const metadata = pageMeta(
+  "Alianzas estratégicas · DEVISEBIT",
+  "Trabajamos con socios especialistas en gestión, ciberseguridad y business intelligence para ofrecer un servicio integral.",
+  "/alianzas-estrategicas",
+)
 
 const PARTNERS = [
   { name: "TSGroup", area: "Transformación digital y gestión", d: "Sumamos nuestra agilidad tecnológica a su experiencia en la gestión de proyectos a gran escala.", suma: ["Gestión de proyectos grandes", "Equipos para el sector público", "Implementación por etapas"], logo: "/images/tsg-logo.png", url: "https://tsgroup.com.ar/" },
@@ -19,7 +21,7 @@ export default function AlianzasPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <DbHero
           kicker="Alianzas estratégicas"
           title="Servicios y productos 360°, con socios especialistas."

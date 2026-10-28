@@ -1,21 +1,23 @@
 import Link from "next/link"
+import { pageMeta } from "@/lib/seo"
 import { Lock, Mail, PlayCircle, Gauge } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DemoPedidoForm from "@/components/demo-pedido-form"
 import { DEMOS } from "@/lib/demos"
 
-export const metadata = {
-  title: "Pedí una demo · DEVISEBIT",
-  description: "Probá nuestros productos con datos de ejemplo: te mandamos un link personal por email. Asistente de WhatsApp con IA, webs, sistemas a medida, padrón, obras sociales, plataforma de cursos y panel de contenido.",
-}
+export const metadata = pageMeta(
+  "Pedí una demo · DEVISEBIT",
+  "Probá nuestros productos con datos de ejemplo: te mandamos un link personal por email. Asistente de WhatsApp con IA, webs, sistemas a medida, padrón, obras sociales, plataforma de cursos y panel de contenido.",
+  "/demos",
+)
 
 export default function Demos() {
   const productos = DEMOS.filter((d) => d.slug !== "transformacion-digital")
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-14 pb-16 flex flex-col gap-4">
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Demos</p>

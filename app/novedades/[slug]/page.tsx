@@ -4,6 +4,9 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { posts } from "@/lib/posts"
 import NotaCta from "@/components/nota-cta"
+import { pageMeta, OG_IMAGE } from "@/lib/seo"
+
+const NUM: Record<number, string> = { 2: "Dos", 3: "Tres", 4: "Cuatro", 5: "Cinco", 6: "Seis" }
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }))
@@ -12,7 +15,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const p = posts.find((x) => x.slug === slug)
-  return p ? { title: `${p.title} · DEVISEBIT`, description: p.desc } : {}
+  if (!p) return {}
+  return pageMeta(`${p.title} · DEVISEBIT`, p.desc, `/novedades/${p.slug}`, {
+    openGraph: { title: p.title, description: p.desc, url: `/novedades/${p.slug}`, siteName: "DEVISEBIT", locale: "es_AR", type: "article", publishedTime: p.date, images: [OG_IMAGE] },
+  })
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -22,7 +28,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[860px] mx-auto px-4 md:px-8 pt-14 pb-16 flex flex-col gap-4">
             <Link href="/novedades" className="self-start text-sm font-semibold text-[#FF6A63] hover:text-white">← Novedades</Link>
@@ -40,7 +46,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </div>
           {p.box && (
             <div className="mt-10 rounded-[20px] bg-[#0B0D12] text-white p-7">
-              <p className="m-0 mb-4 font-tight text-xl font-bold">Cuatro preguntas para revisar tu sistema hoy</p>
+              <p className="m-0 mb-4 font-tight text-xl font-bold">{NUM[p.box.length] ?? p.box.length} preguntas para hacerte hoy</p>
               <ul className="m-0 p-0 list-none flex flex-col gap-3">
                 {p.box.map((t, i) => (<li key={i} className="flex gap-3"><span className="text-[#FF6A63] font-extrabold" aria-hidden="true">{i + 1}.</span>{t}</li>))}
               </ul>

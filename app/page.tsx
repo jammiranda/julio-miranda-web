@@ -62,7 +62,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         {/* Hero */}
         <section id="inicio" className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-20 md:pt-20 md:pb-24 flex flex-wrap gap-14 items-center">
@@ -173,7 +173,7 @@ export default function HomePage() {
               {CASES.map((c) => (
                 <Link key={c.title} href="/casos-de-exito" className="db-card group rounded-2xl border border-[#E2E5EA] bg-white overflow-hidden flex flex-col text-[#0E1116]">
                   <div className="aspect-[16/10] overflow-hidden bg-[#0B0D12]">
-                    <img src={c.img} alt={c.title} loading="lazy" className="db-kb w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={c.img} alt={c.title} width={800} height={500} loading="lazy" decoding="async" className="db-kb w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
                   <div className="p-6 flex flex-col gap-2">
                     <p className="m-0 text-xs font-bold uppercase tracking-widest text-[#C8231F]">{c.tag}</p>

@@ -6,6 +6,7 @@ import "./globals.css"
 import { I18nProvider } from "@/lib/i18n/context"
 import WhatsappFloat from "@/components/whatsapp-float"
 import Attribution from "@/components/attribution"
+import { SITE_URL, pageMeta } from "@/lib/seo"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,27 +28,15 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "DEVISEBIT · Software e IA para salud e instituciones",
-  description:
-    "Desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Más de 150 proyectos desde 2009, con alcance, fecha y precio fijo.",
+  metadataBase: new URL(SITE_URL),
+  ...pageMeta(
+    "DEVISEBIT · Software e IA para salud e instituciones",
+    "Software e IA. Desde 2009 · sistemas en producción. Desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas, con alcance, fecha y precio fijo.",
+    "/",
+  ),
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/lp-assets/favicon-32.png", type: "image/png", sizes: "32x32" }],
     apple: "/apple-touch-icon.png",
-  },
-  openGraph: {
-    title: "DEVISEBIT · Software e IA para salud e instituciones",
-    description: "Más de 150 proyectos en producción desde 2009. Software, apps e IA con alcance, fecha y precio fijo.",
-    url: "https://www.devisebit.com",
-    siteName: "DEVISEBIT",
-    locale: "es_AR",
-    type: "website",
-    images: [{ url: "https://julio.devisebit.com/media/og/og-devisebit.jpg", width: 1200, height: 630, alt: "DEVISEBIT · Software e inteligencia artificial para salud e instituciones" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "DEVISEBIT · Software e IA para salud e instituciones",
-    description: "Más de 150 proyectos en producción desde 2009. Software, apps e IA con alcance, fecha y precio fijo.",
-    images: ["https://julio.devisebit.com/media/og/og-devisebit.jpg"],
   },
 }
 
@@ -59,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${interTight.variable} ${playfair.variable} antialiased`}>
       <body>
+        <a href="#contenido" className="skip-link">Saltar al contenido</a>
         <I18nProvider>{children}</I18nProvider>
         <WhatsappFloat />
         <Attribution />

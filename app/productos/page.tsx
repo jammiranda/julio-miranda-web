@@ -1,13 +1,15 @@
 import Link from "next/link"
+import { pageMeta } from "@/lib/seo"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { SOLUCIONES, SOLUCION_DE_PRODUCTO } from "@/lib/marca"
 import { DEMO_DE_PRODUCTO, demoUrl } from "@/lib/demos"
 
-export const metadata = {
-  title: "Productos · DEVISEBIT",
-  description: "Sistemas probados y listos para implementar: clínicas, asistente de WhatsApp con IA, CRM de afiliados, tableros, apps, academias online, votación y gestor documental.",
-}
+export const metadata = pageMeta(
+  "Productos · DEVISEBIT",
+  "Sistemas probados y listos para implementar: clínicas, asistente de WhatsApp con IA, CRM de afiliados, tableros, apps, academias online, votación y gestor documental.",
+  "/productos",
+)
 
 const PRODUCTS = [
   { id: "clinicas", title: "Sistema para clínicas", text: "Turnos, historia clínica, recetas y tablero.", items: ["Agenda y turnos online", "Historia clínica electrónica", "Prestaciones y facturación", "Tablero de gestión"] },
@@ -31,7 +33,7 @@ export default function ProductosPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
       <Header />
-      <main className="pt-[72px]">
+      <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[72px] flex flex-col gap-4">
             <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Productos</p>
@@ -116,7 +118,7 @@ export default function ProductosPage() {
             </ol>
             <div className="flex flex-wrap gap-3">
               <a href={demoUrl("whatsapp")} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Pedir la demo</a>
-              <Link href={`/contacto?tema=${encodeURIComponent("Demo: Asistente de WhatsApp con IA")}#formulario`} className="rounded-xl border-2 border-[#0E1116] px-[22px] py-[14px] font-bold text-[17px] hover:bg-[#0E1116] hover:text-white transition-colors">Pedir una presentación</Link>
+              <Link href={`/contacto?tema=${encodeURIComponent("Demo: Asistente de WhatsApp con IA")}#formulario`} className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-bold text-[17px] text-white transition-colors">Pedir una presentación</Link>
             </div>
           </div>
         </section>
