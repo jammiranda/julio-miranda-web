@@ -1,12 +1,13 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { requerir, cerrarSesion, ROL_NOMBRE } from "@/lib/auth"
+import { headers, cookies } from "next/headers"
+import { requerir, cerrarSesion, ROL_NOMBRE, espacioDeRuta, INICIO_ESPACIO, type Espacio } from "@/lib/auth"
 import { one } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { avisos, marcarAvisos, restaurarAvisos } from "@/lib/avisos"
 import Avatar from "@/components/Avatar"
 import ActivarAvisos from "@/components/ActivarAvisos"
-import Marca from "@/components/Marca"
+import { EspacioCabecera, EspacioMenu, EspacioRapidos, EspacioPie } from "@/components/EspacioNav"
 import Redes from "@/components/Redes"
 
 async function marcar(fd: FormData) {
@@ -31,23 +32,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const nuevos = av.filter((x) => !x.leido)
   const total = nuevos.reduce((a, x) => a + x.n, 0)
   const altas = nuevos.filter((x) => x.nivel === "alta").length
-  const items = [
-    { href: "/", t: "Resumen" },
-    { href: "/consultas", t: "Conversaciones" },
-    { href: "/contactos", t: "Contactos" },
-    { href: "/proyectos", t: "Proyectos" },
-    { href: "/servicios", t: "Servicios" },
-    ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/precios", t: "Precios" }] : []),
-    ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/portal-admin", t: "Portal y accesos" }, { href: "/cursos", t: "Cursos" }, { href: "/email", t: "Envíos de email" }, { href: "/academia-admin", t: "Academia" }] : []),
-    ...(u.rol === "gerente" || u.rol === "coordinacion" ? [{ href: "/bot", t: "Bot · Conocimiento" }, { href: "/agenda", t: "Agenda y avisos" }, { href: "/whatsapp-business", t: "WhatsApp Business" }] : []),
-    ...(u.rol === "gerente" ? [{ href: "/usuarios", t: "Usuarios" }, { href: "/auditoria", t: "Auditoría" }] : []),
-    { href: "/ayuda", t: "Ayuda" },
-  ]
+  // Dos sistemas separados: Comercial y Academia. Cada usuario ve los que tiene habilitados.
+  const ruta = headers().get("x-ruta") ?? "/"
+  const deRuta = espacioDeRuta(ruta)
+  const ultimo = cookies().get("db_espacio")?.value as Espacio | undefined
+  const espacio: Espacio = deRuta ?? (ultimo && u.espacios.includes(ultimo) ? ultimo : u.espacios[0])
+  if (!u.espacios.includes(espacio)) redirect(INICIO_ESPACIO[u.espacios[0]])
+  const ep = { inicial: espacio, espacios: u.espacios }
   return (
     <div className="min-h-screen">
       <header className="bg-white border-b border-[#E2E5EA] sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
-          <Link href="/"><Marca chico /></Link>
+          <EspacioCabecera {...ep} />
           <div className="flex items-center gap-2 text-sm">
             <details className="relative group">
               <summary className="list-none cursor-pointer relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#FDECEB] [&::-webkit-details-marker]:hidden" aria-label={`Avisos sin leer: ${nuevos.length}`} title="Avisos importantes">
@@ -98,19 +94,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </details>
           </div>
         </div>
-        <nav className="max-w-7xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
-          {items.map((i) => (
-            <Link key={i.href} href={i.href} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">{i.t}</Link>
-          ))}
-        </nav>
+        <EspacioMenu {...ep} rol={u.rol} />
       </header>
       <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
-      <nav aria-label="Accesos rápidos" className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-[#E2E5EA] grid grid-cols-4 pb-[env(safe-area-inset-bottom)]">
-        {[{ href: "/", t: "Resumen", i: "▦" }, { href: "/consultas", t: "Chats", i: "✉" }, { href: "/contactos", t: "Contactos", i: "☺" }, { href: "/proyectos", t: "Proyectos", i: "▤" }].map((i) => (
-          <Link key={i.href} href={i.href} className="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold text-[#262C37] active:bg-[#FDECEB]"><span className="text-lg leading-none text-[#C8231F]" aria-hidden="true">{i.i}</span>{i.t}</Link>
-        ))}
-      </nav>
-      <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6"><Redes />DEVISEBIT SRL · Sistema comercial · Datos personales protegidos (Ley 25.326)</footer>
+      <EspacioRapidos {...ep} />
+      <footer className="flex flex-col items-center gap-2 text-center text-xs text-[#4A515C] py-6"><Redes /><EspacioPie {...ep} /></footer>
     </div>
   )
 }

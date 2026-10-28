@@ -5,7 +5,8 @@ import { randomBytes } from "crypto"
 import { one, q } from "./db"
 
 export type Rol = "gerente" | "coordinacion" | "consulta" | "profesional"
-export type Usuario = { id: number; usuario: string; nombre: string; rol: Rol }
+export type Espacio = "comercial" | "academia"
+export type Usuario = { id: number; usuario: string; nombre: string; rol: Rol; espacios: Espacio[] }
 
 const COOKIE = "db_sesion"
 /** Clave para firmar las sesiones: AUTH_SECRET si está en Vercel; si no, una propia generada al azar la primera vez y guardada en la base. */
@@ -39,9 +40,9 @@ export async function usuarioActual(): Promise<Usuario | null> {
   if (!t) return null
   try {
     const { payload } = await jwtVerify(t, await secret())
-    const u = await one<Usuario & { activo: boolean }>("select id, usuario, nombre, rol, activo from usuarios where id=$1", [payload.uid])
+    const u = await one<Usuario & { activo: boolean }>("select id, usuario, nombre, rol, activo, espacios from usuarios where id=$1", [payload.uid]).catch(async () => { const x = await one<Omit<Usuario, "espacios"> & { activo: boolean }>("select id, usuario, nombre, rol, activo from usuarios where id=$1", [payload.uid]); return x ? { ...x, espacios: ["comercial", "academia"] as Espacio[] } : null })
     if (!u || !u.activo) return null
-    return { id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol }
+    return { id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol, espacios: (u.espacios?.length ? u.espacios : ["comercial", "academia"]) as Espacio[] }
   } catch {
     return null
   }
@@ -68,3 +69,14 @@ export const ROL_NOMBRE: Record<Rol, string> = {
   consulta: "Solo lectura",
   profesional: "Desarrollo",
 }
+
+/** Los dos sistemas: Comercial (CRM, proyectos, bot, portal) y Academia (cursos, guías, productos, alumnos). */
+export const ESPACIO_NOMBRE: Record<Espacio, string> = { comercial: "Sistema comercial", academia: "Sistema Academia" }
+const RUTAS_ACADEMIA = ["/academia-admin", "/cursos"]
+const RUTAS_COMPARTIDAS = ["/email", "/cuenta", "/ayuda", "/usuarios"]
+export function espacioDeRuta(ruta: string): Espacio | null {
+  if (RUTAS_ACADEMIA.some((r) => ruta === r || ruta.startsWith(r + "/"))) return "academia"
+  if (RUTAS_COMPARTIDAS.some((r) => ruta === r || ruta.startsWith(r + "/"))) return null
+  return "comercial"
+}
+export const INICIO_ESPACIO: Record<Espacio, string> = { comercial: "/", academia: "/academia-admin" }

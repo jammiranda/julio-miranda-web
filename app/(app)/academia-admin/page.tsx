@@ -63,7 +63,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="m-0">Academia</h1><p className="m-0 text-sm text-[#4A515C]">Guías gratis, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline">academia.devisebit.com</a>.</p></div>
+        <div><h1 className="m-0">Sistema Academia</h1><p className="m-0 text-sm text-[#4A515C]">Guías gratis, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline">academia.devisebit.com</a>.</p></div>
         <div className="flex gap-3 text-sm"><span className="card py-2 px-4"><strong>{subs?.activos ?? 0}</strong> suscriptos</span><span className="card py-2 px-4"><strong>{subs?.semana ?? 0}</strong> nuevos esta semana</span></div>
       </div>
       {searchParams.ok && <p className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
@@ -74,7 +74,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
         <button className="btn-p">Escribir guía</button>
       </form>
 
-      <section className="flex flex-col gap-2">
+      <section id="guias" className="flex flex-col gap-2 scroll-mt-28">
         <h2 className="m-0">Guías <span className="text-sm font-normal text-[#4A515C]">· {guias.filter((g) => g.publicada).length} publicadas</span></h2>
         {guias.map((g) => (
           <details key={g.id} className="card py-3">
@@ -96,7 +96,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
         ))}
       </section>
 
-      <section className="flex flex-col gap-2">
+      <section id="productos" className="flex flex-col gap-2 scroll-mt-28">
         <h2 className="m-0">Productos</h2>
         {!mpConfigurado() && <p className="m-0 text-sm text-[#4A515C]">Para vender, cargá <code>MP_ACCESS_TOKEN</code> de Mercado Pago en Vercel. Mientras tanto los productos funcionan como lista de espera.</p>}
         {productos.map((p) => (

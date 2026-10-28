@@ -19,6 +19,12 @@ export function middleware(req: NextRequest) {
   }
   if (PUBLIC.some((x) => p.startsWith(x)) || p === "/academia" || p.startsWith("/academia/")) return NextResponse.next()
   if (!req.cookies.get("db_sesion")) return NextResponse.redirect(new URL("/login", req.url))
-  return NextResponse.next()
+  // El layout necesita saber en qué sistema estás (Comercial o Academia)
+  const h = new Headers(req.headers)
+  h.set("x-ruta", p)
+  const res = NextResponse.next({ request: { headers: h } })
+  const esp = p.startsWith("/academia-admin") || p.startsWith("/cursos") ? "academia" : /^\/(email|cuenta|ayuda|usuarios|api)(\/|$)/.test(p) ? null : "comercial"
+  if (esp && req.cookies.get("db_espacio")?.value !== esp) res.cookies.set("db_espacio", esp, { path: "/", sameSite: "lax", maxAge: 60 * 60 * 24 * 180 })
+  return res
 }
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] }
