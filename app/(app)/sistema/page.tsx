@@ -62,23 +62,23 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
   ])
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="m-0">Sistema Academia</h1><p className="m-0 text-sm text-[#4A515C]">Guías gratis, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline">academia.devisebit.com</a>.</p></div>
-        <div className="flex gap-3 text-sm"><span className="card py-2 px-4"><strong>{subs?.activos ?? 0}</strong> suscriptos</span><span className="card py-2 px-4"><strong>{subs?.semana ?? 0}</strong> nuevos esta semana</span></div>
-      </div>
-      {searchParams.ok && <p className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
-      {searchParams.err && <p className="m-0 text-sm text-rojo">{searchParams.err}</p>}
+      <header className="pag-cab">
+        <div><div className="eyebrow">Academia</div><h1 className="m-0">Sistema Academia</h1><p>Guías gratis, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline font-semibold text-[var(--ac-texto)]">academia.devisebit.com</a>.</p></div>
+        <div className="pag-acc"><span className="stat"><b>{subs?.activos ?? 0}</b><span>suscriptos</span></span><span className="stat"><b>{subs?.semana ?? 0}</b><span>nuevos esta semana</span></span></div>
+      </header>
+      {searchParams.ok && <p role="status" className="m-0 text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">{searchParams.ok}</p>}
+      {searchParams.err && <p role="alert" className="m-0 text-sm font-semibold text-red-800 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{searchParams.err}</p>}
 
-      <form action={guiaIA} className="card flex flex-col sm:flex-row gap-2 items-stretch sm:items-end border-dashed">
+      <form action={guiaIA} className="card flex flex-col sm:flex-row gap-3 items-stretch sm:items-end border-dashed !bg-[var(--sup-2)]">
         <label className="lbl flex-1">✨ Nueva guía con IA (queda como borrador)<input name="tema" placeholder="Ej.: cómo usar IA para responder reclamos, Mercado Pago en tu tienda online…" className="inp" /></label>
         <button className="btn-p">Escribir guía</button>
       </form>
 
       <section id="guias" className="flex flex-col gap-2 scroll-mt-28">
-        <h2 className="m-0">Guías <span className="text-sm font-normal text-[#4A515C]">· {guias.filter((g) => g.publicada).length} publicadas</span></h2>
+        <h2 className="m-0 text-xl">Guías <span className="font-sans text-sm font-normal text-[#4A515C]">· {guias.filter((g) => g.publicada).length} publicadas</span></h2>
         {guias.map((g) => (
           <details key={g.id} className="card py-3">
-            <summary className="cursor-pointer flex flex-wrap items-center gap-2"><strong>{g.titulo}</strong><span className={`chip ${g.publicada ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{g.publicada ? "Publicada" : "Borrador"}</span>{g.exclusiva && <span className="chip bg-[#FDECEB] text-[#9E1A17]">Pide email</span>}<span className="text-xs text-[#4A515C]">{g.vistas} visitas</span>{g.publicada && <a href={`${URL_ACADEMIA}/guias/${g.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs underline">ver</a>}</summary>
+            <summary className="cursor-pointer flex flex-wrap items-center gap-2 min-h-[32px]"><strong>{g.titulo}</strong><span className={`chip ${g.publicada ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{g.publicada ? "Publicada" : "Borrador"}</span>{g.exclusiva && <span className="chip bg-[#FDECEB] text-[#9E1A17]">Pide email</span>}<span className="text-xs text-[#4A515C]">{g.vistas} visitas</span>{g.publicada && <a href={`${URL_ACADEMIA}/guias/${g.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs underline">ver</a>}</summary>
             <form action={guardarGuia} className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
               <input type="hidden" name="id" value={g.id} />
               <label className="lbl md:col-span-2">Título<input name="titulo" defaultValue={g.titulo} className="inp" /></label>
@@ -97,7 +97,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
       </section>
 
       <section id="productos" className="flex flex-col gap-2 scroll-mt-28">
-        <h2 className="m-0">Productos</h2>
+        <h2 className="m-0 text-xl">Productos</h2>
         {!mpConfigurado() && <p className="m-0 text-sm text-[#4A515C]">Para vender, cargá <code>MP_ACCESS_TOKEN</code> de Mercado Pago en Vercel. Mientras tanto los productos funcionan como lista de espera.</p>}
         {productos.map((p) => (
           <form key={p.id} action={guardarProducto} className="card grid grid-cols-1 md:grid-cols-6 gap-3">
@@ -113,8 +113,8 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
         ))}
       </section>
 
-      <section className="card p-0 overflow-hidden">
-        <h2 className="m-0 px-5 pt-4 text-base">Ventas</h2>
+      <section className="card !p-0 overflow-hidden">
+        <h2 className="m-0 px-5 py-4 text-xl">Ventas</h2>
         <div className="overflow-x-auto"><table className="tbl"><thead><tr><th>Fecha</th><th>Producto</th><th>Comprador</th><th>Monto</th><th>Estado</th></tr></thead>
           <tbody>{ordenes.map((o) => <tr key={o.id}><td>{fechaHora(o.creado)}</td><td>{o.titulo}</td><td>{o.nombre ?? ""} {o.email}</td><td>{o.moneda} {Number(o.monto).toLocaleString("es-AR")}</td><td>{o.estado}</td></tr>)}
             {!ordenes.length && <tr><td colSpan={5} className="text-center text-[#4A515C] py-5">Todavía no hay ventas.</td></tr>}</tbody></table></div>

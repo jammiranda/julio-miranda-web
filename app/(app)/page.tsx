@@ -35,12 +35,15 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-4">
-      <div><h1 className="m-0">Resumen comercial</h1><p className="m-0 text-sm text-[#4A515C]">Embudo, próximos pasos y proyectos en curso.</p></div>
-      <section aria-label="Embudo comercial" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+      <header className="pag-cab">
+        <div><div className="eyebrow">Ventas</div><h1 className="m-0">Resumen comercial</h1><p>Embudo, próximos pasos y proyectos en curso.</p></div>
+        <div className="pag-acc"><Link href="/proyectos/nuevo" className="btn-s">+ Proyecto</Link><Link href="/contactos/nuevo" className="btn-p">+ Contacto</Link></div>
+      </header>
+      <section aria-label="Embudo comercial" className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-3">
         {ETAPAS.map((e) => (
-          <Link key={e.v} href={`/contactos?etapa=${e.v}`} className="card flex flex-col gap-1 hover:border-[#C3C8D1]">
+          <Link key={e.v} href={`/contactos?etapa=${e.v}`} className="card card-link p-4 flex flex-col justify-between gap-3 min-h-[104px] transition-shadow">
             <span className={`chip self-start ${e.c}`}>{e.n}</span>
-            <span className="text-3xl font-extrabold text-[#0E1116]">{n[e.v] ?? 0}</span>
+            <span className="text-3xl font-extrabold tabular-nums text-[#0E1116]">{n[e.v] ?? 0}</span>
           </Link>
         ))}
       </section>
@@ -54,7 +57,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
               {r.link && <a href={r.link} target="_blank" rel="noopener noreferrer" className="btn-s py-1 px-3 text-xs">Entrar</a>}
             </li>
           ))}</ul>
-        ) : <p className="m-0 text-sm text-[#4A515C]">No hay reuniones agendadas. El bot las ofrece en cada conversación y el cliente las reserva solo.</p>}
+        ) : <p className="vacio">No hay reuniones agendadas. El bot las ofrece en cada conversación y el cliente las reserva solo.</p>}
       </section>
 
       <section className="card flex flex-col gap-3" aria-label="De dónde llegan los clientes">
@@ -63,7 +66,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
           <div className="flex gap-1">{[30, 90, 365].map((d) => <Link key={d} href={`/?dias=${d}`} className={`chip text-xs px-3 py-1 border ${dias === d ? "bg-[#0E1116] text-white border-[#0E1116]" : "bg-white border-[#C3C8D1]"}`}>{d === 365 ? "12 meses" : `${d} días`}</Link>)}</div>
         </div>
         {fuentes.length ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
             <table className="tbl">
               <thead><tr><th>Origen</th><th className="text-right">Consultas</th><th>Participación</th><th className="text-right">Atendidas</th><th className="text-right">Al CRM</th><th className="text-right">Ganadas</th><th>Campañas</th></tr></thead>
               <tbody>{fuentes.map((f) => (
@@ -77,7 +80,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
               ))}</tbody>
             </table>
           </div>
-        ) : <p className="m-0 text-sm text-[#4A515C]">Todavía no entraron consultas en este período.</p>}
+        ) : <p className="vacio">Todavía no entraron consultas en este período.</p>}
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -96,7 +99,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
                 )
               })}
             </ul>
-          ) : <p className="m-0 text-sm text-[#4A515C]">Sin próximos pasos cargados. Cargalos en cada contacto.</p>}
+          ) : <p className="vacio">Sin próximos pasos cargados. Cargalos en cada contacto.</p>}
         </section>
 
         <section className="card flex flex-col gap-3">
@@ -110,7 +113,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
                 </li>
               ))}
             </ul>
-          ) : <p className="m-0 text-sm text-[#4A515C]">No hay proyectos en curso.</p>}
+          ) : <p className="vacio">No hay proyectos en curso.</p>}
         </section>
       </div>
 
