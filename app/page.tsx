@@ -101,7 +101,7 @@ export default function HomePage() {
               <p className="m-0 text-lg leading-relaxed text-[#C3C8D1] max-w-[620px]">Medimos tu madurez digital, armamos la hoja de ruta por etapas y la ponemos en marcha con tu equipo, con capacitación y certificado. Te orientamos además sobre el financiamiento disponible, como el Programa Kit 4.0.</p>
               <div className="flex flex-wrap gap-3 pt-1">
                 <Link href="/transformacion-digital" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
-                <a href="https://academia.devisebit.com/productos/guia-transformacion-digital" target="_blank" rel="noopener noreferrer" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-semibold text-[17px] text-white transition-colors">Guía práctica en PDF</a>
+                <a href="https://academia.devisebit.com/productos/guia-transformacion-digital" target="_blank" rel="noopener noreferrer" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-semibold text-[17px] text-white transition-colors">Guía práctica con bonus</a>
               </div>
             </div>
             <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">

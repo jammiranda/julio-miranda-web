@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import type React from "react"
 import { sendForm } from "@/lib/send-form"
@@ -13,6 +13,8 @@ const NEEDS = [
   "Academia online",
   "Web o app",
   "Desarrollo a medida",
+  "Consultoría de transformación digital",
+  "Quiero ver una demo",
   "Otro",
 ]
 
@@ -22,6 +24,15 @@ export default function DbContactForm({ dark = false }: { dark?: boolean }) {
   const router = useRouter()
   const [f, setF] = useState(EMPTY)
   const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle")
+  // ?tema=Demo: Producto (desde Productos) completa el formulario
+  useEffect(() => {
+    try {
+      const t = new URLSearchParams(window.location.search).get("tema")
+      if (!t) return
+      if (NEEDS.includes(t)) setF((x) => ({ ...x, tema: t }))
+      else if (/^demo/i.test(t)) setF((x) => ({ ...x, tema: "Quiero ver una demo", msg: x.msg || `Quiero ver una demo de ${t.replace(/^demo:\s*/i, "")}.` }))
+    } catch {}
+  }, [])
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value })
 
   const mailto = () => {

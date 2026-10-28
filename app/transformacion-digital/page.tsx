@@ -29,11 +29,13 @@ const ETAPAS = [
 ]
 
 const ACAD = "https://academia.devisebit.com/productos/"
+const AGENDAR = "https://sistema.devisebit.com/agendar"
 const FORMATOS = [
-  { t: "Guía práctica en PDF", precio: "$19.900", nota: "Descarga inmediata", d: "13 páginas con autodiagnóstico, hoja de ruta en 14 pasos, gestión del cambio, indicadores y el Programa Kit 4.0.", items: ["Plantillas listas para usar", "Para dirección y mandos medios", "Actualizada a octubre de 2026"], href: ACAD + "guia-transformacion-digital", cta: "Comprar la guía" },
-  { t: "Taller de Transformación Digital", precio: "$390.000", nota: "Hasta 15 personas · 3 horas", d: "Una jornada para directivos y equipos: conceptos, casos reales y autodiagnóstico de madurez digital en vivo.", items: ["Virtual o presencial (CABA y GBA)", "Certificado de la Academia DEVISEBIT", "Guía en PDF para cada asistente"], href: ACAD + "taller-transformacion-digital", cta: "Comprar el taller" },
-  { t: "Diagnóstico y hoja de ruta", precio: "$890.000", nota: "Organizaciones de hasta 50 personas", d: "Relevamos la organización y entregamos el nivel de madurez, los retos priorizados y el plan por etapas.", items: ["Entrevistas y relevamiento de procesos", "Informe, tablero de indicadores y presentación", "Financiamiento aplicable (Kit 4.0 y otros)"], href: ACAD + "diagnostico-transformacion-digital", cta: "Comprar el diagnóstico" },
-  { t: "Programa de acompañamiento", precio: "A medida", nota: "Abono mensual · mínimo 3 meses", d: "Implementamos la hoja de ruta con tu equipo: pilotos, sistemas, capacitación y seguimiento mensual.", items: ["Responsable único de DEVISEBIT", "Entregas cortas y medibles", "Capacitación con certificado"], href: WA, cta: "Pedir propuesta" },
+  { t: "Guía práctica en PDF", precio: "$19.900", nota: "Descarga inmediata · español e inglés", d: "Autodiagnóstico, hoja de ruta en 14 pasos, gestión del cambio, indicadores y el Programa Kit 4.0. Incluye bonus.", items: ["Planilla de autodiagnóstico editable", "Reunión de 30 minutos sin cargo", "Su valor se descuenta del taller"], href: ACAD + "guia-transformacion-digital", cta: "Comprar la guía" },
+  { t: "Taller básico", precio: "$290.000", nota: "Hasta 5 personas · 3 horas", d: "Una jornada para directivos y equipos chicos: conceptos, casos reales y autodiagnóstico en vivo.", items: ["Virtual o presencial (CABA y GBA)", "Certificado de la Academia DEVISEBIT", "La guía para cada asistente"], href: ACAD + "taller-transformacion-digital", cta: "Comprar el taller" },
+  { t: "Taller para equipos", precio: "A cotizar", nota: "Más de 5 personas · in company", d: "El mismo taller adaptado a tu organización, con ejemplos de tu sector y más tiempo de trabajo en grupo.", items: ["Para áreas o toda la empresa", "Presencial o virtual", "Certificado para cada participante"], href: WA, cta: "Asesorate" },
+  { t: "Diagnóstico y hoja de ruta", precio: "A cotizar", nota: "Según el tamaño de la organización", d: "Relevamos la organización y entregamos el nivel de madurez, los retos priorizados y el plan por etapas.", items: ["Entrevistas y relevamiento de procesos", "Informe, tablero e indicadores", "Financiamiento aplicable (Kit 4.0 y otros)"], href: AGENDAR, cta: "Agendá una reunión" },
+  { t: "Programa de acompañamiento", precio: "A medida", nota: "Abono mensual · mínimo 3 meses", d: "Implementamos la hoja de ruta con tu equipo: pilotos, sistemas, capacitación y seguimiento mensual.", items: ["Responsable único de DEVISEBIT", "Entregas cortas y medibles", "Capacitación con certificado"], href: WA, cta: "Asesorate" },
 ]
 
 const PARA = ["Directores y gerentes", "Pymes y empresas familiares", "Gremios, mutuales y obras sociales", "Organismos públicos y municipios", "Universidades e institutos", "Emprendedores en crecimiento"]
@@ -96,9 +98,9 @@ export default function TransformacionDigitalPage() {
             <div className="flex flex-col gap-2.5 max-w-[760px]">
               <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Formatos</p>
               <h2 id="t-for" className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">Empezá por donde te sirva.</h2>
-              <p className="m-0 text-lg leading-relaxed text-[#4A515C]">Precios finales en pesos. Pagás online con Mercado Pago (tarjeta hasta 3 cuotas sin interés). ¿Preferís transferencia o necesitás factura A? Escribinos.</p>
+              <p className="m-0 text-lg leading-relaxed text-[#4A515C]">La guía y el taller básico se compran online con Mercado Pago. Lo demás lo armamos según tu organización: te asesoramos sin cargo.</p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {FORMATOS.map((f) => (
                 <article key={f.t} className="db-card rounded-2xl border border-[#E2E5EA] bg-white p-7 flex flex-col gap-3">
                   <h3 className="m-0 font-tight text-[21px] font-bold leading-snug">{f.t}</h3>

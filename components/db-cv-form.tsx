@@ -23,13 +23,29 @@ const EMPTY = { nombre: "", email: "", tel: "", puesto: ROLES[0], link: "", exp:
 export default function DbCvForm() {
   const [f, setF] = useState(EMPTY)
   const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle")
+  const [cv, setCv] = useState<File | null>(null)
+  const [cvError, setCvError] = useState("")
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value })
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setState("sending")
     try {
-      const ok = await sendForm({
+      let ok: boolean
+      if (cv) {
+        // Con CV adjunto: FormSubmit recibe el archivo y lo manda por email
+        if (f.website) { setState("ok"); return }
+        const fd = new FormData()
+        fd.append("_subject", `Postulación DEVISEBIT · ${f.puesto} · ${f.nombre}`)
+        fd.append("_cc", "info@devisebit.com"); fd.append("_template", "table"); fd.append("_captcha", "false"); fd.append("_replyto", f.email)
+        fd.append("name", f.nombre); fd.append("email", f.email); fd.append("WhatsApp", f.tel); fd.append("Puesto", f.puesto)
+        fd.append("CV o LinkedIn", f.link); fd.append("Experiencia", f.exp); fd.append("Por qué DEVISEBIT", f.motivo)
+        fd.append("attachment", cv, cv.name)
+        const r = await fetch("https://formsubmit.co/ajax/mirandajulioadrian@gmail.com", { method: "POST", headers: { Accept: "application/json" }, body: fd })
+        const j = await r.json().catch(() => ({} as { success?: unknown }))
+        ok = r.ok && (j.success === true || j.success === "true")
+      } else {
+        ok = await sendForm({
           nombre: f.nombre,
           email: f.email,
           tel: f.tel,
@@ -39,7 +55,8 @@ export default function DbCvForm() {
           pagina: "/trabaja-con-nosotros",
           website: f.website,
         })
-      if (ok) { setState("ok"); setF(EMPTY) } else setState("error")
+      }
+      if (ok) { setState("ok"); setF(EMPTY); setCv(null) } else setState("error")
     } catch {
       setState("error")
     }
@@ -68,7 +85,11 @@ export default function DbCvForm() {
           {ROLES.map((r) => <option key={r}>{r}</option>)}
         </select>
       </label>
-      <label className={label + " sm:col-span-2"}>Link a tu CV o LinkedIn<input type="url" value={f.link} onChange={set("link")} className={input} placeholder="https://" /></label>
+      <label className={label}>Adjuntá tu CV (PDF o Word, hasta 5 MB)
+        <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(e) => { const x = e.target.files?.[0] ?? null; if (x && x.size > 5 * 1024 * 1024) { setCvError("El archivo pesa más de 5 MB."); setCv(null); e.target.value = "" } else { setCvError(""); setCv(x) } }} className={input + " file:mr-3 file:rounded-lg file:border-0 file:bg-[#FDECEB] file:px-3 file:py-1.5 file:font-semibold file:text-[#9E1A17]"} />
+        {cvError && <span role="alert" className="text-sm font-normal text-[#C8231F]">{cvError}</span>}
+      </label>
+      <label className={label}>O el link a tu CV o LinkedIn<input type="url" value={f.link} onChange={set("link")} className={input} placeholder="https://" /></label>
       <label className={label + " sm:col-span-2"}>Experiencia relevante<textarea rows={4} value={f.exp} onChange={set("exp")} className={input + " font-[inherit]"} /></label>
       <label className={label + " sm:col-span-2"}>¿Por qué querés trabajar en DEVISEBIT?<textarea rows={3} value={f.motivo} onChange={set("motivo")} className={input + " font-[inherit]"} /></label>
       <input type="text" name="website" value={f.website} onChange={set("website")} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />

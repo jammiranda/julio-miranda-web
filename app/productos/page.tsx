@@ -52,8 +52,11 @@ export default function ProductosPage() {
                     <li key={i} className="flex gap-2 text-sm"><span className="text-[#C8231F] font-extrabold" aria-hidden="true">✓</span>{i}</li>
                   ))}
                 </ul>
-                {(() => { const sol = SOLUCIONES.find((x) => x.id === SOLUCION_DE_PRODUCTO[p.id]); return sol ? <Link href={sol.href} className="mt-auto pt-2 text-sm font-semibold text-[#262C37] hover:text-[#C8231F]">Planes y precios en <span className="underline underline-offset-2">{sol.tag}</span> →</Link> : null })()}
-                <Link href="/contacto" className={`${SOLUCION_DE_PRODUCTO[p.id] ? "" : "mt-auto "}pt-1 text-[15px] font-bold text-[#C8231F] hover:text-[#9E1A17]`}>Pedir una demostración →</Link>
+                <div className="mt-auto pt-3 flex flex-col gap-2 border-t border-[#E2E5EA]">
+                  {(() => { const sol = SOLUCIONES.find((x) => x.id === SOLUCION_DE_PRODUCTO[p.id]); return sol ? <Link href={sol.href} className="rounded-xl border border-[#C3C8D1] hover:border-[#C8231F] px-4 py-2.5 text-center text-sm font-bold text-[#0E1116] transition-colors">Ver planes y precios</Link> : null })()}
+                  <Link href={`/contacto?tema=${encodeURIComponent("Demo: " + p.title)}#formulario`} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 text-center text-sm font-bold text-white transition-colors">Quiero ver una demo</Link>
+                  <span className="text-xs text-[#4A515C] text-center">Te lo mostramos funcionando en una videollamada de 30 minutos.</span>
+                </div>
               </article>
             ))}
           </div>
@@ -69,12 +72,22 @@ export default function ProductosPage() {
                 <div key={t} className="flex gap-3 items-start py-4 border-b border-[#E2E5EA]"><span className="text-[#C8231F] font-extrabold" aria-hidden="true">✓</span><span className="text-[17px]">{t}</span></div>
               ))}
             </div>
-            <div className="db-tech flex-[1_1_420px] min-w-0 rounded-[20px] bg-[#0B0D12] p-7 flex flex-col gap-3 text-white self-start">
+            <div className="db-tech flex-[1_1_420px] min-w-0 rounded-[20px] bg-[#0B0D12] p-7 flex flex-col gap-3 text-white">
               <div className="text-[13px] text-[#C3C8D1]"><span className="db-live" />Conversación de ejemplo</div>
               <div className="db-rise self-end bg-[#1F6F43] px-4 py-3 rounded-[14px_14px_2px_14px] max-w-[80%]">Hola, ¿tienen turno con kinesiología esta semana?</div>
               <div className="db-rise2 self-start bg-[#1B2029] border border-[#262C37] px-4 py-3 rounded-[14px_14px_14px_2px] max-w-[80%]">¡Hola! Tengo jueves 10:00 o viernes 16:30. ¿Cuál te queda mejor?</div>
               <div className="db-rise3 self-end bg-[#1F6F43] px-4 py-3 rounded-[14px_14px_2px_14px] max-w-[80%]">Jueves 10</div>
               <div className="db-rise3 self-start bg-[#1B2029] border border-[#262C37] px-4 py-3 rounded-[14px_14px_14px_2px] max-w-[80%]">Listo, quedó agendado. Te mando un recordatorio el día anterior.</div>
+              <div className="db-rise3 self-end bg-[#1F6F43] px-4 py-3 rounded-[14px_14px_2px_14px] max-w-[80%]">¿Atienden por obra social?</div>
+              <div className="db-rise3 self-start bg-[#1B2029] border border-[#262C37] px-4 py-3 rounded-[14px_14px_14px_2px] max-w-[80%]">Para confirmarte la cobertura te paso con Laura, de admisión. Ya le dejé tu consulta 👇</div>
+              <div className="mt-auto pt-4 border-t border-white/10 flex flex-col gap-3">
+                <span className="text-[13px] text-[#C3C8D1]">Tablero del asistente · datos de ejemplo</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[["312", "consultas del mes"], ["74%", "resueltas solas"], ["58", "turnos dados"]].map(([n, l]) => (
+                    <div key={l} className="rounded-xl bg-[#161A22] border border-[#262C37] p-3"><strong className="block font-tight text-2xl">{n}</strong><span className="text-xs text-[#C3C8D1]">{l}</span></div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -91,7 +104,7 @@ export default function ProductosPage() {
                 </li>
               ))}
             </ol>
-            <Link href="/contacto" className="self-start rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Pedir una demostración</Link>
+            <Link href={`/contacto?tema=${encodeURIComponent("Demo: Asistente de WhatsApp con IA")}#formulario`} className="self-start rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Quiero ver una demo</Link>
           </div>
         </section>
       </main>
