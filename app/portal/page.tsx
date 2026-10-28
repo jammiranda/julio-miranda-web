@@ -111,11 +111,14 @@ export default async function Portal() {
               {r.link && <> · <a href={r.link} target="_blank" rel="noopener noreferrer" className="underline text-[#C8231F]">Unirme</a></>}
             </div>
           ))}
-          <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="btn-s py-1.5 mt-auto">Hablar con el equipo</a>
+          <div className="mt-auto flex flex-wrap gap-2">
+            <Link href="/portal/reuniones" className="btn-p py-1.5">Agendar una reunión</Link>
+            <a target="_blank" rel="noopener noreferrer" href="https://wa.me/5491173466490" className="btn-s py-1.5">WhatsApp</a>
+          </div>
         </section>
       </div>
       <section aria-labelledby="t-rec" className="card flex flex-col gap-3">
-        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/cursos`} className="text-sm font-semibold text-[#C8231F]">Ver cursos →</a></div>
+        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a target="_blank" rel="noopener noreferrer" href={URL_ACADEMIA} className="text-sm font-semibold text-[#C8231F]">Ir a la Academia →</a></div>
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-3">
           {guias.map((g) => <li key={g.slug}><a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/guias/${g.slug}`} className="block rounded-xl border border-[#E2E5EA] p-3 hover:border-[#C8231F]"><span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{g.categoria ?? "Guía"}</span><strong className="block text-sm mt-1">{g.titulo}</strong></a></li>)}
         </ul>

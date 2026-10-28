@@ -18,7 +18,7 @@ async function salir() {
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const c = await clienteActual()
   const items = c?.acceso === "ok"
-    ? [{ href: "/portal", t: "Inicio" }, { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos y facturas" }, { href: "/portal/servicios", t: "Servicios" }]
+    ? [{ href: "/portal", t: "Inicio" }, { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos y facturas" }, { href: "/portal/reuniones", t: "Reuniones" }, { href: "/portal/servicios", t: "Servicios y productos" }]
     : c ? [{ href: "/portal/pagos", t: "Pagos y facturas" }] : []
   return (
     <div className="min-h-screen flex flex-col">
@@ -35,7 +35,7 @@ export default async function PortalLayout({ children }: { children: React.React
         {c && (
           <nav aria-label="Mi cuenta" className="max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
             {items.map((i) => <Link key={i.href} href={i.href} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">{i.t}</Link>)}
-            <a href={`${URL_ACADEMIA}/cursos`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">Academia ↗</a>
+            <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">Academia ↗</a>
           </nav>
         )}
       </header>

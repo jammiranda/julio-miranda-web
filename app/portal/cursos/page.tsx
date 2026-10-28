@@ -29,7 +29,7 @@ export default async function MisCursos() {
       {!ins.length && (
         <div className="card flex flex-col gap-3 items-start">
           <p className="m-0">Todavía no estás inscripto en ningún curso.</p>
-          <a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/cursos`} className="btn-p">Ver cursos disponibles</a>
+          <a target="_blank" rel="noopener noreferrer" href={URL_ACADEMIA} className="btn-p">Ir a la Academia</a>
         </div>
       )}
 
