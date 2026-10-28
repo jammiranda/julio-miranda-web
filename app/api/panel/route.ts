@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { timingSafeEqual } from "crypto"
 import { q, one } from "@/lib/db"
+import { YT_CANAL_ID, YT_URL, VIDEOS_BASE } from "@/lib/youtube"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -58,6 +59,46 @@ function novedades(html: string) {
 const n = (v: unknown) => (v == null ? null : Number(v))
 async function safe<T>(p: Promise<T>): Promise<T | null> { try { return await p } catch { return null } }
 
+/** YouTube por el feed público (sin claves): últimos videos con vistas y me gusta; suscriptores si la página los muestra. */
+async function youtube() {
+  const des = (t: string) => t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+  const [feed, canal] = await Promise.all([
+    fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CANAL_ID}`, { cache: "no-store", signal: AbortSignal.timeout(9000) }).then((r) => (r.ok ? r.text() : "")).catch(() => ""),
+    fetch(`${YT_URL}/about`, { cache: "no-store", signal: AbortSignal.timeout(9000), headers: { "accept-language": "es-AR,es;q=0.9", "user-agent": "Mozilla/5.0" } }).then((r) => (r.ok ? r.text() : "")).catch(() => ""),
+  ])
+  let videos = [...feed.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map((m) => {
+    const e = m[1]
+    const link = e.match(/<link rel="alternate" href="([^"]+)"/)?.[1] ?? ""
+    return {
+      id: e.match(/<yt:videoId>([^<]+)/)?.[1] ?? "",
+      titulo: des(e.match(/<title>([^<]*)/)?.[1] ?? ""),
+      fecha: e.match(/<published>([^<]+)/)?.[1] ?? "",
+      corto: link.includes("/shorts/"),
+      url: link,
+      vistas: n(e.match(/<media:statistics views="(\d+)"/)?.[1]),
+      meGusta: n(e.match(/<media:starRating count="(\d+)"/)?.[1]),
+    }
+  }).filter((v) => v.id)
+  if (!videos.length) videos = VIDEOS_BASE.map((v) => ({ ...v, url: v.corto ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`, vistas: null, meGusta: null }))
+  const subTxt = canal.match(/"([\d.,]+\s*(?:mil\s*)?(?:K\s*)?)\s*(?:suscriptores|subscribers)"/i)?.[1] ?? null
+  const subs = subTxt ? (() => { const s = subTxt.toLowerCase().replace(/\s/g, ""); const base = parseFloat(s.replace(/mil|k/g, "").replace(/\./g, "").replace(",", ".")); return Number.isFinite(base) ? Math.round(/mil|k/.test(s) ? base * 1000 : base) : null })() : null
+  const d30 = videos.filter((v) => v.fecha && Date.now() - new Date(v.fecha).getTime() < 30 * 864e5)
+  const suma = (a: typeof videos, k: "vistas" | "meGusta") => (a.some((v) => v[k] != null) ? a.reduce((s, v) => s + (v[k] ?? 0), 0) : null)
+  return {
+    canal: YT_URL,
+    suscriptores: subs,
+    videos: videos.length,
+    cortos: videos.filter((v) => v.corto).length,
+    publicados30: d30.length,
+    vistas: suma(videos, "vistas"),
+    vistas30: suma(d30, "vistas"),
+    meGusta: suma(videos, "meGusta"),
+    ultimo: videos[0]?.fecha ?? null,
+    lista: videos.slice(0, 10),
+    nota: "Datos del feed público de YouTube (últimos 15 videos). Vistas y me gusta por video; suscriptores si YouTube los muestra.",
+  }
+}
+
 export async function GET(req: NextRequest) {
   if (!autorizado(req.nextUrl.searchParams.get("k"))) return NextResponse.json({ ok: false, error: "no autorizado" }, { status: 401 })
   const t0 = Date.now()
@@ -95,6 +136,23 @@ export async function GET(req: NextRequest) {
     safe(q<{ disp: string; c: number }>(`select disp, sum(n)::int c from pv_visitas where dia > current_date - 30 group by 1`)),
   ])
 
+  const [usPortal, usAcad, usEquipo, yt] = await Promise.all([
+    safe(one<{ habilitados: number; ingresaron: number; activos30: number; nuevos30: number }>(`select
+      count(*) filter (where email is not null and email <> '' and coalesce(portal_acceso,'auto') <> 'no' and (exists (select 1 from db_proyectos p where p.contacto_id=c.id) or exists (select 1 from portal_accesos a where a.contacto_id=c.id)))::int habilitados,
+      count(*) filter (where portal_ultimo is not null)::int ingresaron,
+      count(*) filter (where portal_ultimo > now()-interval '30 days')::int activos30,
+      count(*) filter (where (select min(a.creado) from portal_accesos a where a.contacto_id=c.id) > now()-interval '30 days')::int nuevos30
+      from db_contactos c`)),
+    safe(one<{ registrados: number; nuevos30: number; alumnos: number; alumnosActivos30: number; compradores: number; certificados: number }>(`select
+      (select count(*) from db_contactos where suscrito_en is not null and email_estado='activo')::int registrados,
+      (select count(*) from db_contactos where suscrito_en > now()-interval '30 days')::int nuevos30,
+      (select count(distinct contacto_id) from am_inscripciones where estado <> 'baja')::int alumnos,
+      (select count(distinct contacto_id) from am_inscripciones where ultima_actividad > now()-interval '30 days')::int "alumnosActivos30",
+      (select count(distinct lower(email)) from am_ordenes where estado='pagada')::int compradores,
+      (select count(*) from am_certificados where not anulado)::int certificados`)),
+    safe(one<{ c: number }>(`select count(*)::int c from usuarios where coalesce(activo,true)`)),
+    safe(youtube()),
+  ])
   const salud = await safe(one<{ h: number | null }>("select extract(epoch from now() - max(creado))/3600 h from wa_mensajes where autor='bot'"))
   const map = <T extends Record<string, any>>(rows: T[] | null, k: keyof T, v: keyof T) => Object.fromEntries((rows ?? []).map((r) => [r[k], n(r[v])]))
 
@@ -113,6 +171,12 @@ export async function GET(req: NextRequest) {
         whatsapp: { chats7: wa?.chats7 ?? null, chats30: wa?.chats30 ?? null, mensajes7: map(wa7, "autor", "c"), horasUltimaRespuestaBot: salud?.h != null ? Math.round(salud.h) : null },
         email: emails ?? null,
       },
+      usuarios: {
+        devisebit: usPortal ? { ...usPortal, nota: "Clientes con acceso a Mi cuenta (portal.devisebit.com)" } : null,
+        academia: usAcad ? { ...usAcad, nota: "Registrados = suscriptos activos de la Academia; alumnos = inscriptos en cursos" } : null,
+        equipo: usEquipo?.c ?? null,
+      },
+      youtube: yt,
       academia: {
         suscriptores: subs ?? null,
         tags: tags ?? [],
