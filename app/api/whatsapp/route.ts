@@ -20,7 +20,12 @@ export async function GET(req: NextRequest) {
 /** Mensajes entrantes de WhatsApp Cloud API. */
 export async function POST(req: NextRequest) {
   const cuerpo = await req.text()
-  if (!firmaValida(cuerpo, req.headers.get("x-hub-signature-256"))) return new NextResponse("firma inválida", { status: 401 })
+  if (!firmaValida(cuerpo, req.headers.get("x-hub-signature-256"))) {
+    console.warn("webhook: firma inválida", { objeto: cuerpo.match(/"object":"(\w+)"/)?.[1] ?? null })
+    const obj = cuerpo.match(/"object":"(\w+)"/)?.[1]
+    if (obj === "whatsapp_business_account" || obj === "instagram") await q("insert into config(clave,valor) values ($1, now()::text) on conflict (clave) do update set valor=excluded.valor", [`webhook_rechazo_${obj}`]).catch(() => {})
+    return new NextResponse("firma inválida", { status: 401 })
+  }
   let j: any
   try { j = JSON.parse(cuerpo) } catch { return new NextResponse("ok") }
   const tareas: Promise<unknown>[] = []

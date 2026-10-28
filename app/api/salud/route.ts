@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { one } from "@/lib/db"
+import { one, q } from "@/lib/db"
 import { diagnosticoBrevo } from "@/lib/email"
 import { asegurarPerfil, estadoPerfil } from "@/lib/waperfil"
 import { gcalConfig, probarGcal } from "@/lib/agenda"
@@ -22,6 +22,7 @@ export async function GET() {
     const gc = await gcalConfig().catch(() => null)
     const equipoCal = await one<{ n: number }>("select count(*)::int n from usuarios where activo and rol in ('gerente','coordinacion') and email is not null and email <> ''").catch(() => null)
     const gcPrueba = gc?.url ? await probarGcal().catch(() => null) : null
+    const rech = await q<{ clave: string; valor: string }>("select clave, valor from config where clave like 'webhook_rechazo_%'").catch(() => [] as { clave: string; valor: string }[])
     return NextResponse.json({
       ok: true, db_ms: Date.now() - t0,
       email: { cola: em?.pend ?? null, errores: em?.err ?? null, enviados: em?.env ?? null, ultimo_error: ultErr?.error ?? null, brevo_ok: brevo?.ok ?? null, brevo_problemas: brevo?.problemas ?? [] },
@@ -33,6 +34,9 @@ export async function GET() {
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
       firma_webhook_configurada: !!process.env.WA_APP_SECRETS,
+      // Diagnóstico sin exponer valores: cuántas claves hay y si cada una tiene el formato de Meta (32 caracteres hexadecimales)
+      firma_claves: (process.env.WA_APP_SECRETS ?? "").split(",").map((x) => x.trim()).filter(Boolean).map((x) => ({ largo: x.length, formato_ok: /^[0-9a-f]{32}$/i.test(x) })),
+      ultimo_rechazo_por_firma: Object.fromEntries(rech.map((x) => [x.clave.replace("webhook_rechazo_", ""), x.valor])),
     })
   } catch (e) {
     return NextResponse.json({ ok: false, error: "db" }, { status: 503 })
