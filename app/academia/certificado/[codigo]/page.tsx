@@ -24,7 +24,7 @@ export default async function Certificado({ params }: { params: { codigo: string
     )
   const dia = new Date(c.dia + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10 flex flex-col gap-4 cert-pagina">
+    <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10 flex flex-col gap-4 cert-pagina">
       <style>{`@media print { @page { size: A4 landscape; margin: 0 } body { background:#fff } .ficha-head, .no-print { display:none !important } .cert-pagina { padding:0 !important; max-width:none !important } .cert { border-radius:0 !important; box-shadow:none !important; width:297mm; height:210mm } }`}</style>
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <p role="status" className="m-0 text-sm"><span className="chip bg-emerald-50 text-emerald-700">✓ Certificado válido</span> emitido por DEVISEBIT SRL</p>
@@ -53,7 +53,13 @@ export default async function Certificado({ params }: { params: { codigo: string
           </div>
         </div>
       </section>
-      <p className="no-print m-0 text-xs text-[#4A515C] text-center">Para guardarlo en PDF: “Imprimir” y elegí “Guardar como PDF”, en horizontal.</p>
+      <dl className="no-print sm:hidden m-0 card grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-[15px]">
+        <dt className="text-[#4A515C]">Alumno</dt><dd className="m-0 font-semibold">{c.nombre}</dd>
+        <dt className="text-[#4A515C]">Curso</dt><dd className="m-0 font-semibold">{c.curso}</dd>
+        <dt className="text-[#4A515C]">Emitido</dt><dd className="m-0">{dia}</dd>
+        <dt className="text-[#4A515C]">Código</dt><dd className="m-0 font-mono">{c.codigo}</dd>
+      </dl>
+      <p className="no-print m-0 text-sm text-[#4A515C] text-center">Para guardarlo en PDF: “Imprimir” y elegí “Guardar como PDF”, en horizontal.</p>
     </main>
   )
 }

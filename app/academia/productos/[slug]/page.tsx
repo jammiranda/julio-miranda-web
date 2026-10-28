@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { q, one, audit } from "@/lib/db"
 import { mdWeb, mpConfigurado, crearPreferencia } from "@/lib/academia"
 import Suscribir from "@/components/Suscribir"
+import BarraAccion from "../../_ui/BarraAccion"
+import BotonEnviar from "../../_ui/BotonEnviar"
 export const dynamic = "force-dynamic"
 
 /** Un producto con archivo cifrado solo se vende si la clave para abrirlo está cargada. */
@@ -30,24 +32,31 @@ export default async function Producto({ params, searchParams }: { params: { slu
   const p = await one<any>("select * from am_productos where slug=$1 and estado<>'oculto'", [params.slug])
   if (!p) notFound()
   const venta = p.estado === "venta" && p.precio && mpConfigurado() && archivoListo(p)
+  const precio = p.precio ? `${p.moneda === "ARS" ? "$" : p.moneda + " "}${Number(p.precio).toLocaleString("es-AR")}` : ""
   return (
     <main>
-      <header className="ficha-head bg-[#0E1116] text-white"><div className="max-w-4xl mx-auto px-4 py-14">
+      <header className="ficha-head bg-[#0E1116] text-white"><div className="max-w-5xl mx-auto px-4 pt-8 pb-10 sm:py-14">
         <span className="chip bg-[#C8231F] text-white">{venta ? "Disponible" : "Próximamente"}</span>
-        <h1 className="m-0 mt-4 text-4xl sm:text-5xl font-extrabold text-white leading-tight">{p.titulo}</h1>
-        <p className="m-0 mt-4 text-lg text-white/80 max-w-2xl">{p.bajada}</p>
+        <h1 className="acad-h1-m m-0 mt-4 font-extrabold text-white">{p.titulo}</h1>
+        <p className="acad-lead m-0 mt-4 text-white/80 max-w-2xl">{p.bajada}</p>
+        {venta && (
+          <div id="cta-arriba" className="md:hidden mt-6 flex items-center gap-4">
+            <span className="text-3xl font-extrabold text-white">{precio}</span>
+            <a href="#comprar" className="btn-p min-h-[48px] text-base flex-1">{p.servicio ? "Contratar" : "Comprar"}</a>
+          </div>
+        )}
       </div></header>
-      <div className="max-w-4xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
-        <article className="prosa md:col-span-3" dangerouslySetInnerHTML={{ __html: mdWeb(p.descripcion) }} />
-        <aside className="md:col-span-2 card flex flex-col gap-3 md:sticky md:top-24">
+      <div className="max-w-5xl mx-auto px-4 py-8 sm:py-10 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_340px] lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-start">
+        <article className="prosa" dangerouslySetInnerHTML={{ __html: mdWeb(p.descripcion) }} />
+        <aside id="comprar" aria-label={venta ? "Comprar" : "Lista de espera"} className="card flex flex-col gap-3 md:sticky md:top-24 scroll-mt-20 shadow-[0_8px_30px_rgba(14,17,22,.06)]">
           {venta ? (
             <form action={comprar} className="flex flex-col gap-3">
-              <p className="m-0 text-3xl font-extrabold">{p.moneda === "ARS" ? "$" : p.moneda + " "}{Number(p.precio).toLocaleString("es-AR")}</p>
+              <p className="m-0 text-3xl font-extrabold">{precio}</p>
               <input type="hidden" name="slug" value={p.slug} />
-              <label className="lbl">Nombre<input name="nombre" className="inp" /></label>
-              <label className="lbl">{p.servicio ? "Email (te escribimos para coordinar)" : "Email (te llega la descarga)"}<input name="email" type="email" required className="inp" /></label>
-              <button className="btn-p text-base py-3.5">Comprar con Mercado Pago</button>
-              <p className="m-0 text-xs text-[#4A515C]">Pago seguro con Mercado Pago: tarjeta, débito o dinero en cuenta. {p.servicio ? "Después del pago coordinamos la fecha con vos. ¿Preferís transferencia o factura A? Escribinos por WhatsApp." : "Descarga inmediata."}</p>
+              <label className="lbl">Nombre<input name="nombre" autoComplete="name" autoCapitalize="words" enterKeyHint="next" className="inp" /></label>
+              <label className="lbl">{p.servicio ? "Email (te escribimos para coordinar)" : "Email (te llega la descarga)"}<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" required className="inp" /></label>
+              <BotonEnviar cargando="Abriendo Mercado Pago…">Comprar con Mercado Pago</BotonEnviar>
+              <p className="m-0 text-sm text-[#4A515C]">Pago seguro con Mercado Pago: tarjeta, débito o dinero en cuenta. {p.servicio ? "Después del pago coordinamos la fecha con vos. ¿Preferís transferencia o factura A? Escribinos por WhatsApp." : "Descarga inmediata."}</p>
               {searchParams.e && <p role="alert" className="m-0 text-sm text-rojo">No pudimos iniciar el pago. Revisá el email o probá de nuevo.</p>}
             </form>
           ) : (
@@ -59,6 +68,7 @@ export default async function Producto({ params, searchParams }: { params: { slu
           )}
         </aside>
       </div>
+      <BarraAccion desde="md" destino="comprar" tambien="cta-arriba" precio={venta ? precio : "Próximamente"} detalle={venta ? (p.servicio ? "Pago seguro · Mercado Pago" : "Descarga inmediata") : "Lista de espera con descuento"} etiqueta={venta ? (p.servicio ? "Contratar" : "Comprar") : "Anotarme"} />
     </main>
   )
 }

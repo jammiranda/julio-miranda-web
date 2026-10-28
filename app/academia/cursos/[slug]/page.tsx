@@ -6,6 +6,8 @@ import { mdWeb } from "@/lib/academia"
 import { modalidad, tipoLeccion, inscribir, contactoPorEmail } from "@/lib/cursos"
 import { clienteActual, urlPortal } from "@/lib/portal"
 import { fecha } from "@/lib/util"
+import BarraAccion from "../../_ui/BarraAccion"
+import BotonEnviar from "../../_ui/BotonEnviar"
 
 export const dynamic = "force-dynamic"
 
@@ -61,45 +63,45 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
   return (
     <main>
       <section className="ficha-head bg-[#0E1116] text-white">
-        <div className="max-w-6xl mx-auto px-4 py-12 sm:py-16 grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-          <div className="lg:col-span-3">
-            <Link href="/cursos" className="text-sm text-white/70 hover:text-white">← Cursos</Link>
-            <p className="m-0 mt-4 text-xs font-bold uppercase tracking-[0.25em] text-[#FF6A63]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} horas` : ""}{c.certifica ? " · Con certificado" : ""}</p>
-            <h1 className="m-0 mt-3 text-4xl sm:text-5xl leading-[1.05] font-extrabold text-white">{c.titulo}</h1>
-            {c.bajada && <p className="m-0 mt-4 text-lg text-white/80">{c.bajada}</p>}
+        <div className="max-w-6xl mx-auto px-4 pt-4 pb-10 sm:pt-8 sm:pb-16 grid grid-cols-1 md:grid-cols-5 gap-6 lg:gap-8 items-center">
+          <div className="md:col-span-3">
+            <nav aria-label="Ruta"><Link href="/cursos" className="inline-flex items-center min-h-[44px] -ml-1 px-1 text-sm text-white/70 hover:text-white">← Cursos</Link></nav>
+            <p className="m-0 mt-2 text-xs font-bold uppercase tracking-[0.2em] text-[#FF6A63]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} horas` : ""}{c.certifica ? " · Con certificado" : ""}</p>
+            <h1 className="acad-h1-m m-0 mt-3 font-extrabold text-white">{c.titulo}</h1>
+            {c.bajada && <p className="acad-lead m-0 mt-4 text-white/80">{c.bajada}</p>}
             {c.docente && <p className="m-0 mt-4 text-sm text-white/70">Docente: <strong className="text-white">{c.docente}</strong></p>}
           </div>
-          {c.imagen && <img src={c.imagen} alt="" className="lg:col-span-2 w-full rounded-2xl aspect-video object-cover" />}
+          {c.imagen && <img src={c.imagen} alt="" width={1280} height={720} decoding="async" className="md:col-span-2 w-full h-auto rounded-2xl aspect-video object-cover" />}
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 flex flex-col gap-8">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-3 gap-8 md:gap-6 lg:gap-8">
+        <div className="lg:col-span-2 flex flex-col gap-8 min-w-0 order-1">
           {c.descripcion && <article className="prosa" dangerouslySetInnerHTML={{ __html: mdWeb(c.descripcion) }} />}
           {lecciones.length > 0 && (
             <section aria-labelledby="t-prog">
-              <h2 id="t-prog" className="m-0 text-2xl font-extrabold">Programa</h2>
+              <h2 id="t-prog" className="m-0 text-2xl font-extrabold">Programa <span className="text-base font-semibold text-[#4A515C]">· {lecciones.length} lecciones</span></h2>
               {modulos.map((m) => (
                 <div key={m} className="mt-4">
                   <h3 className="m-0 text-sm font-bold uppercase tracking-wider text-[#4A515C]">{m}</h3>
-                  <ul className="m-0 mt-2 p-0 list-none card flex flex-col gap-2">
+                  <ol className="m-0 mt-2 p-0 list-none bg-white rounded-2xl border border-[#E2E5EA] flex flex-col overflow-hidden">
                     {lecciones.filter((l) => (l.modulo || "Contenido") === m).map((l, k) => (
-                      <li key={k} className="flex items-center gap-3 text-sm"><span className="text-[#C8231F]" aria-hidden="true">{tipoLeccion(l.tipo).i}</span><span className="flex-1">{l.titulo}</span>{l.duracion_min && <span className="text-xs text-[#4A515C]">{l.duracion_min} min</span>}</li>
+                      <li key={k} className="flex items-center gap-3 px-4 py-3 min-h-[52px] text-[15px] leading-snug border-b border-[#EEF0F3] last:border-0"><span className="w-8 h-8 shrink-0 rounded-full bg-[#FDECEB] text-[#C8231F] flex items-center justify-center text-sm" aria-hidden="true">{tipoLeccion(l.tipo).i}</span><span className="flex-1 min-w-0">{l.titulo}</span>{l.duracion_min && <span className="shrink-0 text-sm text-[#4A515C] tabular-nums">{l.duracion_min} min</span>}</li>
                     ))}
-                  </ul>
+                  </ol>
                 </div>
               ))}
             </section>
           )}
         </div>
 
-        <aside id="inscripcion" className="flex flex-col gap-4 scroll-mt-24">
-          <div className="card flex flex-col gap-3 lg:sticky lg:top-24">
+        <aside id="inscripcion" aria-label="Inscripción" className="flex flex-col gap-4 scroll-mt-20 order-2">
+          <div className="card flex flex-col gap-3 [@media(min-width:768px)_and_(min-height:900px)]:sticky md:top-24 shadow-[0_8px_30px_rgba(14,17,22,.06)]">
             <p className="m-0 text-2xl font-extrabold">{c.precio ? `$ ${Number(c.precio).toLocaleString("es-AR")}` : "Gratis"}</p>
             {searchParams.ok ? (
               <div role="status" className="rounded-xl bg-emerald-50 p-4 text-sm"><strong className="block mb-1">¡Listo, ya estás inscripto!</strong>Te mandamos un email con el acceso al curso. Revisá también spam o promociones.</div>
             ) : ya ? (
-              <a href={urlPortal(`/cursos/${ya.id}`)} className="btn-p">Ir a mi curso</a>
+              <a href={urlPortal(`/cursos/${ya.id}`)} className="btn-p min-h-[52px] text-base">Ir a mi curso</a>
             ) : !abiertas.length ? (
               <p className="m-0 text-sm text-[#4A515C]">No hay ediciones con inscripción abierta. Suscribite a la newsletter desde la portada y te avisamos.</p>
             ) : (
@@ -109,9 +111,9 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
                 <fieldset className="flex flex-col gap-2 m-0 p-0 border-0">
                   <legend className="text-sm font-semibold mb-1">Edición</legend>
                   {abiertas.map((e, k) => (
-                    <label key={e.id} className="flex gap-2 items-start text-sm rounded-xl border border-[#E2E5EA] p-3 cursor-pointer has-[:checked]:border-[#C8231F] has-[:checked]:bg-[#FDECEB]">
-                      <input type="radio" name="edicion" value={e.id} defaultChecked={k === 0} className="mt-1" />
-                      <span><strong className="block">{e.nombre}</strong><span className="text-xs text-[#4A515C]">{e.inicio ? `Desde ${fecha(e.inicio)}` : "Empezás cuando quieras"}{e.horario ? ` · ${e.horario}` : ""}{e.lugar ? ` · ${e.lugar}` : ""}{e.cupo ? ` · Quedan ${e.cupo - e.inscriptos} lugares` : ""}</span></span>
+                    <label key={e.id} className="flex gap-3 items-start text-[15px] rounded-xl border border-[#E2E5EA] p-3 min-h-[52px] cursor-pointer has-[:checked]:border-[#C8231F] has-[:checked]:bg-[#FDECEB]">
+                      <input type="radio" name="edicion" value={e.id} defaultChecked={k === 0} className="mt-0.5" />
+                      <span><strong className="block">{e.nombre}</strong><span className="text-sm text-[#4A515C]">{e.inicio ? `Desde ${fecha(e.inicio)}` : "Empezás cuando quieras"}{e.horario ? ` · ${e.horario}` : ""}{e.lugar ? ` · ${e.lugar}` : ""}{e.cupo ? ` · Quedan ${e.cupo - e.inscriptos} lugares` : ""}</span></span>
                     </label>
                   ))}
                 </fieldset>
@@ -119,15 +121,15 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
                   <p className="m-0 text-sm">Te inscribís como <strong>{yo.nombre}</strong> ({yo.email}).</p>
                 ) : (
                   <>
-                    <label className="lbl">Nombre y apellido<input name="nombre" required autoComplete="name" className="inp" /></label>
-                    <label className="lbl">Email<input name="email" type="email" required autoComplete="email" className="inp" /></label>
-                    <label className="lbl">WhatsApp (opcional)<input name="telefono" type="tel" autoComplete="tel" className="inp" /></label>
-                    <label className="lbl">Organización (opcional)<input name="organizacion" autoComplete="organization" className="inp" /></label>
-                    <label className="flex gap-2 items-start text-xs text-[#4A515C]"><input type="checkbox" name="acepto" value="1" required className="mt-0.5" /> Acepto recibir el acceso, recordatorios y novedades de la Academia por email (me puedo dar de baja cuando quiera).</label>
+                    <label className="lbl">Nombre y apellido<input name="nombre" required autoComplete="name" autoCapitalize="words" enterKeyHint="next" className="inp" /></label>
+                    <label className="lbl">Email<input name="email" type="email" inputMode="email" required autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="next" className="inp" /></label>
+                    <label className="lbl">WhatsApp (opcional)<input name="telefono" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="next" className="inp" /></label>
+                    <label className="lbl">Organización (opcional)<input name="organizacion" autoComplete="organization" enterKeyHint="done" className="inp" /></label>
+                    <label className="flex gap-3 items-start text-sm leading-snug text-[#4A515C] py-1 cursor-pointer"><input type="checkbox" name="acepto" value="1" required className="mt-0.5" /> Acepto recibir el acceso, recordatorios y novedades de la Academia por email (me puedo dar de baja cuando quiera).</label>
                   </>
                 )}
                 <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
-                <button className="btn-p">{c.precio ? "Reservar mi lugar" : "Inscribirme gratis"}</button>
+                <BotonEnviar cargando="Inscribiendo…">{c.precio ? "Reservar mi lugar" : "Inscribirme gratis"}</BotonEnviar>
               </form>
             )}
             <ul className="m-0 p-0 list-none text-sm text-[#4A515C] flex flex-col gap-1 border-t border-[#EEF0F3] pt-3">
@@ -139,6 +141,9 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
           </div>
         </aside>
       </div>
+      {!searchParams.ok && (ya || abiertas.length > 0) && (
+        <BarraAccion desde="md" destino="inscripcion" precio={c.precio ? `$ ${Number(c.precio).toLocaleString("es-AR")}` : "Gratis"} detalle={ya ? "Ya estás inscripto" : [c.certifica ? "Con certificado" : null, abiertas[0]?.inicio ? `Inicia ${fecha(abiertas[0].inicio)}` : null].filter(Boolean).join(" · ") || undefined} etiqueta={ya ? "Ir a mi curso" : c.precio ? "Reservar lugar" : "Inscribirme"} />
+      )}
     </main>
   )
 }

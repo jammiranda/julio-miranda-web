@@ -27,3 +27,52 @@ h2 { @apply text-lg font-bold; }
 .prosa blockquote { @apply my-6 border-l-4 border-[#C8231F] bg-[#FDECEB]/50 px-5 py-3 rounded-r-xl font-semibold text-[#0E1116]; }
 .prosa code { @apply bg-[#EEF0F3] rounded px-1.5 py-0.5 text-[15px]; }
 .prosa a.boton { @apply inline-block no-underline bg-[#C8231F] text-white px-5 py-3 rounded-xl hover:bg-[#9E1A17]; }
+
+/* ===== Academia (academia.devisebit.com): ajustes mobile-first, acotados a .acad ===== */
+.acad { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: clip; }
+.acad h1 { text-wrap: balance; }
+.acad h2 { text-wrap: balance; }
+.acad .acad-h1 { font-size: clamp(2rem, 1.35rem + 3.2vw, 3.75rem); line-height: 1.06; }
+.acad .acad-h1-m { font-size: clamp(1.875rem, 1.4rem + 2.4vw, 3rem); line-height: 1.1; }
+.acad .acad-h2 { font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem); line-height: 1.15; }
+.acad .acad-lead { font-size: clamp(1.0625rem, 1rem + .3vw, 1.125rem); line-height: 1.6; }
+/* Botones y campos: objetivos táctiles de 44px y sin zoom automático de iOS (≥16px) */
+.acad .btn { min-height: 44px; }
+.acad .inp { min-height: 48px; font-size: 16px; }
+.acad .lbl { font-size: 15px; }
+.acad input[type=radio], .acad input[type=checkbox] { width: 20px; height: 20px; accent-color: #C8231F; flex-shrink: 0; }
+/* Foco visible para teclado */
+.acad :focus-visible { outline: 3px solid #FF6A63; outline-offset: 2px; border-radius: 6px; }
+.acad .inp:focus-visible { outline: none; }
+.acad-saltar { position: absolute; left: 8px; top: -100px; z-index: 60; background: #fff; color: #0E1116; padding: 12px 16px; border-radius: 10px; font-weight: 700; }
+.acad-saltar:focus { top: 8px; }
+/* Pie: links cómodos para el pulgar */
+.acad-pie .flex-col > a { display: flex; align-items: center; min-height: 44px; }
+@media (min-width: 1280px) and (hover: hover) { .acad-pie .flex-col > a { min-height: 32px; } }
+.acad-pie a[aria-label] { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+/* Lectura de guías */
+.acad .prosa { font-size: 18px; line-height: 1.7; overflow-wrap: break-word; }
+.acad .prosa > :first-child { margin-top: 0; }
+.acad .prosa h2 { font-size: clamp(1.375rem, 1.2rem + .8vw, 1.625rem); line-height: 1.25; scroll-margin-top: 5rem; }
+.acad .prosa h3 { font-size: 1.1875rem; scroll-margin-top: 5rem; }
+.acad .prosa img, .acad .prosa video, .acad .prosa iframe { max-width: 100%; height: auto; border-radius: 12px; }
+.acad .prosa pre { overflow-x: auto; }
+.acad .prosa a.boton { display: inline-flex; align-items: center; min-height: 48px; }
+.acad .prosa li::marker { color: #C8231F; }
+@media (min-width: 768px) { .acad .prosa { font-size: 18px; line-height: 1.75; } }
+/* Filtros y videos con scroll horizontal (scroll-snap), solo en celular */
+@media (max-width: 639.98px) {
+.acad .acad-riel { display: flex; gap: .75rem; scroll-padding-inline: 1rem; overflow-x: auto; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; }
+.acad .acad-riel::-webkit-scrollbar { display: none; }
+.acad .acad-riel > * { scroll-snap-align: start; flex-shrink: 0; }
+}
+@keyframes acad-giro { to { transform: rotate(360deg) } }
+.acad .acad-spin { animation: acad-giro .8s linear infinite; }
+html:has(.acad) { scroll-padding-top: 5rem; }
+@media (prefers-reduced-motion: no-preference) { html:has(.acad) { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: reduce) {
+  .acad *, .acad *::before, .acad *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .acad .hover\:-translate-y-1:hover, .acad .hover\:rotate-0:hover { transform: none; }
+  .acad .rotate-1 { transform: none; }
+}
+@media print { .acad-barra, .acad-saltar { display: none !important; } }
