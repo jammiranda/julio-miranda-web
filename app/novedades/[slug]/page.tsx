@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { posts } from "@/lib/posts"
+import NotaCta from "@/components/nota-cta"
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }))
@@ -45,7 +46,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               </ul>
             </div>
           )}
-          <div className="mt-10 flex flex-wrap gap-3">
+          <NotaCta titulo={p.title} slug={p.slug} />
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/contacto" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-white transition-colors">Hablemos de tu proyecto</Link>
             <Link href="/novedades" className="rounded-xl border-2 border-[#0E1116] px-[22px] py-[14px] font-bold hover:bg-[#0E1116] hover:text-white transition-colors">Más novedades</Link>
           </div>
