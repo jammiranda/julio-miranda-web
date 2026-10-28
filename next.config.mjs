@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async headers() {
+    // Los videos de demos se pueden leer desde otras páginas (subida a YouTube Studio)
+    return [{ source: "/dv-e96893d90d8d/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] }]
+  },
   async redirects() {
     return [
       { source: "/precios", destination: "https://sistema.devisebit.com/lista-precios", permanent: false },
