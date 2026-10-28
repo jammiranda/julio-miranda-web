@@ -276,6 +276,7 @@ html:not([data-marca="blanca"]) .k-white-only{display:none!important}
 .ktour-card .big{font:800 clamp(28px,5vw,42px)/1 "Inter Tight",Inter,sans-serif;color:var(--k-accent);margin:14px 0 22px;letter-spacing:-.02em}
 .ktour-card p{color:#4A515C;margin:0 0 6px;font-size:16px}
 .ktour-card .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ktour-card p.knote{font-size:14px;margin:-8px auto 18px;padding:8px 12px;background:#F4F5F7;border-radius:10px;display:inline-block}
 .ktour-card a,.ktour-card button{font:600 15px Inter,sans-serif;border-radius:10px;padding:11px 18px;cursor:pointer;text-decoration:none}
 .ktour-card a{background:var(--k-accent);color:#fff;border:0}
 .ktour-card button{background:#fff;border:1px solid #C3C8D1;color:#0B0D12}
@@ -296,6 +297,187 @@ aside{top:var(--kbar-h)!important;height:calc(100vh - var(--kbar-h))}
 @media (max-width:760px){.app{grid-template-columns:minmax(0,1fr)}aside{min-width:0;height:auto}.brand{flex-direction:row;align-items:center;gap:10px}}
 .kbar a.kcta{color:#fff}
 </style>
+<style id="lk-css">
+/* ===== Módulos del sistema completo (bloqueados en la demo) ===== */
+:root{--lk-accent:#C8231F;--lk-accent-ink:#fff;--lk-bg:#fff;--lk-fg:#0B0D12;--lk-mut:#5A6170;--lk-line:#E3E6EB;--lk-soft:#F4F5F7}
+html[data-lk-white]{--lk-accent:#1D4E89}
+.lk-sec{display:contents}
+.lk-btn{cursor:pointer;font:inherit}
+.lk-btn .lk-tx{opacity:.66}
+.lk-btn .lk-ic{flex:none;opacity:.75;width:15px;height:15px}
+.lk-btn .lk-end{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;opacity:.6}
+.lk-btn:hover .lk-tx,.lk-btn:focus-visible .lk-tx{opacity:1}
+.lk-lbl{white-space:nowrap}
+.lk-flash{outline:2px solid transparent;outline-offset:-2px;animation:lkflash 1.8s ease}
+@keyframes lkflash{25%,70%{outline-color:var(--lk-accent)}}
+/* franja de inicio */
+.lk-strip{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-size:13.5px;line-height:1.4;color:var(--lk-strip-fg,#3A404C);background:var(--lk-strip-bg,#F7F8FA);border:1px solid var(--lk-strip-line,#E3E6EB);border-radius:10px;padding:8px 12px;min-width:0}
+.lk-strip:empty{display:none}
+.lk-strip svg{flex:none;opacity:.7}
+.lk-strip .lk-st{flex:1 1 220px;min-width:0}
+.lk-strip-link{background:none;border:0;padding:2px 0;font:inherit;font-weight:600;color:var(--lk-link,var(--lk-accent));text-decoration:underline;text-underline-offset:3px;cursor:pointer;white-space:nowrap}
+/* tarjetas (cuando no hay menú lateral) */
+.lk-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.lk-tile{display:flex;align-items:center;gap:9px;text-align:left;background:var(--lk-soft);border:1px dashed #C9CED6;border-radius:10px;padding:10px 12px;min-height:44px;color:var(--lk-fg);font-size:14px;font-weight:500}
+.lk-tile:hover{border-style:solid;border-color:var(--lk-accent)}
+/* diálogo */
+.lk-ov{position:fixed;inset:0;z-index:10050;background:rgba(11,13,18,.55);display:flex;align-items:center;justify-content:center;padding:16px;animation:lkfade .18s ease}
+@keyframes lkfade{from{opacity:0}to{opacity:1}}
+.lk-dlg{position:relative;background:var(--lk-bg);color:var(--lk-fg);border-radius:16px;width:min(460px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:24px 24px 20px;box-shadow:0 24px 60px rgba(0,0,0,.3);font-size:15px;line-height:1.5;text-align:left;letter-spacing:normal;text-transform:none}
+.lk-dlg *{box-sizing:border-box}
+.lk-dlg h2{font-size:21px;line-height:1.25;margin:6px 0 8px;color:var(--lk-fg);font-weight:700;letter-spacing:-.01em;padding-right:36px}
+.lk-dlg p{margin:0 0 12px;color:#3A404C}
+.lk-eye{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--lk-mut)}
+.lk-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:9px;border:0;background:transparent;color:var(--lk-fg);display:grid;place-items:center;cursor:pointer}
+.lk-x:hover{background:var(--lk-soft)}
+.lk-call{display:flex;gap:10px;align-items:flex-start;background:var(--lk-soft);border-radius:10px;padding:11px 13px;font-size:14px;color:var(--lk-fg);margin:4px 0 16px}
+.lk-call svg{flex:none;margin-top:2px;color:var(--lk-accent)}
+.lk-acts{display:flex;gap:8px;flex-wrap:wrap}
+.lk-cta,.lk-b2{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:10px 18px;border-radius:10px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none}
+.lk-cta{background:var(--lk-accent);color:var(--lk-accent-ink);border:1px solid var(--lk-accent)}
+.lk-cta:hover{filter:brightness(1.08)}
+.lk-b2{background:transparent;color:var(--lk-fg);border:1px solid var(--lk-line)}
+.lk-b2:hover{background:var(--lk-soft)}
+.lk-msg{margin:12px 0 0!important;font-weight:600;color:var(--lk-fg)!important}
+.lk-msg:empty{display:none}
+.lk-dlg :focus-visible{outline:2px solid var(--lk-accent);outline-offset:2px}
+.lk-list{list-style:none;margin:8px 0 14px;padding:0;display:flex;flex-direction:column;gap:6px}
+.lk-list .lk-tile{width:100%}
+@media (max-width:560px){
+  .lk-ov{align-items:flex-end;padding:0}
+  .lk-dlg{width:100%;border-radius:16px 16px 0 0;padding:22px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:88vh}
+  .lk-acts>*{flex:1 1 auto}
+}
+@media print{.lk-ov,.lk-strip{display:none!important}}
+@media (prefers-reduced-motion:reduce){.lk-ov,.lk-flash{animation:none}}
+
+nav .lk-pnav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--fg);background:none;border:0;font-size:13.5px;text-align:left;width:100%}
+nav .lk-pnav:hover{background:var(--panel2)}
+#view .lk-strip{--lk-strip-bg:var(--panel);--lk-strip-fg:var(--fg);--lk-strip-line:var(--line);--lk-link:var(--focus)}
+@media (max-width:760px){nav .lk-pnav{white-space:nowrap;padding:7px 10px;font-size:13px;width:auto;flex:none}nav .lk-lbl.grp{display:flex!important;align-items:center;flex:none;padding:0 2px 0 10px;margin-left:2px;border-left:1px solid var(--line)}}
+
+</style>
+<script>window.LOCK_CFG={"product": "Panel de Contenido", "modules": [["Programación automática en redes", "Las piezas aprobadas se publican solas en Instagram, LinkedIn y YouTube, en el día y horario elegidos."], ["Informes mensuales en PDF", "Un informe por mes con los resultados de cada red, lo mejor publicado y recomendaciones, listo para enviar."], ["Monitoreo de menciones", "Avisos cuando nombran tu marca en redes o en medios, para responder a tiempo."], ["Varias marcas o clientes", "Una sola cuenta para manejar varias marcas, cada una con sus redes, su equipo y sus números."], ["Aprobación por cliente", "El cliente revisa cada pieza, comenta y aprueba desde un link, sin idas y vueltas por chat."], ["Integración con anuncios", "La inversión y los resultados de tus campañas pagas junto a los orgánicos, en el mismo tablero."]]};</script>
+<script id="lk-js">
+/* ===== Módulos del sistema completo (bloqueados en la demo) ===== */
+window.LOCK=(function(){
+  const C=window.LOCK_CFG||{product:"Demo",modules:[]};
+  const white=new URLSearchParams(location.search).get("marca")==="blanca";
+  if(white)document.documentElement.setAttribute("data-lk-white","");
+  const contact="https://www.devisebit.com/contacto?tema="+encodeURIComponent("Demo: "+C.product)+"#formulario";
+  const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const LOCKI=(s=15,cls="lk-ic")=>`<svg class="${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>`;
+  const XI=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+  const CALI=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>`;
+  let uid=0;
+  const aria=n=>`Módulo del sistema completo: ${n}`;
+
+  /* --- sección del menú --- */
+  function fillSection(el){
+    const btnCls=el.getAttribute("data-lk-btn")||"";
+    const lblCls=el.getAttribute("data-lk-lbl")||"";
+    const variant=el.getAttribute("data-lk-variant")||"nav";
+    const id="lk-lbl-"+(++uid);
+    el.classList.add("lk-sec");el.setAttribute("role","group");el.setAttribute("aria-labelledby",id);el.setAttribute("data-lk-ready","");
+    if(variant==="tiles"){
+      el.style.display="block";
+      el.innerHTML=`<div class="lk-tiles">${C.modules.map((m,i)=>`<button type="button" class="lk-btn lk-tile ${btnCls}" data-lk="${i}" aria-haspopup="dialog" aria-label="${esc(aria(m[0]))}">${LOCKI(16)}<span class="lk-tx">${esc(m[0])}</span></button>`).join("")}</div>`;
+      const h=el.getAttribute("data-lk-heading");const head=h?document.getElementById(h):null;
+      if(head){el.setAttribute("aria-labelledby",h)}else{el.insertAdjacentHTML("afterbegin",`<span id="${id}" class="lk-lbl ${lblCls}">En el sistema completo</span>`)}
+      return;
+    }
+    el.innerHTML=`<span id="${id}" class="lk-lbl ${lblCls}">En el sistema completo</span>`+C.modules.map((m,i)=>`<button type="button" class="lk-btn ${btnCls}" data-lk="${i}" aria-haspopup="dialog" aria-label="${esc(aria(m[0]))}">${LOCKI(16)}<span class="lk-tx">${esc(m[0])}</span></button>`).join("");
+  }
+  function fillStrip(el){
+    el.classList.add("lk-strip");el.setAttribute("role","note");el.setAttribute("data-lk-ready","");
+    el.innerHTML=`${LOCKI(16,"")}<span class="lk-st">Estás viendo una versión básica. El sistema completo tiene más módulos.</span><button type="button" class="lk-strip-link" data-lk-show>Ver qué incluye</button>`;
+  }
+  function mount(root){
+    (root||document).querySelectorAll("[data-lk-section]:not([data-lk-ready])").forEach(fillSection);
+    (root||document).querySelectorAll("[data-lk-strip]:not([data-lk-ready])").forEach(fillStrip);
+  }
+  const mo=new MutationObserver(()=>mount());
+  function start(){mount();mo.observe(document.body,{childList:true,subtree:true})}
+  if(document.body)start();else document.addEventListener("DOMContentLoaded",start);
+
+  /* --- diálogo --- */
+  let ov=null,opener=null;
+  const FOC='a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
+  function close(){
+    if(!ov)return;ov.remove();ov=null;document.removeEventListener("keydown",onKey,true);
+    document.documentElement.style.overflow="";
+    const o=opener;opener=null;
+    if(o&&o.isConnected){o.focus({preventScroll:true})}
+    else{const alt=document.querySelector("[data-lk-show]");if(alt)alt.focus({preventScroll:true})}
+  }
+  function onKey(e){
+    if(!ov)return;
+    if(e.key==="Escape"){e.preventDefault();e.stopPropagation();close();return}
+    if(e.key==="Tab"){
+      const f=[...ov.querySelectorAll(FOC)].filter(x=>x.offsetParent!==null||x===document.activeElement);
+      if(!f.length)return;const a=f[0],z=f[f.length-1];
+      if(!ov.contains(document.activeElement)){e.preventDefault();a.focus();return}
+      if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}
+      else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}
+    }
+  }
+  function shell(inner,labelId){
+    if(!ov){
+      ov=document.createElement("div");ov.className="lk-ov";
+      ov.addEventListener("mousedown",e=>{if(e.target===ov)close()});
+      document.body.appendChild(ov);document.addEventListener("keydown",onKey,true);
+      document.documentElement.style.overflow="hidden";
+    }
+    ov.innerHTML=`<div class="lk-dlg" role="dialog" aria-modal="true" aria-labelledby="${labelId}" aria-describedby="lk-d">${inner}<button type="button" class="lk-x" data-lk-close aria-label="Cerrar">${XI}</button></div>`;
+    ov.querySelectorAll("[data-lk-close]").forEach(b=>b.onclick=close);
+    return ov.querySelector(".lk-dlg");
+  }
+  function openModule(i){
+    const m=C.modules[i];if(!m)return;
+    const cta=white
+      ?`<button type="button" class="lk-cta" data-lk-ask>Pedir presentación</button>`
+      :`<a class="lk-cta" href="${esc(contact)}">Pedir presentación</a>`;
+    const d=shell(`<div class="lk-eye">${LOCKI(14,"")}En el sistema completo</div>
+      <h2 id="lk-t">${esc(m[0])}</h2>
+      <p id="lk-d">${esc(m[1])}</p>
+      <div class="lk-call">${CALI}<span>Este módulo lo vemos juntos en una presentación personalizada.</span></div>
+      <div class="lk-acts">${cta}<button type="button" class="lk-b2" data-lk-close>Cerrar</button></div>
+      <p class="lk-msg" role="status" aria-live="polite"></p>`,"lk-t");
+    const ask=d.querySelector("[data-lk-ask]");
+    if(ask)ask.onclick=()=>{d.querySelector(".lk-msg").textContent="Contactá a tu asesor para coordinar la presentación."};
+    d.querySelector(".lk-cta").focus({preventScroll:true});
+  }
+  function openList(){
+    const d=shell(`<div class="lk-eye">${LOCKI(14,"")}Versión básica</div>
+      <h2 id="lk-t">En el sistema completo</h2>
+      <p id="lk-d">La demo muestra lo básico. Estos módulos también forman parte del sistema:</p>
+      <ul class="lk-list">${C.modules.map((m,i)=>`<li><button type="button" class="lk-btn lk-tile" data-lk-in="${i}" aria-label="${esc(aria(m[0]))}">${LOCKI(16)}<span class="lk-tx">${esc(m[0])}</span></button></li>`).join("")}</ul>
+      <div class="lk-acts"><button type="button" class="lk-b2" data-lk-close>Cerrar</button></div>`,"lk-t");
+    d.querySelectorAll("[data-lk-in]").forEach(b=>b.onclick=()=>openModule(+b.dataset.lkIn));
+    d.querySelector("[data-lk-in]").focus({preventScroll:true});
+  }
+  const visible=el=>{if(!el)return false;const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=="hidden"};
+  async function show(from){
+    if(typeof LOCK.onShow==="function"){try{await LOCK.onShow()}catch(e){}}
+    const btn=[...document.querySelectorAll(".lk-sec [data-lk]")].find(visible);
+    if(!btn){opener=from||null;openList();return}
+    const sec=btn.closest(".lk-sec");
+    btn.scrollIntoView({block:"center",inline:"center",behavior:"smooth"});
+    const items=sec.querySelectorAll("[data-lk]");
+    items.forEach(x=>{x.classList.remove("lk-flash");void x.offsetWidth;x.classList.add("lk-flash")});
+    setTimeout(()=>items.forEach(x=>x.classList.remove("lk-flash")),1900);
+    btn.focus({preventScroll:true});
+  }
+  document.addEventListener("click",e=>{
+    const b=e.target.closest&&e.target.closest("[data-lk]");
+    if(b){e.preventDefault();opener=b;openModule(+b.dataset.lk);return}
+    const s=e.target.closest&&e.target.closest("[data-lk-show]");
+    if(s){e.preventDefault();show(s)}
+  });
+  const tourNote=`Esto es una muestra: el sistema completo tiene más módulos.`;
+  return {open:openModule,list:openList,show,close,mount,tourNote,white,contact,modules:C.modules,onShow:null};
+})();
+</script>
 </head>
 <body>
 
@@ -319,6 +501,7 @@ aside{top:var(--kbar-h)!important;height:calc(100vh - var(--kbar-h))}
       <a href="#competencia" data-v="competencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4.5"/></svg>Competencia</a>
       <div class="grp">Investigar</div>
       <a href="#noticias" data-v="noticias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h13v16H6a2 2 0 01-2-2zM17 8h3v10a2 2 0 01-2 2M8 8h5M8 12h5M8 16h3"/></svg>Noticias</a>
+      <div data-lk-section data-lk-btn="lk-pnav" data-lk-lbl="grp"></div>
     </nav>
     <div class="foot" id="foot">Demo con datos de ejemplo de una pyme ficticia.</div>
   </aside>
@@ -327,13 +510,15 @@ aside{top:var(--kbar-h)!important;height:calc(100vh - var(--kbar-h))}
 <div class="toast" id="toast" hidden></div>
 
 <script>
-window.DEMO={product:"Panel de Contenido"};
+window.DEMO={product:"Panel de Contenido",basic:true};
 /* ===== Kit de demo: barra superior, marca y recorrido guiado ===== */
 const KIT=(()=>{
   const Q=new URLSearchParams(location.search);
   const white=Q.get("marca")==="blanca";
   const showSel=!white||Q.get("selector")==="1";
   const product=(window.DEMO&&DEMO.product)||"Demo";
+  const basic=!!(window.DEMO&&DEMO.basic);
+  const basicNote=basic?`<p class="knote">Esto es una muestra: el sistema completo tiene más módulos.</p>`:"";
   const SITE="https://www.devisebit.com/";
   const contact=SITE+"contacto?tema="+encodeURIComponent("Demo: "+product)+"#formulario";
   const brandName=white?"Tu Marca":"DEVISEBIT";
@@ -347,7 +532,7 @@ const KIT=(()=>{
   function bar(){
     const b=document.createElement("div");b.className="kbar";b.setAttribute("role","region");b.setAttribute("aria-label","Aviso de demo");
     const sel=showSel?`<span class="kseg"><span id="kselLbl">Marca:</span><span class="kseg-g" role="group" aria-labelledby="kselLbl"><button type="button" data-kbrand="devisebit" aria-pressed="${!white}">DEVISEBIT</button><button type="button" data-kbrand="blanca" aria-pressed="${white}">Tu marca</button></span></span>`:"";
-    b.innerHTML=`<div class="kbar-in"><div class="kbar-msg"><span class="kbar-dot" aria-hidden="true"></span><span>Demo con datos de ejemplo${white?"":" ·"}</span></div>${white?"":`<a class="kcta" href="${contact}">Quiero esto para mi organización</a>`}<button type="button" class="kbtn" id="kTourBtn">▶ <span class="kd">Ver recorrido guiado</span><span class="km">Recorrido</span></button><span class="kbr" aria-hidden="true"></span>${sel}${white?"":`<a class="klink" href="${SITE}">Inicio</a>`}</div>`;
+    b.innerHTML=`<div class="kbar-in"><div class="kbar-msg"><span class="kbar-dot" aria-hidden="true"></span><span>${basic?"Demo con funciones básicas y datos de ejemplo":"Demo con datos de ejemplo"}${white?"":" ·"}</span></div>${white?"":`<a class="kcta" href="${contact}">Quiero esto para mi organización</a>`}<button type="button" class="kbtn" id="kTourBtn">▶ <span class="kd">Ver recorrido guiado</span><span class="km">Recorrido</span></button><span class="kbr" aria-hidden="true"></span>${sel}${white?"":`<a class="klink" href="${SITE}">Inicio</a>`}</div>`;
     document.body.prepend(b);
     b.querySelectorAll("[data-kbrand]").forEach(x=>x.onclick=()=>{const v=x.dataset.kbrand;location.href=url({marca:v==="blanca"?"blanca":null,selector:v==="blanca"?"1":Q.get("selector")})});
     b.querySelector("#kTourBtn").onclick=()=>{location.href=url({tour:"1"})};
@@ -389,8 +574,8 @@ const KIT=(()=>{
     cancelAnimationFrame(raf);document.documentElement.classList.remove("ktour-on");[cur,ring,cap,shield].forEach(x=>x&&x.remove());
     const o=document.createElement("div");o.className="ktour-end";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-labelledby","kEndT");
     o.innerHTML=white
-      ?`<div class="ktour-card"><h2 id="kEndT">Pedí tu demo</h2><p>Lo armamos con tus datos y tu marca.</p><div class="big">${esc(product)}</div><div class="row"><button type="button" id="kEndBack">Seguir explorando</button></div></div>`
-      :`<div class="ktour-card"><h2 id="kEndT">¿Lo querés para tu organización?</h2><p>Lo adaptamos a tu marca, tus datos y tu equipo.</p><div class="big">devisebit.com</div><div class="row"><a href="${contact}">Quiero esto para mi organización</a><button type="button" id="kEndBack">Seguir explorando</button></div></div>`;
+      ?`<div class="ktour-card"><h2 id="kEndT">Pedí tu demo</h2><p>Lo armamos con tus datos y tu marca.</p><div class="big">${esc(product)}</div>${basicNote}<div class="row"><button type="button" id="kEndBack">Seguir explorando</button></div></div>`
+      :`<div class="ktour-card"><h2 id="kEndT">¿Lo querés para tu organización?</h2><p>Lo adaptamos a tu marca, tus datos y tu equipo.</p><div class="big">devisebit.com</div>${basicNote}<div class="row"><a href="${contact}">Quiero esto para mi organización</a><button type="button" id="kEndBack">Seguir explorando</button></div></div>`;
     document.body.appendChild(o);o.querySelector("#kEndBack").onclick=()=>{o.remove();history.replaceState(null,"",url({tour:null}));const t=document.getElementById("kTourBtn");if(t)t.hidden=false};
     o.querySelector("#kEndBack").focus({preventScroll:true});
     window.__tourDone=true;
@@ -739,7 +924,7 @@ V.inicio=()=>{
   const last=`<div class="card"><div class="ch"><h2>Últimas publicaciones</h2><a class="k" href="#analisis" style="color:var(--muted)">Análisis ›</a></div><div class="list">
     ${S.posts==null?`<div class="skel">Leyendo publicaciones…</div>`:posts.length?posts.slice(0,5).map(p=>`<div class="item"><div class="t">${p.url?`<a class="lk" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.text.split("\n")[0].slice(0,100))}</a>`:esc(p.text.slice(0,100))}</div><div class="m"><span>${fdate(ymd(p.ts))} · ${NETS[p.net]||"Instagram"}</span><span>Alc. ${fmt(p.reach)} · ${fmt(p.inter)} int.</span></div></div>`).join(""):`<div class="empty">Sin publicaciones en los últimos 90 días.</div>`}
    </div></div>`;
-  return `<div class="head"><div><h1>${hi}, equipo</h1><p class="sub">Panorama de Estudio Andes: redes, negocio y web.</p></div><div class="row">${liveTag()}<a class="btn pri" href="#publicaciones">+ Nueva idea</a></div></div>
+  return `<div data-lk-strip></div><div class="head"><div><h1>${hi}, equipo</h1><p class="sub">Panorama de Estudio Andes: redes, negocio y web.</p></div><div class="row">${liveTag()}<a class="btn pri" href="#publicaciones">+ Nueva idea</a></div></div>
   ${errBanner(["evo","sched","feed","liPosts"])}${noMcpNote()}
   <div class="sec"><span class="k">Redes · últimos ${S.range} días</span></div>
   ${kpis}
