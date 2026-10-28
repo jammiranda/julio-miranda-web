@@ -47,14 +47,14 @@ export default function Header() {
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : href === "/nosotros" ? ["/nosotros", "/casos-de-exito", "/alianzas-estrategicas", "/trabaja-con-nosotros"].some((p) => pathname.startsWith(p)) : pathname.startsWith(href))
   const linkCls = (href: string) =>
-    "px-3 py-3 rounded-lg text-[15px] transition-colors " +
+    "px-2.5 xl:px-3 py-3 rounded-lg text-[14px] xl:text-[15px] whitespace-nowrap transition-colors " +
     (isActive(href) ? "text-white font-semibold bg-white/10" : "text-[#D3D7DE] font-medium hover:text-white hover:bg-white/5")
 
   return (
     <>
     <DbMotion />
     <header className="fixed top-0 inset-x-0 z-50 bg-[#0B0D12]/95 backdrop-blur border-b border-white/10">
-      <div className="max-w-[1240px] mx-auto px-4 md:px-8 h-[72px] flex items-center gap-6">
+      <div className="max-w-[1240px] mx-auto px-4 md:px-8 h-[72px] flex items-center gap-4 xl:gap-6">
         <Link href="/" className="flex items-center gap-2.5 text-white shrink-0" aria-label="DEVISEBIT, inicio">
           <Image src="/images/devisebit-icon-transparent.png" alt="" width={32} height={32} className="w-8 h-8" />
           <span className="font-tight font-extrabold text-[22px] tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
@@ -89,7 +89,7 @@ export default function Header() {
             )}
           </div>
           <Link href="/contacto" className={linkCls("/contacto")}>Contacto</Link>
-          <Link href="/contacto" className="ml-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 text-[15px] font-bold text-white transition-colors">Pedí tu propuesta</Link>
+          <Link href="/contacto" className="ml-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 xl:px-5 py-3 text-[14px] xl:text-[15px] font-bold text-white whitespace-nowrap transition-colors">Pedí tu propuesta</Link>
         </nav>
 
         <button
