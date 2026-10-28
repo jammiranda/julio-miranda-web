@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import { one, audit } from "@/lib/db"
 import { crearSesion, usuarioActual, type Usuario } from "@/lib/auth"
 import Marca from "@/components/Marca"
+import Redes from "@/components/Redes"
 
 async function ingresar(fd: FormData) {
   "use server"
@@ -30,6 +31,7 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
         <label className="lbl">Clave<input name="clave" type="password" required autoComplete="current-password" className="inp" /></label>
         <button className="btn-p">Ingresar</button>
         <a href="/recuperar" className="text-sm text-[#C8231F] underline text-center">¿Olvidaste tu clave?</a>
+        <Redes className="justify-center pt-2 border-t border-[#EEF0F3]" />
       </form>
     </main>
   )
