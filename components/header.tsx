@@ -11,14 +11,15 @@ const MAIN = [
   { href: "/", label: "Inicio" },
   { href: "/servicios", label: "Servicios" },
   { href: "/productos", label: "Productos" },
+  { href: "/transformacion-digital", label: "Transformación digital" },
   { href: "/novedades", label: "Novedades" },
 ]
+const AUTODIAG = "/demos/transformacion-digital.html"
 
 const NOSOTROS = [
   { href: "/nosotros", label: "Quiénes somos" },
   { href: "/nosotros#equipo", label: "Nuestro equipo" },
   { href: "/casos-de-exito", label: "Casos de éxito" },
-  { href: "/transformacion-digital", label: "Transformación digital" },
   { href: "/alianzas-estrategicas", label: "Alianzas estratégicas" },
   { href: "/trabaja-con-nosotros", label: "Trabajá con nosotros" },
   { href: "https://academia.devisebit.com", label: "Academia DEVISEBIT", external: true },
@@ -60,7 +61,7 @@ export default function Header() {
         </Link>
 
         <nav aria-label="Principal" className="hidden lg:flex items-center gap-1 ml-auto">
-          {MAIN.map((l) => (
+          {MAIN.filter((l) => l.href !== "/").map((l) => (
             <Link key={l.href} href={l.href} className={linkCls(l.href)}>{l.label}</Link>
           ))}
           <div ref={dropRef} className="relative" onMouseEnter={show} onMouseLeave={hideSoon}>
@@ -108,6 +109,7 @@ export default function Header() {
             {MAIN.map((l) => (
               <Link key={l.href} href={l.href} className={linkCls(l.href)}>{l.label}</Link>
             ))}
+            <a href={AUTODIAG} className="mt-1 px-3 py-3 rounded-lg text-[15px] font-semibold text-[#FF6A63] hover:text-white">Autodiagnóstico digital gratis →</a>
             <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Nosotros</p>
             {NOSOTROS.map((l) =>
               l.external ? (
