@@ -168,8 +168,36 @@ export const LICITACIONES: Ent = {
   ],
 }
 
+/* ---------------- Activos digitales (dominios, hosting, SSL, casillas) ---------------- */
+export const TIPOS_ACTIVO: Op[] = [
+  { v: "dominio", n: "Dominio", c: C.cielo }, { v: "hosting", n: "Hosting", c: C.violeta }, { v: "ssl", n: "Certificado SSL", c: C.verde },
+  { v: "correo", n: "Correo", c: C.ambar }, { v: "servidor", n: "Servidor / cloud", c: C.gris }, { v: "otro", n: "Otro", c: C.gris },
+]
+export const ESTADOS_ACTIVO: Op[] = [
+  { v: "activo", n: "Activo", c: C.verde }, { v: "a_revisar", n: "A revisar", c: C.ambar }, { v: "dar_de_baja", n: "Dar de baja", c: C.rojo }, { v: "dado_de_baja", n: "Dado de baja", c: C.apagado },
+]
+export const ACTIVOS: Ent = {
+  tabla: "g_activos", n: "Activos digitales", uno: "activo", orden: "case estado when 'dado_de_baja' then 1 else 0 end, vence nulls last, tipo, nombre", titulo: "nombre", edita: EDITAN,
+  campos: [
+    { k: "nombre", n: "Dominio o servicio", t: "text", req: true, lista: true },
+    { k: "tipo", n: "Tipo", t: "sel", req: true, lista: true, def: "dominio", ops: TIPOS_ACTIVO },
+    { k: "cliente", n: "Cliente / empresa", t: "text", lista: true, ayuda: "A quién pertenece: DEVISEBIT (propio) o el cliente." },
+    { k: "proveedor", n: "Proveedor", t: "text", def: "Donweb" },
+    { k: "estado", n: "Estado", t: "sel", lista: true, def: "activo", ops: ESTADOS_ACTIVO },
+    { k: "vence", n: "Vence", t: "date", lista: true },
+    { k: "periodicidad", n: "Se paga", t: "sel", def: "anual", ops: [{ v: "anual", n: "Anual" }, { v: "mensual", n: "Mensual" }] },
+    { k: "costo", n: "Costo", t: "num", lista: true, ayuda: "Lo que paga DEVISEBIT al proveedor por período." },
+    { k: "moneda", n: "Moneda", t: "sel", def: "ARS", ops: MONEDAS },
+    { k: "se_cobra", n: "Se le cobra al cliente", t: "bool" },
+    { k: "precio", n: "Precio al cliente", t: "num" },
+    { k: "alta", n: "Alta", t: "date" },
+    { k: "complementos", n: "Complementos", t: "text", ayuda: "Privacidad, Seguridad Premium, Seguro de renovación." },
+    { k: "notas", n: "Notas", t: "area", ancho: true },
+  ],
+}
+
 export const ENTIDADES: Record<string, Ent> = {
-  movimientos: MOVIMIENTOS, proveedores: PROVEEDORES, contratos: CONTRATOS, vencimientos: VENCIMIENTOS, documentos: DOCUMENTOS, licitaciones: LICITACIONES,
+  movimientos: MOVIMIENTOS, proveedores: PROVEEDORES, contratos: CONTRATOS, vencimientos: VENCIMIENTOS, documentos: DOCUMENTOS, licitaciones: LICITACIONES, activos: ACTIVOS,
 }
 
 /* ---------------- Módulos de DEVISEBIT (el manual operativo, vivo) ---------------- */
@@ -202,7 +230,8 @@ export function dinero(n: number | string | null | undefined, moneda = "ARS") {
 export function numero(t: string): number | null {
   const x = t.replace(/\s|\$|US/g, "")
   if (!x) return null
-  const n = x.includes(",") ? Number(x.replace(/\./g, "").replace(",", ".")) : (x.match(/\./g)?.length ?? 0) > 1 ? Number(x.replace(/\./g, "")) : Number(x)
+  // Con coma: formato argentino. Sin coma: los puntos son miles si hay más de uno o si separan grupos de 3 (90.000).
+  const n = x.includes(",") ? Number(x.replace(/\./g, "").replace(",", ".")) : /^\d{1,3}(\.\d{3})+$/.test(x) ? Number(x.replace(/\./g, "")) : Number(x)
   return Number.isFinite(n) ? n : null
 }
 export function sumarDias(iso: string, dias: number) {

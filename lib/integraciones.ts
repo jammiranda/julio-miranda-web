@@ -135,7 +135,7 @@ export async function correosCon(email: string): Promise<Hilo[]> {
 
 /* ---------------- Casilla de Donweb (IMAP) ---------------- */
 export type CfgImap = { host: string; puerto: number; usuario: string; clave?: string; webmail?: string }
-const IMAP_DEF: CfgImap = { host: "", puerto: 993, usuario: "info@devisebit.com", webmail: "" }
+const IMAP_DEF: CfgImap = { host: "c1381774.ferozo.com", puerto: 993, usuario: "info@devisebit.com", webmail: "" }
 
 async function llave() { return createHash("sha256").update(await secret()).update("imap").digest() }
 async function cifrar(t: string) {

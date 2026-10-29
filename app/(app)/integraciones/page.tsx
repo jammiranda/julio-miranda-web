@@ -127,7 +127,7 @@ export default async function Integraciones({ searchParams: sp }: { searchParams
 
         <section className="card flex flex-col gap-3" aria-label="Casilla de Donweb">
           <div className="flex items-center justify-between gap-2"><h2 className="m-0 text-base">info@devisebit.com · Donweb</h2><Estado ok={im.tieneClave && !!im.host} si="Conectada" no="Sin conectar" /></div>
-          <p className="m-0 text-sm text-[var(--gris)]">La casilla de Donweb se lee por IMAP: los correos nuevos aparecen en Correo y en el Tablero, enlazados con el contacto si ya está en el CRM. Los datos están en el panel de Donweb → Correo → Configurar cliente de correo.</p>
+          <p className="m-0 text-sm text-[var(--gris)]">La casilla de Donweb se lee por IMAP: los correos nuevos aparecen en Correo y en el Tablero, enlazados con el contacto si ya está en el CRM. El servidor y el usuario ya están cargados desde el panel de Donweb (hosting devisebit.com): solo falta la clave de info@devisebit.com.</p>
           {u.rol === "gerente" ? (
             <form action={guardarCasilla} className="grid grid-cols-1 sm:grid-cols-[1fr_110px] gap-2">
               <label className="lbl">Servidor IMAP<input name="host" defaultValue={im.host} placeholder="mail.devisebit.com" className="inp" /></label>
@@ -142,9 +142,9 @@ export default async function Integraciones({ searchParams: sp }: { searchParams
       </div>
 
       <section className="card flex flex-col gap-2" aria-label="Donweb dominios y hosting">
-        <h2 className="m-0 text-base">Dominios y hosting de Donweb</h2>
-        <p className="m-0 text-sm text-[var(--gris)]">Donweb no tiene una API pública para clientes de hosting, así que los vencimientos de dominios, hosting y casillas se cargan una vez en Legales como vencimientos <strong>anuales</strong>: el sistema avisa antes y, al marcarlos hechos, crea solo el del año siguiente.</p>
-        <div><Link href="/legales?ver=vencimientos&nuevo=1" className="btn-s">+ Cargar vencimiento de Donweb</Link></div>
+        <h2 className="m-0 text-base">Dominios, hosting y SSL de Donweb</h2>
+        <p className="m-0 text-sm text-[var(--gris)]">Todo lo contratado en Donweb (29 dominios, 11 certificados SSL, el plan revendedor y sus 31 cuentas de hosting) está en <strong>Activos digitales</strong>, con cliente, vencimiento y costo, y las facturas de Donweb están en Finanzas. Las renovaciones de los próximos 30 días aparecen en el Tablero de dirección. Donweb no tiene API pública, así que los cambios nuevos se cargan a mano en Activos.</p>
+        <div><Link href="/activos" className="btn-s">Ver activos digitales</Link></div>
       </section>
     </div>
   )

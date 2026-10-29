@@ -9,7 +9,7 @@ import { eventosCalendario, correosGmail, correosImap, contactosPorEmail, nombre
 export const dynamic = "force-dynamic"
 
 type Item = { f: string; t: string; d: string; area: string; href: string; monto?: string; ext?: boolean; hora?: string }
-const AREA_C: Record<string, string> = { Cobro: "bg-emerald-50 text-emerald-700", Pago: "bg-red-50 text-rojo", Legal: "bg-violet-50 text-violet-700", Contrato: "bg-violet-50 text-violet-700", Licitación: "bg-amber-50 text-amber-700", Proyecto: "bg-sky-50 text-sky-700", Módulo: "bg-slate-100 text-slate-700", Reunión: "bg-[#0E1116] text-white" }
+const AREA_C: Record<string, string> = { Cobro: "bg-emerald-50 text-emerald-700", Pago: "bg-red-50 text-rojo", Legal: "bg-violet-50 text-violet-700", Contrato: "bg-violet-50 text-violet-700", Licitación: "bg-amber-50 text-amber-700", Proyecto: "bg-sky-50 text-sky-700", Módulo: "bg-slate-100 text-slate-700", Renovación: "bg-sky-50 text-sky-700", Reunión: "bg-[#0E1116] text-white" }
 const PUNTO: Record<string, string> = { sin_empezar: "#94A3B8", en_curso: "#D97706", trabado: "#DC2626", listo: "#059669" }
 
 export default async function TableroDireccion() {
@@ -52,6 +52,8 @@ export default async function TableroDireccion() {
           from g_licitaciones l where l.estado in ('detectada','analizando','preparando','presentada') and l.apertura <= $2
         union all select p.entrega::text, 'Entrega: '||p.nombre, coalesce(c.organizacion,c.nombre,''), 'Proyecto', '/proyectos/'||p.id, null
           from db_proyectos p left join db_contactos c on c.id=p.contacto_id where p.estado in ('planificado','en_curso','pausado') and p.entrega <= $2
+        union all select a.vence::text, 'Renovar '||a.nombre, coalesce(a.cliente,'Sin asignar')||' · '||coalesce(a.proveedor,''), 'Renovación', '/activos?editar='||a.id, a.costo::text||' '||a.moneda
+          from g_activos a where a.estado in ('activo','a_revisar') and a.vence <= $2
         union all select m.fecha::text, m.nombre||': '||coalesce(m.proximo,''), m.responsable, 'Módulo', '/modulos#'||m.codigo, null
           from g_modulos m where m.estado<>'listo' and m.fecha <= $2
       ) x where f is not null order by f limit 40`, [hoy, h30]),

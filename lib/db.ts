@@ -484,6 +484,114 @@ alter table g_documentos add column if not exists externo_id text;
 alter table g_documentos add column if not exists ruta text;
 alter table g_documentos add column if not exists mime text;
 create unique index if not exists g_documentos_externo on g_documentos(externo_id) where externo_id is not null;
+create table if not exists g_activos (
+  id serial primary key,
+  tipo text not null default 'dominio' check (tipo in ('dominio','hosting','ssl','correo','servidor','otro')),
+  nombre text not null, cliente text, proveedor text,
+  estado text not null default 'activo' check (estado in ('activo','a_revisar','dar_de_baja','dado_de_baja')),
+  alta date, vence date, periodicidad text not null default 'anual', costo numeric, moneda text not null default 'ARS',
+  se_cobra boolean not null default false, precio numeric, complementos text, notas text, externo_id text,
+  creado_por text, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create unique index if not exists g_activos_externo on g_activos(externo_id);
+alter table g_movimientos add column if not exists externo_id text;
+create unique index if not exists g_movimientos_externo on g_movimientos(externo_id) where externo_id is not null;
+insert into g_proveedores(nombre,rubro,condicion_iva,email,notas,creado_por)
+select 'Donweb','Hosting, dominios y SSL','Responsable inscripto','info@donweb.com','Cliente N.º 22783467 (Devisebit SRL). Paga con tarjeta y saldo a favor. Panel micuenta.donweb.com','donweb'
+where not exists (select 1 from g_proveedores where nombre='Donweb');
+insert into g_activos(tipo,nombre,cliente,proveedor,estado,alta,vence,periodicidad,costo,moneda,complementos,notas,externo_id)
+select tipo,nombre,cliente,proveedor,estado,alta::date,vence::date,periodicidad,costo::numeric,moneda,complementos,notas,externo_id from (values
+  ('dominio','carlosdalessandro.ar','Carlos D''Alessandro','Donweb','activo',null,'2027-04-09','anual',65000,'ARS',null,'Registro .AR','donweb:dom:carlosdalessandro.ar'),
+  ('dominio','casabuena.com.ar','Residencia Casa Buena','Donweb','activo',null,'2027-07-06','anual',32000,'ARS','Seguridad Premium','Registro .COM.AR','donweb:dom:casabuena.com.ar'),
+  ('dominio','casabuena.online','Residencia Casa Buena','Donweb','activo',null,'2027-07-06','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:casabuena.online'),
+  ('dominio','casabuena.site','Residencia Casa Buena','Donweb','activo',null,'2027-07-06','anual',52580,'ARS',null,'Registro .SITE','donweb:dom:casabuena.site'),
+  ('dominio','centrosagradocorazon.com','Centro Médico Sagrado Corazón','Donweb','activo',null,'2027-08-05','anual',63100,'ARS','Privacidad, Seguridad Premium','Registro .COM','donweb:dom:centrosagradocorazon.com'),
+  ('dominio','centrosagradocorazon.online','Centro Médico Sagrado Corazón','Donweb','activo',null,'2027-08-05','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:centrosagradocorazon.online'),
+  ('dominio','centrosagradocorazon.store','Centro Médico Sagrado Corazón','Donweb','activo',null,'2027-08-05','anual',63320,'ARS',null,'Registro .STORE','donweb:dom:centrosagradocorazon.store'),
+  ('dominio','clinicasangabriel.ar','Grupo San Gabriel','Donweb','activo',null,'2027-04-14','anual',67000,'ARS','Seguridad Premium','Registro .AR','donweb:dom:clinicasangabriel.ar'),
+  ('dominio','clinicasangabriel.online','Grupo San Gabriel','Donweb','activo',null,'2027-04-14','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:clinicasangabriel.online'),
+  ('dominio','clinicasangabriel.store','Grupo San Gabriel','Donweb','activo',null,'2027-04-14','anual',63320,'ARS',null,'Registro .STORE','donweb:dom:clinicasangabriel.store'),
+  ('dominio','clinicasangrabriel.com','Grupo San Gabriel','Donweb','activo',null,'2027-04-08','anual',46900,'ARS',null,'Registro .COM','donweb:dom:clinicasangrabriel.com'),
+  ('dominio','comunidadusl.com','UTHGRA San Luis','Donweb','activo',null,'2027-06-02','anual',69600,'ARS','Seguro de renovación, Seguridad Premium, Privacidad','Registro .COM','donweb:dom:comunidadusl.com'),
+  ('dominio','comunidadusl.com.ar','UTHGRA San Luis','Donweb','activo',null,'2027-06-02','anual',32000,'ARS','Seguridad Premium','Registro .COM.AR','donweb:dom:comunidadusl.com.ar'),
+  ('dominio','comunidadusl.online','UTHGRA San Luis','Donweb','activo',null,'2027-06-02','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:comunidadusl.online'),
+  ('dominio','comunidadusl.store','UTHGRA San Luis','Donweb','activo',null,'2027-06-02','anual',63320,'ARS',null,'Registro .STORE','donweb:dom:comunidadusl.store'),
+  ('dominio','devisebit.com','DEVISEBIT (propio)','Donweb','activo',null,'2027-07-20','anual',46900,'ARS',null,'Registro .COM','donweb:dom:devisebit.com'),
+  ('dominio','devisebit.site','DEVISEBIT (propio)','Donweb','activo',null,'2027-07-13','anual',52580,'ARS',null,'Registro .SITE','donweb:dom:devisebit.site'),
+  ('dominio','gruposangabriel.ar','Grupo San Gabriel','Donweb','activo',null,'2027-03-15','anual',70000,'ARS','Seguridad Premium','Registro .AR','donweb:dom:gruposangabriel.ar'),
+  ('dominio','gruposangabriel.online','Grupo San Gabriel','Donweb','activo',null,'2027-03-15','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:gruposangabriel.online'),
+  ('dominio','gruposangabriel.store','Grupo San Gabriel','Donweb','activo',null,'2027-03-15','anual',63320,'ARS',null,'Registro .STORE','donweb:dom:gruposangabriel.store'),
+  ('dominio','hightech.ar',null,'Donweb','activo',null,'2027-07-30','anual',70000,'ARS','Seguridad Premium','Registro .AR','donweb:dom:hightech.ar'),
+  ('dominio','lasaludmentalesunderecho.com',null,'Donweb','activo',null,'2027-08-18','anual',69600,'ARS','Privacidad, Seguridad Premium, Seguro de renovación','Registro .COM','donweb:dom:lasaludmentalesunderecho.com'),
+  ('dominio','lasaludmentalesunderecho.online',null,'Donweb','activo',null,'2027-08-18','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:lasaludmentalesunderecho.online'),
+  ('dominio','lasaludmentalesunderecho.store',null,'Donweb','activo',null,'2027-08-18','anual',63320,'ARS',null,'Registro .STORE','donweb:dom:lasaludmentalesunderecho.store'),
+  ('dominio','mcsaludsas.com','MC SALUD SAS','Donweb','activo',null,'2027-03-15','anual',69600,'ARS','Seguro de renovación, Seguridad Premium, Privacidad','Registro .COM','donweb:dom:mcsaludsas.com'),
+  ('dominio','mcsaludsas.online','MC SALUD SAS','Donweb','activo',null,'2027-03-15','anual',52580,'ARS',null,'Registro .ONLINE','donweb:dom:mcsaludsas.online'),
+  ('dominio','mcsaludsas.store','MC SALUD SAS','Donweb','activo',null,'2027-03-15','anual',63320,'ARS',null,'Registro .STORE','donweb:dom:mcsaludsas.store'),
+  ('dominio','sanpatricio.ar','San Patricio SRL','Donweb','activo',null,'2027-10-19','anual',67000,'ARS','Seguridad Premium','Registro .AR','donweb:dom:sanpatricio.ar'),
+  ('dominio','uthgrasanluis.com','UTHGRA San Luis','Donweb','activo',null,'2027-06-07','anual',63100,'ARS','Seguridad Premium, Privacidad','Registro .COM','donweb:dom:uthgrasanluis.com'),
+  ('ssl','academiasodetec.ar','Fundación SODETEC','Donweb','activo',null,'2027-04-09','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:academiasodetec.ar'),
+  ('ssl','gruposangabriel.ar','Grupo San Gabriel','Donweb','activo',null,'2027-04-13','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:gruposangabriel.ar'),
+  ('ssl','carlosdalessandro.ar','Carlos D''Alessandro','Donweb','activo',null,'2027-04-14','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:carlosdalessandro.ar'),
+  ('ssl','clinicasangabriel.ar','Grupo San Gabriel','Donweb','activo',null,'2027-04-16','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:clinicasangabriel.ar'),
+  ('ssl','uthgrasanluis.com','UTHGRA San Luis','Donweb','activo',null,'2027-06-07','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:uthgrasanluis.com'),
+  ('ssl','mcsaludsas.com','MC SALUD SAS','Donweb','activo',null,'2027-06-23','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:mcsaludsas.com'),
+  ('ssl','casabuena.com.ar','Residencia Casa Buena','Donweb','activo',null,'2027-07-08','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:casabuena.com.ar'),
+  ('ssl','hightech.ar',null,'Donweb','activo',null,'2027-08-05','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:hightech.ar'),
+  ('ssl','trasandinocomex.com.ar','Trasandino Comex','Donweb','activo',null,'2027-08-12','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:trasandinocomex.com.ar'),
+  ('ssl','centrosagradocorazon.com','Centro Médico Sagrado Corazón','Donweb','activo',null,'2027-08-16','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:centrosagradocorazon.com'),
+  ('ssl','sanpatricio.ar','San Patricio SRL','Donweb','activo',null,'2027-10-19','anual',36000,'ARS',null,'Certificado SSL Sectigo Positive','donweb:ssl:sanpatricio.ar'),
+  ('hosting','Plan revendedor de 32 cuentas','DEVISEBIT (propio)','Donweb','activo',null,'2026-11-28','mensual',47218,'ARS',null,'31 de 32 cuentas en uso. Las cuentas de hosting están incluidas en este plan.','donweb:plan:2198211'),
+  ('hosting','Cuenta de hosting: San Patricio SRL','San Patricio SRL','Donweb','activo','2026-10-22',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1260394.','donweb:host:1260394'),
+  ('hosting','Cuenta de hosting: Casa Buena','Residencia Casa Buena','Donweb','activo','2026-07-06',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1234777.','donweb:host:1234777'),
+  ('hosting','Cuenta de hosting: Grupo San Gabriel','Grupo San Gabriel','Donweb','activo','2026-04-11',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1213355.','donweb:host:1213355'),
+  ('hosting','Cuenta de hosting: hightech.ar',null,'Donweb','activo','2025-07-30',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1150442.','donweb:host:1150442'),
+  ('hosting','Cuenta de hosting: MC SALUD SAS','MC SALUD SAS','Donweb','activo','2025-05-14',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1129807.','donweb:host:1129807'),
+  ('hosting','Cuenta de hosting: ACADEMIAUSL','UTHGRA San Luis','Donweb','activo','2024-04-25',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1026463.','donweb:host:1026463'),
+  ('hosting','Cuenta de hosting: urobaires.com','Urobaires','Donweb','activo','2024-01-24',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 1003181.','donweb:host:1003181'),
+  ('hosting','Cuenta de hosting: carlosdalessandro.ar','Carlos D''Alessandro','Donweb','activo','2023-12-18',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 995181.','donweb:host:995181'),
+  ('hosting','Cuenta de hosting: Academia SODETEC','Fundación SODETEC','Donweb','activo','2023-10-10',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 976832.','donweb:host:976832'),
+  ('hosting','Cuenta de hosting: sodetec','Fundación SODETEC','Donweb','activo','2023-09-12',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 968877.','donweb:host:968877'),
+  ('hosting','Cuenta de hosting: DB ACADEMIA',null,'Donweb','activo','2023-09-11',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 968453.','donweb:host:968453'),
+  ('hosting','Cuenta de hosting: SALA DE ESCAPE LAB','Sala de Escape Lab','Donweb','activo','2022-11-14',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 881531.','donweb:host:881531'),
+  ('hosting','Cuenta de hosting: devisebit.com','DEVISEBIT (propio)','Donweb','activo','2022-07-20',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. Casillas info@devisebit.com y ppalombo@devisebit.com (IMAP c1381774.ferozo.com, puerto 993). ID 845464.','donweb:host:845464'),
+  ('hosting','Cuenta de hosting: app nacelle',null,'Donweb','activo','2022-06-16',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 835334.','donweb:host:835334'),
+  ('hosting','Cuenta de hosting: app trade marketing',null,'Donweb','activo','2022-06-16',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 835332.','donweb:host:835332'),
+  ('hosting','Cuenta de hosting: atlas uba','UBA','Donweb','activo','2022-05-16',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 826072.','donweb:host:826072'),
+  ('hosting','Cuenta de hosting: Observatorio UBA','UBA','Donweb','activo','2022-04-05',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 814294.','donweb:host:814294'),
+  ('hosting','Cuenta de hosting: Incubate','UBA','Donweb','activo','2022-03-17',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 809014.','donweb:host:809014'),
+  ('hosting','Cuenta de hosting: lasaludmentalesunderecho',null,'Donweb','activo','2021-12-29',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 789746.','donweb:host:789746'),
+  ('hosting','Cuenta de hosting: Academia BA','GCBA','Donweb','activo','2021-07-08',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 741083.','donweb:host:741083'),
+  ('hosting','Cuenta de hosting: catamarca minera','Catamarca Minera','Donweb','activo','2021-03-03',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 713766.','donweb:host:713766'),
+  ('hosting','Cuenta de hosting: proyectouba','UBA','Donweb','activo','2021-02-28',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 713130.','donweb:host:713130'),
+  ('hosting','Cuenta de hosting: Think Solutions','Think Solutions','Donweb','activo','2020-10-26',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 695155.','donweb:host:695155'),
+  ('hosting','Cuenta de hosting: Proyecto Axion',null,'Donweb','activo','2020-09-08',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 686710.','donweb:host:686710'),
+  ('hosting','Cuenta de hosting: River Play Digital','River Play Digital','Donweb','activo','2019-04-11',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 616062.','donweb:host:616062'),
+  ('hosting','Cuenta de hosting: TRASANDINOCOMEX','Trasandino Comex','Donweb','activo','2019-02-11',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 609675.','donweb:host:609675'),
+  ('hosting','Cuenta de hosting: Eduardo Duhalde','Eduardo Duhalde','Donweb','activo','2018-10-04',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 597080.','donweb:host:597080'),
+  ('hosting','Cuenta de hosting: Carlos Brown','Carlos Brown','Donweb','activo','2018-10-04',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 597079.','donweb:host:597079'),
+  ('hosting','Cuenta de hosting: El Suizo Turismo','El Suizo Turismo','Donweb','activo','2018-09-27',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 596256.','donweb:host:596256'),
+  ('hosting','Cuenta de hosting: Apthgra - Uthgra','UTHGRA San Luis','Donweb','activo','2018-09-24',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 595896.','donweb:host:595896'),
+  ('hosting','Cuenta de hosting: Web y Graf','DEVISEBIT (propio)','Donweb','activo','2018-09-24',null,'mensual',null,'ARS',null,'Incluida en el plan revendedor. ID 595868.','donweb:host:595868')
+) v(tipo,nombre,cliente,proveedor,estado,alta,vence,periodicidad,costo,moneda,complementos,notas,externo_id)
+where not exists (select 1 from config where clave='seed_donweb_2026_10')
+on conflict (externo_id) do nothing;
+insert into g_movimientos(tipo,concepto,categoria,monto,moneda,estado,fecha,medio,externo_id,proveedor_id,nota,creado_por)
+select v.tipo,v.concepto,v.categoria,v.monto::numeric,v.moneda,v.estado,v.fecha::date,v.medio,v.externo_id,(select id from g_proveedores where nombre='Donweb' limit 1),'Importada del panel de Donweb (Pagos y facturación).','donweb' from (values
+  ('egreso','Donweb · Factura A 0002-01905653','Hosting y dominios','47218','ARS','pagado','2026-10-21','Tarjeta','donweb:fc:0002-01905653'),
+  ('egreso','Donweb · Factura A 0002-01904405','Hosting y dominios','2300','ARS','pagado','2026-10-19','Tarjeta','donweb:fc:0002-01904405'),
+  ('egreso','Donweb · Factura A 0002-01904404','Hosting y dominios','25080','ARS','pagado','2026-10-19','Tarjeta','donweb:fc:0002-01904404'),
+  ('egreso','Donweb · Factura A 0002-01904403','Hosting y dominios','29900','ARS','pagado','2026-10-19','Tarjeta','donweb:fc:0002-01904403'),
+  ('egreso','Donweb · Factura A 0002-01881458','Hosting y dominios','47218','ARS','pagado','2026-09-21','Tarjeta','donweb:fc:0002-01881458'),
+  ('egreso','Donweb · Factura A 0002-01855161','Hosting y dominios','47218','ARS','pagado','2026-08-21','Tarjeta','donweb:fc:0002-01855161'),
+  ('egreso','Donweb · Factura A 0002-01853063','Hosting y dominios','4290','ARS','pagado','2026-08-18','Tarjeta','donweb:fc:0002-01853063'),
+  ('egreso','Donweb · Factura A 0002-01853062','Hosting y dominios','2490','ARS','pagado','2026-08-18','Tarjeta','donweb:fc:0002-01853062'),
+  ('egreso','Donweb · Factura A 0002-01853061','Hosting y dominios','3290','ARS','pagado','2026-08-18','Tarjeta','donweb:fc:0002-01853061'),
+  ('egreso','Donweb · Factura A 0002-01853060','Hosting y dominios','16900','ARS','pagado','2026-08-18','Tarjeta','donweb:fc:0002-01853060')
+) v(tipo,concepto,categoria,monto,moneda,estado,fecha,medio,externo_id)
+where not exists (select 1 from config where clave='seed_donweb_2026_10')
+on conflict (externo_id) where externo_id is not null do nothing;
+insert into config(clave,valor) values ('seed_donweb_2026_10','ok') on conflict (clave) do nothing;
 `
 
 let ready: Promise<void> | null = null
