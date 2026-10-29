@@ -7,6 +7,7 @@ import { audit } from "@/lib/db"
 import { fechaHora } from "@/lib/consultas"
 import { asegurarRelanzamiento, lanzarRelanzamientoSiCorresponde } from "@/lib/campania-relanzamiento"
 import { waitUntil } from "@vercel/functions"
+import { depurarBase, contarSinRespuesta, depurarSinRespuesta } from "@/lib/depuracion"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
@@ -20,6 +21,14 @@ async function enviarAhora(fd: FormData) {
   await q("update em_campanias k set estado='enviando', terminada=null where estado='enviada' and exists (select 1 from em_envios e where e.campania_id=k.id and e.estado='pendiente')")
   const r = await procesarCola(60)
   await audit(u, "email_enviar_ahora", "em_envios", undefined, `${r.enviados} enviados · ${r.motivo}`)
+  revalidatePath("/email")
+}
+
+async function depurar() {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const n = await depurarSinRespuesta(3, `Depuración · ${u.nombre}`)
+  await audit(u, "email_depurar", "db_contactos", undefined, `${n} pasados a Descartados por no responder`)
   revalidatePath("/email")
 }
 
@@ -38,6 +47,8 @@ export default async function Email() {
     q<{ error: string; n: number }>("select coalesce(error,'(sin detalle)') error, count(*)::int n from em_envios where estado='error' group by 1 order by 2 desc limit 5"),
   ])
   const enCola = (await one<{ n: number }>("select count(*)::int n from em_envios where estado='pendiente'"))?.n ?? 0
+  const dep = await depurarBase().catch(() => null)
+  const sinRespuesta = await contarSinRespuesta(3)
   const relEstado = await lanzarRelanzamientoSiCorresponde().catch(() => "")
   if (relEstado.startsWith("lanzada")) waitUntil(procesarCola())
   const prog = (await one<{ valor: string }>("select valor from config where clave='relanzamiento_auto'").catch(() => null))?.valor
@@ -118,6 +129,14 @@ export default async function Email() {
               {!camps.length && <tr><td colSpan={8} className="text-center text-[#4A515C] py-6">Todavía no hay campañas. Creá la primera: la IA te arma el borrador.</td></tr>}
             </tbody>
           </table>
+        </div>
+      </section>
+      <section className="card flex flex-col gap-2">
+        <h2 className="m-0 text-base">🧹 Depuración de la base</h2>
+        <p className="m-0 text-sm text-[#4A515C]">Cada envío limpia la base: los correos que rebotan o que Brevo bloquea quedan como <strong>rebotados</strong>, y quien marca spam o se da de baja no recibe nada más. Se revisa solo todos los días{dep?.marcados ? ` (hoy: ${dep.marcados} marcados)` : ""}.</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="m-0 text-sm"><strong>{sinRespuesta}</strong> contactos recibieron 3 envíos o más y nunca abrieron ni hicieron clic (los clientes no se tocan).</p>
+          {sinRespuesta > 0 && <form action={depurar}><button className="btn-s">Pasarlos a Descartados</button></form>}
         </div>
       </section>
       <section className="card flex flex-col gap-2">

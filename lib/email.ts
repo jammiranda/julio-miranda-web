@@ -100,7 +100,10 @@ export async function enviadosHoy() {
  * Contactos que nunca reciben campañas (pedido de Julio, 29/10/2026): UBA (cualquier dominio uba.ar, como rec.uba.ar)
  * y UTHGRA San Luis. Siguen en el CRM; solo quedan fuera de los envíos.
  */
-const EMAIL_EXCLUIDO = (col: string) => `(lower(coalesce(${col},'')) like '%@uba.ar' or lower(coalesce(${col},'')) like '%.uba.ar' or lower(coalesce(${col},'')) like '%uthgra%')`
+/** Correos que Julio pidió sacar y borrar de todos los listados (29/10/2026). Nunca vuelven a recibir envíos, aunque se reimporten. */
+export const BORRAR_EMAILS = ["sdavid089@gmail.com", "lmgasparini31@gmail.com", "jprouturou@creatividadhera.com.ar", "argdan90@gmail.com", "larrazajuanp@gmail.com", "stefanodcdc@gmail.com", "padillapablod@gmail.com", "nataliambcabello26@gmail.com"]
+const BORRAR_SQL = BORRAR_EMAILS.map((e) => `'${e.replace(/'/g, "")}'`).join(",")
+const EMAIL_EXCLUIDO = (col: string) => `(lower(coalesce(${col},'')) like '%@uba.ar' or lower(coalesce(${col},'')) like '%.uba.ar' or lower(coalesce(${col},'')) like '%uthgra%' or lower(coalesce(${col},'')) in (${BORRAR_SQL}))`
 export const EXCLUIDOS_SQL = `(${EMAIL_EXCLUIDO("c.email")} or lower(coalesce(c.organizacion,'')) like '%uthgra%' or lower(coalesce(c.organizacion,'')) like '%universidad de buenos aires%'
   or lower(coalesce(c.organizacion,'')) ~ '(^|[^a-z])uba([^a-z]|$)')`
 

@@ -71,12 +71,14 @@ export default async function Email({ searchParams }: { searchParams: { d?: stri
         ) : <div className="pc-empty">Todavía no se lanzó ninguna campaña. Se arman y se envían en sistema.devisebit.com → Envíos de email.</div>}
       </div>
 
-      <Sec t="Base de contactos" />
+      <Sec t="Salud de la base" />
       <div className="pc-kpis">
         <Kpi k="Pueden recibir envíos" v={fmt(m.base?.enviables)} ft={`Con email activo y en una lista${m.base?.excluidos ? ` · ${fmt(m.base.excluidos)} de UBA y UTHGRA San Luis quedan afuera` : ""}`} color="var(--ok)" />
         <Kpi k="Por clasificar" v={fmt(m.base?.sin_lista)} ft="Con email, pero sin lista: no reciben nada hasta ubicarlos" color="var(--warn)" />
         <Kpi k="Dados de baja" v={fmt(m.base?.bajas)} ft="Nunca más reciben campañas" />
         <Kpi k="Rebotados" v={fmt(m.base?.rebotados)} ft="Email inexistente o bloqueado: se excluyen solos" />
+        <Kpi k="Base verdadera" v={fmt(m.base?.respondieron)} ft="Con email activo que abrió o hizo clic alguna vez: la base que funciona" color="var(--ok)" />
+        <Kpi k="Descartados" v={fmt(m.base?.descartados)} ft="Sin datos, sin respuesta o borrados a pedido" />
       </div>
 
       <SinDatos>

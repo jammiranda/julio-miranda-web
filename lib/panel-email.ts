@@ -49,7 +49,9 @@ export async function emailPanel(dias = 30) {
     one<any>(`select count(*) filter (where email is not null and email_estado='activo' and clase is not null and clase<>'descartado' and not ${EXCLUIDOS_SQL})::int enviables,
                 count(*) filter (where email is not null and ${EXCLUIDOS_SQL})::int excluidos,
                 count(*) filter (where email is not null and email_estado='activo' and clase is null)::int sin_lista,
-                count(*) filter (where email_estado='baja')::int bajas, count(*) filter (where email_estado='rebotado')::int rebotados from db_contactos c`),
+                count(*) filter (where email_estado='baja')::int bajas, count(*) filter (where email_estado='rebotado')::int rebotados,
+                count(*) filter (where email_estado='activo' and exists (select 1 from em_envios e where e.contacto_id=c.id and (e.abierto_en is not null or e.clic_en is not null)))::int respondieron,
+                count(*) filter (where clase='descartado')::int descartados from db_contactos c`),
     enviadosHoy(),
   ])
   // Los clics por link se agrupan por destino con nombre legible (una landing puede tener varias URL).
