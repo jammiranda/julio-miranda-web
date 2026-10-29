@@ -9,6 +9,7 @@ export default function Importar({ ent, ayuda }: { ent: string; ayuda?: string }
   const [nombre, setNombre] = useState("")
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null)
   const [avance, setAvance] = useState<string | null>(null)
+  const [solo, setSolo] = useState(false)
   const router = useRouter()
 
   async function leer(e: React.ChangeEvent<HTMLInputElement>) {
@@ -34,7 +35,7 @@ export default function Importar({ ent, ayuda }: { ent: string; ayuda?: string }
     const tot = { creados: 0, actualizados: 0, omitidos: 0 }
     for (let i = 0; i < cuerpo.length; i += 800) {
       setAvance(`Importando ${Math.min(i + 800, cuerpo.length)} de ${cuerpo.length}…`)
-      const r = await fetch(`/api/importar/${ent}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filas: [h, ...cuerpo.slice(i, i + 800)] }) })
+      const r = await fetch(`/api/importar/${ent}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filas: [h, ...cuerpo.slice(i, i + 800)], soloExistentes: solo }) })
       const j = await r.json().catch(() => ({ ok: false, error: `Error ${r.status}` }))
       if (!j.ok) { setAvance(null); setMsg({ ok: false, t: j.error }); return }
       tot.creados += j.creados; tot.actualizados += j.actualizados; tot.omitidos += j.omitidos
@@ -59,6 +60,7 @@ export default function Importar({ ent, ayuda }: { ent: string; ayuda?: string }
             <table className="tbl text-xs"><tbody>{filas.slice(0, 6).map((r, i) => <tr key={i} className={i === 0 ? "font-semibold bg-[#F5F6F8]" : ""}>{r.slice(0, 10).map((c, j) => <td key={j} className="whitespace-nowrap">{String(c ?? "")}</td>)}</tr>)}</tbody></table>
           </div>
           <p className="m-0 text-xs text-[#4A515C]">{ayuda ?? "Reconozco las columnas por su nombre. Si el registro ya existe, se completa con lo nuevo; si no, se crea."}</p>
+          {ent === "contactos" && <label className="flex gap-2 items-center text-xs text-[#4A515C]"><input type="checkbox" checked={solo} onChange={(e) => setSolo(e.target.checked)} /> Solo actualizar los que ya están (para depurar: suma etiquetas como «no-enviar» y no crea contactos nuevos)</label>}
           <div className="flex gap-2 items-center"><button type="button" disabled={!!avance} onClick={subir} className="btn-p disabled:opacity-60">{avance ?? "Importar ahora"}</button>{!avance && <button type="button" onClick={() => setFilas(null)} className="btn-s">Cancelar</button>}</div>
         </div>
       )}
