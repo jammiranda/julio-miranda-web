@@ -25,6 +25,7 @@ export async function GET() {
     const equipoCal = await one<{ n: number }>("select count(*)::int n from usuarios where activo and rol in ('gerente','coordinacion') and email is not null and email <> ''").catch(() => null)
     const gcPrueba = gc?.url ? await probarGcal().catch(() => null) : null
     const gdx = gc?.url ? await diagnosticoGoogle().catch(() => null) : null
+    const adsU = await q<{ plataforma: string; u: string; filas: number }>("select plataforma, to_char(max(actualizado) at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD HH24:MI') u, count(*)::int filas from ads_diario group by plataforma").catch(() => [] as { plataforma: string; u: string; filas: number }[])
     const li = await linkedin().catch((e) => ({ ok: false as const, error: String(e) }))
     const iaErr = await one<{ valor: string }>("select valor from config where clave='bot_ia_ultimo_error'").catch(() => null)
     const rech = await q<{ clave: string; valor: string }>("select clave, valor from config where clave like 'webhook_rechazo_%'").catch(() => [] as { clave: string; valor: string }[])
@@ -38,6 +39,7 @@ export async function GET() {
       google_calendar: { equipo_con_email: equipoCal?.n ?? null, url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null, conector: gdx ? (gdx.ok ? { version: gdx.version } : { motivo: gdx.motivo }) : null },
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
+      ads_ingesta: adsU,
       linkedin_buffer: li.ok ? { ok: true, publicaciones_30d: li.actual.posts, posts_leidos: li.posts.length } : { ok: false, error: li.error },
       ia_modelo_bot: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001",
       ia_ultimo_error: iaErr?.valor ?? null,
