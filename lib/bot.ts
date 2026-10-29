@@ -121,17 +121,24 @@ async function conIA(e: Empresa, hist: { autor: string; texto: string | null }[]
       headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({ model: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001", max_tokens: 1000, temperature: Number(process.env.CLAUDE_TEMP_BOT ?? 0.4), system: sistema(e, await aprendido(e).catch(() => ""), ctx, await preciosParaBot().catch(() => "")), messages: msgs }),
     })
-    if (!r.ok) return null
+    if (!r.ok) { await errorIA(`HTTP ${r.status}: ${(await r.text().catch(() => "")).slice(0, 300)}`); return null }
     const j = await r.json()
     const t: string = (j.content ?? []).map((c: any) => c.text ?? "").join("")
     const m = t.match(/\{[\s\S]*\}/)
-    if (!m) return null
+    if (!m) { await errorIA(`respuesta sin JSON: ${t.slice(0, 200)}`); return null }
     const o = JSON.parse(m[0])
     if (!o.respuesta) return null
     return { respuestas: [String(o.respuesta)], datos: o.datos ?? {}, derivar: !!o.derivar, area: typeof o.area === "string" ? o.area : null, estado: {}, reunion: typeof o.reunion === "string" ? o.reunion : null, demo: typeof o.demo === "string" ? o.demo : null }
-  } catch {
+  } catch (err) {
+    await errorIA(`excepción: ${String(err).slice(0, 200)}`)
     return null
   }
+}
+
+/** Guarda el último error de la IA del bot (se ve en /api/salud) para no fallar en silencio. */
+async function errorIA(msg: string) {
+  console.error("bot IA", msg)
+  await q("insert into config(clave,valor) values ('bot_ia_ultimo_error',$1) on conflict (clave) do update set valor=excluded.valor", [`${new Date().toISOString()} · ${msg}`]).catch(() => {})
 }
 
 function buscarFaq(e: Empresa, t: string) {

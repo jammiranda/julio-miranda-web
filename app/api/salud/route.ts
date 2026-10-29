@@ -22,6 +22,7 @@ export async function GET() {
     const gc = await gcalConfig().catch(() => null)
     const equipoCal = await one<{ n: number }>("select count(*)::int n from usuarios where activo and rol in ('gerente','coordinacion') and email is not null and email <> ''").catch(() => null)
     const gcPrueba = gc?.url ? await probarGcal().catch(() => null) : null
+    const iaErr = await one<{ valor: string }>("select valor from config where clave='bot_ia_ultimo_error'").catch(() => null)
     const rech = await q<{ clave: string; valor: string }>("select clave, valor from config where clave like 'webhook_rechazo_%'").catch(() => [] as { clave: string; valor: string }[])
     return NextResponse.json({
       ok: true, db_ms: Date.now() - t0,
@@ -33,6 +34,8 @@ export async function GET() {
       google_calendar: { equipo_con_email: equipoCal?.n ?? null, url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null },
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
+      ia_modelo_bot: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001",
+      ia_ultimo_error: iaErr?.valor ?? null,
       firma_webhook_configurada: !!process.env.WA_APP_SECRETS,
       // Diagnóstico sin exponer valores: cuántas claves hay y si cada una tiene el formato de Meta (32 caracteres hexadecimales)
       firma_claves: (process.env.WA_APP_SECRETS ?? "").split(",").map((x) => x.trim()).filter(Boolean).map((x) => ({ largo: x.length, formato_ok: /^[0-9a-f]{32}$/i.test(x) })),
