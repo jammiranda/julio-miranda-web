@@ -628,6 +628,11 @@ insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
  ('presentacion','Todo sobre DEVISEBIT','Presentación institucional: qué es la empresa, qué hace, para quién y cómo trabaja. Para contarle a quien quiera de qué se trata.',false,2),
  ('manual-coordinacion','Manual de Coordinación general','Versión del manual para el rol de Coordinación general: rutina, pendientes y plan de inducción.',true,3)
 on conflict (slug) do nothing;
+update bib_docs set titulo='Todo sobre DEVISEBIT · Dossier institucional', descripcion='Informe completo de 17 páginas: quiénes somos, trayectoria, servicios, productos, casos, equipo y cómo trabajamos. Para clientes que evalúan contratarnos, socios u organismos. Se comparte con link personal, no se publica.' where slug='presentacion' and titulo='Todo sobre DEVISEBIT';
+insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
+ ('conoce-devisebit','Conocé DEVISEBIT · Presentación corta','Versión pública en 12 placas, la misma del video de YouTube. Es la que va en LinkedIn y la que se manda para presentar la empresa en dos minutos.',false,0),
+ ('ecosistema-2026','Ecosistema digital 2026','Presentación de todo lo que se armó en octubre de 2026: web, sistema, bot, landings, medición, email y redes. Uso interno: muestra cifras y herramientas propias.',true,4)
+on conflict (slug) do nothing;
 `
 
 let ready: Promise<void> | null = null
