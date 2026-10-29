@@ -1,6 +1,7 @@
 import { instagram, historialSeguidores, engagement } from "@/lib/instagram"
 import { linkedin } from "@/lib/linkedin"
 import { panelMetricas, youtubeCache, safe } from "@/lib/panel"
+import { publicacionesYouTubeCache } from "@/lib/youtube-publicaciones"
 import { resumenAds } from "@/lib/ads"
 import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, fmt, plata, fechaCorta, fechaHora } from "./_ui"
 
@@ -11,7 +12,7 @@ const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contacta
 export default async function Inicio() {
   if (!(await acceso())) return null
   const b = base()
-  const [ig, hist, m, yt, ads, li] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin()])
+  const [ig, hist, m, yt, ads, li, ytp] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
   const p30 = posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5)
@@ -49,6 +50,7 @@ export default async function Inicio() {
         <a className="pc-card pc-red" href={yt?.canal ?? "https://www.youtube.com/@devisebitsrl"} target="_blank" rel="noreferrer">
           <div className="hd"><span className="ic" style={{ background: "rgba(255,59,59,.15)", color: "var(--yt)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="M10 9l5 3-5 3z" /></svg></span><div><h3>YouTube</h3><span className="pc-muted" style={{ fontSize: 12 }}>ACADEMIA DEVISEBIT</span></div></div>
           <div className="pc-mono" style={{ fontSize: 13 }}>{yt ? <>{yt.suscriptores != null ? `${fmt(yt.suscriptores)} suscriptores · ` : ""}{fmt(yt.videos)} videos · {fmt(yt.publicados30)} en 30 días</> : "Sin datos del canal"}</div>
+          {ytp && <div className="pc-mono pc-muted" style={{ fontSize: 12, marginTop: 4 }}>Publicaciones: {fmt(ytp.totalPublicadas)} publicadas · {fmt(ytp.proximas.length)} programadas{ytp.proximas[0] ? ` · próxima ${new Date(ytp.proximas[0].fecha).toLocaleDateString("es-AR", { day: "numeric", month: "numeric", timeZone: "America/Argentina/Buenos_Aires" })}` : ""}{ytp.totalPublicadas ? ` · ${fmt(ytp.meGusta)} me gusta` : ""}</div>}
         </a>
         <a className="pc-card pc-red" href="https://www.linkedin.com/company/devisebit" target="_blank" rel="noreferrer">
           <div className="hd"><span className="ic" style={{ background: "rgba(47,140,255,.15)", color: "var(--li)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7" /></svg></span><div><h3>LinkedIn</h3><span className="pc-muted" style={{ fontSize: 12 }}>DEVISEBIT</span></div></div>
