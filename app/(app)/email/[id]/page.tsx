@@ -108,6 +108,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
   ])
   const total = await contarSegmento(seg)
   const stats = nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas from em_envios where campania_id=$1`, [k.id])
+  const links = stats && stats.enviados ? await q<{ url: string; n: number; personas: number }>(`select regexp_replace(url, '[?#].*$', '') url, count(*)::int n, count(distinct envio_id)::int personas from em_clics where campania_id=$1 group by 1 order by 2 desc limit 12`, [k.id]).catch(() => []) : []
   const vista = emailConEstilo(k.contenido, { estilo: k.estilo, portada: k.portada, preheader: k.preheader, nombre: u.nombre, baja: "#" })
   const hoy = await enviadosHoy()
   const Chk = ({ name, v, label, on }: { name: string; v: string; label?: string; on: boolean }) => (
@@ -128,6 +129,13 @@ export default async function Campania({ params, searchParams }: { params: { id:
       {stats && stats.total > 0 && (
         <section className="grid grid-cols-3 lg:grid-cols-7 gap-3">
           {[["Destinatarios", stats.total], ["Enviados", stats.enviados], ["En cola", stats.pendientes], ["Errores", stats.errores], ["Abrieron", stats.abiertos], ["Clics", stats.clics], ["Bajas", stats.bajas]].map(([t, n]) => <div key={t} className="card py-3"><span className="text-xs uppercase tracking-wider text-[#4A515C] font-semibold">{t}</span><div className="text-2xl font-extrabold">{n}</div></div>)}
+        </section>
+      )}
+      {links.length > 0 && (
+        <section className="card flex flex-col gap-2">
+          <h2 className="m-0 text-base">Clics por link</h2>
+          <table className="tbl"><thead><tr><th>Link</th><th className="text-right">Personas</th><th className="text-right">Clics</th></tr></thead>
+            <tbody>{links.map((l) => <tr key={l.url}><td className="break-all">{l.url.replace(/^https?:\/\/(www\.)?/, "")}</td><td className="text-right">{l.personas}</td><td className="text-right">{l.n}</td></tr>)}</tbody></table>
         </section>
       )}
       <form action={guardar} className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -178,7 +186,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
       {!nueva && editable && (
         <form action={lanzar} className="card flex flex-wrap items-center justify-between gap-3 border-2 border-[#C8231F]">
           <input type="hidden" name="id" value={k.id} />
-          <p className="m-0 text-sm">Se va a mandar a <strong>{total}</strong> contactos. Hoy quedan <strong>{Math.max(0, LIMITE_DIARIO - hoy)}</strong> envíos; el resto sale solo los días siguientes a las 10 h.</p>
+          <p className="m-0 text-sm">Se va a mandar a <strong>{total}</strong> contactos. Hoy quedan <strong>{Math.max(0, LIMITE_DIARIO - hoy)}</strong> envíos; el resto sale solo los días siguientes a las 8 h.</p>
           <button className="btn-p" disabled={!brevoConfigurado() || !total}>🚀 Enviar campaña</button>
         </form>
       )}

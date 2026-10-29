@@ -598,6 +598,13 @@ select v.tipo,v.concepto,v.categoria,v.monto::numeric,v.moneda,v.estado,v.fecha:
 where not exists (select 1 from config where clave='seed_donweb_2026_10')
 on conflict (externo_id) where externo_id is not null do nothing;
 insert into config(clave,valor) values ('seed_donweb_2026_10','ok') on conflict (clave) do nothing;
+alter table em_campanias add column if not exists clave text;
+create unique index if not exists em_campanias_clave on em_campanias(clave) where clave is not null;
+alter table em_envios add column if not exists entregado_en timestamptz;
+alter table em_envios add column if not exists rebote text;
+create index if not exists em_envios_proveedor on em_envios(proveedor_id) where proveedor_id is not null;
+create table if not exists em_clics (id bigserial primary key, envio_id bigint references em_envios(id) on delete cascade, campania_id int, url text not null, creado timestamptz not null default now());
+create index if not exists em_clics_campania on em_clics(campania_id, creado);
 `
 
 let ready: Promise<void> | null = null

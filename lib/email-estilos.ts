@@ -68,7 +68,7 @@ export function cuerpoHtml(md: string, e: Estilo) {
 export function emailConEstilo(md: string, o: { estilo?: string | null; preheader?: string | null; baja?: string | null; nombre?: string | null; portada?: string | null }) {
   const e = estilo(o.estilo)
   const nombre = o.nombre ? esc(o.nombre.split(" ")[0]) : ""
-  const cuerpo = cuerpoHtml(md, e).replace(/\{\{nombre\}\}/g, nombre)
+  const cuerpo = cuerpoHtml(md, e).replace(/\s?\{\{nombre\}\}/g, (m: string) => (!nombre ? "" : m.startsWith("{") ? nombre : " " + nombre))
   const marca = e.marca ?? "DEVISE<span style=\"color:#FF6A63\">BIT</span>"
   const r = e.radio
   const cab =
@@ -81,7 +81,7 @@ export function emailConEstilo(md: string, o: { estilo?: string | null; preheade
   const pie = e.cabecera === "ninguna"
     ? `<tr><td style="padding:18px 28px;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:${pieColor}">DEVISEBIT SRL · <a href="https://www.devisebit.com" style="color:${pieColor}">devisebit.com</a> · WhatsApp +54 9 11 7346-6490${o.baja ? `<br>Si no querés recibir más correos, <a href="${o.baja}" style="color:${pieColor}">date de baja acá</a>.` : ""}</td></tr>`
     : `<tr><td style="background:${e.papel};border-top:1px solid ${e.id === "evento" ? "#2A323D" : "#EEF0F3"};border-radius:0 0 ${r}px ${r}px;padding:18px 28px;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:${pieColor}">
-DEVISEBIT SRL · Software e IA. Desde 2009<br>${REDES.map((x) => `<a href="${x.href}" style="color:${e.acento};font-weight:600;text-decoration:none">${x.nombre}</a>`).join(" · ")}<br>Luna 24, Parque Patricios (Polo Tecnológico CABA) · WhatsApp +54 9 11 7346-6490<br>
+DEVISEBIT SRL · Software e IA. Desde 2009<br>${REDES.map((x) => `<a href="${x.href}" style="color:${e.acento};font-weight:600;text-decoration:none">${x.nombre}</a>`).join(" · ")}<br>WhatsApp +54 9 11 7346-6490 · <a href="https://www.devisebit.com" style="color:${pieColor}">devisebit.com</a><br>
 ${o.baja ? `Recibís este correo porque estás en contacto con DEVISEBIT. <a href="${o.baja}" style="color:${pieColor}">Darte de baja</a>.` : ""}</td></tr>`
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DEVISEBIT</title></head>
 <body style="margin:0;background:${e.fondo}">

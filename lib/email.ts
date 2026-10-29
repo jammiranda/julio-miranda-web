@@ -9,6 +9,9 @@ export const REMITENTE = { name: process.env.EMAIL_FROM_NOMBRE ?? "DEVISEBIT", e
 export const RESPONDER_A = process.env.EMAIL_REPLY_TO ?? "info@devisebit.com"
 export const brevoConfigurado = () => !!process.env.BREVO_API_KEY
 
+/** Reemplaza {{nombre}}; si no hay nombre, también saca el espacio de adelante ("Hola {{nombre}}," → "Hola,"). */
+export const conNombre = (t: string, n: string) => t.replace(/\s?\{\{nombre\}\}/g, (m: string) => (!n ? "" : m.startsWith("{") ? n : " " + n))
+
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 
 /** Texto simple → HTML de email. Soporta: # Título, ## Subtítulo, **negrita**, [texto](url), - listas, ![alt](img), [[Botón|url]], --- separador. */
@@ -37,7 +40,7 @@ export function aHtml(md: string) {
 }
 
 export function plantilla(cuerpo: string, o: { preheader?: string | null; baja?: string | null; nombre?: string | null } = {}) {
-  const saludo = cuerpo.replace(/\{\{nombre\}\}/g, o.nombre ? esc(o.nombre.split(" ")[0]) : "")
+  const saludo = conNombre(cuerpo, o.nombre ? esc(o.nombre.split(" ")[0]) : "")
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DEVISEBIT</title></head>
 <body style="margin:0;background:#F5F6F8;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif">
 <span style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(o.preheader ?? "")}</span>
@@ -46,16 +49,26 @@ export function plantilla(cuerpo: string, o: { preheader?: string | null; baja?:
 <tr><td style="background:#0E1116;border-radius:16px 16px 0 0;padding:22px 28px"><span style="font-size:20px;font-weight:800;letter-spacing:.04em;color:#fff">DEVISE<span style="color:#FF6A63">BIT</span></span></td></tr>
 <tr><td style="background:#fff;padding:28px">${saludo}</td></tr>
 <tr><td style="background:#fff;border-top:1px solid #EEF0F3;border-radius:0 0 16px 16px;padding:18px 28px;font-size:12px;line-height:1.6;color:#4A515C">
-DEVISEBIT SRL · Software e IA. Desde 2009<br>${REDES.map((r) => `<a href="${r.href}" style="color:#C8231F;font-weight:600;text-decoration:none">${r.nombre}</a>`).join(" · ")}<br>Luna 24, Parque Patricios (Polo Tecnológico CABA) · WhatsApp +54 9 11 7346-6490 · <a href="https://www.devisebit.com" style="color:#4A515C">devisebit.com</a><br>
+DEVISEBIT SRL · Software e IA. Desde 2009<br>${REDES.map((r) => `<a href="${r.href}" style="color:#C8231F;font-weight:600;text-decoration:none">${r.nombre}</a>`).join(" · ")}<br>WhatsApp +54 9 11 7346-6490 · <a href="https://www.devisebit.com" style="color:#4A515C">devisebit.com</a><br>
 ${o.baja ? `Recibís este correo porque estás en contacto con DEVISEBIT. <a href="${o.baja}" style="color:#4A515C">Darte de baja</a>.` : ""}
 </td></tr></table></td></tr></table></body></html>`
 }
 
+/** Suma UTM a los links propios (devisebit.com) para ver en la web qué campaña trajo la visita. */
+export function conUtm(u: string, campaniaId: number | string) {
+  try {
+    const x = new URL(u)
+    if (!/(^|\.)devisebit\.com$/.test(x.hostname) || x.searchParams.has("utm_source")) return u
+    x.searchParams.set("utm_source", "email"); x.searchParams.set("utm_medium", "email"); x.searchParams.set("utm_campaign", `envio-${campaniaId}`)
+    return x.toString()
+  } catch { return u }
+}
+
 /** Envuelve los links para medir clics y agrega el píxel de apertura. */
-export function conSeguimiento(html: string, envioId: number | string) {
+export function conSeguimiento(html: string, envioId: number | string, campaniaId?: number | string) {
   const base = `${URL_SISTEMA}/api/e`
   return html
-    .replace(/href="(https?:\/\/[^"]+)"/g, (_m, u) => (u.includes("/baja/") ? `href="${u}"` : `href="${base}/c/${envioId}?u=${encodeURIComponent(u)}"`))
+    .replace(/href="(https?:\/\/[^"]+)"/g, (_m, u: string) => (u.includes("/baja/") ? `href="${u}"` : `href="${base}/c/${envioId}?u=${encodeURIComponent(campaniaId ? conUtm(u.replace(/&amp;/g, "&"), campaniaId) : u)}"`))
     .replace("</body>", `<img src="${base}/o/${envioId}" width="1" height="1" alt="" style="display:block;width:1px;height:1px"></body>`)
 }
 
@@ -126,8 +139,8 @@ export async function procesarCola(max = LIMITE_DIARIO) {
     const vigente = await one<{ email_estado: string }>("select email_estado from db_contactos where lower(email)=lower($1)", [x.email])
     if (vigente && vigente.email_estado !== "activo") { await q("update em_envios set estado='omitido' where id=$1", [x.id]); continue }
     const baja = x.email_token ? `${URL_SISTEMA}/baja/${x.email_token}` : null
-    const html = conSeguimiento(emailConEstilo(x.contenido, { estilo: x.estilo, portada: x.portada, preheader: x.preheader, baja, nombre: x.nombre }), x.id)
-    const r = await enviarBrevo({ email: x.email, name: x.nombre }, x.asunto.replace(/\{\{nombre\}\}/g, x.nombre ? x.nombre.split(" ")[0] : "").trim(), html, baja)
+    const html = conSeguimiento(emailConEstilo(x.contenido, { estilo: x.estilo, portada: x.portada, preheader: x.preheader, baja, nombre: x.nombre }), x.id, x.campania_id)
+    const r = await enviarBrevo({ email: x.email, name: x.nombre }, conNombre(x.asunto, x.nombre ? x.nombre.split(" ")[0] : "").replace(/^[,\s]+/, "").trim(), html, baja)
     await q("update em_envios set estado=$1, error=$2, proveedor_id=$3, enviado_en=case when $1='enviado' then now() else enviado_en end where id=$4", [r.ok ? "enviado" : "error", r.ok ? null : r.error, r.ok ? r.id ?? null : null, x.id])
     if (r.ok) enviados++
     else if (/key|unauthorized|forbidden|limit|quota|sender|not valid|activat|blocked|suspend/i.test(r.error ?? "")) break

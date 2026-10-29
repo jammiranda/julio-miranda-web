@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { brevoConfigurado, enviadosHoy, LIMITE_DIARIO, REMITENTE, diagnosticoBrevo, procesarCola } from "@/lib/email"
 import { audit } from "@/lib/db"
 import { fechaHora } from "@/lib/consultas"
+import { asegurarRelanzamiento } from "@/lib/campania-relanzamiento"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
@@ -28,6 +29,9 @@ export default async function Email() {
     q<{ error: string; n: number }>("select coalesce(error,'(sin detalle)') error, count(*)::int n from em_envios where estado='error' group by 1 order by 2 desc limit 5"),
   ])
   const enCola = (await one<{ n: number }>("select count(*)::int n from em_envios where estado='pendiente'"))?.n ?? 0
+  const relId = await asegurarRelanzamiento()
+  const rel = relId ? await one<any>(`select k.estado, count(e.id)::int total, count(e.id) filter (where e.estado='enviado')::int enviados, count(e.id) filter (where e.estado='pendiente')::int pendientes from em_campanias k left join em_envios e on e.campania_id=k.id where k.id=$1 group by k.id`, [relId]) : null
+  const sinLista = (await one<{ n: number }>("select count(*)::int n from db_contactos where clase is null and email is not null and email_estado='activo'"))?.n ?? 0
   const [camps, base, hoy] = await Promise.all([
     q<any>(`select k.*, count(e.id)::int total, count(e.id) filter (where e.estado='enviado')::int enviados, count(e.id) filter (where e.estado='pendiente')::int pendientes,
               count(e.abierto_en)::int abiertos, count(e.clic_en)::int clics, count(*) filter (where e.baja)::int bajas
@@ -57,9 +61,26 @@ export default async function Email() {
         </div>
         {diag.problemas.map((p, i) => <p key={i} className="m-0 text-sm text-red-700">• {p}</p>)}
         {diag.info.map((p, i) => <p key={i} className="m-0 text-xs text-[#4A515C]">{p}</p>)}
-        {enCola > 0 && <p className="m-0 text-xs text-[#4A515C]">{enCola} correos en cola. Salen solos todos los días a las 10 h, o ahora con el botón.</p>}
+        {enCola > 0 && <p className="m-0 text-xs text-[#4A515C]">{enCola} correos en cola. Salen solos todos los días a las 8 h, o ahora con el botón.</p>}
         {errores.length > 0 && <div className="text-xs"><strong>Errores de envío:</strong><ul className="m-0 pl-5">{errores.map((e, i) => <li key={i}>{e.n} × {e.error}</li>)}</ul></div>}
       </section>
+      {relId && rel && (
+        <section className="card flex flex-wrap items-center justify-between gap-3 border-2 border-[#C8231F]">
+          <div className="flex flex-col gap-1">
+            <h2 className="m-0 text-base">📣 Campaña «DEVISEBIT vuelve» · landings de servicios</h2>
+            <p className="m-0 text-sm text-[#4A515C]">
+              {rel.estado === "borrador" ? "Lista para enviar: revisá a quién va (listas, etiquetas), mandate una prueba y tocá «Enviar campaña». Sale de a " + LIMITE_DIARIO + " por día, sola."
+                : rel.estado === "enviando" ? `En marcha: ${rel.enviados} de ${rel.total} enviados · ${rel.pendientes} en cola (≈ ${Math.ceil(rel.pendientes / LIMITE_DIARIO)} día${Math.ceil(rel.pendientes / LIMITE_DIARIO) === 1 ? "" : "s"} más).`
+                : rel.estado === "pausada" ? `Pausada: ${rel.enviados} de ${rel.total} enviados.` : `Terminada: ${rel.enviados} enviados.`}
+              {" "}Estadísticas en panel.devisebit.com → Email.
+            </p>
+          </div>
+          <Link href={`/email/${relId}`} className="btn-p">{rel.estado === "borrador" ? "Abrir y enviar" : "Ver campaña"}</Link>
+        </section>
+      )}
+      {sinLista > 0 && (
+        <p className="m-0 card border-2 border-amber-300 text-sm">⚠️ Hay <strong>{sinLista}</strong> contactos con email en <strong>«Por clasificar»</strong>: no reciben ningún envío hasta ubicarlos en una lista. <Link href="/contactos/clasificar" className="font-semibold underline">Clasificarlos</Link> (podés aceptar las sugerencias en lote).</p>
+      )}
       <section className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[["Con email activo", base?.activos], ["Suscriptos al newsletter", base?.suscriptos], ["Bajas", base?.bajas], ["Rebotados", base?.rebotados], [`Enviados hoy (máx. ${LIMITE_DIARIO})`, hoy]].map(([t, n]) => (
           <div key={t as string} className="card flex flex-col gap-1"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">{t}</span><span className="text-3xl font-extrabold">{(n as number) ?? 0}</span></div>
@@ -89,7 +110,7 @@ export default async function Email() {
       <section className="card flex flex-col gap-2">
         <h2 className="m-0 text-base">Cómo funciona</h2>
         <ul className="m-0 pl-5 text-sm flex flex-col gap-1 text-[#262C37]">
-          <li>Remitente: <strong>{REMITENTE.name} &lt;{REMITENTE.email}&gt;</strong>. Brevo gratis permite {LIMITE_DIARIO} por día: si la campaña tiene más destinatarios, sigue sola cada día a las 10 h.</li>
+          <li>Remitente: <strong>{REMITENTE.name} &lt;{REMITENTE.email}&gt;</strong>. Brevo gratis permite {LIMITE_DIARIO} por día: si la campaña tiene más destinatarios, sigue sola cada día a las 8 h.</li>
           <li>Cada correo lleva link de baja en un clic; quien se da de baja no vuelve a recibir nada. Se miden aperturas y clics.</li>
           <li>Para elegir a quién mandar, usá etapa, sector, categoría, origen o <strong>etiquetas</strong> (se cargan al importar con una columna «Etiquetas»).</li>
         </ul>
