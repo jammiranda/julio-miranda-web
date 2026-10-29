@@ -63,6 +63,7 @@ export default async function Email() {
                 count(*) filter (where email_estado='baja')::int bajas, count(*) filter (where email_estado='rebotado')::int rebotados from db_contactos`),
     enviadosHoy(),
   ])
+  const cupoCompleto = !diag.ok && hoy >= LIMITE_DIARIO && diag.problemas.every((p) => /créditos/.test(p))
   const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—")
   const form = `<form onsubmit="event.preventDefault();var f=this;fetch('https://sistema.devisebit.com/api/suscribir',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:f.email.value,nombre:f.nombre.value,tag:'newsletter',origen:location.hostname})}).then(function(){f.innerHTML='<p>¡Listo! Revisá tu correo.</p>'})">
   <input name="nombre" placeholder="Tu nombre"> <input name="email" type="email" required placeholder="Tu email"> <button>Suscribirme</button>
@@ -76,13 +77,13 @@ export default async function Email() {
       {!brevoConfigurado() && <p className="m-0 card border-2 border-amber-300 text-sm">⚠️ Falta conectar Brevo (variable <code>BREVO_API_KEY</code> en Vercel). Podés armar campañas y verlas, pero no se envían hasta conectarlo.</p>}
       <section className={`card flex flex-col gap-2 border-2 ${diag.ok ? "border-emerald-200" : "border-red-300"}`}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="m-0 text-base">{diag.ok ? "✅ Envío de correos funcionando" : "⚠️ Los correos no pueden salir"}</h2>
+          <h2 className="m-0 text-base">{diag.ok ? "✅ Envío de correos funcionando" : cupoCompleto ? "✅ Cupo de hoy completo: sigue mañana a las 8 h" : "⚠️ Los correos no pueden salir"}</h2>
           <form action={enviarAhora} className="flex gap-2">
             {errores.length > 0 && <button name="op" value="reintentar" className="btn-s py-1.5 text-sm">Reintentar los que fallaron</button>}
             {enCola > 0 && <button name="op" value="enviar" className="btn-p py-1.5 text-sm">Enviar ahora ({Math.min(enCola, 60)})</button>}
           </form>
         </div>
-        {diag.problemas.map((p, i) => <p key={i} className="m-0 text-sm text-red-700">• {p}</p>)}
+        {!cupoCompleto && diag.problemas.map((p, i) => <p key={i} className="m-0 text-sm text-red-700">• {p}</p>)}
         {diag.info.map((p, i) => <p key={i} className="m-0 text-xs text-[#4A515C]">{p}</p>)}
         {enCola > 0 && <p className="m-0 text-xs text-[#4A515C]">{enCola} correos en cola. Salen solos todos los días a las 8 h, o ahora con el botón.</p>}
         {errores.length > 0 && <div className="text-xs"><strong>Errores de envío:</strong><ul className="m-0 pl-5">{errores.map((e, i) => <li key={i}>{e.n} × {e.error}</li>)}</ul></div>}
