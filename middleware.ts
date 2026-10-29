@@ -22,8 +22,8 @@ export function middleware(req: NextRequest) {
   if (host.startsWith("panel.")) {
     if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
     if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
-    // Redirección relativa: panel.devisebit.com llega por proxy a panel.sistema.devisebit.com y el navegador tiene que quedarse en su dominio
-    if (!req.cookies.get("db_sesion")) return new NextResponse(null, { status: 307, headers: { location: "/login" } })
+    // panel.devisebit.com llega por proxy a panel.sistema.devisebit.com: el login siempre se manda al dominio público (las URL relativas rompen el middleware)
+    if (!req.cookies.get("db_sesion")) return NextResponse.redirect(host.startsWith("panel.localhost") ? new URL("/login", req.url) : "https://panel.devisebit.com/login")
     if (p === "/panel-contenido" || p.startsWith("/panel-contenido/")) return NextResponse.next()
     const u = req.nextUrl.clone()
     u.pathname = "/panel-contenido" + (p === "/" ? "" : p)
