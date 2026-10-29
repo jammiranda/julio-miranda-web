@@ -98,11 +98,13 @@ export async function enviadosHoy() {
 
 /**
  * Contactos que nunca reciben campañas (pedido de Julio, 29/10/2026): UBA (cualquier dominio uba.ar, como rec.uba.ar)
- * y UTHGRA San Luis. Siguen en el CRM; solo quedan fuera de los envíos.
+ * y UTHGRA San Luis, y MC Salud con sus vinculados. Siguen en el CRM; solo quedan fuera de los envíos.
  */
 /** Correos que Julio pidió sacar y borrar de todos los listados (29/10/2026). Nunca vuelven a recibir envíos, aunque se reimporten. */
+/** MC Salud y personas vinculadas: fuera de todos los envíos (pedido de Julio, 29/10/2026). No se borran del CRM. */
+export const FUERA_EMAILS = ["mcardetti13@gmail.com", "mcardetti@hotmail.com"]
 export const BORRAR_EMAILS = ["sdavid089@gmail.com", "lmgasparini31@gmail.com", "jprouturou@creatividadhera.com.ar", "argdan90@gmail.com", "larrazajuanp@gmail.com", "stefanodcdc@gmail.com", "padillapablod@gmail.com", "nataliambcabello26@gmail.com"]
-const BORRAR_SQL = BORRAR_EMAILS.map((e) => `'${e.replace(/'/g, "")}'`).join(",")
+const BORRAR_SQL = [...BORRAR_EMAILS, ...FUERA_EMAILS].map((e) => `'${e.replace(/'/g, "")}'`).join(",")
 /**
  * Casillas automáticas o de servicios (bancos, compras, avisos, mesas de ayuda) que entraron al importar la casilla:
  * no son personas, nunca responden y bajan la reputación del dominio. Quedan fuera de los envíos.
@@ -110,8 +112,8 @@ const BORRAR_SQL = BORRAR_EMAILS.map((e) => `'${e.replace(/'/g, "")}'`).join(","
 const ROL_LOCAL = "^(no-?reply|noresponder|no-responder|donotreply|do-not-reply|mailer-daemon|postmaster|bounce.*|automated|notifications?|aviso.*|notificacion.*|alerta.*|ayuda.*|atencion.*|soporte|support|abonos|facturacion|cobranzas?|mesadeayuda|newsletter|reservas|plateas|accesodigital|gestiondeclientes|entrega|reprogramaciones|consular_.*|recupero.*|creditomonotributistas|miejecutivoselect|clientes)$"
 const ROL_DOMINIO = "(interbanking\\.com\\.ar|bcra\\.gob\\.ar|cotodigital\\.com\\.ar|cariverplate\\.com\\.ar|oncity\\.com|ausol\\.com\\.ar|flybondi\\.com|hertz\\.com\\.ar|lanacion\\.com\\.ar|whatsapp\\.com|bancogalicia\\.com\\.ar|santander\\.com\\.ar|santanderrio\\.com\\.ar|icbc\\.com\\.ar|bna\\.com\\.ar|mercadolibre\\.com|mercadopago\\.com|emailsp\\.net|unsubscribe\\.)"
 export const ROL_SQL = (col: string) => `(split_part(lower(coalesce(${col},'')),'@',1) ~ '${ROL_LOCAL}' or split_part(lower(coalesce(${col},'')),'@',2) ~ '${ROL_DOMINIO}')`
-const EMAIL_EXCLUIDO = (col: string) => `(lower(coalesce(${col},'')) like '%@uba.ar' or lower(coalesce(${col},'')) like '%.uba.ar' or lower(coalesce(${col},'')) like '%uthgra%' or lower(coalesce(${col},'')) in (${BORRAR_SQL}) or ${ROL_SQL(col)})`
-export const EXCLUIDOS_SQL = `(${EMAIL_EXCLUIDO("c.email")} or lower(coalesce(c.organizacion,'')) like '%uthgra%' or lower(coalesce(c.organizacion,'')) like '%universidad de buenos aires%'
+const EMAIL_EXCLUIDO = (col: string) => `(lower(coalesce(${col},'')) like '%@uba.ar' or lower(coalesce(${col},'')) like '%.uba.ar' or lower(coalesce(${col},'')) like '%uthgra%' or lower(coalesce(${col},'')) like '%mcsalud%' or lower(coalesce(${col},'')) in (${BORRAR_SQL}) or ${ROL_SQL(col)})`
+export const EXCLUIDOS_SQL = `(${EMAIL_EXCLUIDO("c.email")} or lower(coalesce(c.organizacion,'')) like '%uthgra%' or lower(coalesce(c.organizacion,'')) like '%universidad de buenos aires%' or lower(coalesce(c.organizacion,'')) like '%mc salud%' or lower(coalesce(c.organizacion,'')) like '%mcsalud%'
   or lower(coalesce(c.organizacion,'')) ~ '(^|[^a-z])uba([^a-z]|$)')`
 
 /** Segmento → condición SQL sobre db_contactos (c). */
