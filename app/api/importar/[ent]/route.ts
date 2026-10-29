@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: { ent: string
   if (err) return err
   try {
     const b = await req.json()
-    const r = await importar(params.ent, Array.isArray(b.filas) ? b.filas : [])
+    const r = await importar(params.ent, Array.isArray(b.filas) ? b.filas : [], b.soloExistentes === true)
     await audit(u, "importar", params.ent, undefined, `${r.creados} nuevos, ${r.actualizados} actualizados, ${r.omitidos} omitidos`)
     return NextResponse.json({ ok: true, ...r })
   } catch (e: any) {

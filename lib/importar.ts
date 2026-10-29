@@ -75,7 +75,7 @@ export function etapaDe(v: unknown) {
   return "base"
 }
 
-export async function importar(ent: string, filas: unknown[][]) {
+export async function importar(ent: string, filas: unknown[][], soloExistentes = false) {
   if (!COLUMNAS[ent]) throw new Error("Este módulo no se importa")
   const mp = mapear(ent, filas)
   if (!mp) throw new Error("No reconocí los encabezados. La primera fila tiene que tener los nombres de las columnas (por ejemplo: Nombre, Email, Organización).")
@@ -122,6 +122,19 @@ export async function importar(ent: string, filas: unknown[][]) {
   const sel = "nombre,email,organizacion,cargo,telefono,sector,categoria,coalesce(etapa,'base'),origen,proximo,proximo_fecha,ultimo_contacto,interacciones,consentimiento,notas,coalesce(tags,'{}')"
   const conMail = rows.filter((x) => x.email), sinMail = rows.filter((x) => !x.email)
   let creados = 0, actualizados = 0
+  // Depuración: solo suma etiquetas y notas a los que ya están (por email); nunca crea contactos nuevos.
+  if (soloExistentes) {
+    for (let i = 0; i < conMail.length; i += 500) {
+      const r = await q(
+        `update db_contactos c set tags=(select array(select distinct unnest(c.tags || coalesce(x.tags,'{}')))),
+           notas=case when x.notas is null or c.notas like '%'||x.notas||'%' then c.notas else concat_ws(E'\\n',c.notas,x.notas) end, actualizado=now()
+         from jsonb_to_recordset($1::jsonb) as ${rec} where lower(c.email)=lower(x.email) returning c.id`,
+        [JSON.stringify(conMail.slice(i, i + 500))],
+      )
+      actualizados += r.length; omitidos += conMail.slice(i, i + 500).length - r.length
+    }
+    return { creados: 0, actualizados, omitidos: omitidos + sinMail.length }
+  }
   for (let i = 0; i < conMail.length; i += 500) {
     const r = await q<{ nuevo: boolean }>(
       `insert into db_contactos(${cols}) select ${sel} from jsonb_to_recordset($1::jsonb) as ${rec}

@@ -79,6 +79,8 @@ export default async function Email({ searchParams }: { searchParams: { d?: stri
         <Kpi k="Rebotados" v={fmt(m.base?.rebotados)} ft="Email inexistente o bloqueado: se excluyen solos" />
         <Kpi k="Base verdadera" v={fmt(m.base?.respondieron)} ft="Con email activo que abrió o hizo clic alguna vez: la base que funciona" color="var(--ok)" />
         <Kpi k="Descartados" v={fmt(m.base?.descartados)} ft="Sin datos, sin respuesta o borrados a pedido" />
+        <Kpi k="Red para reconectar" v={fmt(m.base?.red)} ft="Elegidos por Julio, contactos de LinkedIn y seguidores de DEVISEBIT (con o sin email)" color="var(--info)" />
+        <Kpi k="No enviar" v={fmt(m.base?.no_enviar)} ft="Revisados y dejados afuera: la cola nunca les manda" />
       </div>
 
       <SinDatos>
