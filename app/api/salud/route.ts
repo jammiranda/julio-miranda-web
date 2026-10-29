@@ -40,6 +40,7 @@ export async function GET() {
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
       ads_ingesta: adsU,
+      ads_ultima_llamada: await one<{ valor: string }>("select valor from config where clave='ads_ultima_ingesta'").then((r) => (r ? JSON.parse(r.valor) : null)).catch(() => null),
       linkedin_buffer: li.ok ? { ok: true, publicaciones_30d: li.actual.posts, posts_leidos: li.posts.length } : { ok: false, error: li.error },
       ia_modelo_bot: process.env.CLAUDE_MODEL_BOT ?? "claude-haiku-4-5-20251001",
       ia_ultimo_error: iaErr?.valor ?? null,
