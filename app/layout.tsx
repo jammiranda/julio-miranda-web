@@ -54,6 +54,7 @@ export default function RootLayout({
         <Attribution />
         <Script src="https://www.googletagmanager.com/gtag/js?id=AW-10953063902" strategy="afterInteractive" />
         <Script id="google-ads-tag" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'AW-10953063902');`}</Script>
+        <Script src="https://sistema.devisebit.com/v.js" strategy="afterInteractive" />
       </body>
     </html>
   )
