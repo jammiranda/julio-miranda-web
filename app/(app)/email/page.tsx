@@ -67,7 +67,7 @@ export default async function Email() {
       {relId && rel && (
         <section className="card flex flex-wrap items-center justify-between gap-3 border-2 border-[#C8231F]">
           <div className="flex flex-col gap-1">
-            <h2 className="m-0 text-base">📣 Campaña «DEVISEBIT vuelve» · landings de servicios</h2>
+            <h2 className="m-0 text-base">📣 Campaña «DEVISEBIT se renueva» · landings de servicios</h2>
             <p className="m-0 text-sm text-[#4A515C]">
               {rel.estado === "borrador" ? "Lista para enviar: revisá a quién va (listas, etiquetas), mandate una prueba y tocá «Enviar campaña». Sale de a " + LIMITE_DIARIO + " por día, sola."
                 : rel.estado === "enviando" ? `En marcha: ${rel.enviados} de ${rel.total} enviados · ${rel.pendientes} en cola (≈ ${Math.ceil(rel.pendientes / LIMITE_DIARIO)} día${Math.ceil(rel.pendientes / LIMITE_DIARIO) === 1 ? "" : "s"} más).`

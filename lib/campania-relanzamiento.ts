@@ -2,7 +2,7 @@ import { q } from "./db"
 import { URL_SISTEMA } from "./brief"
 
 /**
- * Campaña lista para usar: "DEVISEBIT está de vuelta", con las landings de servicios.
+ * Campaña lista para usar: "DEVISEBIT se renueva", con las landings de servicios.
  * Se crea una sola vez como borrador (clave única); después se edita y se envía desde Envíos de email.
  */
 export const CLAVE_RELANZAMIENTO = "relanzamiento-2026-11"
@@ -11,12 +11,13 @@ const img = (slug: string) => `${URL_SISTEMA}/marca/landings/og-${slug}.jpg`
 const WA = "https://wa.me/5491173466490?text=" + encodeURIComponent("Hola, recibí el correo de DEVISEBIT y quiero hacer una consulta")
 
 export const RELANZAMIENTO = {
-  asunto: "DEVISEBIT vuelve: software e IA para tu organización",
-  preheader: "Webs, sistemas, WhatsApp con IA, redes y transformación digital, con un equipo completo.",
+  asunto: "DEVISEBIT se renueva: software e IA para tu organización",
+  preheader: "Webs, sistemas, WhatsApp con IA, redes y transformación digital, en un solo lugar.",
   estilo: "lanzamiento",
   contenido: [
-    "# Hola {{nombre}}, DEVISEBIT está de nuevo en marcha",
-    "Desde 2009 desarrollamos software para salud, gobierno, universidades, gremios y empresas. Volvemos con un **equipo completo**, sistemas funcionando en producción y la inteligencia artificial aplicada a lo que de verdad le sirve a tu organización.",
+    "# Hola {{nombre}}, DEVISEBIT se renueva",
+    "Desde 2009 desarrollamos software para salud, gobierno, universidades, gremios y empresas, y seguimos trabajando como siempre: con **sistemas en producción** y la inteligencia artificial aplicada a lo que de verdad le sirve a tu organización.",
+    "Renovamos nuestra imagen y ordenamos todo lo que hacemos para que encuentres rápido lo que necesitás.",,
     "Te cuento en un minuto lo que podemos hacer por vos:",
     "---",
     "## Webs a medida con IA",
@@ -58,6 +59,11 @@ export async function asegurarRelanzamiento(): Promise<number | null> {
     `insert into em_campanias(clave, asunto, preheader, contenido, segmento, estilo, creado_por) values ($1,$2,$3,$4,$5,$6,'Sistema')
      on conflict (clave) where clave is not null do nothing`,
     [CLAVE_RELANZAMIENTO, r.asunto, r.preheader, r.contenido, JSON.stringify(r.segmento), r.estilo],
+  ).catch(() => {})
+  // Si quedó el texto anterior ("está de nuevo en marcha") y nadie lo editó, se reemplaza por el actual.
+  await q(
+    `update em_campanias set asunto=$2, preheader=$3, contenido=$4 where clave=$1 and estado='borrador' and contenido like '%está de nuevo en marcha%' and contenido like '%Volvemos con un **equipo completo**%'`,
+    [CLAVE_RELANZAMIENTO, r.asunto, r.preheader, r.contenido],
   ).catch(() => {})
   const x = await q<{ id: number }>("select id from em_campanias where clave=$1", [CLAVE_RELANZAMIENTO]).catch(() => [])
   return x[0]?.id ?? null
