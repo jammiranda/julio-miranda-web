@@ -1,4 +1,5 @@
 import { panelWeb, panelMetricas, safe } from "@/lib/panel"
+import { q } from "@/lib/db"
 import { acceso, Head, Sec, Kpi, Barras, Columnas, SinDatos, fmt, fechaCorta } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -8,7 +9,15 @@ const DISP: Record<string, string> = { movil: "Celular", mobile: "Celular", escr
 
 export default async function Web() {
   if (!(await acceso())) return null
-  const [w, m] = await Promise.all([safe(panelWeb()), safe(panelMetricas())])
+  const [w, m, blog] = await Promise.all([
+    safe(panelWeb()),
+    safe(panelMetricas()),
+    // Visitas del blog: por nota (total y últimos 30 días) y la portada de Novedades
+    safe(q<{ path: string; total: number; d30: number }>(`select path, sum(n)::int total, coalesce(sum(n) filter (where dia > current_date - 30),0)::int d30 from pv_visitas where host='www.devisebit.com' and (path='/novedades' or path like '/novedades/%') group by path`)),
+  ])
+  const visNota = new Map((blog ?? []).map((r) => [r.path.replace(/\/$/, ""), r]))
+  const blogTotal = (blog ?? []).reduce((a, r) => a + Number(r.total), 0)
+  const blog30 = (blog ?? []).reduce((a, r) => a + Number(r.d30), 0)
   const v = m?.visitas
   const dias = (v?.dias ?? []).map((d) => ({ k: d.dia, v: Number(d.c) }))
   const total = dias.reduce((a, x) => a + x.v, 0)
@@ -20,6 +29,7 @@ export default async function Web() {
         <Kpi k="Sitios en línea" v={w ? `${ok}/${w.sitios.length}` : null} ft={w ? (ok === w.sitios.length ? "Todos responden" : "Hay sitios con problemas") : ""} color="var(--ok)" />
         <Kpi k="Visitas (30 días)" v={dias.length ? fmt(total) : null} serie={dias.map((d) => d.v)} color="var(--info)" ft={dias.length ? `${fmt(total / dias.length, 1)} por día` : "Sin visitas registradas"} />
         <Kpi k="Notas en el blog" v={w ? fmt(w.novedades.total) : null} ft={w ? `${fmt(w.novedades.ultimos30)} en los últimos 30 días` : ""} />
+        <Kpi k="Visitas al blog" v={blog ? fmt(blogTotal) : null} ft={blog ? `${fmt(blog30)} en los últimos 30 días · portada ${fmt(Number(visNota.get("/novedades")?.total ?? 0))}` : "Sin visitas registradas"} color="var(--info)" />
         <Kpi k="Tiempo de respuesta" v={w ? `${fmt(w.sitios.reduce((a, s) => a + s.ms, 0) / w.sitios.length)} ms` : null} ft="Promedio de los sitios, medido ahora" />
       </div>
 
@@ -54,11 +64,12 @@ export default async function Web() {
             <a key={n.slug} className="pc-item" href={n.url} target="_blank" rel="noreferrer">
               <span className="t">{n.titulo}</span>
               {n.resumen && <span className="pc-muted" style={{ fontSize: 12.5 }}>{n.resumen.slice(0, 160)}</span>}
-              <span className="m"><span>{n.categoria || "Nota"}</span><span>{n.fecha ? fechaCorta(n.fecha) : ""}</span></span>
+              <span className="m"><span>{n.categoria || "Nota"}</span><span>{fmt(Number(visNota.get("/novedades/" + n.slug)?.total ?? 0))} visitas · {fmt(Number(visNota.get("/novedades/" + n.slug)?.d30 ?? 0))} en 30 días</span><span>{n.fecha ? fechaCorta(n.fecha) : ""}</span></span>
             </a>
           ))}
         </div>
       ) : <SinDatos>No se encontraron notas en devisebit.com/novedades.</SinDatos>}
+      <p className="pc-sub">Las visitas del blog se cuentan desde el 28/10/2026, cuando se activó el contador propio en devisebit.com (sin cookies ni datos personales).</p>
     </>
   )
 }

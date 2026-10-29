@@ -48,6 +48,34 @@ function novedades(html: string) {
 export const n = (v: unknown) => (v == null ? null : Number(v))
 export async function safe<T>(p: Promise<T>): Promise<T | null> { try { return await p } catch { return null } }
 
+/** "1,2 mil vistas" / "14 vistas" / "3,4 M de vistas" → número. */
+function numVistas(t: string): number | null {
+  const m = t.toLowerCase().replace(/\u00a0/g, " ").match(/([\d.,]+)\s*(mil|k|m|mill)?/)
+  if (!m) return null
+  const mult = m[2] === "mil" || m[2] === "k" ? 1e3 : m[2] === "m" || m[2] === "mill" ? 1e6 : 1
+  const base = mult > 1 ? parseFloat(m[1].replace(/\./g, "").replace(",", ".")) : parseInt(m[1].replace(/[.,]/g, ""), 10)
+  return Number.isFinite(base) ? Math.round(base * mult) : null
+}
+
+/** Lee las pestañas públicas Videos y Shorts del canal y devuelve las vistas de cada video (solo los públicos). */
+async function vistasDelCanal() {
+  const pedir = (tab: string) => fetch(`${YT_URL}/${tab}`, { cache: "no-store", signal: AbortSignal.timeout(9000), headers: { "accept-language": "es-AR,es;q=0.9", "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130" } }).then((r) => (r.ok ? r.text() : "")).catch(() => "")
+  const [vid, sho] = await Promise.all([pedir("videos"), pedir("shorts")])
+  const out = new Map<string, { titulo: string; vistas: number | null; corto: boolean }>()
+  const des = (t: string) => t.replace(/\\u0026/g, "&").replace(/\\"/g, '"')
+  for (const html of [vid, sho]) {
+    for (const m of html.matchAll(/"entityId":"shorts-shelf-item-([\w-]{11})","accessibilityText":"((?:[^"\\]|\\.)*)"/g)) {
+      const a = des(m[2]); const i = a.lastIndexOf(", ")
+      if (!out.has(m[1])) out.set(m[1], { titulo: i > 0 ? a.slice(0, i) : a, vistas: numVistas(i > 0 ? a.slice(i + 2) : ""), corto: true })
+    }
+    for (const m of html.matchAll(/"videoRenderer":\{"videoId":"([\w-]{11})"([\s\S]{0,6000}?)"viewCountText":\{"simpleText":"([^"]*)"/g)) {
+      const t = m[2].match(/"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/)?.[1] ?? ""
+      if (!out.has(m[1])) out.set(m[1], { titulo: des(t), vistas: numVistas(m[3]), corto: false })
+    }
+  }
+  return out
+}
+
 /** YouTube por el feed público (sin claves): últimos videos con vistas y me gusta; suscriptores si la página los muestra. */
 export async function youtube() {
   const des = (t: string) => t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
@@ -68,7 +96,11 @@ export async function youtube() {
       meGusta: n(e.match(/<media:starRating count="(\d+)"/)?.[1]),
     }
   }).filter((v) => v.id)
+  // Vistas desde las páginas públicas del canal (el feed RSS de YouTube a veces responde 404 y no trae vistas)
+  const pag = await vistasDelCanal().catch(() => new Map<string, { titulo: string; vistas: number | null; corto: boolean }>())
+  if (!videos.length && pag.size) videos = [...pag.entries()].map(([id, v]) => ({ id, titulo: v.titulo, fecha: "", corto: v.corto, url: v.corto ? `https://www.youtube.com/shorts/${id}` : `https://www.youtube.com/watch?v=${id}`, vistas: v.vistas, meGusta: null }))
   if (!videos.length) videos = VIDEOS_BASE.map((v) => ({ ...v, url: v.corto ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`, vistas: null, meGusta: null }))
+  videos = videos.map((v) => (v.vistas == null && pag.get(v.id) ? { ...v, vistas: pag.get(v.id)!.vistas } : v))
   const subTxt = canal.match(/"([\d.,]+\s*(?:mil\s*)?(?:K\s*)?)\s*(?:suscriptores|subscribers)"/i)?.[1] ?? null
   const subs = subTxt ? (() => { const s = subTxt.toLowerCase().replace(/\s/g, ""); const base = parseFloat(s.replace(/mil|k/g, "").replace(/\./g, "").replace(",", ".")); return Number.isFinite(base) ? Math.round(/mil|k/.test(s) ? base * 1000 : base) : null })() : null
   const d30 = videos.filter((v) => v.fecha && Date.now() - new Date(v.fecha).getTime() < 30 * 864e5)
