@@ -22,7 +22,7 @@ async function probarGoogle() {
   await limpiarCache("g:")
   const e = await estadoGoogle(true)
   if (!e.conectado) ir(undefined, "Google no está conectado: pegá la URL del conector en Agenda y avisos.")
-  if (e.version < 2) ir(undefined, "El conector responde, pero sigue en la versión 1. Pegá el código nuevo y creá una versión nueva de la implementación.")
+  if (e.version < 2) ir(undefined, e.error ?? "El conector sigue en la versión 1. Pegá el código nuevo y creá una versión nueva de la implementación.")
   const ev = await eventosCalendario(30, true)
   ir(`Conector v${e.version} funcionando${e.cuenta ? ` (${e.cuenta})` : ""}: ${ev.eventos.length} eventos en los próximos 30 días.`)
 }

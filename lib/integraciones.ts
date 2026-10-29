@@ -6,7 +6,7 @@
  */
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto"
 import { q, one } from "@/lib/db"
-import { googleScript, calendarioConectado } from "@/lib/agenda"
+import { googleScript, calendarioConectado, gcalConfig } from "@/lib/agenda"
 import { secret } from "@/lib/auth"
 
 /* ---------------- Caché ---------------- */
@@ -33,12 +33,36 @@ const guardarCfg = (clave: string, v: unknown) => q("insert into config(clave,va
 export type EstadoGoogle = { conectado: boolean; version: number; cuenta: string | null; error?: string }
 export async function estadoGoogle(forzar = false): Promise<EstadoGoogle> {
   if (!(await calendarioConectado())) return { conectado: false, version: 0, cuenta: null }
+  let motivo: string | undefined
   const r = await cache("g:version", 30, async () => {
-    const x = await googleScript({ accion: "version" }, 15000)
-    if (!x) return null
-    return x.version ? { version: Number(x.version), cuenta: x.cuenta ?? null } : { version: 1, cuenta: null }
+    const x = await diagnosticoGoogle()
+    if (!x.ok) { motivo = x.motivo; return null }
+    return { version: x.version, cuenta: x.cuenta }
   }, forzar)
-  return { conectado: true, version: (r.valor as any)?.version ?? 0, cuenta: (r.valor as any)?.cuenta ?? null, error: r.valor ? undefined : "El conector no respondió" }
+  return { conectado: true, version: (r.valor as any)?.version ?? 0, cuenta: (r.valor as any)?.cuenta ?? null, error: r.valor ? undefined : motivo ?? "El conector no respondió" }
+}
+/** Pregunta la versión al conector y explica en castellano qué contestó, para saber exactamente qué falla. */
+export async function diagnosticoGoogle(): Promise<{ ok: true; version: number; cuenta: string | null } | { ok: false; motivo: string }> {
+  const { url, token } = await gcalConfig()
+  if (!url) return { ok: false, motivo: "No hay URL del conector cargada en Agenda y avisos." }
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec/.test(url)) return { ok: false, motivo: "La URL cargada no es la de una aplicación web de Apps Script (tiene que terminar en /exec)." }
+  let r: Response
+  try { r = await fetch(url, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ accion: "version", token }), redirect: "follow", signal: AbortSignal.timeout(15000), cache: "no-store" }) }
+  catch { return { ok: false, motivo: "Google no contestó a tiempo. Probá de nuevo en un minuto." } }
+  const txt = await r.text()
+  let j: any = null
+  try { j = JSON.parse(txt) } catch {}
+  if (!j) {
+    const t = txt.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ")
+    const err = /(ReferenceError|SyntaxError|TypeError|Exception)[^.]*\.?/.exec(t)?.[0]
+    if (err) return { ok: false, motivo: `El script tiene un error y no llega a correr: "${err.slice(0, 160)}". Revisá que no haya quedado texto de más al pegarlo, guardá y creá una versión nueva.` }
+    if (/inici(a|á)r sesi(o|ó)n|sign in|accounts\.google/i.test(t)) return { ok: false, motivo: "Google pide iniciar sesión: en la implementación, \"Quién tiene acceso\" tiene que ser \"Cualquier usuario\"." }
+    if (/no se encontr|not found|no existe/i.test(t)) return { ok: false, motivo: "Esa URL /exec ya no existe. Copiá la URL de la implementación actual y pegala en Agenda y avisos." }
+    return { ok: false, motivo: `Google respondió algo que no es del conector (HTTP ${r.status}): "${t.trim().slice(0, 140)}".` }
+  }
+  if (j.error === "no autorizado") return { ok: false, motivo: "El script responde, pero la clave no coincide: descargá el código de nuevo desde el sistema (trae tu clave) y pegalo completo." }
+  if (j.version) return { ok: true, version: Number(j.version), cuenta: j.cuenta ?? null }
+  return { ok: false, motivo: "Responde el código viejo (versión 1): la URL cargada apunta a una implementación anterior, o no creaste una versión nueva al implementar." }
 }
 export const conectorAlDia = async () => (await estadoGoogle()).version >= 2
 

@@ -4,6 +4,7 @@ import { linkedin } from "@/lib/linkedin"
 import { diagnosticoBrevo } from "@/lib/email"
 import { asegurarPerfil, estadoPerfil } from "@/lib/waperfil"
 import { gcalConfig, probarGcal } from "@/lib/agenda"
+import { diagnosticoGoogle } from "@/lib/integraciones"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -23,6 +24,7 @@ export async function GET() {
     const gc = await gcalConfig().catch(() => null)
     const equipoCal = await one<{ n: number }>("select count(*)::int n from usuarios where activo and rol in ('gerente','coordinacion') and email is not null and email <> ''").catch(() => null)
     const gcPrueba = gc?.url ? await probarGcal().catch(() => null) : null
+    const gdx = gc?.url ? await diagnosticoGoogle().catch(() => null) : null
     const li = await linkedin().catch((e) => ({ ok: false as const, error: String(e) }))
     const iaErr = await one<{ valor: string }>("select valor from config where clave='bot_ia_ultimo_error'").catch(() => null)
     const rech = await q<{ clave: string; valor: string }>("select clave, valor from config where clave like 'webhook_rechazo_%'").catch(() => [] as { clave: string; valor: string }[])
@@ -33,7 +35,7 @@ export async function GET() {
       horas_desde_ultima_respuesta_bot: b?.h != null ? Math.round(b.h) : null,
       whatsapp_configurado: !!(process.env.WA_PHONE_ID || process.env.WA_DB_PHONE_ID) && !!(process.env.WA_TOKEN || process.env.WA_DB_TOKEN),
       whatsapp_perfil: wa ? { perfil: wa.perfil ?? null, foto: wa.foto ?? null, plantillas: wa.plantillas ?? null } : null,
-      google_calendar: { equipo_con_email: equipoCal?.n ?? null, url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null },
+      google_calendar: { equipo_con_email: equipoCal?.n ?? null, url_cargada: !!gc?.url, responde: gcPrueba?.ok ?? null, error: gcPrueba && !gcPrueba.ok ? gcPrueba.error : null, conector: gdx ? (gdx.ok ? { version: gdx.version } : { motivo: gdx.motivo }) : null },
       instagram_configurado: !!(process.env.IG_USER_ID || process.env.IG_DB_USER_ID),
       ia_configurada: !!process.env.ANTHROPIC_API_KEY,
       linkedin_buffer: li.ok ? { ok: true, publicaciones_30d: li.actual.posts, posts_leidos: li.posts.length } : { ok: false, error: li.error },
