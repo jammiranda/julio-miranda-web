@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<style>
+:root { --n:#0B0D12; --r:#C8231F; --ra:#FF6A63; --g:#8A919C; --gc:#E2E5EA }
+* { box-sizing: border-box; margin: 0; padding: 0 }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--n); font-family: Inter, sans-serif; color: #fff }
+#bg { position: absolute; inset: -200px; background-image: radial-gradient(rgba(255,255,255,.08) 1.6px, transparent 1.6px); background-size: 40px 40px }
+#glow { position: absolute; width: 1300px; height: 1300px; border-radius: 50%; background: radial-gradient(circle, rgba(200,35,31,.42), transparent 62%) }
+#glow2 { position: absolute; width: 900px; height: 900px; border-radius: 50%; background: radial-gradient(circle, rgba(255,106,99,.16), transparent 65%) }
+.sc { position: absolute; inset: 0; opacity: 0 }
+.abs { position: absolute }
+.word { font-weight: 900; letter-spacing: -.045em; line-height: 1; white-space: nowrap }
+.mask { overflow: hidden; display: inline-block; vertical-align: bottom; padding-bottom: .08em }
+.mask > span { display: inline-block }
+.red { color: var(--ra) }
+.ey { font-size: 28px; font-weight: 800; letter-spacing: .3em; text-transform: uppercase; color: var(--ra) }
+.card { position: absolute; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 26px; padding: 34px 38px; backdrop-filter: blur(2px) }
+.card .k { font-size: 24px; font-weight: 900; color: var(--ra); letter-spacing: .08em }
+.card .t { font-size: 44px; font-weight: 800; letter-spacing: -.02em; margin-top: 12px; line-height: 1.08 }
+.card .d { font-size: 27px; color: rgba(255,255,255,.66); margin-top: 12px; line-height: 1.35 }
+.bar { position: absolute; height: 10px; background: var(--r); border-radius: 6px; transform-origin: left center }
+.num { font-weight: 900; letter-spacing: -.05em; line-height: .9; color: #fff; font-variant-numeric: tabular-nums }
+.lbl { font-size: 30px; font-weight: 600; color: rgba(255,255,255,.7); margin-top: 18px; line-height: 1.3 }
+.chip { position: absolute; font-size: 40px; font-weight: 800; padding: 22px 38px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); white-space: nowrap }
+.chip.on { background: var(--r); border-color: var(--r) }
+/* WhatsApp */
+#tel { position: absolute; width: 560px; height: 900px; border-radius: 56px; background: #0F1318; border: 3px solid rgba(255,255,255,.16); overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,.6) }
+#tel .top { height: 120px; background: #1A2028; display: flex; align-items: center; gap: 20px; padding: 30px 34px 0 }
+#tel .av { width: 62px; height: 62px; border-radius: 50%; background: var(--r); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 26px }
+#tel .nm { font-size: 30px; font-weight: 800 } #tel .st { font-size: 22px; color: #6FCF97 }
+.bub { position: absolute; max-width: 420px; font-size: 27px; line-height: 1.35; padding: 18px 24px; border-radius: 24px }
+.bub.in { left: 26px; background: #222A33; border-top-left-radius: 6px }
+.bub.out { right: 26px; background: #7A1B18; border-top-right-radius: 6px }
+.dots { position: absolute; left: 26px; background: #222A33; border-radius: 24px; padding: 22px 26px; display: flex; gap: 10px }
+.dots i { width: 14px; height: 14px; border-radius: 50%; background: #9AA3AE; display: block }
+.met { position: absolute; width: 520px }
+.met .v { font-size: 96px; font-weight: 900; letter-spacing: -.04em; font-variant-numeric: tabular-nums }
+.met .l { font-size: 28px; color: rgba(255,255,255,.66); font-weight: 600 }
+.paso { position: absolute; width: 380px }
+.paso .dot { width: 46px; height: 46px; border-radius: 50%; background: var(--n); border: 6px solid var(--r) }
+.paso .t { font-size: 46px; font-weight: 900; margin-top: 30px; letter-spacing: -.02em }
+.paso .d { font-size: 27px; color: rgba(255,255,255,.66); margin-top: 12px; line-height: 1.35 }
+.lider { position: absolute; font-size: 44px; font-weight: 900; letter-spacing: -.02em; white-space: nowrap }
+.lider span { display: block; font-size: 24px; font-weight: 700; color: var(--ra); letter-spacing: .02em; margin-top: 6px }
+.prod { position: absolute; left: 0; width: 1920px; text-align: center; font-weight: 900; letter-spacing: -.04em; white-space: nowrap }
+</style></head><body>
+<div id="bg"></div><div id="glow"></div><div id="glow2"></div>
+
+<!-- 1. Intro -->
+<div class="sc" id="A">
+  <div class="bar abs" id="A_bar" style="left:160px;top:470px;width:1600px;height:8px"></div>
+  <div class="abs word" id="A_logo" style="left:0;width:1920px;text-align:center;top:360px;font-size:230px"></div>
+  <div class="abs" id="A_tag" style="left:0;width:1920px;text-align:center;top:650px;font-size:46px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.02em"></div>
+</div>
+
+<!-- 2. Kinetic -->
+<div class="sc" id="B">
+  <div class="abs word" id="B_w" style="left:160px;top:330px;font-size:250px"></div>
+  <div class="abs" id="B_sub" style="left:166px;top:660px;font-size:52px;font-weight:700;color:rgba(255,255,255,.78)"></div>
+</div>
+
+<!-- 3. Numbers -->
+<div class="sc" id="C">
+  <div class="abs ey" id="C_ey" style="left:160px;top:150px">Desde 2009</div>
+  <div class="abs" id="C1" style="left:160px;top:300px;width:760px"><div class="num" style="font-size:250px" id="C1n">0</div><div class="lbl">años haciendo tecnología<br>que funciona</div></div>
+  <div class="abs" id="C2" style="left:1000px;top:300px;width:760px"><div class="num red" style="font-size:250px" id="C2n">0</div><div class="lbl">proyectos en el catálogo<br>de casos de éxito</div></div>
+  <div class="abs" id="C3" style="left:160px;top:690px;width:760px"><div class="num" style="font-size:150px" id="C3n">0</div><div class="lbl">inscriptos en un año en una academia que armamos</div></div>
+  <div class="abs" id="C4" style="left:1000px;top:690px;width:760px"><div class="num red" style="font-size:150px" id="C4n">0</div><div class="lbl">de atención con asistentes de WhatsApp con IA</div></div>
+</div>
+
+<!-- 4. Solutions -->
+<div class="sc" id="D">
+  <div class="abs ey" id="D_ey" style="left:160px;top:110px">Qué hacemos</div>
+  <div class="abs word" id="D_h" style="left:160px;top:170px;font-size:110px">Seis soluciones. <span class="red">Un equipo.</span></div>
+  <div class="card" id="D0" style="left:160px;top:400px;width:510px;height:270px"><div class="k">01</div><div class="t">Páginas web con IA</div><div class="d">Diseño único y WhatsApp conectado.</div></div>
+  <div class="card" id="D1" style="left:705px;top:400px;width:510px;height:270px"><div class="k">02</div><div class="t">WhatsApp con IA</div><div class="d">Responde, vende y da turnos 24 h.</div></div>
+  <div class="card" id="D2" style="left:1250px;top:400px;width:510px;height:270px"><div class="k">03</div><div class="t">Redes y anuncios</div><div class="d">Reels, placas y campañas.</div></div>
+  <div class="card" id="D3" style="left:160px;top:705px;width:510px;height:270px"><div class="k">04</div><div class="t">Sistemas a medida</div><div class="d">CRM, turnos y tableros.</div></div>
+  <div class="card" id="D4" style="left:705px;top:705px;width:510px;height:270px"><div class="k">05</div><div class="t">Comunidades</div><div class="d">Academia y padrón con tu marca.</div></div>
+  <div class="card" id="D5" style="left:1250px;top:705px;width:510px;height:270px"><div class="k">06</div><div class="t">Transformación digital</div><div class="d">Diagnóstico, hoja de ruta y talleres.</div></div>
+</div>
+
+<!-- 5. WhatsApp -->
+<div class="sc" id="E">
+  <div id="tel" style="left:1180px;top:90px">
+    <div class="top"><div class="av">IA</div><div><div class="nm">Tu negocio</div><div class="st">en línea · responde al instante</div></div></div>
+    <div class="bub in" id="E_m0" style="top:170px">Hola! ¿Tienen turno para mañana?</div>
+    <div class="dots" id="E_d1" style="top:290px"><i></i><i></i><i></i></div>
+    <div class="bub out" id="E_m1" style="top:290px">¡Hola! Sí 🙌 Tengo 10:30 o 16:00. ¿Cuál te queda mejor?</div>
+    <div class="bub in" id="E_m2" style="top:470px">16:00 👍</div>
+    <div class="dots" id="E_d2" style="top:570px"><i></i><i></i><i></i></div>
+    <div class="bub out" id="E_m3" style="top:570px">Listo ✅ Turno confirmado mañana 16:00. Te recuerdo un rato antes.</div>
+  </div>
+  <div class="abs ey" id="E_ey" style="left:160px;top:200px">Asistente de WhatsApp con IA</div>
+  <div class="abs word" id="E_h" style="left:160px;top:270px;font-size:104px;line-height:1.02">Atiende 24 h.<br><span class="red">Vos, cuando quieras.</span></div>
+  <div class="met" id="E_k1" style="left:160px;top:600px"><div class="v" id="E_v1">0</div><div class="l">consultas respondidas hoy</div></div>
+  <div class="met" id="E_k2" style="left:620px;top:600px"><div class="v red" id="E_v2">0</div><div class="l">turnos dados sin intervención</div></div>
+  <div class="abs" id="E_f" style="left:160px;top:900px;font-size:26px;color:rgba(255,255,255,.5)">Ejemplo ilustrativo</div>
+</div>
+
+<!-- 6. Products -->
+<div class="sc" id="F">
+  <div class="abs ey" id="F_ey" style="left:0;width:1920px;text-align:center;top:110px">No empezamos de cero</div>
+  <div id="F_list"></div>
+  <div class="abs" id="F_sub" style="left:0;width:1920px;text-align:center;top:850px;font-size:46px;font-weight:700;color:rgba(255,255,255,.8)">Módulos propios, <span class="red">probados en producción</span></div>
+</div>
+
+<!-- 7. Process -->
+<div class="sc" id="G">
+  <div class="abs ey" id="G_ey" style="left:160px;top:150px">Cómo trabajamos</div>
+  <div class="abs word" id="G_h" style="left:160px;top:210px;font-size:110px">De la consulta <span class="red">al soporte.</span></div>
+  <div class="bar" id="G_line" style="left:183px;top:543px;width:1500px;height:6px;background:rgba(255,255,255,.2)"></div>
+  <div class="bar" id="G_fill" style="left:183px;top:543px;width:1500px;height:6px"></div>
+  <div class="paso" id="G0" style="left:160px;top:523px"><div class="dot"></div><div class="t">Consulta</div><div class="d">Por WhatsApp, la web o una reunión.</div></div>
+  <div class="paso" id="G1" style="left:560px;top:523px"><div class="dot"></div><div class="t">Propuesta</div><div class="d">Alcance, plazos y precio por escrito.</div></div>
+  <div class="paso" id="G2" style="left:960px;top:523px"><div class="dot"></div><div class="t">Desarrollo</div><div class="d">Avances y aprobaciones en tu portal.</div></div>
+  <div class="paso" id="G3" style="left:1360px;top:523px"><div class="dot"></div><div class="t">Soporte</div><div class="d">Capacitación, puesta en marcha y mantenimiento.</div></div>
+</div>
+
+<!-- 8. Sectors + team -->
+<div class="sc" id="H">
+  <div class="abs ey" id="H_ey" style="left:160px;top:120px">Dónde trabajamos</div>
+  <div id="H_chips"></div>
+  <div class="abs ey" id="H_ey2" style="left:160px;top:560px">El equipo · cada líder coordina su propio equipo</div>
+  <div id="H_team"></div>
+</div>
+
+<!-- 9. Outro -->
+<div class="sc" id="I">
+  <div class="abs word" id="I_h" style="left:0;width:1920px;text-align:center;top:230px;font-size:150px">¿Qué querés <span class="red">resolver</span>?</div>
+  <div class="abs" id="I_c" style="left:0;width:1920px;text-align:center;top:480px;font-size:56px;font-weight:800;line-height:1.6"></div>
+  <div class="abs word" id="I_logo" style="left:0;width:1920px;text-align:center;top:850px;font-size:72px">DEVISE<span class="red">BIT</span></div>
+  <div class="abs" id="I_tag" style="left:0;width:1920px;text-align:center;top:945px;font-size:30px;font-weight:600;color:rgba(255,255,255,.6)">Software e IA. Desde 2009</div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id)
+const cl = (x) => Math.max(0, Math.min(1, x))
+const p = (t, a, b) => cl((t - a) / (b - a))
+const eo = (x) => 1 - Math.pow(1 - x, 3)
+const eb = (x) => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2) }
+const eio = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
+const S = { A: [0, 5], B: [5, 11.5], C: [11.5, 19], D: [19, 27], E: [27, 36], F: [36, 43], G: [43, 50], H: [50, 57.5], I: [57.5, 64] }
+function scene(id, t) { const [a, b] = S[id]; const o = Math.min(p(t, a, a + .35), 1 - p(t, b - .35, b)); $(id).style.opacity = o; return t - a }
+function set(el, o, x = 0, y = 0, s = 1, r = 0) { el.style.opacity = o; el.style.transform = `translate(${x}px,${y}px) scale(${s}) rotate(${r}deg)` }
+function fmt(n) { return Math.round(n).toLocaleString("es-AR") }
+
+// build letters
+const LOGO = "DEVISEBIT"
+$("A_logo").innerHTML = LOGO.split("").map((c, i) => `<span class="mask"><span id="L${i}" class="${i > 5 ? "red" : ""}">${c}</span></span>`).join("")
+const TAG = "Software e IA. Desde 2009."
+const WORDS = [["Tu web.", 0], ["Tu WhatsApp.", 1], ["Tu sistema.", 2], ["Tus cursos.", 3]]
+const PRODS = ["Asistente de WhatsApp con IA", "Sistema de padrón", "Sistema para obras sociales", "Plataforma de cursos", "Panel de Contenido", "Gestor documental con firma digital", "Votación y control de acceso", "Tableros de control"]
+$("F_list").innerHTML = PRODS.map((n, i) => `<div class="prod" id="P${i}">${n}</div>`).join("")
+const CH = [["Salud", 1], ["Gobierno y municipios", 0], ["Universidades", 0], ["Gremios y obras sociales", 1], ["Empresas y pymes", 0], ["Medios", 0], ["Eventos", 0]]
+const chipPos = []; { let x = 160, y = 200; const w = (s) => s.length * 22 + 80; CH.forEach(([s]) => { if (x + w(s) > 1760) { x = 160; y += 120 } chipPos.push([x, y]); x += w(s) + 22 }) }
+$("H_chips").innerHTML = CH.map(([s, on], i) => `<div class="chip ${on ? "on" : ""}" id="CH${i}" style="left:${chipPos[i][0]}px;top:${chipPos[i][1]}px">${s}</div>`).join("")
+const TEAM = [["Julio", "Fundador y Director"], ["Bárbara", "Coordinación general"], ["Pablo", "PM y Análisis"], ["Jonathan", "Desarrollo"], ["Jime", "Diseño y Marketing"], ["Nahuel", "QA y Testing"], ["Matías", "Soporte técnico"]]
+$("H_team").innerHTML = TEAM.map(([n, r], i) => `<div class="lider" id="T${i}" style="left:${160 + (i % 4) * 410}px;top:${640 + Math.floor(i / 4) * 170}px">${n}<span>${r}</span></div>`).join("")
+const CONT = ["devisebit.com", "WhatsApp +54 9 11 7346-6490", "info@devisebit.com · @devisebit"]
+
+function setT(t) {
+  // background drift
+  $("bg").style.transform = `translate(${(-t * 14) % 40}px, ${(-t * 9) % 40}px)`
+  $("glow").style.transform = `translate(${1100 + Math.sin(t * .35) * 380}px, ${-500 + Math.cos(t * .27) * 260}px)`
+  $("glow2").style.transform = `translate(${-200 + Math.cos(t * .22) * 300}px, ${450 + Math.sin(t * .31) * 200}px)`
+
+  let l = scene("A", t)
+  set($("A_bar"), 1, 0, 0, 1); $("A_bar").style.transform = `scaleX(${eio(p(l, .1, .9)) * (1 - eio(p(l, 1.3, 2)))})`; $("A_bar").style.transformOrigin = l < 1.2 ? "left center" : "right center"
+  for (let i = 0; i < 9; i++) { const k = eb(p(l, .9 + i * .07, 1.5 + i * .07)); set($("L" + i), 1, 0, (1 - k) * 260) }
+  const nT = Math.floor(p(l, 2.1, 3.4) * TAG.length); $("A_tag").textContent = TAG.slice(0, nT) + (l > 2 && l < 4.6 && Math.floor(l * 3) % 2 ? "|" : "")
+  $("A_logo").style.transform = `scale(${1 + p(l, 3.6, 5) * .06})`
+
+  l = scene("B", t)
+  const i = Math.max(0, Math.min(3, Math.floor(l / .9))), lw = l - i * .9
+  if (l < 3.6) { const k = eb(p(lw, 0, .3)); $("B_w").style.fontSize = "250px"; $("B_w").innerHTML = WORDS[i][0].replace(/(\S+\.)$/, '<span class="red">$1</span>'); set($("B_w"), 1, (1 - k) * -200, 0, 1.15 - .15 * k); set($("B_sub"), 0) }
+  else { const k = eo(p(l, 3.6, 4.1)); $("B_w").style.fontSize = "200px"; $("B_w").innerHTML = 'Trabajando <span class="red">solos.</span>'; set($("B_w"), 1, 0, (1 - k) * 120, 1); const k2 = eo(p(l, 4.3, 4.8)); $("B_sub").textContent = "Mientras vos hacés crecer tu organización."; set($("B_sub"), k2, 0, (1 - k2) * 40) }
+
+  l = scene("C", t)
+  set($("C_ey"), eo(p(l, 0, .4)), (1 - eo(p(l, 0, .4))) * -60)
+  const cs = [["C1", 17, ""], ["C2", 150, "+"], ["C3", 1000, "+"], ["C4", 24, " h"]]
+  cs.forEach(([id, v, pre], k) => { const s = .25 + k * .55, q = eo(p(l, s, s + .5)); set($(id), q, 0, (1 - q) * 80); const c = eio(p(l, s, s + 1.6)); $(id + "n").textContent = id === "C4" ? Math.round(v * c) + pre : (id === "C1" ? "" : pre) + fmt(v * c) + (id === "C1" ? "" : "") })
+
+  l = scene("D", t)
+  set($("D_ey"), eo(p(l, 0, .4))); const kh = eo(p(l, .1, .7)); set($("D_h"), kh, (1 - kh) * -120)
+  for (let k = 0; k < 6; k++) { const s = .7 + k * .22, q = eb(p(l, s, s + .45)); set($("D" + k), cl(p(l, s, s + .2)), 0, (1 - q) * 120, .9 + .1 * q) ; const hi = Math.floor(p(l, 2.8, 7.6) * 6.999); $("D" + k).style.borderColor = l > 2.8 && hi === k ? "#FF6A63" : "rgba(255,255,255,.14)"; $("D" + k).style.background = l > 2.8 && hi === k ? "rgba(200,35,31,.28)" : "rgba(255,255,255,.06)" }
+
+  l = scene("E", t)
+  const kt = eo(p(l, 0, .6)); set($("tel"), kt, (1 - kt) * 300, 0, 1, (1 - kt) * 6)
+  set($("E_ey"), eo(p(l, .2, .6))); const ke = eo(p(l, .3, .9)); set($("E_h"), ke, (1 - ke) * -100)
+  const show = (id, a) => { const q = eb(p(l, a, a + .35)); set($(id), cl(p(l, a, a + .15)), 0, (1 - q) * 30, .85 + .15 * q) }
+  show("E_m0", 1.0); const d1 = l > 1.7 && l < 2.7; set($("E_d1"), d1 ? 1 : 0); show("E_m1", 2.7); show("E_m2", 4.0); const d2 = l > 4.7 && l < 5.7; set($("E_d2"), d2 ? 1 : 0); show("E_m3", 5.7); if (l < 2.7) set($("E_m1"), 0); if (l < 5.7) set($("E_m3"), 0)
+  document.querySelectorAll(".dots i").forEach((d, j) => d.style.transform = `translateY(${Math.sin(l * 10 - j) * 5}px)`)
+  const km = eo(p(l, 1.4, 1.9)); set($("E_k1"), km, 0, (1 - km) * 50); set($("E_k2"), eo(p(l, 1.7, 2.2)), 0, (1 - eo(p(l, 1.7, 2.2))) * 50)
+  $("E_v1").textContent = Math.round(128 * eio(p(l, 1.4, 8))); $("E_v2").textContent = Math.round(37 * eio(p(l, 1.7, 8))); set($("E_f"), p(l, 2, 2.5) * .9)
+
+  l = scene("F", t)
+  set($("F_ey"), eo(p(l, 0, .4)))
+  const pos = l * 1.35 - .4
+  for (let k = 0; k < 8; k++) { const d = k - pos, a = Math.abs(d); const el = $("P" + k); el.style.top = (480 + d * 150 - 55) + "px"; el.style.fontSize = (110 - Math.min(a, 2) * 30) + "px"; el.style.opacity = cl(1 - a / 2.05); el.style.color = a < .5 ? "#fff" : "rgba(255,255,255,.55)"; el.style.transform = `scale(${1 - Math.min(a, 3) * .04})` }
+  const kf = eo(p(l, 1, 1.5)); set($("F_sub"), kf, 0, (1 - kf) * 40)
+
+  l = scene("G", t)
+  set($("G_ey"), eo(p(l, 0, .4))); const kg = eo(p(l, .1, .7)); set($("G_h"), kg, (1 - kg) * -120)
+  $("G_line").style.opacity = 1; $("G_fill").style.transform = `scaleX(${eio(p(l, .8, 5.2))})`
+  for (let k = 0; k < 4; k++) { const s = .9 + k * 1.1, q = eb(p(l, s, s + .45)); set($("G" + k), cl(p(l, s, s + .2)), 0, (1 - q) * 70) }
+
+  l = scene("H", t)
+  set($("H_ey"), eo(p(l, 0, .4)))
+  for (let k = 0; k < 7; k++) { const s = .2 + k * .16, q = eb(p(l, s, s + .4)); set($("CH" + k), cl(p(l, s, s + .15)), 0, 0, .3 + .7 * q) }
+  set($("H_ey2"), eo(p(l, 2.2, 2.6)))
+  for (let k = 0; k < 7; k++) { const s = 2.5 + k * .28, q = eo(p(l, s, s + .45)); set($("T" + k), q, (1 - q) * 80) }
+
+  l = scene("I", t)
+  const ki = eb(p(l, 0, .6)); set($("I_h"), cl(p(l, 0, .3)), 0, 0, .7 + .3 * ki)
+  $("I_c").innerHTML = CONT.map((c, k) => { const q = eo(p(l, .8 + k * .4, 1.3 + k * .4)); return `<div style="opacity:${q};transform:translateY(${(1 - q) * 40}px)">${k === 1 ? c.replace("WhatsApp", '<span class="red">WhatsApp</span>') : c}</div>` }).join("")
+  const kl = eo(p(l, 2.4, 3)); set($("I_logo"), kl, 0, (1 - kl) * 40); set($("I_tag"), eo(p(l, 2.8, 3.3)))
+}
+window.setT = setT
+setT(0)
+</script>
+</body></html>
