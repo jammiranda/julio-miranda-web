@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><title>pass</title><body>ok<script>
+(async()=>{const urls=decodeURIComponent(location.hash.slice(1)).split('|').filter(Boolean);const out=[];
+for(const u of urls){const r=await fetch(u);out.push({name:u.split('/').pop(),type:r.headers.get('content-type'),buf:await r.arrayBuffer()});}
+const t=window.opener||window.parent;t.postMessage({pass:out},'https://www.linkedin.com');document.body.textContent='enviado '+out.length;})();
+</script></body>
