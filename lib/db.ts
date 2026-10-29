@@ -609,6 +609,25 @@ insert into config(clave,valor) values ('relanzamiento_auto','esperando_dominio'
 alter table em_envios add column if not exists bot boolean not null default false;
 alter table em_envios add column if not exists bot_en timestamptz;
 alter table em_envios add column if not exists bot_clics int not null default 0;
+create table if not exists bib_docs (id serial primary key, slug text unique not null, titulo text not null, descripcion text, confidencial boolean not null default false, orden int not null default 0, creado timestamptz not null default now());
+create table if not exists bib_versiones (
+  id serial primary key, doc_id int not null references bib_docs(id) on delete cascade, version int not null, notas text,
+  nombre text not null, mime text not null default 'application/pdf', tamano int not null default 0, partes int not null default 0, completo boolean not null default false,
+  estado text not null default 'borrador' check (estado in ('borrador','vigente','anterior')), subido_por text, creado timestamptz not null default now(), publicado timestamptz,
+  unique (doc_id, version)
+);
+create table if not exists bib_partes (version_id int not null references bib_versiones(id) on delete cascade, n int not null, datos text not null, primary key (version_id, n));
+create table if not exists bib_envios (
+  id serial primary key, token text unique not null, doc_id int not null references bib_docs(id) on delete cascade, email text, nombre text,
+  canal text not null default 'email', expira timestamptz not null, revocado boolean not null default false, visitas int not null default 0, descargas int not null default 0,
+  ultima timestamptz, creado_por text, contacto_id int references db_contactos(id) on delete set null, creado timestamptz not null default now()
+);
+create index if not exists bib_envios_doc on bib_envios(doc_id, creado desc);
+insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
+ ('manual-general','Manual general de DEVISEBIT','Cómo funciona toda la empresa: sitios, sistemas, procesos, reglas y rutinas. Sirve para incorporar gente o para una entrega completa de la empresa. Nunca lleva usuarios ni contraseñas.',true,1),
+ ('presentacion','Todo sobre DEVISEBIT','Presentación institucional: qué es la empresa, qué hace, para quién y cómo trabaja. Para contarle a quien quiera de qué se trata.',false,2),
+ ('manual-coordinacion','Manual de Coordinación general','Versión del manual para el rol de Coordinación general: rutina, pendientes y plan de inducción.',true,3)
+on conflict (slug) do nothing;
 `
 
 let ready: Promise<void> | null = null

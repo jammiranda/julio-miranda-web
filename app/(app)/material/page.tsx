@@ -61,7 +61,7 @@ export default async function Material({ searchParams }: { searchParams: { ok?: 
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="m-0">Material de venta</h1>
-        <p className="m-0 text-sm text-[#4A515C]">Todo para mandar a un cliente en un clic: folletos, el PDF del Panel, piezas para redes y los videos ocultos. Copiá el link, copiá el mensaje para WhatsApp o mandalo por email desde abajo. Las demos interactivas se mandan desde <a href="/demos-admin" className="underline">Demos</a>.</p>
+        <p className="m-0 text-sm text-[#4A515C]">Todo para mandar a un cliente en un clic: folletos, el PDF del Panel, piezas para redes y los videos ocultos. Copiá el link, copiá el mensaje para WhatsApp o mandalo por email desde abajo. Las demos interactivas se mandan desde <a href="/demos-admin" className="underline">Demos</a>, y el manual y la presentación institucional desde <a href="/biblioteca" className="underline">Documentos de la empresa</a>.</p>
       </div>
       {searchParams.ok && <p className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
       {searchParams.err && <p className="m-0 text-sm text-rojo">{searchParams.err}</p>}
