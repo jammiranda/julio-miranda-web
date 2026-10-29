@@ -108,7 +108,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
   ])
   const total = await contarSegmento(seg)
   const excluidos = (await one<{ n: number }>(`select count(*)::int n from db_contactos c where c.email is not null and ${EXCLUIDOS_SQL}`).catch(() => null))?.n ?? 0
-  const stats = nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas from em_envios where campania_id=$1`, [k.id])
+  const stats = nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas, count(*) filter (where bot)::int robots from em_envios where campania_id=$1`, [k.id])
   const links = stats && stats.enviados ? await q<{ url: string; n: number; personas: number }>(`select regexp_replace(url, '[?#].*$', '') url, count(*)::int n, count(distinct envio_id)::int personas from em_clics where campania_id=$1 group by 1 order by 2 desc limit 12`, [k.id]).catch(() => []) : []
   const abrieron = stats && stats.abiertos ? await q<any>(`select e.email, e.abierto_en, e.aperturas, e.clics, e.clic_en, c.id cid, c.nombre, c.organizacion, c.clase,
       (select string_agg(distinct regexp_replace(regexp_replace(x.url, '[?#].*$', ''), '^https?://(www\\.)?', ''), ' · ') from em_clics x where x.envio_id=e.id) destinos
@@ -133,8 +133,8 @@ export default async function Campania({ params, searchParams }: { params: { id:
       {searchParams.ok && <p role="status" className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
       {searchParams.err && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.err}</p>}
       {stats && stats.total > 0 && (
-        <section className="grid grid-cols-3 lg:grid-cols-7 gap-3">
-          {[["Destinatarios", stats.total], ["Enviados", stats.enviados], ["En cola", stats.pendientes], ["Errores", stats.errores], ["Abrieron", stats.abiertos], ["Clics", stats.clics], ["Bajas", stats.bajas]].map(([t, n]) => <div key={t} className="card py-3"><span className="text-xs uppercase tracking-wider text-[#4A515C] font-semibold">{t}</span><div className="text-2xl font-extrabold">{n}</div></div>)}
+        <section className="grid grid-cols-3 lg:grid-cols-8 gap-3">
+          {[["Destinatarios", stats.total], ["Enviados", stats.enviados], ["En cola", stats.pendientes], ["Errores", stats.errores], ["Abrieron", stats.abiertos], ["Clics", stats.clics], ["Bajas", stats.bajas], ["Robots filtrados", stats.robots]].map(([t, n]) => <div key={t} className="card py-3"><span className="text-xs uppercase tracking-wider text-[#4A515C] font-semibold">{t}</span><div className="text-2xl font-extrabold">{n}</div></div>)}
         </section>
       )}
       {abrieron.length > 0 && (
@@ -154,7 +154,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
                   <td className="text-xs">{a.destinos ?? ""}</td>
                 </tr>))}</tbody></table>
           </div>
-          <p className="m-0 text-xs text-[#4A515C]">Quienes hicieron clic son los más calientes: conviene escribirles o llamarlos. Algunos programas (Apple Mail) marcan como abierto solo; otros (Outlook) no lo registran.</p>
+          <p className="m-0 text-xs text-[#4A515C]">Quienes hicieron clic son los más calientes: conviene escribirles o llamarlos. Los filtros antivirus de bancos, gobierno y empresas abren todos los links apenas llega el correo: esos se detectan como robots y no se cuentan acá. Algunos programas (Apple Mail) marcan como abierto solo; otros (Outlook) no lo registran.</p>
         </section>
       )}
       {links.length > 0 && (

@@ -606,6 +606,9 @@ create index if not exists em_envios_proveedor on em_envios(proveedor_id) where 
 create table if not exists em_clics (id bigserial primary key, envio_id bigint references em_envios(id) on delete cascade, campania_id int, url text not null, creado timestamptz not null default now());
 create index if not exists em_clics_campania on em_clics(campania_id, creado);
 insert into config(clave,valor) values ('relanzamiento_auto','esperando_dominio') on conflict (clave) do nothing;
+alter table em_envios add column if not exists bot boolean not null default false;
+alter table em_envios add column if not exists bot_en timestamptz;
+alter table em_envios add column if not exists bot_clics int not null default 0;
 `
 
 let ready: Promise<void> | null = null

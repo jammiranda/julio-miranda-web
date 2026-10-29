@@ -1,5 +1,5 @@
 import { q, one } from "./db"
-import { BORRAR_EMAILS } from "./email"
+import { BORRAR_EMAILS, ROL_SQL } from "./email"
 
 /**
  * Depuración de la base (pedido de Julio, 29/10/2026): que las campañas dejen la base "verdadera",
@@ -66,9 +66,32 @@ export async function depurarSinRespuesta(envios = 3, por = "Depuración") {
   return r.length
 }
 
-/** Corre lo automático (borrados y bloqueados de Brevo). */
+/** Un envío abierto/clickeado por un robot antivirus: no cuenta como apertura ni clic de una persona. */
+export async function marcarBot(envioId: number) {
+  await q("update em_envios set bot=true, bot_en=now(), bot_clics=bot_clics+clics, clics=0, clic_en=null, aperturas=0, abierto_en=null where id=$1", [envioId])
+  await q("delete from em_clics where envio_id=$1", [envioId])
+}
+
+/** Revisa lo ya registrado: ráfagas de 3 links o más en 3 minutos son robots. */
+export async function limpiarRobots() {
+  const x = await q<{ envio_id: number }>("select envio_id from em_clics where envio_id is not null group by envio_id having count(distinct url) >= 3 and max(creado) - min(creado) < interval '3 minutes'")
+  for (const r of x) await marcarBot(r.envio_id).catch(() => {})
+  return x.length
+}
+
+/** Casillas automáticas o de servicios (bancos, compras, avisos): a Descartados, nunca reciben envíos. */
+export async function descartarCasillasAutomaticas() {
+  const r = await q(`update db_contactos c set clase='descartado', clasificado_en=now(), clasificado_por='Casilla automática o de servicio', tags=array(select distinct unnest(c.tags || '{casilla-automatica}'::text[]))
+    where c.email is not null and coalesce(c.clase,'') <> 'descartado' and ${ROL_SQL("c.email")} returning c.id`)
+  await q(`update em_envios set estado='omitido', error='Casilla automática' where estado='pendiente' and ${ROL_SQL("email")}`)
+  return r.length
+}
+
+/** Corre lo automático (borrados, casillas automáticas, robots y bloqueados de Brevo). */
 export async function depurarBase() {
   const b = await aplicarBorrados().catch(() => ({ borrados: 0, descartados: 0 }))
+  const casillas = await descartarCasillasAutomaticas().catch(() => 0)
+  const robots = await limpiarRobots().catch(() => 0)
   const s = await sincronizarBloqueadosBrevo().catch(() => ({ marcados: 0 }))
-  return { ...b, ...s }
+  return { ...b, ...s, casillas, robots }
 }
