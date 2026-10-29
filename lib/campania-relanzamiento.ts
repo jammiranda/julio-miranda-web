@@ -68,3 +68,42 @@ export async function asegurarRelanzamiento(): Promise<number | null> {
   const x = await q<{ id: number }>("select id from em_campanias where clave=$1", [CLAVE_RELANZAMIENTO]).catch(() => [])
   return x[0]?.id ?? null
 }
+
+/** ¿Brevo ya muestra devisebit.com como dominio autenticado? */
+export async function dominioAutenticado(dominio = "devisebit.com"): Promise<boolean | null> {
+  const key = process.env.BREVO_API_KEY
+  if (!key) return null
+  try {
+    const r = await fetch("https://api.brevo.com/v3/senders/domains", { headers: { "api-key": key, accept: "application/json" }, cache: "no-store" })
+    if (!r.ok) return null
+    const j = await r.json()
+    const d = ((j.domains ?? []) as any[]).find((x) => String(x.domain_name ?? x.domain ?? "").toLowerCase() === dominio)
+    return !!(d && (d.authenticated === true || d.authenticated === "true"))
+  } catch { return null }
+}
+
+/**
+ * Lanzamiento programado (decisión de Julio, 29/10/2026): apenas Brevo autentica devisebit.com,
+ * se clasifica «Por clasificar» con las sugerencias del sistema y se lanza la campaña a toda la base
+ * clasificada (UBA y UTHGRA San Luis siempre afuera). Después sale sola de a 300 por día.
+ * Se corta si alguien cancela la programación o lanza/edita la campaña a mano.
+ */
+export async function lanzarRelanzamientoSiCorresponde(): Promise<string> {
+  const prog = await q<{ valor: string }>("select valor from config where clave='relanzamiento_auto'").catch(() => [])
+  if (prog[0]?.valor !== "esperando_dominio") return "sin programación"
+  const id = await asegurarRelanzamiento()
+  if (!id) return "sin campaña"
+  const k = await q<{ estado: string }>("select estado from em_campanias where id=$1", [id])
+  if (k[0]?.estado !== "borrador") { await q("update config set valor='hecho' where clave='relanzamiento_auto'"); return "ya lanzada" }
+  const ok = await dominioAutenticado()
+  if (!ok) return ok === null ? "no se pudo consultar Brevo" : "esperando que Brevo autentique devisebit.com"
+  const { SQL_SUGERENCIA } = await import("./crm")
+  await q(`update db_contactos c set clase=s.sug, clasificado_en=now(), clasificado_por='Sugerencia automática (lanzamiento)'
+           from (select c.id, (${SQL_SUGERENCIA}) sug from db_contactos c where c.clase is null) s where s.id=c.id and s.sug is not null`)
+  const { encolar } = await import("./email")
+  const n = await encolar(id)
+  await q("update em_campanias set estado='enviando', lanzada=coalesce(lanzada, now()) where id=$1", [id])
+  await q("update config set valor='hecho' where clave='relanzamiento_auto'")
+  await q("insert into auditoria(usuario, accion, entidad, entidad_id, detalle) values ('sistema','email_lanzar','em_campania',$1,$2)", [String(id), `Lanzamiento automático: ${n} destinatarios`]).catch(() => {})
+  return `lanzada a ${n} destinatarios`
+}

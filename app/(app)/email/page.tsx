@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache"
 import { brevoConfigurado, enviadosHoy, LIMITE_DIARIO, REMITENTE, diagnosticoBrevo, procesarCola } from "@/lib/email"
 import { audit } from "@/lib/db"
 import { fechaHora } from "@/lib/consultas"
-import { asegurarRelanzamiento } from "@/lib/campania-relanzamiento"
+import { asegurarRelanzamiento, lanzarRelanzamientoSiCorresponde } from "@/lib/campania-relanzamiento"
+import { waitUntil } from "@vercel/functions"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
@@ -22,6 +23,14 @@ async function enviarAhora(fd: FormData) {
   revalidatePath("/email")
 }
 
+async function cancelarProg() {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  await q("update config set valor='cancelado' where clave='relanzamiento_auto'")
+  await audit(u, "email_programacion_cancelada", "em_campania")
+  revalidatePath("/email")
+}
+
 export default async function Email() {
   await requerir(["gerente", "coordinacion"])
   const [diag, errores] = await Promise.all([
@@ -29,6 +38,9 @@ export default async function Email() {
     q<{ error: string; n: number }>("select coalesce(error,'(sin detalle)') error, count(*)::int n from em_envios where estado='error' group by 1 order by 2 desc limit 5"),
   ])
   const enCola = (await one<{ n: number }>("select count(*)::int n from em_envios where estado='pendiente'"))?.n ?? 0
+  const relEstado = await lanzarRelanzamientoSiCorresponde().catch(() => "")
+  if (relEstado.startsWith("lanzada")) waitUntil(procesarCola())
+  const prog = (await one<{ valor: string }>("select valor from config where clave='relanzamiento_auto'").catch(() => null))?.valor
   const relId = await asegurarRelanzamiento()
   const rel = relId ? await one<any>(`select k.estado, count(e.id)::int total, count(e.id) filter (where e.estado='enviado')::int enviados, count(e.id) filter (where e.estado='pendiente')::int pendientes from em_campanias k left join em_envios e on e.campania_id=k.id where k.id=$1 group by k.id`, [relId]) : null
   const sinLista = (await one<{ n: number }>("select count(*)::int n from db_contactos where clase is null and email is not null and email_estado='activo'"))?.n ?? 0
@@ -69,13 +81,14 @@ export default async function Email() {
           <div className="flex flex-col gap-1">
             <h2 className="m-0 text-base">📣 Campaña «DEVISEBIT se renueva» · landings de servicios</h2>
             <p className="m-0 text-sm text-[#4A515C]">
-              {rel.estado === "borrador" ? "Lista para enviar: revisá a quién va (listas, etiquetas), mandate una prueba y tocá «Enviar campaña». Sale de a " + LIMITE_DIARIO + " por día, sola."
+              {rel.estado === "borrador" && prog === "esperando_dominio" ? "⏳ Programada: apenas Brevo muestre devisebit.com como autenticado, se clasifica «Por clasificar» con las sugerencias y sale sola, " + LIMITE_DIARIO + " por día hasta completar la base. Si querés, podés lanzarla antes desde la campaña."
+                : rel.estado === "borrador" ? "Lista para enviar: revisá a quién va (listas, etiquetas), mandate una prueba y tocá «Enviar campaña». Sale de a " + LIMITE_DIARIO + " por día, sola."
                 : rel.estado === "enviando" ? `En marcha: ${rel.enviados} de ${rel.total} enviados · ${rel.pendientes} en cola (≈ ${Math.ceil(rel.pendientes / LIMITE_DIARIO)} día${Math.ceil(rel.pendientes / LIMITE_DIARIO) === 1 ? "" : "s"} más).`
                 : rel.estado === "pausada" ? `Pausada: ${rel.enviados} de ${rel.total} enviados.` : `Terminada: ${rel.enviados} enviados.`}
               {" "}Estadísticas en panel.devisebit.com → Email.
             </p>
           </div>
-          <Link href={`/email/${relId}`} className="btn-p">{rel.estado === "borrador" ? "Abrir y enviar" : "Ver campaña"}</Link>
+          <div className="flex gap-2">{rel.estado === "borrador" && prog === "esperando_dominio" && <form action={cancelarProg}><button className="btn-s">Cancelar programación</button></form>}<Link href={`/email/${relId}`} className="btn-p">{rel.estado === "borrador" ? "Abrir" : "Ver campaña"}</Link></div>
         </section>
       )}
       {sinLista > 0 && (
