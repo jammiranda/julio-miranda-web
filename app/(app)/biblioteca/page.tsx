@@ -47,9 +47,19 @@ async function desdeLink(fd: FormData) {
   if (url.protocol !== "https:" || !/(^|\.)devisebit\.com$/.test(url.hostname)) vuelta({ err: "Por ahora solo se cargan PDF publicados en devisebit.com.", doc: docId })
   const r = await fetch(url.toString(), { cache: "no-store" }).catch(() => null)
   if (!r || !r.ok) vuelta({ err: "No se pudo descargar el archivo.", doc: docId })
-  const buf = Buffer.from(await r.arrayBuffer())
+  let buf = Buffer.from(await r.arrayBuffer())
+  // Archivos internos: se publican cifrados (AES-256-GCM, nonce de 12 bytes al inicio) y se descifran acá con la clave del formulario, que no se guarda
+  const clave = (s(fd.get("clave")) ?? "").trim()
+  if (clave) {
+    try {
+      const { createDecipheriv } = await import("crypto")
+      const k = Buffer.from(clave, "hex"), n = buf.subarray(0, 12), tag = buf.subarray(buf.length - 16), ct = buf.subarray(12, buf.length - 16)
+      const d = createDecipheriv("aes-256-gcm", k, n); d.setAuthTag(tag)
+      buf = Buffer.concat([d.update(ct), d.final()])
+    } catch { vuelta({ err: "No se pudo descifrar el archivo con esa clave.", doc: docId }) }
+  }
   if (!buf.length || buf.length > MAX_ARCHIVO || buf.subarray(0, 4).toString() !== "%PDF") vuelta({ err: "El link no es un PDF válido.", doc: docId })
-  const nombre = decodeURIComponent(url.pathname.split("/").pop() || "documento.pdf")
+  const nombre = clave ? `${(await one<{ slug: string }>("select slug from bib_docs where id=$1", [docId]))?.slug ?? "documento"}.pdf` : decodeURIComponent(url.pathname.split("/").pop() || "documento.pdf")
   const partes = Math.ceil(buf.length / TROZO)
   const v = await one<{ id: number; version: number }>(
     `insert into bib_versiones(doc_id,version,notas,nombre,mime,tamano,partes,subido_por) values ($1,(select coalesce(max(version),0)+1 from bib_versiones where doc_id=$1),$2,$3,'application/pdf',$4,$5,$6) returning id, version`,
@@ -161,6 +171,7 @@ export default async function Biblioteca({ searchParams: sp }: { searchParams: {
                     <input type="hidden" name="doc" value={d.id} />
                     <input name="url" type="url" required className="inp !py-1.5" placeholder="https://www.devisebit.com/…pdf" aria-label="Link al PDF" />
                     <input name="notas" className="inp !py-1.5" placeholder="Qué cambió (opcional)" aria-label="Qué cambió" />
+                    <input name="clave" className="inp !py-1.5" placeholder="Clave de descifrado (solo archivos cifrados)" aria-label="Clave de descifrado" autoComplete="off" />
                     <label className="flex items-center gap-2"><input type="checkbox" name="publicar" defaultChecked /> Publicar ya como versión vigente</label>
                     <button className="btn-s self-start">Cargar desde el link</button>
                   </form>
