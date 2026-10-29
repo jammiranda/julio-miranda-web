@@ -4,7 +4,7 @@ import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
 import { validarEmail } from "@/lib/demos"
-import { docs, publicar, crearEnvio, mandarEnvio, mensajeWA, linkEnvio, peso, type Version, type Envio } from "@/lib/biblioteca"
+import { docs, publicar, TROZO, MAX_ARCHIVO, crearEnvio, mandarEnvio, mensajeWA, linkEnvio, peso, type Version, type Envio } from "@/lib/biblioteca"
 import Copiar from "@/components/Copiar"
 import SubirVersion from "@/components/SubirVersion"
 
@@ -36,6 +36,29 @@ async function compartir(fd: FormData) {
   }
   await audit(u, "doc_compartido", "bib_envios", e.id, `${d.slug} whatsapp`)
   vuelta({ ok: "Link creado: copiá el mensaje y mandalo por WhatsApp.", doc: d.id, nuevo: e.id })
+}
+
+async function desdeLink(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const docId = Number(fd.get("doc"))
+  let url: URL
+  try { url = new URL(String(fd.get("url") ?? "")) } catch { vuelta({ err: "El link no es válido.", doc: docId }) }
+  if (url.protocol !== "https:" || !/(^|\.)devisebit\.com$/.test(url.hostname)) vuelta({ err: "Por ahora solo se cargan PDF publicados en devisebit.com.", doc: docId })
+  const r = await fetch(url.toString(), { cache: "no-store" }).catch(() => null)
+  if (!r || !r.ok) vuelta({ err: "No se pudo descargar el archivo.", doc: docId })
+  const buf = Buffer.from(await r.arrayBuffer())
+  if (!buf.length || buf.length > MAX_ARCHIVO || buf.subarray(0, 4).toString() !== "%PDF") vuelta({ err: "El link no es un PDF válido.", doc: docId })
+  const nombre = decodeURIComponent(url.pathname.split("/").pop() || "documento.pdf")
+  const partes = Math.ceil(buf.length / TROZO)
+  const v = await one<{ id: number; version: number }>(
+    `insert into bib_versiones(doc_id,version,notas,nombre,mime,tamano,partes,subido_por) values ($1,(select coalesce(max(version),0)+1 from bib_versiones where doc_id=$1),$2,$3,'application/pdf',$4,$5,$6) returning id, version`,
+    [docId, s(fd.get("notas")), nombre, buf.length, partes, u.nombre])
+  for (let n = 0; n < partes; n++) await q("insert into bib_partes(version_id,n,datos) values ($1,$2,$3)", [v!.id, n, buf.subarray(n * TROZO, (n + 1) * TROZO).toString("base64")])
+  await q("update bib_versiones set completo=true where id=$1", [v!.id])
+  if (fd.get("publicar") === "on") await publicar(v!.id)
+  await audit(u, "doc_version_link", "bib_versiones", v!.id, url.toString())
+  vuelta({ ok: `Versión ${v!.version} cargada desde el link.`, doc: docId })
 }
 
 async function publicarV(fd: FormData) {
@@ -132,6 +155,16 @@ export default async function Biblioteca({ searchParams: sp }: { searchParams: {
               <div className="flex flex-col gap-2">
                 <h3 className="m-0 text-sm font-bold">Subir versión nueva</h3>
                 <SubirVersion doc={d.id} />
+                <details className="text-sm">
+                  <summary className="cursor-pointer">O cargar desde un link de devisebit.com</summary>
+                  <form action={desdeLink} className="flex flex-col gap-2 mt-2">
+                    <input type="hidden" name="doc" value={d.id} />
+                    <input name="url" type="url" required className="inp !py-1.5" placeholder="https://www.devisebit.com/…pdf" aria-label="Link al PDF" />
+                    <input name="notas" className="inp !py-1.5" placeholder="Qué cambió (opcional)" aria-label="Qué cambió" />
+                    <label className="flex items-center gap-2"><input type="checkbox" name="publicar" defaultChecked /> Publicar ya como versión vigente</label>
+                    <button className="btn-s self-start">Cargar desde el link</button>
+                  </form>
+                </details>
               </div>
             </div>
 
