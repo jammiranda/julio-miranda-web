@@ -110,6 +110,11 @@ export default async function Campania({ params, searchParams }: { params: { id:
   const excluidos = (await one<{ n: number }>(`select count(*)::int n from db_contactos c where c.email is not null and ${EXCLUIDOS_SQL}`).catch(() => null))?.n ?? 0
   const stats = nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas from em_envios where campania_id=$1`, [k.id])
   const links = stats && stats.enviados ? await q<{ url: string; n: number; personas: number }>(`select regexp_replace(url, '[?#].*$', '') url, count(*)::int n, count(distinct envio_id)::int personas from em_clics where campania_id=$1 group by 1 order by 2 desc limit 12`, [k.id]).catch(() => []) : []
+  const abrieron = stats && stats.abiertos ? await q<any>(`select e.email, e.abierto_en, e.aperturas, e.clics, e.clic_en, c.id cid, c.nombre, c.organizacion, c.clase,
+      (select string_agg(distinct regexp_replace(regexp_replace(x.url, '[?#].*$', ''), '^https?://(www\\.)?', ''), ' · ') from em_clics x where x.envio_id=e.id) destinos
+    from em_envios e left join db_contactos c on c.id=e.contacto_id
+    where e.campania_id=$1 and (e.abierto_en is not null or e.clic_en is not null)
+    order by (e.clic_en is not null) desc, e.clics desc, e.abierto_en desc limit 500`, [k.id]).catch(() => []) : []
   const vista = emailConEstilo(k.contenido, { estilo: k.estilo, portada: k.portada, preheader: k.preheader, nombre: u.nombre, baja: "#" })
   const hoy = await enviadosHoy()
   const Chk = ({ name, v, label, on }: { name: string; v: string; label?: string; on: boolean }) => (
@@ -130,6 +135,26 @@ export default async function Campania({ params, searchParams }: { params: { id:
       {stats && stats.total > 0 && (
         <section className="grid grid-cols-3 lg:grid-cols-7 gap-3">
           {[["Destinatarios", stats.total], ["Enviados", stats.enviados], ["En cola", stats.pendientes], ["Errores", stats.errores], ["Abrieron", stats.abiertos], ["Clics", stats.clics], ["Bajas", stats.bajas]].map(([t, n]) => <div key={t} className="card py-3"><span className="text-xs uppercase tracking-wider text-[#4A515C] font-semibold">{t}</span><div className="text-2xl font-extrabold">{n}</div></div>)}
+        </section>
+      )}
+      {abrieron.length > 0 && (
+        <section className="card flex flex-col gap-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="m-0 text-base">Quiénes abrieron <span className="font-normal text-[#4A515C]">· {abrieron.length} personas, primero las que hicieron clic</span></h2>
+            <a href={`/api/e/abrieron/${k.id}`} className="btn-s py-1 px-3 text-xs">Descargar CSV</a>
+          </div>
+          <div className="overflow-x-auto max-h-[520px] overflow-y-auto">
+            <table className="tbl"><thead><tr><th>Contacto</th><th>Abrió</th><th className="text-right">Aperturas</th><th className="text-right">Clics</th><th>Fue a</th></tr></thead>
+              <tbody>{abrieron.map((a: any) => (
+                <tr key={a.email}>
+                  <td>{a.cid ? <Link href={`/contactos/${a.cid}`} className="font-semibold hover:underline">{a.nombre || a.email}</Link> : <span className="font-semibold">{a.email}</span>}<div className="text-xs text-[#4A515C]">{a.email}{a.organizacion ? ` · ${a.organizacion}` : ""}</div></td>
+                  <td className="text-xs whitespace-nowrap">{a.abierto_en ? new Date(a.abierto_en).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" }) : "—"}</td>
+                  <td className="text-right">{a.aperturas}</td>
+                  <td className="text-right">{a.clics ? <strong className="text-[#9E1A17]">{a.clics}</strong> : "—"}</td>
+                  <td className="text-xs">{a.destinos ?? ""}</td>
+                </tr>))}</tbody></table>
+          </div>
+          <p className="m-0 text-xs text-[#4A515C]">Quienes hicieron clic son los más calientes: conviene escribirles o llamarlos. Algunos programas (Apple Mail) marcan como abierto solo; otros (Outlook) no lo registran.</p>
         </section>
       )}
       {links.length > 0 && (
