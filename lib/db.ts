@@ -479,6 +479,12 @@ insert into g_modulos(codigo,nombre,responsable,entregable,orden) values
   ('m10','ACADEMIA DEVISEBIT','Julio + Jime','Plan de cursos y avales para certificar',10)
   on conflict (codigo) do nothing;
 create table if not exists g_cache (clave text primary key, valor jsonb, actualizado timestamptz not null default now());
+create table if not exists pc_ig_seguidores (dia date primary key, seguidores int not null, siguiendo int, publicaciones int, actualizado timestamptz not null default now());
+create table if not exists pc_competencia (
+  id serial primary key, cuenta text not null, red text not null default 'instagram', seguidores int not null,
+  fecha date not null default current_date, nota text, creado_por text, creado timestamptz not null default now()
+);
+create index if not exists pc_competencia_cuenta on pc_competencia(lower(cuenta), fecha desc);
 alter table g_documentos add column if not exists origen text not null default 'manual';
 alter table g_documentos add column if not exists externo_id text;
 alter table g_documentos add column if not exists ruta text;

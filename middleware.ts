@@ -18,6 +18,16 @@ export function middleware(req: NextRequest) {
     u.pathname = "/academia" + (p === "/" ? "" : p)
     return NextResponse.rewrite(u)
   }
+  // panel.devisebit.com: Panel de Contenido (vive en /panel-contenido) con la misma sesión del sistema
+  if (host.startsWith("panel.")) {
+    if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
+    if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
+    if (!req.cookies.get("db_sesion")) return NextResponse.redirect(new URL("/login", req.url))
+    if (p === "/panel-contenido" || p.startsWith("/panel-contenido/")) return NextResponse.next()
+    const u = req.nextUrl.clone()
+    u.pathname = "/panel-contenido" + (p === "/" ? "" : p)
+    return NextResponse.rewrite(u)
+  }
   // sistema.devisebit.com: la Academia tiene su propio sistema en academia.devisebit.com/sistema
   if (host.startsWith("sistema.")) {
     const viejo = p.match(/^\/(academia-admin|cursos)(\/.*)?$/)
