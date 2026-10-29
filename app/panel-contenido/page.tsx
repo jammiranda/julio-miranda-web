@@ -1,4 +1,5 @@
 import { instagram, historialSeguidores, engagement } from "@/lib/instagram"
+import { linkedin } from "@/lib/linkedin"
 import { panelMetricas, youtubeCache, safe } from "@/lib/panel"
 import { resumenAds } from "@/lib/ads"
 import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, fmt, plata, fechaCorta, fechaHora } from "./_ui"
@@ -10,7 +11,7 @@ const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contacta
 export default async function Inicio() {
   if (!(await acceso())) return null
   const b = base()
-  const [ig, hist, m, yt, ads] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds())])
+  const [ig, hist, m, yt, ads, li] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin()])
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
   const p30 = posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5)
@@ -51,7 +52,12 @@ export default async function Inicio() {
         </a>
         <a className="pc-card pc-red" href="https://www.linkedin.com/company/devisebit" target="_blank" rel="noreferrer">
           <div className="hd"><span className="ic" style={{ background: "rgba(47,140,255,.15)", color: "var(--li)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7" /></svg></span><div><h3>LinkedIn</h3><span className="pc-muted" style={{ fontSize: 12 }}>DEVISEBIT</span></div></div>
-          <span className="pc-muted" style={{ fontSize: 12.5 }}>LinkedIn no ofrece datos de la página por API: abrí la página para ver seguidores y publicaciones.</span>
+          {li.ok ? (
+            <div className="pc-mono" style={{ fontSize: 13 }}>
+              {fmt(li.actual.posts)} publicaciones en 30 días · alcance {fmt(li.actual.alcance)} · {fmt(li.actual.reacciones)} reacciones{li.actual.engagement != null ? ` · engagement ${fmt(li.actual.engagement, 1)}%` : ""}
+              {li.previo.alcance ? <span className="pc-muted"> (antes: alcance {fmt(li.previo.alcance)})</span> : null}
+            </div>
+          ) : <span className="pc-muted" style={{ fontSize: 12.5 }}>{li.error === "sin_clave" ? "Datos de la página vía Buffer: falta cargar la clave de Buffer." : `Buffer no respondió: ${li.error}`}</span>}
         </a>
         <a className="pc-card pc-red" href={`${b}/web`}>
           <div className="hd"><span className="ic" style={{ background: "var(--red-soft)", color: "var(--red)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h13v16H6a2 2 0 01-2-2zM17 8h3v10a2 2 0 01-2 2M8 8h5M8 12h5M8 16h3" /></svg></span><div><h3>Blog y web</h3><span className="pc-muted" style={{ fontSize: 12 }}>devisebit.com/novedades</span></div></div>

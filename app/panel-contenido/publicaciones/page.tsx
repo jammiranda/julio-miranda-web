@@ -1,4 +1,5 @@
 import { instagram, engagement } from "@/lib/instagram"
+import { linkedin } from "@/lib/linkedin"
 import { acceso, base, Head, Kpi, SinDatos, fmt, fechaCorta, fechaHora, tipoNombre } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -9,7 +10,7 @@ const ORDEN: [string, string][] = [["", "Más recientes"], ["eng", "Más engagem
 export default async function Publicaciones({ searchParams }: { searchParams: { tipo?: string; orden?: string } }) {
   if (!(await acceso())) return null
   const b = base()
-  const ig = await instagram()
+  const [ig, li] = await Promise.all([instagram(), linkedin()])
   if (!ig.ok) return (<><Head t="Publicaciones" sub="Instagram de DEVISEBIT" /><SinDatos><b>Sin datos de Instagram.</b> {ig.error}</SinDatos></>)
   const seg = ig.perfil.seguidores
   const tipo = TIPOS.some(([k]) => k === searchParams.tipo) ? searchParams.tipo ?? "" : ""
@@ -56,6 +57,26 @@ export default async function Publicaciones({ searchParams }: { searchParams: { 
         </div>
       ) : <div className="pc-card pc-empty">No hay publicaciones de este tipo entre las últimas {todos.length}.</div>}
       <p className="pc-sub">Instagram no comparte alcance ni impresiones con el permiso actual: el engagement es aproximado, (me gusta + comentarios) / seguidores.</p>
+      <Head t="LinkedIn" sub="Página de DEVISEBIT · publicaciones enviadas por Buffer" />
+      {li.ok ? (
+        li.posts.length ? (
+          <div className="pc-card" style={{ overflowX: "auto" }}>
+            <table className="pc-table">
+              <thead><tr><th>Fecha</th><th>Publicación</th><th>Alcance</th><th>Impresiones</th><th>Reacciones</th><th>Coment.</th><th>Eng.</th></tr></thead>
+              <tbody>
+                {li.posts.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.fecha ? fechaCorta(p.fecha) : "—"}</td>
+                    <td style={{ maxWidth: 420 }}>{(p.texto || "(sin texto)").slice(0, 140)}{p.texto.length > 140 ? "…" : ""}</td>
+                    <td>{fmt(p.metricas.reach)}</td><td>{fmt(p.metricas.impressions)}</td><td>{fmt(p.metricas.reactions)}</td><td>{fmt(p.metricas.comments)}</td>
+                    <td>{p.metricas.engagementRate != null ? `${fmt(p.metricas.engagementRate, 1)}%` : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : <div className="pc-card pc-empty">Sin publicaciones enviadas por Buffer en LinkedIn todavía.</div>
+      ) : <SinDatos><b>Sin datos de LinkedIn.</b> {li.error === "sin_clave" ? "Falta la clave de Buffer (BUFFER_API_KEY)." : li.error}</SinDatos>}
     </>
   )
 }
