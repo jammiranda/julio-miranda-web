@@ -2,12 +2,17 @@
 import { useEffect, useRef, useState } from "react"
 import type { Video } from "@/lib/youtube"
 
+type V = Video & { mini: string; link: string }
+
 /**
- * Grilla de miniaturas: al tocar una se abre el video ahí mismo, sin salir de la academia.
- * `carrusel`: en celular se muestra como fila deslizable (scroll-snap); desde sm, grilla.
+ * Videos de la Academia: al tocar una miniatura se abre el video ahí mismo, sin salir del sitio.
+ * Separa siempre en dos filas: "Videos" (16:9, 3 por fila en escritorio) y "Shorts" (9:16, más chicos, 5 por fila;
+ * en celular, carrusel horizontal). Cada fila tiene tarjetas de la misma altura y títulos de hasta 2 líneas.
+ * El botón de play es chico, va en la esquina y no tapa el texto de la miniatura.
+ * `limite`: cuántos de cada tipo mostrar (la home muestra 3 videos y 5 shorts). `titulos`: encabezados de cada fila.
  */
-export default function VideoGaleria({ videos, carrusel = false }: { videos: (Video & { mini: string; link: string })[]; carrusel?: boolean }) {
-  const [abierto, setAbierto] = useState<(Video & { link: string }) | null>(null)
+export default function VideoGaleria({ videos, limite, titulos = true }: { videos: V[]; limite?: { largos: number; cortos: number }; titulos?: boolean }) {
+  const [abierto, setAbierto] = useState<V | null>(null)
   const cerrarRef = useRef<HTMLButtonElement>(null)
   const origen = useRef<HTMLElement | null>(null)
 
@@ -25,37 +30,51 @@ export default function VideoGaleria({ videos, carrusel = false }: { videos: (Vi
     }
   }, [abierto])
 
-  const abrir = (v: Video & { link: string }, e: React.MouseEvent<HTMLButtonElement>) => {
+  const abrir = (v: V, e: React.MouseEvent<HTMLButtonElement>) => {
     origen.current = e.currentTarget
     setAbierto(v)
   }
 
-  const contenedor = carrusel
-    ? "acad-riel -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-4 sm:overflow-visible"
-    : "grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"
+  const largos = videos.filter((v) => !v.corto).slice(0, limite?.largos ?? Infinity)
+  const cortos = videos.filter((v) => v.corto).slice(0, limite?.cortos ?? Infinity)
+
+  const Tarjeta = ({ v }: { v: V }) => (
+    <button
+      type="button"
+      onClick={(e) => abrir(v, e)}
+      aria-label={`Ver ${v.corto ? "short" : "video"}: ${v.titulo}`}
+      className="acad-video group h-full w-full text-left rounded-2xl overflow-hidden bg-white border border-[#E2E5EA] hover:border-[#C8231F] transition-colors p-0 cursor-pointer flex flex-col"
+    >
+      <span className={`relative block w-full bg-[#0E1116] overflow-hidden ${v.corto ? "aspect-[9/16]" : "aspect-video"}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={v.mini} alt="" loading="lazy" decoding="async" width={v.corto ? 360 : 480} height={v.corto ? 640 : 270} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform motion-reduce:transform-none" />
+        <span aria-hidden="true" className="acad-play absolute right-2 bottom-2 w-9 h-9 rounded-full bg-[#C8231F]/85 text-white flex items-center justify-center text-sm shadow-md backdrop-blur-[2px]">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+        </span>
+      </span>
+      <span className={`block p-3 font-semibold leading-snug text-[#0E1116] line-clamp-2 ${v.corto ? "text-sm min-h-[3.6rem]" : "text-[15px] min-h-[4rem]"}`}>{v.titulo}</span>
+    </button>
+  )
 
   return (
     <>
-      <div className={contenedor}>
-        {videos.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            onClick={(e) => abrir(v, e)}
-            aria-label={`Ver video: ${v.titulo}`}
-            className={`group text-left rounded-2xl overflow-hidden bg-white border border-[#E2E5EA] hover:border-[#C8231F] transition-colors p-0 cursor-pointer flex flex-col ${carrusel ? (v.corto ? "w-[44vw] max-w-[200px] sm:w-auto sm:max-w-none" : "w-[78vw] max-w-[320px] sm:w-auto sm:max-w-none") : ""}`}
-          >
-            <div className={`relative w-full bg-[#0E1116] ${v.corto ? "aspect-[9/16]" : "aspect-video"}`}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={v.mini} alt="" loading="lazy" decoding="async" width={v.corto ? 360 : 480} height={v.corto ? 640 : 270} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform motion-reduce:transform-none" />
-              <span className="absolute inset-0 flex items-center justify-center">
-                <span className="w-14 h-14 rounded-full bg-[#C8231F]/90 text-white flex items-center justify-center text-2xl shadow-lg" aria-hidden>▶</span>
-              </span>
-              {v.corto && <span className="absolute top-2 left-2 chip bg-black/75 text-white">Short</span>}
-            </div>
-            <p className="m-0 p-3 text-[15px] sm:text-sm font-semibold leading-snug text-[#0E1116] line-clamp-3">{v.titulo}</p>
-          </button>
-        ))}
+      <div className="flex flex-col gap-8">
+        {largos.length > 0 && (
+          <section aria-label="Videos" className="flex flex-col gap-3">
+            {titulos && <h3 className="m-0 text-lg font-extrabold">Videos</h3>}
+            <ul className="m-0 p-0 list-none grid grid-cols-1 min-[560px]:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {largos.map((v) => <li key={v.id} className="h-full"><Tarjeta v={v} /></li>)}
+            </ul>
+          </section>
+        )}
+        {cortos.length > 0 && (
+          <section aria-label="Shorts" className="flex flex-col gap-3">
+            {titulos && <h3 className="m-0 text-lg font-extrabold">Shorts</h3>}
+            <ul className="acad-riel m-0 p-0 list-none -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-4 lg:grid-cols-5 sm:gap-4 sm:overflow-visible">
+              {cortos.map((v) => <li key={v.id} className="h-full w-[42vw] max-w-[190px] sm:w-auto sm:max-w-none"><Tarjeta v={v} /></li>)}
+            </ul>
+          </section>
+        )}
       </div>
       {abierto && (
         <div

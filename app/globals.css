@@ -239,3 +239,12 @@ html:has(.acad) { scroll-padding-top: 5rem; }
   .rapidos, .sb, .topbar, .saltar { display: none !important; }
   [data-espacio] .card { box-shadow: none; }
 }
+/* Videos de la Academia: el play es chico y en la esquina; en escritorio con mouse aparece más al pasar por encima. */
+@media (hover: hover) and (pointer: fine) {
+  .acad .acad-video .acad-play { opacity: .8; transform: scale(.92); transition: opacity .15s, transform .15s; }
+  .acad .acad-video:hover .acad-play, .acad .acad-video:focus-visible .acad-play { opacity: 1; transform: scale(1); }
+}
+.acad pre { background: #0E1116; color: #E8EAEE; border-radius: 12px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.55; }
+.acad pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; }
+.acad .prosa code { background: #F0F1F4; border-radius: 6px; padding: 1px 5px; font-size: .9em; }
+.acad .prosa pre code { background: transparent; padding: 0; font-size: inherit; }

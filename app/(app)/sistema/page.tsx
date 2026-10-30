@@ -5,6 +5,7 @@ import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { sembrar, slugDe, URL_ACADEMIA, mpConfigurado } from "@/lib/academia"
 import { fechaHora } from "@/lib/consultas"
+import { PROGRAMAS } from "@/lib/programas"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 120
@@ -54,11 +55,12 @@ async function guardarProducto(fd: FormData) {
 export default async function AcademiaAdmin({ searchParams }: { searchParams: { ok?: string; err?: string } }) {
   await requerir(["gerente", "coordinacion"])
   await sembrar()
-  const [guias, productos, ordenes, subs] = await Promise.all([
+  const [guias, productos, ordenes, subs, programas] = await Promise.all([
     q<any>("select * from am_guias order by publicada, creado desc"),
     q<any>("select p.*, (select count(*)::int from db_contactos c where ('espera-'||p.slug) = any(c.tags)) espera from am_productos p order by id"),
     q<any>("select o.*, p.titulo from am_ordenes o join am_productos p on p.id=o.producto_id order by o.creado desc limit 30"),
     one<any>("select count(*) filter (where suscrito_en is not null and email_estado='activo')::int activos, count(*) filter (where suscrito_en > now() - interval '7 days')::int semana from db_contactos"),
+    q<{ tag: string; n: number }>("select t tag, count(*)::int n from db_contactos, unnest(tags) t where t like 'espera-programa-%' group by t"),
   ])
   return (
     <div className="flex flex-col gap-5">
@@ -111,6 +113,19 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
             <div className="flex items-end"><button className="btn-p w-full">Guardar</button></div>
           </form>
         ))}
+      </section>
+
+      <section id="programas" className="card flex flex-col gap-2 scroll-mt-28">
+        <h2 className="m-0 text-xl">Programas ejecutivos <span className="font-sans text-sm font-normal text-[#4A515C]">· “Quiero que me avisen”</span></h2>
+        <p className="m-0 text-sm text-[#4A515C]">Se publican en <a href={`${URL_ACADEMIA}/programas`} target="_blank" rel="noopener noreferrer" className="underline">academia.devisebit.com/programas</a> (textos en lib/programas.ts). Cada anotado queda en Contactos con la etiqueta de la lista.</p>
+        <ul className="m-0 p-0 list-none flex flex-col">
+          {PROGRAMAS.map((p) => (
+            <li key={p.slug} className="flex flex-wrap items-center justify-between gap-2 py-2 border-b border-[#EEF0F3] last:border-0">
+              <span className="text-sm"><strong className="block">{p.titulo}</strong><span className="text-xs text-[#4A515C]">Inicio: {p.inicio} · etiqueta <code>{p.tag}</code></span></span>
+              <span className="chip bg-[#FDECEB] text-[#9E1A17]">{programas.find((x) => x.tag === p.tag)?.n ?? 0} anotados</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="card !p-0 overflow-hidden">

@@ -5,11 +5,12 @@ import { q, one } from "@/lib/db"
 import { sembrar } from "@/lib/academia"
 import Suscribir from "@/components/Suscribir"
 import { modalidad } from "@/lib/cursos"
+import { PROGRAMAS } from "@/lib/programas"
 
 export const dynamic = "force-dynamic"
 
 export default async function Academia() {
-  const videos = await ultimosVideos(10)
+  const videos = await ultimosVideos(30)
   await sembrar()
   const [guias, kit, cursos] = await Promise.all([
     q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 6"),
@@ -40,17 +41,17 @@ export default async function Academia() {
         </div>
       </section>
 
-      <section aria-label="Autodiagnóstico digital" className="bg-[#FDECEB] border-b border-[#F6C9C6]">
-        <div className="max-w-6xl mx-auto px-4 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-          <div className="flex items-center gap-3 flex-1">
-            <span aria-hidden="true" className="shrink-0 w-10 h-10 rounded-full bg-[#C8231F] text-white flex items-center justify-center font-extrabold">✓</span>
-            <p className="m-0 text-[15px] sm:text-base text-[#0E1116]"><strong>¿Qué tan digital es tu organización?</strong> <span className="text-[#4A515C]">Hacé el autodiagnóstico gratis en 5 minutos y recibí tu informe por correo.</span></p>
+      <section aria-label="Autodiagnóstico digital" className="max-w-6xl mx-auto px-4 pt-8 sm:pt-10">
+        <div className="rounded-3xl bg-[#FDECEB] border border-[#F6C9C6] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+          <div className="flex items-start sm:items-center gap-4 flex-1">
+            <span aria-hidden="true" className="shrink-0 w-11 h-11 rounded-full bg-[#C8231F] text-white flex items-center justify-center font-extrabold">✓</span>
+            <p className="m-0 text-[15px] sm:text-base text-[#0E1116] leading-snug"><strong className="block sm:inline">¿Qué tan digital es tu organización?</strong> <span className="text-[#4A515C]">Hacé el autodiagnóstico gratis en 5 minutos y recibí tu informe por correo.</span></p>
           </div>
-          <a href="https://www.devisebit.com/demos/transformacion-digital.html" className="btn bg-[#0E1116] text-white hover:bg-[#262C37] min-h-[44px] no-underline shrink-0 self-start sm:self-auto">Hacer el autodiagnóstico →</a>
+          <a href="https://www.devisebit.com/demos/transformacion-digital.html" className="btn bg-[#0E1116] text-white hover:bg-[#262C37] min-h-[48px] no-underline shrink-0 w-full sm:w-auto">Hacer el autodiagnóstico →</a>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 pt-10 sm:pt-14">
+      <section className="max-w-6xl mx-auto px-4 pt-8 sm:pt-10">
         <div className="rounded-3xl bg-[#0E1116] text-white p-5 sm:p-10 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-center relative overflow-hidden">
           <div aria-hidden="true" className="absolute -left-24 -bottom-24 w-[380px] h-[380px] rounded-full" style={{ background: "radial-gradient(circle, rgba(200,35,31,.35), transparent 65%)" }} />
           <div className="relative flex flex-col gap-3">
@@ -86,6 +87,21 @@ export default async function Academia() {
         </section>
       )}
 
+      <section aria-labelledby="t-programas" className="max-w-6xl mx-auto px-4 pt-10 sm:pt-14">
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><span className="chip bg-[#FDECEB] text-[#9E1A17]">Próximamente</span><h2 id="t-programas" className="acad-h2 m-0 mt-2 font-extrabold">Programas ejecutivos</h2></div><Link href="/programas" className="inline-flex items-center min-h-[44px] font-semibold text-[#C8231F]">Ver programas →</Link></div>
+        <ul className="m-0 mt-5 p-0 list-none grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+          {PROGRAMAS.map((p) => (
+            <li key={p.slug}>
+              <Link href={`/programas#${p.slug}`} className="card h-full flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#C8231F] hover:-translate-y-1 transition-transform">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{p.tipo} · {p.inicio}</span>
+                <span className="text-lg font-bold leading-snug">{p.titulo}</span>
+                <span className="mt-auto pt-1 text-sm font-semibold text-[#C8231F]">Quiero que me avisen →</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="max-w-6xl mx-auto px-4 py-10 sm:py-14">
         <div className="flex flex-wrap items-end justify-between gap-3"><h2 className="acad-h2 m-0 font-extrabold">Guías</h2><Link href="/guias" className="inline-flex items-center min-h-[44px] font-semibold text-[#C8231F]">Ver todas →</Link></div>
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -113,7 +129,7 @@ export default async function Academia() {
           <div><h2 className="acad-h2 m-0 font-extrabold">Videos</h2><p className="m-0 mt-1 text-[#4A515C]">Guías en video, casos reales y tips rápidos de IA para tu organización.</p></div>
           <a href={YT_SUSCRIBIR} target="_blank" rel="noopener noreferrer" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] w-full sm:w-auto"><span aria-hidden="true">▶</span> Suscribirme al canal</a>
         </div>
-        <VideoGaleria carrusel videos={videos.map((v) => ({ ...v, mini: miniatura(v), link: linkVideo(v) }))} />
+        <VideoGaleria limite={{ largos: 3, cortos: 5 }} videos={videos.map((v) => ({ ...v, mini: miniatura(v), link: linkVideo(v) }))} />
         <p className="m-0 mt-3"><a href="/videos" className="inline-flex items-center min-h-[44px] font-semibold text-[#C8231F]">Ver todos los videos →</a></p>
       </section>
 

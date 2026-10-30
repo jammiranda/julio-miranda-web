@@ -49,7 +49,7 @@ export function Certificados({ ins }: { ins: any[] }) {
   const certs = ins.filter((x) => x.certificado)
   if (!certs.length) return null
   return (
-    <section className="card" aria-labelledby="t-cert">
+    <section id="certificados" className="card scroll-mt-24" aria-labelledby="t-cert">
       <h2 id="t-cert" className="m-0 text-base">Mis certificados</h2>
       <ul className="m-0 mt-2 p-0 list-none flex flex-col">
         {certs.map((x) => (
