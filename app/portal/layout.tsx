@@ -24,7 +24,8 @@ export default async function PortalLayout({ children }: { children: React.React
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-[#E2E5EA]">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <Link href="/portal" aria-label="Inicio de mi cuenta"><Marca chico sub="MI CUENTA" /></Link>
+          <Link href="/portal" aria-label="DEVISEBIT Mi cuenta, inicio"><Marca chico sub="MI CUENTA" /></Link>
+          {!c && <a href={URL_ACADEMIA} className="text-sm font-semibold text-[#0F766E] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
           {c && (
             <div className="flex items-center gap-3 text-sm">
               <span className="hidden sm:flex flex-col leading-tight text-right"><span className="font-semibold">{c.nombre}</span>{c.organizacion && <span className="text-xs text-[#4A515C]">{c.organizacion}</span>}</span>
@@ -35,7 +36,7 @@ export default async function PortalLayout({ children }: { children: React.React
         {c && (
           <nav aria-label="Mi cuenta" className="max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
             {items.map((i) => <Link key={i.href} href={i.href} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">{i.t}</Link>)}
-            <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">Academia ↗</a>
+            <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" title="Entrás con esta misma cuenta" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#0F766E] hover:bg-[#E6F6F4] whitespace-nowrap">ACADEMIA DEVISEBIT ↗</a>
           </nav>
         )}
       </header>

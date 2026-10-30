@@ -45,10 +45,10 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
             {MENU.map((i) => (
               <Link key={i.href} href={i.href} className="px-2.5 xl:px-3 py-3 rounded-lg text-white/85 hover:text-white hover:bg-white/10 no-underline">{i.label}</Link>
             ))}
-            <a href={MI_CUENTA} className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[44px] no-underline">Mi cuenta</a>
+            <a href={MI_CUENTA} title="DEVISEBIT Mi cuenta: tus cursos, certificados, proyectos y pagos (misma cuenta)" className="ml-1 btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[44px] no-underline">Mi cuenta</a>
           </nav>
           <div className="lg:hidden flex items-center gap-1">
-            <a href={MI_CUENTA} className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[40px] px-3 no-underline">Mi cuenta</a>
+            <a href={MI_CUENTA} title="DEVISEBIT Mi cuenta: tus cursos, certificados, proyectos y pagos (misma cuenta)" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[40px] px-3 no-underline">Mi cuenta</a>
             <MenuMovil items={MENU} />
           </div>
         </div>
@@ -58,7 +58,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
       <footer className="ficha-head acad-pie bg-[#0E1116] text-white/75 text-[15px]" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <div><p className="m-0 text-white font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="font-semibold text-white/60 tracking-[0.2em] text-xs uppercase">Academia</span></p><p className="m-0 mt-2">IA y tecnología aplicada, explicada simple. Desde 2009 haciendo software para salud, gobierno, universidades, gremios y empresas.</p><Redes oscuro className="mt-3" /></div>
-          <div className="flex flex-col"><span className="text-white font-semibold mb-1">Aprender</span><Link href="/cursos" className="hover:text-white">Cursos con certificado</Link><a href={urlPortal("/cursos")} className="hover:text-white">Mi cuenta y certificados</a><Link href="/guias" className="hover:text-white">Todas las guías</Link><Link href="/productos/kit-ia-pymes" className="hover:text-white">Kit IA para pymes</Link><a href="/#suscribirme" className="hover:text-white">Newsletter</a><a href="https://www.devisebit.com/demos/transformacion-digital.html" className="hover:text-white">Autodiagnóstico digital gratis</a><a href="https://www.devisebit.com/transformacion-digital" className="hover:text-white">Consultoría en transformación digital</a><a href={YT_URL} className="hover:text-white">Canal de YouTube</a><a href={YT_SUSCRIBIR} className="hover:text-white">Suscribirme en YouTube</a></div>
+          <div className="flex flex-col"><span className="text-white font-semibold mb-1">Aprender</span><Link href="/cursos" className="hover:text-white">Cursos con certificado</Link><a href={urlPortal("/cursos")} className="hover:text-white">DEVISEBIT Mi cuenta (cursos y certificados)</a><Link href="/guias" className="hover:text-white">Todas las guías</Link><Link href="/productos/kit-ia-pymes" className="hover:text-white">Kit IA para pymes</Link><a href="/#suscribirme" className="hover:text-white">Newsletter</a><a href="https://www.devisebit.com/demos/transformacion-digital.html" className="hover:text-white">Autodiagnóstico digital gratis</a><a href="https://www.devisebit.com/transformacion-digital" className="hover:text-white">Consultoría en transformación digital</a><a href={YT_URL} className="hover:text-white">Canal de YouTube</a><a href={YT_SUSCRIBIR} className="hover:text-white">Suscribirme en YouTube</a></div>
           <div className="flex flex-col"><span className="text-white font-semibold mb-1">DEVISEBIT SRL</span><a href="https://www.devisebit.com" className="hover:text-white">devisebit.com</a><a href={WA} className="hover:text-white">WhatsApp +54 9 11 7346-6490</a><a href="https://www.devisebit.com/privacidad" className="hover:text-white">Privacidad</a></div>
         </div>
       </footer>

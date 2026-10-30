@@ -312,6 +312,14 @@ create table if not exists portal_solicitudes (
   creado timestamptz not null default now()
 );
 create index if not exists portal_solicitudes_creado on portal_solicitudes(creado desc);
+-- Ingreso fácil: código de 6 dígitos por email (además del link) y límite de pedidos por IP
+alter table portal_accesos add column if not exists codigo_hash text;
+alter table portal_accesos add column if not exists codigo_expira timestamptz;
+alter table portal_accesos add column if not exists intentos int not null default 0;
+create index if not exists portal_accesos_contacto on portal_accesos(contacto_id, creado desc);
+alter table portal_solicitudes add column if not exists ip text;
+create index if not exists portal_solicitudes_email on portal_solicitudes(lower(email), creado desc);
+create index if not exists portal_solicitudes_ip on portal_solicitudes(ip, creado desc) where ip is not null;
 alter table db_proyectos add column if not exists abono_monto numeric;
 alter table db_proyectos add column if not exists abono_moneda text not null default 'ARS';
 alter table db_proyectos add column if not exists abono_dia int;

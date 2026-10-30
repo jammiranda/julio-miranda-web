@@ -10,6 +10,15 @@ import { URL_ACADEMIA } from "@/lib/academia"
 
 export const dynamic = "force-dynamic"
 
+const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20te%20escribo%20desde%20Mi%20cuenta"
+const PRIMEROS_PASOS = [
+  { i: "▦", t: "Servicios y productos", d: "Webs, sistemas, agentes de WhatsApp con IA, tableros y más. Con precios de referencia.", href: "/portal/servicios" },
+  { i: "◷", t: "Agendar una reunión", d: "Elegí día y horario para charlar con el equipo, sin compromiso.", href: "/portal/reuniones" },
+  { i: "✓", t: "Autodiagnóstico digital", d: "En 5 minutos sabés en qué punto está tu organización y por dónde seguir.", href: "https://www.devisebit.com/demos/transformacion-digital.html", externo: true },
+  { i: "★", t: "ACADEMIA DEVISEBIT", d: "Guías, videos y cursos con certificado. Entrás con esta misma cuenta.", href: URL_ACADEMIA, externo: true },
+  { i: "✉", t: "Escribinos por WhatsApp", d: "Contanos qué necesitás y te respondemos en el día.", href: WA, externo: true },
+]
+
 const fh = (d: any) => new Date(d).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })
 
 export default async function Portal() {
@@ -25,13 +34,31 @@ export default async function Portal() {
   ])
   const enCurso = cursos.filter((x) => ["inscripto", "cursando"].includes(x.estado))
   const pendientes = proyectos.reduce((a, p) => a + (p.pendientes ?? 0), 0)
+  // Cuenta recién creada (o sin nada todavía): en vez de cajas vacías, un Inicio con los próximos pasos.
+  const nueva = !proyectos.length && !cursos.length && !cuenta.cobros.length
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="m-0">Hola, {c.nombre.split(" ")[0]}</h1>
-        <p className="m-0 mt-1 text-[#4A515C]">Tus proyectos, pagos y cursos con DEVISEBIT, en un solo lugar.</p>
+        <p className="m-0 mt-1 text-[#4A515C]">{nueva ? "Bienvenido a tu cuenta DEVISEBIT. Desde acá podés conocer lo que hacemos, hablar con el equipo y aprender en la Academia." : "Tus proyectos, pagos y cursos con DEVISEBIT, en un solo lugar."}</p>
       </div>
+
+      {nueva && (
+        <section aria-labelledby="t-emp" className="flex flex-col gap-3">
+          <h2 id="t-emp" className="m-0">¿Por dónde empezamos?</h2>
+          <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {PRIMEROS_PASOS.map((x) => (
+              <li key={x.t}>
+                {x.externo
+                  ? <a href={x.href} target="_blank" rel="noopener noreferrer" className="card h-full flex flex-col gap-1 hover:border-[#C8231F]"><span className="text-xl" aria-hidden="true">{x.i}</span><strong>{x.t}</strong><span className="text-sm text-[#4A515C]">{x.d}</span></a>
+                  : <Link href={x.href} className="card h-full flex flex-col gap-1 hover:border-[#C8231F]"><span className="text-xl" aria-hidden="true">{x.i}</span><strong>{x.t}</strong><span className="text-sm text-[#4A515C]">{x.d}</span></Link>}
+              </li>
+            ))}
+          </ul>
+          <p className="m-0 text-sm text-[#4A515C]">Cuando trabajemos juntos en un proyecto o te anotes en un curso, vas a seguir todo desde acá: etapas, entregas, pagos y certificados.</p>
+        </section>
+      )}
 
       {(cuenta.pendientes.length > 0 || cursos.length > 0) && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -60,7 +87,7 @@ export default async function Portal() {
         </div>
       )}
 
-      <section aria-labelledby="t-proy" className="flex flex-col gap-3">
+      {!nueva && <section aria-labelledby="t-proy" className="flex flex-col gap-3">
         <h2 id="t-proy" className="m-0">Tus proyectos</h2>
         {!proyectos.length && <p className="card m-0 text-sm text-[#4A515C]">Todavía no hay proyectos cargados. Cuando trabajemos juntos en uno, vas a seguirlo acá paso a paso. <Link href="/portal/servicios" className="underline text-[#C8231F]">Ver servicios</Link></p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -83,10 +110,10 @@ export default async function Portal() {
             )
           })}
         </div>
-      </section>
+      </section>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <section aria-labelledby="t-nov" className="card lg:col-span-2 flex flex-col gap-3">
+        {!nueva && <section aria-labelledby="t-nov" className="card lg:col-span-2 flex flex-col gap-3">
           <h2 id="t-nov" className="m-0 text-base">Últimas novedades</h2>
           {!novedades.length && <p className="m-0 text-sm text-[#4A515C]">Sin novedades todavía.</p>}
           <ul className="m-0 p-0 list-none flex flex-col">
@@ -100,7 +127,7 @@ export default async function Portal() {
               </li>
             ))}
           </ul>
-        </section>
+        </section>}
         <section aria-labelledby="t-reu" className="card flex flex-col gap-3">
           <h2 id="t-reu" className="m-0 text-base">Próximas reuniones</h2>
           {!reuniones.length && <p className="m-0 text-sm text-[#4A515C]">No hay reuniones agendadas.</p>}
