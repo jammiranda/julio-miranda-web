@@ -2,11 +2,10 @@ import type { Metadata, Viewport } from "next"
 import Link from "next/link"
 import Script from "next/script"
 
-import { YT_URL, YT_SUSCRIBIR } from "@/lib/youtube"
-import Redes from "@/components/Redes"
 import MenuMovil from "./_ui/MenuMovil"
 import MenuEscritorio from "./_ui/MenuEscritorio"
 import CuentaHeader from "./_ui/CuentaHeader"
+import Pie from "./_ui/Pie"
 
 const OG_ACADEMIA = "https://sistema.devisebit.com/marca/og-academia.jpg"
 
@@ -20,11 +19,6 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: [OG_ACADEMIA] },
   robots: { index: true, follow: true },
 }
-
-// "Mi cuenta" es el espacio del alumno dentro de la Academia (academia.devisebit.com/mi-cuenta), no el portal.
-const MI_CUENTA = "/mi-cuenta"
-
-const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20vengo%20de%20la%20Academia"
 
 export default function AcademiaLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -48,13 +42,7 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
       </header>
       <div id="contenido" tabIndex={-1} className="flex-1 outline-none">{children}</div>
       <Script src="https://sistema.devisebit.com/v.js" strategy="afterInteractive" />
-      <footer className="ficha-head acad-pie bg-[#0E1116] text-white/75 text-[15px]" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div><p className="m-0 text-white font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="font-semibold text-white/60 tracking-[0.2em] text-xs uppercase">Academia</span></p><p className="m-0 mt-2">IA y tecnología aplicada, explicada simple. Desde 2009 haciendo software para salud, gobierno, universidades, gremios y empresas.</p><Redes oscuro className="mt-3" /></div>
-          <div className="flex flex-col"><span className="text-white font-semibold mb-1">Aprender</span><Link href="/cursos" className="hover:text-white">Cursos con certificado</Link><Link href="/programas" className="hover:text-white">Programas ejecutivos</Link><Link href="/guias" className="hover:text-white">Todas las guías</Link><Link href="/descargas" className="hover:text-white">Descargas: Kit IA, guías y plantillas</Link><Link href={MI_CUENTA} className="hover:text-white">Mi cuenta (mis cursos y certificados)</Link><a href="/#suscribirme" className="hover:text-white">Newsletter</a><a href="https://www.devisebit.com/demos/transformacion-digital.html" className="hover:text-white">Autodiagnóstico digital gratis</a><a href="https://www.devisebit.com/transformacion-digital" className="hover:text-white">Consultoría en transformación digital</a><a href={YT_URL} className="hover:text-white">Canal de YouTube</a><a href={YT_SUSCRIBIR} className="hover:text-white">Suscribirme en YouTube</a></div>
-          <div className="flex flex-col"><span className="text-white font-semibold mb-1">DEVISEBIT SRL</span><a href="https://www.devisebit.com" className="hover:text-white">devisebit.com</a><a href={WA} className="hover:text-white">WhatsApp +54 9 11 7346-6490</a><a href="https://www.devisebit.com/privacidad" className="hover:text-white">Privacidad</a></div>
-        </div>
-      </footer>
+      <Pie />
     </div>
   )
 }

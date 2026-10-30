@@ -82,8 +82,8 @@
 .acad-saltar { position: absolute; left: 8px; top: -100px; z-index: 60; background: #fff; color: #0E1116; padding: 12px 16px; border-radius: 10px; font-weight: 700; }
 .acad-saltar:focus { top: 8px; }
 /* Pie: links cómodos para el pulgar */
-.acad-pie .flex-col > a { display: flex; align-items: center; min-height: 44px; }
-@media (min-width: 1280px) and (hover: hover) { .acad-pie .flex-col > a { min-height: 32px; } }
+.acad-pie .pie-link { display: flex; align-items: center; min-height: 44px; }
+@media (min-width: 1024px) and (hover: hover) { .acad-pie .pie-link { min-height: 34px; } }
 .acad-pie a[aria-label] { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 /* Lectura de guías */
 .acad .prosa { font-size: 18px; line-height: 1.7; overflow-wrap: break-word; }
@@ -111,6 +111,41 @@ html:has(.acad) { scroll-padding-top: 5rem; }
   .acad .rotate-1 { transform: none; }
 }
 @media print { .acad-barra, .acad-saltar { display: none !important; } }
+
+/* ===== Academia: un color por tipo de contenido (cursos, programas, guías, autodiagnóstico) ===== */
+.acad {
+  --a-cursos: #C8231F; --a-cursos-suave: #FDECEB;
+  --a-prog: #F5B83D; --a-prog-tinta: #0E1116;
+  --a-guias: #0B7462; --a-guias-suave: #E3F3EE;
+  --a-diag: #2347C5; --a-diag-suave: #E8EDFC;
+}
+/* Tarjetas parejas: títulos de 2 líneas y bajadas de 3 con altura fija; lo de abajo se alinea con mt-auto */
+.acad .t2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.3; min-height: 2.6em; }
+.acad .t3 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; line-height: 1.3; min-height: 3.9em; }
+.acad .b3 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; line-height: 1.5; min-height: 4.5em; }
+.acad .b2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.5; min-height: 3em; }
+.acad .r2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.35; min-height: 2.7em; }
+/* En una sola columna (celular) no hace falta reservar alto: cada tarjeta se ve sola */
+@media (max-width: 639.98px) { .acad .t2, .acad .t3, .acad .b3, .acad .b2, .acad .r2 { min-height: 0; } }
+/* Abanico de portadas del inicio */
+.acad .abanico > * { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s; }
+.acad .abanico > :nth-child(1) { transform: translate(-14%, 10%) rotate(-7deg); }
+.acad .abanico > :nth-child(2) { transform: translate(14%, 6%) rotate(6deg); }
+.acad .abanico > :nth-child(3) { transform: translate(0, -6%) rotate(-1deg); }
+@media (hover: hover) {
+  .acad .abanico:hover > :nth-child(1) { transform: translate(-22%, 12%) rotate(-10deg); }
+  .acad .abanico:hover > :nth-child(2) { transform: translate(22%, 8%) rotate(9deg); }
+  .acad .abanico > :hover { z-index: 5; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
+  .acad .levanta { transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, border-color .25s; }
+  .acad .levanta:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(14,17,22,.12); }
+  .acad .levanta:hover .zoom { transform: scale(1.04); }
+}
+.acad .zoom { transition: transform .5s cubic-bezier(.2,.7,.2,1); }
+/* Entrada al hacer scroll: solo con JS activo (clase en <html>) y sin "reducir movimiento" */
+@media (prefers-reduced-motion: no-preference) {
+  html.acad-rev .acad [data-revelar] { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 70ms); }
+  html.acad-rev .acad [data-revelar].visto { opacity: 1; transform: none; }
+}
 
 /* =====================================================================
    Sistema interno (sistema.devisebit.com y academia.devisebit.com/sistema)

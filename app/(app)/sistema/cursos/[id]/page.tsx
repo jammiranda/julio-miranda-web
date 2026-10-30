@@ -107,11 +107,11 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <Campo l="Horas"><input name="horas" inputMode="decimal" defaultValue={c.horas ?? ""} className="inp" /></Campo>
         <Campo l="Categoría"><input name="categoria" defaultValue={c.categoria ?? ""} className="inp" placeholder="IA, Gestión, Salud digital…" /></Campo>
         <Campo l="Nivel"><input name="nivel" defaultValue={c.nivel ?? ""} className="inp" placeholder="Inicial, intermedio…" /></Campo>
-        <Campo l="Docente"><input name="docente" defaultValue={c.docente ?? ""} className="inp" /></Campo>
+        <Campo l="Lo enseña (nombre visible)"><input name="docente" defaultValue={c.docente ?? ""} className="inp" /></Campo>
         <Campo l="Precio en pesos (vacío = gratis)"><input name="precio" inputMode="decimal" defaultValue={c.precio ?? ""} className="inp" /></Campo>
         <Campo l="Precio en USD (PayPal)"><input name="precio_usd" inputMode="decimal" defaultValue={c.precio_usd ?? ""} className="inp" /></Campo>
         <Campo l="Cuotas sin interés (Mercado Pago)"><input name="cuotas" type="number" min={1} max={12} defaultValue={c.cuotas ?? 1} className="inp" /></Campo>
-        <Campo l="Docentes (perfiles de /equipo, separados por coma)"><input name="docente_slug" defaultValue={c.docente_slug ?? ""} className="inp" placeholder="oscar-schmitz" /></Campo>
+        <Campo l="Quién lo enseña: perfiles de /equipo, separados por coma"><input name="docente_slug" defaultValue={c.docente_slug ?? ""} className="inp" placeholder="oscar-schmitz" /></Campo>
         <Campo l="Dirección web (slug)"><input name="slug" defaultValue={c.slug} className="inp" /></Campo>
         <Campo l="Imagen (URL)"><input name="imagen" type="url" defaultValue={c.imagen ?? ""} className="inp" /></Campo>
         <Campo l="Para aprobar: % de lecciones"><input name="req_lecciones" type="number" min={0} max={100} defaultValue={c.req_lecciones} className="inp" /></Campo>
@@ -119,7 +119,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="certifica" value="1" defaultChecked={c.certifica} /> Emite certificado</label>
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="destacado" value="1" defaultChecked={c.destacado} /> Destacado</label>
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="nuevo" value="1" defaultChecked={c.nuevo} /> Marcar como “Nuevo”</label>
-        <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="videollamada" value="1" defaultChecked={c.videollamada} /> Incluye videollamada de 30 min con el docente</label>
+        <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="videollamada" value="1" defaultChecked={c.videollamada} /> Incluye videollamada de 30 min con quien lo enseña</label>
         <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">Referencia: USD 1 = $ {TC_REFERENCIA.toLocaleString("es-AR")}{c.precio_usd ? ` → USD ${Number(c.precio_usd)} ≈ $ ${arsDesdeUsd(Number(c.precio_usd)).toLocaleString("es-AR")}` : ""}. {textoCuotas(c.precio, c.cuotas)}</p>
         <Campo l="Nota interna (no se publica: revisiones pendientes, a quién consultar…)" className="md:col-span-4"><textarea name="nota_interna" rows={2} defaultValue={c.nota_interna ?? ""} className="inp text-sm" /></Campo>
         <Campo l="Descripción (texto simple: ## títulos, - listas, **negrita**)" className="md:col-span-4"><textarea name="descripcion" rows={8} defaultValue={c.descripcion} className="inp font-mono text-sm" /></Campo>

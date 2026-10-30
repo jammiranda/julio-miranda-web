@@ -65,7 +65,7 @@ export const EQUIPO: Perfil[] = [
     slug: "julio-miranda",
     nombre: "Julio Miranda",
     iniciales: "JM",
-    rol: "Fundador y Director de DEVISEBIT SRL",
+    rol: "Fundador de DEVISEBIT",
     grupo: "direccion",
     titular: "Transformación digital e inteligencia artificial aplicada",
     resumen: "Más de 15 años liderando proyectos de software, datos y transformación digital en salud, gobierno y educación.",

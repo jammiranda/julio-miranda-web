@@ -693,7 +693,9 @@ alter table am_lecciones add column if not exists quiz jsonb;
 alter table am_ordenes add column if not exists curso_id int references am_cursos(id) on delete set null;
 alter table am_ordenes add column if not exists inscripcion_id int;
 alter table am_inscripciones add column if not exists videollamada_en timestamptz;
-alter table am_inscripciones add column if not exists videollamada_consulta int
+alter table am_inscripciones add column if not exists videollamada_consulta int;
+update am_cursos set descripcion=replace(descripcion,'con el docente','con quien lo enseña') where descripcion like '%con el docente%';
+update am_lecciones set contenido=replace(replace(replace(contenido,'con el docente','con quien lo enseña'),'que el docente revise','que quien enseña el curso revise'),'| Docentes |','| Quienes enseñan |') where contenido like '%con el docente%' or contenido like '%que el docente revise%' or contenido like '%| Docentes |%'
 `
 
 let ready: Promise<void> | null = null

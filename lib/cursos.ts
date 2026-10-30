@@ -280,7 +280,7 @@ export async function comprasDe(email: string) {
   ).catch(() => [])
 }
 
-// ── Cursos pagos a tu ritmo: precios, compra y videollamada con el docente ──
+// ── Cursos pagos a tu ritmo: precios, compra y videollamada con quien lo enseña ──
 /** Tipo de cambio de referencia para pasar USD a pesos al cargar precios (los precios quedan guardados y se editan en Sistema Academia). */
 export const TC_REFERENCIA = 1560
 /** USD → ARS "prolijo": el número terminado en 4.900 o 9.900 más cercano (49 USD → $ 74.900). */

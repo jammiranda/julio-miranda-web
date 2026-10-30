@@ -7,6 +7,7 @@ import { modalidad, tipoLeccion, inscribir, contactoPorEmail, edicionPermanente,
 import { paypalConfigurado, crearOrdenPayPal } from "@/lib/paypal"
 import { entregarOrden } from "@/lib/academia-entrega"
 import { perfil } from "@/lib/equipo"
+import { portada, loEnsena } from "@/lib/portadas"
 import { clienteActual } from "@/lib/portal"
 import { fecha } from "@/lib/util"
 import BarraAccion from "../../_ui/BarraAccion"
@@ -18,7 +19,8 @@ const curso = (slug: string) => one<any>("select * from am_cursos where slug=$1 
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const c = await curso(params.slug)
-  return c ? { title: c.titulo, description: c.bajada ?? undefined, alternates: { canonical: `/cursos/${c.slug}` }, openGraph: c.imagen ? { images: [c.imagen] } : undefined } : {}
+  const img = c ? portada(c) : null
+  return c ? { title: c.titulo, description: c.bajada ?? undefined, alternates: { canonical: `/cursos/${c.slug}` }, openGraph: img ? { images: [img] } : undefined } : {}
 }
 
 const t = (v: FormDataEntryValue | null, n = 160) => String(v ?? "").trim().slice(0, n) || null
@@ -100,6 +102,7 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
   const conPayPal = pago && !!c.precio_usd && paypalConfigurado()
   const doc = c.docente_slug ? String(c.docente_slug).split(",").map((x: string) => perfil(x.trim())).filter(Boolean) : []
   const precioTxt = pago ? pesos(c.precio) : "Gratis"
+  const img = portada(c)
   const modulos = Array.from(new Set(lecciones.map((l) => l.modulo || "Contenido")))
   return (
     <main>
@@ -110,15 +113,15 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
             <p className="m-0 mt-2 text-xs font-bold uppercase tracking-[0.2em] text-[#FF6A63]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} horas` : ""}{c.certifica ? " · Con certificado" : ""}</p>
             <h1 className="acad-h1-m m-0 mt-3 font-extrabold text-white">{c.titulo}</h1>
             {c.bajada && <p className="acad-lead m-0 mt-4 text-white/80">{c.bajada}</p>}
-            {c.docente && <p className="m-0 mt-4 text-sm text-white/70">{doc.length > 1 ? "Docentes" : "Docente"}: {doc.length ? doc.map((d: any, k: number) => <span key={d.slug}>{k ? " y " : ""}<Link href={`/equipo/${d.slug}`} className="font-bold text-white underline decoration-white/30 hover:decoration-white">{d.nombre}</Link></span>) : <strong className="text-white">{c.docente}</strong>}</p>}
+            {c.docente && <p className="m-0 mt-4 text-[15px] text-white/75">{loEnsena(doc.length)} {doc.length ? doc.map((d: any, k: number) => <span key={d.slug}>{k ? " y " : ""}<Link href={`/equipo/${d.slug}`} className="font-bold text-white underline decoration-white/30 hover:decoration-white">{d.nombre}</Link></span>) : <strong className="text-white">{c.docente}</strong>}</p>}
             <ul className="m-0 mt-5 p-0 list-none flex flex-wrap gap-2 text-sm">
               {c.nuevo && <li className="chip bg-[#C8231F] text-white">Nuevo</li>}
               {c.modalidad === "online" && <li className="chip bg-white/10 text-white">Empezás cuando quieras</li>}
               {c.certifica && <li className="chip bg-white/10 text-white">Certificado verificable</li>}
-              {c.videollamada && <li className="chip bg-white/10 text-white">Incluye videollamada de 30 min con el docente</li>}
+              {c.videollamada && <li className="chip bg-white/10 text-white">Incluye videollamada de 30 min con quien lo enseña</li>}
             </ul>
           </div>
-          {c.imagen && <img src={c.imagen} alt="" width={1280} height={720} decoding="async" className="md:col-span-2 w-full h-auto rounded-2xl aspect-video object-cover" />}
+          {img && <img src={img} alt="" width={1200} height={675} decoding="async" className="md:col-span-2 w-full h-auto rounded-2xl aspect-video object-cover ring-1 ring-white/15 shadow-[0_24px_50px_rgba(0,0,0,.45)] md:rotate-[1.5deg]" />}
         </div>
       </section>
 
@@ -210,7 +213,7 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
               <li>✓ Acceso desde tu cuenta, sin contraseñas</li>
               {c.modalidad === "online" && <li>✓ A tu ritmo: sin fecha de inicio ni clases obligatorias</li>}
               {c.horas && <li>✓ Duración estimada: {Number(c.horas)} horas</li>}
-              {c.videollamada && <li>✓ Una videollamada de 30 minutos con el docente</li>}
+              {c.videollamada && <li>✓ Una videollamada de 30 minutos con {doc.length === 1 ? (doc[0] as any).nombre.split(" ")[0] : "quien lo enseña"}</li>}
               {lecciones.length > 0 && <li>✓ {lecciones.length} lecciones y materiales descargables</li>}
               <li>✓ Seguimiento de tu avance</li>
               {c.certifica && <li>✓ Certificado verificable al aprobar</li>}

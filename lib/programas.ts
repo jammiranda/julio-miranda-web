@@ -4,7 +4,8 @@
  * "Quiero que me avisen" registra el interés en el CRM igual que las listas de espera de productos:
  * /api/suscribir con la etiqueta espera-<tag> y origen "ACADEMIA DEVISEBIT" (se cuentan en Sistema Academia).
  */
-export type Programa = { slug: string; tag: string; tipo: string; titulo: string; linea: string; inicio: string }
+/** `cuando`: el inicio en corto, para destacarlo grande (por ejemplo "Nov 2026"). */
+export type Programa = { slug: string; tag: string; tipo: string; titulo: string; linea: string; inicio: string; cuando: string }
 
 export const PROGRAMAS: Programa[] = [
   {
@@ -14,6 +15,7 @@ export const PROGRAMAS: Programa[] = [
     titulo: "Programa Ejecutivo en IA Conversacional: ventas, turnos y atención por WhatsApp",
     linea: "Para diseñar, poner en marcha y medir asistentes con IA que venden, dan turnos y atienden por WhatsApp sin perder el trato humano.",
     inicio: "Mediados de noviembre de 2026",
+    cuando: "Nov 2026",
   },
   {
     slug: "transformacion-digital-ia",
@@ -22,6 +24,7 @@ export const PROGRAMAS: Programa[] = [
     titulo: "Diplomatura Ejecutiva en Transformación Digital e IA para Organizaciones",
     linea: "Para directivos que quieren conducir la transformación digital de su organización con método, datos e inteligencia artificial.",
     inicio: "Verano 2027",
+    cuando: "Verano 2027",
   },
   {
     slug: "salud-digital",
@@ -30,5 +33,6 @@ export const PROGRAMAS: Programa[] = [
     titulo: "Programa Ejecutivo en Salud Digital: gestión de prestaciones con datos e IA",
     linea: "Para equipos de gestión de prestadores y financiadores de salud que quieren ordenar prestaciones, auditoría y tableros con datos e IA.",
     inicio: "Verano 2027",
+    cuando: "Verano 2027",
   },
 ]

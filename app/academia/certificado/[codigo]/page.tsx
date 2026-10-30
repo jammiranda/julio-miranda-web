@@ -49,7 +49,7 @@ export default async function Certificado({ params }: { params: { codigo: string
           </div>
           <div className="w-full flex items-end justify-between gap-4 text-left">
             <div className="text-[clamp(8px,1vw,11px)] text-[#4A515C] leading-relaxed">Emitido el {dia}<br />Código de verificación: <strong className="text-[#0E1116]">{c.codigo}</strong><br />Verificalo en academia.devisebit.com/certificado/{c.codigo}</div>
-            <div className="text-center text-[clamp(8px,1vw,11px)] text-[#4A515C]"><div className="border-t border-[#0E1116]/40 pt-1 px-6">{c.docente ? <><strong className="text-[#0E1116]">{c.docente}</strong><br />Docente</> : <><strong className="text-[#0E1116]">DEVISEBIT SRL</strong><br />Academia</>}</div></div>
+            <div className="text-center text-[clamp(8px,1vw,11px)] text-[#4A515C]"><div className="border-t border-[#0E1116]/40 pt-1 px-6">{c.docente ? <><strong className="text-[#0E1116]">{c.docente}</strong><br />Lo enseñó</> : <><strong className="text-[#0E1116]">DEVISEBIT SRL</strong><br />Academia</>}</div></div>
           </div>
         </div>
       </section>

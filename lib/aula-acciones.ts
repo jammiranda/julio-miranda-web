@@ -39,7 +39,7 @@ export async function completarLeccion(fd: FormData) {
 }
 
 /**
- * "Pedí una videollamada con el docente" (cursos pagos, 1 de 30 minutos incluida).
+ * "Pedí tu videollamada con quien enseña el curso" (cursos pagos, 1 de 30 minutos incluida).
  * Abre (o reutiliza) una consulta en el CRM marcada para que la atienda una persona, avisa al equipo
  * y lleva al alumno a la agenda real (/agendar/<token>) para elegir día y horario: la reunión queda en el calendario,
  * con link de videollamada y confirmación por email.
@@ -63,14 +63,14 @@ export async function pedirVideollamada(fd: FormData) {
     const n = await one<{ id: number }>(
       `insert into consultas(empresa,canal,nombre,email,telefono,organizacion,motivo,mensaje,fuente,necesita_humano,brief_token)
        values ('devisebit','academia',$1,$2,$3,$4,$5,$6,'academia',true,$7) returning id`,
-      [c.nombre, c.email, x.tel, c.organizacion, `Videollamada con el docente · ${i.titulo}`,
-        `${c.nombre} pidió la videollamada de 30 minutos incluida en el curso "${i.titulo}"${x.docente ? ` (docente: ${x.docente})` : ""}.${tema ? ` Quiere hablar de: ${tema}` : ""}`, tok],
+      [c.nombre, c.email, x.tel, c.organizacion, `Videollamada${x.docente ? ` con ${x.docente}` : ""} · ${i.titulo}`,
+        `${c.nombre} pidió la videollamada de 30 minutos incluida en el curso "${i.titulo}"${x.docente ? ` (lo enseña ${x.docente})` : ""}.${tema ? ` Quiere hablar de: ${tema}` : ""}`, tok],
     )
     await q("update am_inscripciones set videollamada_en=now(), videollamada_consulta=$1 where id=$2", [n!.id, iid])
     await q("update db_contactos set consulta_id=coalesce(consulta_id,$1), proximo=$2, proximo_fecha=(now() at time zone 'America/Argentina/Buenos_Aires')::date + 1, actualizado=now() where id=$3",
-      [n!.id, `Videollamada con el docente de ${i.titulo}`, c.id]).catch(() => {})
+      [n!.id, `Videollamada${x.docente ? ` con ${x.docente}` : ""} de ${i.titulo}`, c.id]).catch(() => {})
     await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'videollamada',$3)", [c.id, iid, i.slug]).catch(() => {})
-    await notificar(["gerente", "coordinacion"], "🎥 Pidieron videollamada con el docente", `${c.nombre} · ${i.titulo}${x.docente ? ` · ${x.docente}` : ""}`, `/consultas/${n!.id}`).catch(() => {})
+    await notificar(["gerente", "coordinacion"], "🎥 Pidieron la videollamada de un curso", `${c.nombre} · ${i.titulo}${x.docente ? ` · ${x.docente}` : ""}`, `/consultas/${n!.id}`).catch(() => {})
   }
   redirect(`${URL_SISTEMA}/agendar/${tok}`)
 }

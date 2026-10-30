@@ -53,7 +53,7 @@ export default function GuiasLista({ guias, inicial }: { guias: Guia[]; inicial?
             const activo = tema === t
             return (
               <button key={t || "todos"} type="button" onClick={() => elegir(t)} aria-pressed={activo}
-                className={`flex items-center justify-between gap-2 rounded-xl px-3 min-h-[44px] text-left text-[15px] transition-colors ${activo ? "bg-[#0E1116] text-white font-semibold" : "text-[#262C37] hover:bg-[#F5F6F8]"}`}>
+                className={`flex items-center justify-between gap-2 rounded-xl px-3 min-h-[44px] text-left text-[15px] transition-colors ${activo ? "bg-[#0B7462] text-white font-semibold" : "text-[#262C37] hover:bg-[#F5F6F8]"}`}>
                 <span>{t || "Todas las guías"}</span>
                 <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${activo ? "bg-white/15 text-white" : "bg-[#F5F6F8] text-[#4A515C]"}`}>{n}</span>
               </button>
@@ -65,18 +65,19 @@ export default function GuiasLista({ guias, inicial }: { guias: Guia[]; inicial?
       <section aria-live="polite" aria-label="Resultados">
         <div className="flex items-center justify-between gap-3 min-h-[32px]">
           <p className="m-0 text-sm text-[#4A515C]">{lista.length === guias.length ? `${guias.length} guías` : `${lista.length} de ${guias.length} guías`}{tema ? <> en <strong className="text-[#0E1116]">{tema}</strong></> : null}</p>
-          {hayFiltro && <button type="button" onClick={() => { setBusca(""); elegir("") }} className="text-sm font-semibold text-[#C8231F] underline underline-offset-2 min-h-[44px] px-1">Ver todas</button>}
+          {hayFiltro && <button type="button" onClick={() => { setBusca(""); elegir("") }} className="text-sm font-semibold text-[#0B6657] underline underline-offset-2 min-h-[44px] px-1">Ver todas</button>}
         </div>
         {lista.length ? (
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {lista.map((g) => (
-              <Link key={g.slug} href={`/guias/${g.slug}`} className="card group flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#C8231F] hover:shadow-[0_8px_24px_rgba(14,17,22,.08)] transition-shadow">
-                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#C8231F]">
-                  {g.categoria}{g.exclusiva && <span className="rounded-full bg-[#0E1116] text-white px-2 py-0.5 normal-case tracking-normal font-semibold">Suscriptores</span>}
+              <Link key={g.slug} href={`/guias/${g.slug}`} className="levanta card group h-full flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#0B7462]">
+                <span className="flex items-center gap-1.5 min-w-0">
+                  {g.categoria && <span className="truncate rounded-md bg-[#E3F3EE] text-[#0B5D50] px-2 py-0.5 text-xs font-bold">{g.categoria}</span>}
+                  {g.exclusiva && <span className="shrink-0 rounded-md bg-[#0E1116] text-white px-2 py-0.5 text-xs font-semibold">Suscriptores</span>}
                 </span>
-                <span className="text-lg font-bold leading-snug">{g.titulo}</span>
-                <span className="text-[15px] leading-snug text-[#4A515C]">{g.bajada}</span>
-                <span className="mt-auto pt-1 text-sm font-semibold text-[#C8231F] group-hover:underline">Leer la guía →</span>
+                <span className="t2 text-lg font-extrabold tracking-tight">{g.titulo}</span>
+                <span className="b3 text-[15px] text-[#4A515C]">{g.bajada}</span>
+                <span className="mt-auto pt-2 text-sm font-bold text-[#0B6657] group-hover:underline">Leer la guía →</span>
               </Link>
             ))}
           </div>

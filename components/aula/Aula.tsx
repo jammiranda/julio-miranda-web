@@ -80,7 +80,7 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
     <div className="flex flex-col gap-5">
       <Link href={volver.href} className="text-sm underline text-[#4A515C] self-start">← {volver.t}</Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div><h1 className="m-0">{i.titulo}</h1><p className="m-0 text-[#4A515C]">{modalidad(i.modalidad)} · {i.edicion}{i.docente ? ` · Docente: ${i.docente}` : ""}</p></div>
+        <div><h1 className="m-0">{i.titulo}</h1><p className="m-0 text-[#4A515C]">{modalidad(i.modalidad)} · {i.edicion}{i.docente ? ` · Lo enseña ${i.docente}` : ""}</p></div>
         <span className={`chip ${e.c}`}>{e.n}</span>
       </div>
 
@@ -128,7 +128,7 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
         <aside className="flex flex-col gap-5">
           {i.videollamada && (
             <section className="card flex flex-col gap-3 !border-[#C8231F]/40" aria-labelledby="t-video">
-              <h2 id="t-video" className="m-0 text-base">Pedí una videollamada con el docente</h2>
+              <h2 id="t-video" className="m-0 text-base">Pedí tu videollamada{i.docente ? ` con ${i.docente}` : " con quien enseña el curso"}</h2>
               {i.videollamada_en ? (
                 <>
                   <p className="m-0 text-sm text-[#4A515C]">Ya la pediste el {fecha(i.videollamada_en)}. Si todavía no elegiste día y horario, hacelo desde la agenda. Si ya la agendaste, te llegó la confirmación por email.</p>

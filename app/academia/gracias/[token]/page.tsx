@@ -13,7 +13,7 @@ export default async function Gracias({ params, searchParams }: { params: { toke
           <h1 className="acad-h2 m-0 font-extrabold">¡Gracias por tu compra! 🎉</h1>
           {o.curso_id ? (<>
             <p className="m-0 text-[#4A515C]">Ya estás inscripto en <strong>{o.titulo}</strong>. Te mandamos a {o.email} el acceso al aula (revisá también spam o promociones).</p>
-            <p className="m-0 text-[#4A515C]">Entrás desde Mi cuenta con ese email: no hace falta contraseña. Ahí vas a encontrar las lecciones, los materiales, tu avance, la videollamada con el docente y, al terminar, tu certificado.</p>
+            <p className="m-0 text-[#4A515C]">Entrás desde Mi cuenta con ese email: no hace falta contraseña. Ahí vas a encontrar las lecciones, los materiales, tu avance, la videollamada con quien lo enseña y, al terminar, tu certificado.</p>
             <a href={o.inscripcion_id ? `/mi-cuenta/cursos/${o.inscripcion_id}` : "/mi-cuenta"} className="btn-p min-h-[52px] text-base w-full sm:w-auto sm:self-start">Ir al aula</a>
           </>) : o.servicio ? (<>
             <p className="m-0 text-[#4A515C]">Recibimos el pago de <strong>{o.titulo}</strong>. En menos de 24 horas hábiles te escribimos a {o.email} para coordinar.</p>
