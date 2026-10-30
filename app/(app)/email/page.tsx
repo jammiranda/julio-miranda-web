@@ -141,6 +141,11 @@ export default async function Email() {
         </div>
       </section>
       <section className="card flex flex-col gap-2">
+        <h2 className="m-0 text-base">📣 Público para anuncios de Instagram y Facebook</h2>
+        <p className="m-0 text-sm text-[#4A515C]">La base depurada lista para subir a Meta como <strong>público personalizado</strong> (Administrador de anuncios → Públicos → Crear público → Lista de clientes). Sale sin los «no-enviar», bajas, rebotados ni excluidos. Meta cifra los datos al subirlos y solo los usa para encontrar esas cuentas.</p>
+        <div className="flex flex-wrap gap-2"><a href="/api/e/publico-meta" className="btn-s">Descargar toda la base depurada</a><a href="/api/e/publico-meta?red=1" className="btn-s">Solo la red de Julio</a></div>
+      </section>
+      <section className="card flex flex-col gap-2">
         <h2 className="m-0 text-base">Cómo funciona</h2>
         <ul className="m-0 pl-5 text-sm flex flex-col gap-1 text-[#262C37]">
           <li>Remitente: <strong>{REMITENTE.name} &lt;{REMITENTE.email}&gt;</strong>. Brevo gratis permite {LIMITE_DIARIO} por día: si la campaña tiene más destinatarios, sigue sola cada día a las 8 h.</li>
