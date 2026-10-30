@@ -59,7 +59,18 @@ async function estado(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("id")), a = String(fd.get("a"))
   if (a === "pausar") await q("update em_campanias set estado='pausada' where id=$1 and estado='enviando'", [id])
-  if (a === "reanudar") { await q("update em_campanias set estado='enviando' where id=$1 and estado='pausada'", [id]); waitUntil(procesarCola()) }
+  if (a === "reanudar") {
+    // La red de Julio (revisada en el Drive) entra a la lista: lo que no tenga clase va por sugerencia o como «Aliados y red».
+    const { SQL_SUGERENCIA } = await import("@/lib/crm")
+    await q(`update db_contactos c set clase=coalesce(s.sug,'aliado'), clasificado_en=now(), clasificado_por='Revisión de Julio (red-julio)'
+             from (select c.id, (${SQL_SUGERENCIA}) sug from db_contactos c where c.clase is null and 'red-julio' = any(c.tags)) s where s.id=c.id`).catch(() => {})
+    // Se suman a la cola los contactos válidos que todavía no estaban (los «no-enviar» y excluidos nunca entran).
+    const n = await encolar(id)
+    await q("update em_campanias set estado='enviando' where id=$1 and estado='pausada'", [id])
+    await audit(u, "email_reanudar", "em_campania", id, `${n} destinatarios sumados al reanudar`)
+    waitUntil(procesarCola())
+    redirect(`/email/${id}?ok=${encodeURIComponent(`Campaña reanudada${n ? `: se sumaron ${n} destinatarios nuevos` : ""}. Sale de a ${LIMITE_DIARIO} por día.`)}`)
+  }
   if (a === "duplicar") {
     const n = await one<{ id: number }>("insert into em_campanias(asunto,preheader,contenido,segmento,estilo,portada,creado_por) select 'Copia de '||asunto, preheader, contenido, segmento, estilo, portada, $2 from em_campanias where id=$1 returning id", [id, u.nombre])
     redirect(`/email/${n!.id}`)

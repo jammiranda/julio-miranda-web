@@ -119,7 +119,7 @@ export const EXCLUIDOS_SQL = `(${EMAIL_EXCLUIDO("c.email")} or lower(coalesce(c.
 /** Segmento → condición SQL sobre db_contactos (c). */
 export type Segmento = { clases?: string[]; etapas?: string[]; sectores?: string[]; categorias?: string[]; tags?: string[]; fuentes?: string[]; soloSuscriptos?: boolean; excluirTags?: string[] }
 export function segmentoSQL(s: Segmento, base = 1) {
-  const cond = ["c.email is not null", "c.email_estado='activo'", "c.clase is not null", "c.clase<>'descartado'", `not ${EXCLUIDOS_SQL}`], args: unknown[] = []
+  const cond = ["c.email is not null", "c.email_estado='activo'", "c.clase is not null", "c.clase<>'descartado'", `not ${EXCLUIDOS_SQL}`, "not ('no-enviar' = any(c.tags))"], args: unknown[] = []
   const add = (sql: string, v: unknown) => { args.push(v); cond.push(sql.replace("$?", `$${base + args.length - 1}`)) }
   if (s.clases?.length) add("c.clase = any($?)", s.clases)
   if (s.etapas?.length) add("c.etapa = any($?)", s.etapas)
