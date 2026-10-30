@@ -666,6 +666,23 @@ insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
  ('conoce-devisebit','Conocé DEVISEBIT · Presentación corta','Versión pública en 12 placas, la misma del video de YouTube. Es la que va en LinkedIn y la que se manda para presentar la empresa en dos minutos.',false,0),
  ('ecosistema-2026','Ecosistema digital 2026','Presentación de todo lo que se armó en octubre de 2026: web, sistema, bot, landings, medición, email y redes. Uso interno: muestra cifras y herramientas propias.',true,4)
 on conflict (slug) do nothing;
+create table if not exists diag_respuestas (
+  id serial primary key, nivel int not null check (nivel in (1,2,3)),
+  contacto_id int not null references db_contactos(id) on delete cascade,
+  email text not null, nombre text, organizacion text, rubro text, telefono text,
+  respuestas jsonb not null, resultado jsonb not null, puntaje int not null, etiqueta text not null, version text,
+  origen text, ip text, recordatorio boolean not null default false, enviado boolean not null default false,
+  seguimiento_en timestamptz, seguimiento_ok boolean, creado timestamptz not null default now()
+);
+create index if not exists diag_respuestas_contacto on diag_respuestas(contacto_id, nivel, creado desc);
+create index if not exists diag_respuestas_seguimiento on diag_respuestas(creado) where seguimiento_en is null and nivel < 3;
+create table if not exists diag_insignias (
+  id serial primary key, codigo text unique not null, contacto_id int unique not null references db_contactos(id) on delete cascade,
+  organizacion text not null, nombre text, emitido timestamptz not null default now(), anulado boolean not null default false
+);
+update am_recursos set url='https://www.devisebit.com/diagnostico', titulo='Autodiagnóstico de madurez digital · nivel 1 (gratis)', mensaje='12 preguntas, 5 minutos: tu puntaje en 6 dimensiones y las 3 acciones prioritarias. Es el primero de 3 niveles gratis.' where palabra='DIAGNOSTICO' and url='https://www.devisebit.com/demos/transformacion-digital.html';
+insert into am_recursos(palabra,titulo,url,mensaje) values ('PROCESOS','Autodiagnóstico de procesos · nivel 2 (gratis)','https://www.devisebit.com/diagnostico/procesos','15 preguntas: los 3 procesos que más te conviene digitalizar y cuántas horas por mes te llevan. Si todavía no hiciste el nivel 1, empezás por ahí (5 minutos).') on conflict (palabra) do nothing;
+insert into am_recursos(palabra,titulo,url,mensaje) values ('IA','Autodiagnóstico de automatización e IA · nivel 3 (gratis)','https://www.devisebit.com/diagnostico/automatizacion','12 preguntas: qué automatizar primero, qué hace falta antes y tu hoja de ruta de 90 días. Se destraba al terminar los niveles 1 y 2.') on conflict (palabra) do nothing;
 `
 
 let ready: Promise<void> | null = null

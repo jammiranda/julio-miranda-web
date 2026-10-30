@@ -11,9 +11,10 @@ import { sincronizarDrive } from "@/lib/integraciones"
 import { registrarSeguidores } from "@/lib/instagram"
 import { lanzarRelanzamientoSiCorresponde } from "@/lib/campania-relanzamiento"
 import { depurarBase } from "@/lib/depuracion"
+import { seguimientoDiagnosticos } from "@/lib/diagnosticos"
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
-/** Lo llama Vercel Cron a las 8 de Argentina: recordatorios de reuniones, abonos del mes, avisos de pago, recordatorios de clases, perfil de WhatsApp, los seguidores de Instagram del día, la tanda diaria de campañas y, los viernes, la revisión semanal del bot. */
+/** Lo llama Vercel Cron a las 8 de Argentina: recordatorios de reuniones, abonos del mes, avisos de pago, recordatorios de clases, perfil de WhatsApp, los seguidores de Instagram del día, la tanda diaria de campañas, el recordatorio de los autodiagnósticos (a los 3 días, si no siguió con el nivel siguiente) y, los viernes, la revisión semanal del bot. */
 export async function GET(req: NextRequest) {
   const s = process.env.CRON_SECRET
   if (s && req.headers.get("authorization") !== `Bearer ${s}`) return NextResponse.json({ ok: false }, { status: 401 })
@@ -27,7 +28,8 @@ export async function GET(req: NextRequest) {
   const drive = await sincronizarDrive("cron").then((r) => r.mensaje).catch((e) => String(e))
   const instagram = await registrarSeguidores().catch((e) => String(e))
   const depuracion = await depurarBase().catch((e) => String(e))
+  const diagnosticos = await seguimientoDiagnosticos().catch((e) => String(e))
   const relanzamiento = await lanzarRelanzamientoSiCorresponde().catch((e) => String(e))
   const r = await procesarCola()
-  return NextResponse.json({ ok: true, ...r, recordatorios, wa, abonos, cobros, clases, revision, anuncios, drive, instagram, relanzamiento, depuracion })
+  return NextResponse.json({ ok: true, ...r, recordatorios, wa, abonos, cobros, clases, revision, anuncios, drive, instagram, relanzamiento, depuracion, diagnosticos })
 }

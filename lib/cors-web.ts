@@ -1,11 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-/** CORS para formularios de www.devisebit.com que llaman al sistema. */
+/**
+ * CORS para formularios de www.devisebit.com que llaman al sistema.
+ * Permite credenciales: los autodiagnósticos leen la sesión de Mi cuenta (cookie de .devisebit.com) si existe.
+ */
 const ORIGENES = ["https://www.devisebit.com", "https://devisebit.com"]
 export function corsWeb(req: NextRequest): Record<string, string> {
   const o = req.headers.get("origin") ?? ""
   const ok = ORIGENES.includes(o) || /^http:\/\/localhost:\d+$/.test(o)
-  return ok ? { "Access-Control-Allow-Origin": o, "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", Vary: "Origin" } : {}
+  return ok ? { "Access-Control-Allow-Origin": o, "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Allow-Credentials": "true", Vary: "Origin" } : {}
 }
 export const preflight = (req: NextRequest) => new NextResponse(null, { status: 204, headers: corsWeb(req) })
 export function conCors(req: NextRequest, res: NextResponse) {

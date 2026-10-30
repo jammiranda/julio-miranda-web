@@ -7,6 +7,7 @@ import FaseBarra from "@/components/FaseBarra"
 import { estadoCuenta, montos, plata } from "@/lib/cobros"
 import { misInscripciones } from "@/lib/cursos"
 import { URL_ACADEMIA } from "@/lib/academia"
+import { NIVELES } from "@/lib/diagnosticos-datos"
 
 export const dynamic = "force-dynamic"
 
@@ -14,7 +15,7 @@ const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20te%20escribo%
 const PRIMEROS_PASOS = [
   { i: "▦", t: "Servicios y productos", d: "Webs, sistemas, agentes de WhatsApp con IA, tableros y más. Con precios de referencia.", href: "/portal/servicios" },
   { i: "◷", t: "Agendar una reunión", d: "Elegí día y horario para charlar con el equipo, sin compromiso.", href: "/portal/reuniones" },
-  { i: "✓", t: "Autodiagnóstico digital", d: "En 5 minutos sabés en qué punto está tu organización y por dónde seguir.", href: "https://www.devisebit.com/demos/transformacion-digital.html", externo: true },
+  { i: "✓", t: "Autodiagnósticos gratis", d: "Tres niveles: madurez digital, procesos y automatización con IA. Cada uno te dice por dónde seguir.", href: "/portal/diagnosticos" },
   { i: "★", t: "ACADEMIA DEVISEBIT", d: "Guías, videos y cursos con certificado. Entrás con esta misma cuenta.", href: `${URL_ACADEMIA}/mi-cuenta`, externo: true },
   { i: "✉", t: "Escribinos por WhatsApp", d: "Contanos qué necesitás y te respondemos en el día.", href: WA, externo: true },
 ]
@@ -32,6 +33,7 @@ export default async function Portal() {
     misInscripciones(c.id),
     q<any>("select slug, titulo, categoria from am_guias where publicada order by destacada desc, creado desc limit 3").catch(() => []),
   ])
+  const diag = await q<{ nivel: number; puntaje: number }>("select distinct on (nivel) nivel, puntaje from diag_respuestas where contacto_id=$1 order by nivel, creado desc", [c.id]).catch(() => [])
   const enCurso = cursos.filter((x) => ["inscripto", "cursando"].includes(x.estado))
   const pendientes = proyectos.reduce((a, p) => a + (p.pendientes ?? 0), 0)
   // Cuenta recién creada (o sin nada todavía): en vez de cajas vacías, un Inicio con los próximos pasos.
@@ -144,6 +146,19 @@ export default async function Portal() {
           </div>
         </section>
       </div>
+      {diag.length > 0 && (
+        <Link href="/portal/diagnosticos" className="card flex flex-wrap items-center justify-between gap-3 hover:border-[#C8231F]">
+          <div>
+            <span className="text-xs text-[#4A515C]">Autodiagnósticos</span>
+            <strong id="t-diag" className="block text-lg">{diag.length === 3 ? "Los 3 niveles completos" : `${diag.length} de 3 niveles`}</strong>
+            <span className="text-xs text-[#4A515C]">{diag.length === 3 ? "Tenés la insignia de diagnóstico digital completo" : `Te falta: ${NIVELES[diag.length].titulo}`}</span>
+          </div>
+          <ul className="m-0 p-0 list-none flex gap-2" aria-label="Puntajes">
+            {NIVELES.map((n) => { const d = diag.find((x) => x.nivel === n.n); return <li key={n.n} className={`rounded-xl border px-3 py-1.5 text-center text-xs ${d ? "border-[#0E1116]" : "border-dashed border-[#C9CED6] text-[#4A515C]"}`}><span className="block">{n.corto}</span><strong className="text-base tabular-nums">{d ? d.puntaje : "—"}</strong></li> })}
+          </ul>
+        </Link>
+      )}
+
       <section aria-labelledby="t-rec" className="card flex flex-col gap-3">
         <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a href={`${URL_ACADEMIA}/mi-cuenta`} className="text-sm font-semibold text-[#C8231F]">Ir a mi Academia →</a></div>
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-3">

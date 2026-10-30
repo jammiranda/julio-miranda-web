@@ -40,12 +40,23 @@ export default async function DemosAdmin({ searchParams }: { searchParams: { ok?
     q<any>("select * from demo_accesos order by creado desc limit 100").catch(() => []),
     q<any>("select id, nombre, email, organizacion, puntaje, nivel, enviado, creado, contacto_id from demo_diagnosticos order by creado desc limit 50").catch(() => []),
   ])
+  // Autodiagnósticos en 3 niveles: una fila por organización (contacto), con el último puntaje de cada nivel
+  const escalera = await q<any>(
+    `select d.contacto_id, max(d.nombre) nombre, max(d.email) email, max(coalesce(d.organizacion, k.organizacion)) organizacion, max(d.rubro) rubro, max(d.nivel)::int alcanzado, max(d.creado) ultima,
+       (array_agg(d.puntaje order by d.creado desc) filter (where d.nivel=1))[1] p1, (array_agg(d.etiqueta order by d.creado desc) filter (where d.nivel=1))[1] e1,
+       (array_agg(d.puntaje order by d.creado desc) filter (where d.nivel=2))[1] p2, (array_agg(d.etiqueta order by d.creado desc) filter (where d.nivel=2))[1] e2,
+       (array_agg(d.puntaje order by d.creado desc) filter (where d.nivel=3))[1] p3, (array_agg(d.etiqueta order by d.creado desc) filter (where d.nivel=3))[1] e3,
+       bool_and(d.enviado) enviados, max(i.codigo) insignia, 'oportunidad-caliente' = any(max(k.tags)) caliente
+     from diag_respuestas d join db_contactos k on k.id=d.contacto_id left join diag_insignias i on i.contacto_id=d.contacto_id and not i.anulado
+     group by d.contacto_id order by max(d.creado) desc limit 100`,
+  ).catch(() => [])
+  const totales = { n1: escalera.filter((x: any) => x.p1 != null).length, n2: escalera.filter((x: any) => x.p2 != null).length, n3: escalera.filter((x: any) => x.p3 != null).length }
   const nuevo = searchParams.nuevo ? accesos.find((x: any) => String(x.id) === searchParams.nuevo) : null
   return (
     <div className="flex flex-col gap-5">
       <div>
         <h1 className="m-0">Demos</h1>
-        <p className="m-0 text-sm text-[#4A515C]">Las demos no son públicas: cada persona recibe un link personal que vence. Las piden desde la web con su email, se las ofrece Bit por WhatsApp o se las mandás vos desde acá. El autodiagnóstico de transformación digital es público y deja el email al final.</p>
+        <p className="m-0 text-sm text-[#4A515C]">Las demos no son públicas: cada persona recibe un link personal que vence. Las piden desde la web con su email, se las ofrece Bit por WhatsApp o se las mandás vos desde acá. Los autodiagnósticos (3 niveles) son públicos y dejan el email al terminar el primero.</p>
       </div>
       {searchParams.ok && <p className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
       {searchParams.err && <p className="m-0 text-sm text-rojo">{searchParams.err}</p>}
@@ -102,8 +113,32 @@ export default async function DemosAdmin({ searchParams }: { searchParams: { ok?
         </table>
       </section>
 
+      <section className="card p-0 overflow-x-auto" aria-labelledby="t-esc">
+        <div className="px-5 pt-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 id="t-esc" className="m-0 text-base">Autodiagnósticos en 3 niveles</h2>
+            <p className="m-0 text-xs text-[#4A515C]">www.devisebit.com/diagnostico · cada organización con el nivel alcanzado y el último puntaje de cada nivel. Quien completa el nivel 3 queda como oportunidad caliente.</p>
+          </div>
+          <p className="m-0 text-xs text-[#4A515C]">Nivel 1: <strong>{totales.n1}</strong> · Nivel 2: <strong>{totales.n2}</strong> · Nivel 3: <strong>{totales.n3}</strong></p>
+        </div>
+        <table className="tbl">
+          <thead><tr><th>Organización</th><th>Nivel alcanzado</th><th>1 · Madurez</th><th>2 · Procesos</th><th>3 · Automatización</th><th>Última fecha</th></tr></thead>
+          <tbody>
+            {escalera.map((d: any) => (
+              <tr key={d.contacto_id}>
+                <td><a href={`/contactos/${d.contacto_id}`} className="font-semibold underline">{d.organizacion ?? d.nombre}</a><div className="text-xs text-[#4A515C]">{d.nombre} · {d.email}{d.rubro ? ` · ${d.rubro}` : ""}</div></td>
+                <td>{d.alcanzado} de 3{d.caliente && <div><span className="chip bg-red-50 text-rojo">Oportunidad caliente</span></div>}{d.insignia && <div className="text-xs text-[#4A515C]">Insignia {d.insignia}</div>}</td>
+                {[1, 2, 3].map((n) => <td key={n}>{d[`p${n}`] != null ? <><strong>{d[`p${n}`]}</strong>/100<div className="text-xs text-[#4A515C]">{d[`e${n}`]}</div></> : <span className="text-[#4A515C]">—</span>}</td>)}
+                <td>{fecha(d.ultima)}{!d.enviados && <div className="text-xs text-rojo">Algún informe no se pudo enviar</div>}</td>
+              </tr>
+            ))}
+            {!escalera.length && <tr><td colSpan={6} className="text-center text-[#4A515C] py-6">Todavía nadie hizo los autodiagnósticos nuevos.</td></tr>}
+          </tbody>
+        </table>
+      </section>
+
       <section className="card p-0 overflow-x-auto">
-        <h2 className="m-0 px-5 pt-4 text-base">Autodiagnósticos (públicos)</h2>
+        <h2 className="m-0 px-5 pt-4 text-base">Autodiagnóstico anterior (versión HTML, hasta octubre de 2026)</h2>
         <table className="tbl">
           <thead><tr><th>Persona</th><th>Resultado</th><th>Email</th><th>Fecha</th></tr></thead>
           <tbody>

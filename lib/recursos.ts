@@ -21,7 +21,8 @@ export async function recursoEnMensaje(texto: string | null): Promise<Recurso | 
   if (!t || t.split(" ").length > 8) return null
   const activos = await q<Recurso>("select * from am_recursos where activo").catch(() => [] as Recurso[])
   const palabras = new Set(t.split(" "))
-  return activos.find((r) => palabras.has(r.palabra) || t.replace(/ /g, "") === r.palabra) ?? null
+  // Las palabras cortas (como IA) solo cuentan si el mensaje es exactamente esa palabra: "IA" sí, "¿hacen bots con IA?" no.
+  return activos.find((r) => (r.palabra.length > 2 && palabras.has(r.palabra)) || t.replace(/ /g, "") === r.palabra) ?? null
 }
 
 export async function sumarUso(palabra: string) {

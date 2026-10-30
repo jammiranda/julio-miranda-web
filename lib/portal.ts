@@ -196,6 +196,21 @@ export function ipActual() {
 type ContactoIngreso = { id: number; nombre: string; portal_acceso: string; clase: string | null }
 
 /**
+ * Alta automática de la cuenta (la misma para el portal y los autodiagnósticos): busca el contacto por email
+ * o lo crea en la lista «Por clasificar» (clase sin definir). Si ya existe no pisa nada.
+ * Después la persona entra a Mi cuenta con su email y un código, sin contraseña.
+ */
+export async function crearCuenta(email: string, nombre?: string | null, o: { origen?: string; fuente?: string; categoria?: string } = {}) {
+  const e = email.trim().toLowerCase()
+  const r = await one<{ id: number; nueva: boolean }>(
+    `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base',$3,$4,$5)
+     on conflict (lower(email)) where email is not null do update set actualizado=now() returning id, (xmax = 0) nueva`,
+    [nombre || e.split("@")[0], e, o.origen ?? "Portal", o.fuente ?? "portal", o.categoria ?? "Portal"],
+  )
+  return r
+}
+
+/**
  * Pedido de ingreso desde la pantalla única: manda por email un código de 6 dígitos y un link (sirven los dos).
  * Con la política "libre" o "abierto", si el email no existe se crea la cuenta en el momento. Queda todo registrado.
  */
