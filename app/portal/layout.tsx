@@ -6,6 +6,7 @@ import { clienteActual, cerrarSesionCliente } from "@/lib/portal"
 import { URL_ACADEMIA } from "@/lib/academia"
 import LinksExternos from "@/components/LinksExternos"
 import Redes from "@/components/Redes"
+import { tieneAsesoria } from "@/lib/asesoria"
 
 /** El espacio del alumno dentro de la Academia (misma sesión): cursos, clases y certificados, o los cursos abiertos si todavía no tiene. */
 const MI_ACADEMIA = `${URL_ACADEMIA}/mi-cuenta`
@@ -20,8 +21,9 @@ async function salir() {
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const c = await clienteActual()
+  const ase = c?.acceso === "ok" ? await tieneAsesoria(c.id).catch(() => false) : false
   const items = c?.acceso === "ok"
-    ? [{ href: "/portal", t: "Inicio" }, { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos y facturas" }, { href: "/portal/reuniones", t: "Reuniones" }, { href: "/portal/servicios", t: "Servicios y productos" }]
+    ? [{ href: "/portal", t: "Inicio" }, ...(ase ? [{ href: "/portal/asesoria", t: "Asesoría" }] : []), { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos y facturas" }, { href: "/portal/reuniones", t: "Reuniones" }, { href: "/portal/servicios", t: "Servicios y productos" }]
     : c ? [{ href: "/portal/pagos", t: "Pagos y facturas" }] : []
   return (
     <div className="min-h-screen flex flex-col">

@@ -1,6 +1,7 @@
 import { one, q } from "./db"
 import type { Usuario } from "./auth"
 import { hoyISO } from "./util"
+import { planesEnAlerta } from "./asesoria"
 
 export type Aviso = { clave: string; t: string; d: string; href: string; nivel: "alta" | "media"; n: number; leido?: boolean }
 
@@ -24,6 +25,11 @@ async function calcular(u: Usuario): Promise<Aviso[]> {
     if (pr?.n) out.push({ clave: "entregas", t: "Proyectos con entrega vencida", d: "Revisá fechas o estado", href: "/proyectos", nivel: "alta", n: pr.n })
     const rh = await one<{ n: number }>("select count(*)::int n from db_reuniones where estado='confirmada' and inicio between now() and now() + interval '24 hours'")
     if (rh?.n) out.push({ clave: "reuniones", t: "Reuniones en las próximas 24 h", d: "Revisá el brief y la propuesta antes de entrar", href: "/", nivel: "alta", n: rh.n })
+    const al = await planesEnAlerta()
+    if (al.length) {
+      const top = al[0]
+      out.push({ clave: "asesoria", t: al.some((x) => x.umbral >= 100) ? "Clientes de asesoría al 100% de sus horas" : "Clientes de asesoría al 80% de sus horas", d: "Avisales antes de cobrar horas extra u ofreceles otra bolsa o un abono", href: al.length === 1 ? `/proyectos/${top.proyecto_id}#asesoria` : "/proyectos", nivel: al.some((x) => x.umbral >= 100) ? "alta" : "media", n: al.length })
+    }
   } catch {}
   return out
 }

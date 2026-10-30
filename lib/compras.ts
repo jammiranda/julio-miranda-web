@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto"
 import { q, one, audit } from "./db"
-import { precios, type Precio } from "./precios"
+import { precios, LINEA_ASESORIA, type Precio } from "./precios"
 import { plata } from "./cobros"
 import { notificar } from "./push"
 import type { Cliente } from "./portal"
@@ -10,13 +10,15 @@ import type { Cliente } from "./portal"
  * y se le genera el cobro para pagar en el momento (Mercado Pago o transferencia).
  * - Producto con precio de proyecto → seña del 50% (el saldo va contra entrega).
  * - Producto que es solo abono → primer mes del abono.
+ * - Asesoría y consultoría: horas sueltas, bolsas y puestas en marcha se pagan completas por adelantado.
  */
 export const SENA = 0.5
 export const DESCUENTO_TRANSFERENCIA = 0.1
 
-export function primerPago(p: Pick<Precio, "precio" | "abono" | "producto">) {
-  if (p.precio) return { tipo: "anticipo" as const, monto: Math.round(p.precio * SENA), concepto: `Seña 50% · ${p.producto}`, detalle: `Seña del 50% sobre ${plata(p.precio)}. El saldo se paga contra entrega${p.abono ? ` y el abono de ${plata(p.abono)} por mes empieza con la entrega` : ""}.` }
-  if (p.abono) return { tipo: "abono" as const, monto: Math.round(p.abono), concepto: `Primer mes · ${p.producto}`, detalle: `Primer mes del abono de ${plata(p.abono)}. Los meses siguientes se generan solos en tu cuenta.` }
+export function primerPago(p: Pick<Precio, "precio" | "abono" | "producto"> & { linea?: string }) {
+  if (p.precio && p.linea === LINEA_ASESORIA) return { tipo: "total" as const, cobro: "otro", monto: Math.round(p.precio), concepto: `Pago total · ${p.producto}`, detalle: `Pago total por adelantado de ${plata(p.precio)}.${p.abono ? ` El abono de ${plata(p.abono)} por mes empieza con la puesta en marcha.` : " Las horas quedan registradas en tu portal."}` }
+  if (p.precio) return { tipo: "anticipo" as const, cobro: "anticipo", monto: Math.round(p.precio * SENA), concepto: `Seña 50% · ${p.producto}`, detalle: `Seña del 50% sobre ${plata(p.precio)}. El saldo se paga contra entrega${p.abono ? ` y el abono de ${plata(p.abono)} por mes empieza con la entrega` : ""}.` }
+  if (p.abono) return { tipo: "abono" as const, cobro: "abono", monto: Math.round(p.abono), concepto: `Primer mes · ${p.producto}`, detalle: `Primer mes del abono de ${plata(p.abono)}. Los meses siguientes se generan solos en tu cuenta.` }
   return null
 }
 
@@ -31,7 +33,7 @@ export async function comprar(c: Cliente, precioId: number) {
   const r = await one<{ id: number }>(
     `insert into db_cobros(contacto_id, tipo, concepto, monto, moneda, vence, nota, creado_por)
      values ($1,$2,$3,$4,'ARS',(now() at time zone 'America/Argentina/Buenos_Aires')::date + 3,$5,$6) returning id`,
-    [c.id, pp.tipo, pp.concepto, pp.monto, pp.detalle, `cliente:${c.id}`],
+    [c.id, pp.cobro, pp.concepto, pp.monto, pp.detalle, `cliente:${c.id}`],
   )
   await q("update db_contactos set proximo=$1, proximo_fecha=(now() at time zone 'America/Argentina/Buenos_Aires')::date, actualizado=now() where id=$2",
     [`Compró ${p.producto} desde Mi cuenta: confirmar pago y armar el proyecto`, c.id]).catch(() => {})

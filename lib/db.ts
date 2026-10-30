@@ -666,6 +666,9 @@ insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
  ('conoce-devisebit','Conocé DEVISEBIT · Presentación corta','Versión pública en 12 placas, la misma del video de YouTube. Es la que va en LinkedIn y la que se manda para presentar la empresa en dos minutos.',false,0),
  ('ecosistema-2026','Ecosistema digital 2026','Presentación de todo lo que se armó en octubre de 2026: web, sistema, bot, landings, medición, email y redes. Uso interno: muestra cifras y herramientas propias.',true,4)
 on conflict (slug) do nothing;
+insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
+ ('asesoria-consultoria','Asesoría y consultoría · Formatos y valores','Las cinco formas de contratar asesoría en tecnología e IA: horas, bolsas, abonos, plan anual y licencias, con valores. Para mandar a clientes interesados.',false,5)
+on conflict (slug) do nothing;
 create table if not exists diag_respuestas (
   id serial primary key, nivel int not null check (nivel in (1,2,3)),
   contacto_id int not null references db_contactos(id) on delete cascade,
@@ -721,6 +724,37 @@ create table if not exists am_archivos (
   creado timestamptz not null default now(), unique (clave, version)
 );
 create table if not exists am_archivo_partes (archivo_id int not null references am_archivos(id) on delete cascade, n int not null, datos text not null, primary key (archivo_id, n))
+;
+-- Asesoría y consultoría: planes (bolsa o abono) por proyecto y horas cargadas por el equipo (las ve el cliente en su portal)
+create table if not exists as_planes (
+  id serial primary key, proyecto_id int not null references db_proyectos(id) on delete cascade,
+  formato text not null, nombre text not null, tipo text not null check (tipo in ('bolsa','abono')),
+  horas numeric not null check (horas > 0), inicio date not null, vence date, fin date,
+  activo boolean not null default true, creado_por text, creado timestamptz not null default now()
+);
+create index if not exists as_planes_proyecto on as_planes(proyecto_id, activo);
+create table if not exists as_horas (
+  id serial primary key, proyecto_id int not null references db_proyectos(id) on delete cascade,
+  plan_id int references as_planes(id) on delete set null,
+  fecha date not null, persona text not null, tema text not null,
+  minutos int not null check (minutos > 0 and minutos % 30 = 0),
+  tipo text not null default 'tecnica' check (tipo in ('tecnica','estrategica')),
+  cargado_por text, creado timestamptz not null default now()
+);
+create index if not exists as_horas_proyecto on as_horas(proyecto_id, fecha);
+create index if not exists as_horas_plan on as_horas(plan_id, fecha);
+create table if not exists as_avisos (plan_id int not null references as_planes(id) on delete cascade, periodo text not null, umbral int not null, creado timestamptz not null default now(), primary key (plan_id, periodo, umbral));
+-- Conocimiento aprobado de Bit sobre los formatos de asesoría (una sola vez: si después se edita o se desactiva, no se vuelve a cargar)
+insert into bot_conocimiento(empresa,pregunta,respuesta,activo,origen,creado_por)
+select * from (values
+ ('devisebit','¿Qué es la asesoría y consultoría en tecnología e IA de DEVISEBIT?','Es un equipo de tecnología e IA a disposición de la organización, por horas o por mes, con un responsable único y cada hora registrada (fecha, persona y tema) en el portal del cliente (portal.devisebit.com). Sirve para pymes, instituciones y equipos directivos que tienen que decidir sobre software, proveedores, IA, datos o procesos y no tienen a alguien de tecnología. Hay cinco formatos: hora suelta, bolsa de horas, abono mensual, plan anual y licencias. Folleto: https://sistema.devisebit.com/mv-a7c41e9b3f06/asesoria-y-consultoria-devisebit.pdf',true,'manual','Asesoría y consultoría · 1/11/2026'),
+ ('devisebit','¿Cuánto cuesta una hora de asesoría? ¿Tienen bolsas de horas?','Hora técnica $55.000 (USD 35) con un líder del equipo. Hora estratégica $85.000 (USD 55) de estrategia de tecnología e IA o transformación digital. Bolsas con cualquier perfil, pago por adelantado: 10 horas $650.000 (vence a los 90 días), 20 horas $1.200.000 (120 días), 40 horas $2.200.000 (180 días). En las bolsas una hora estratégica descuenta 1,5 horas. Fracción mínima 30 minutos. La primera hora estratégica se cobra como técnica ($55.000) y se descuenta completa si contrata un abono en los 30 días siguientes.',true,'manual','Asesoría y consultoría · 1/11/2026'),
+ ('devisebit','¿Qué abonos mensuales de asesoría tienen?','Asesor de cabecera: 6 horas por mes, $390.000/mes, mínimo 3 meses (reunión cada 15 días, consultas por WhatsApp sin descontar horas, revisión de presupuestos de proveedores, informe mensual). Tecnología a tiempo parcial: 16 horas por mes, $890.000/mes, mínimo 6 meses (responsable de tecnología sin sumarlo a la planta, comité mensual, plan de sistemas, seguridad y datos, tablero). Transformación acompañada: 24 horas por mes, $1.290.000/mes, mínimo 3 meses (implementar la hoja de ruta con pilotos medibles, gestión del cambio y capacitación con certificado de ACADEMIA DEVISEBIT). Plan anual: cualquier abono por 12 meses pagando 10 por adelantado, o 10% menos en 12 cuotas, con precio congelado. Las horas no usadas pasan al mes siguiente una sola vez y las horas extra se cobran $65.000 con aviso previo. No incluye desarrollo, diseño ni campañas: si aparece un proyecto se cotiza aparte.',true,'manual','Asesoría y consultoría · 1/11/2026'),
+ ('devisebit','¿Qué formato de asesoría me conviene?','Se elige con tres preguntas. 1) ¿Es una duda puntual o algo que va a seguir? Puntual: hora suelta. Sigue: bolsa o abono. 2) ¿Necesita a alguien que decida y acompañe, o horas para consultar cuando surja? Decidir y acompañar: abono. Consultar: bolsa. 3) ¿Tiene a alguien de tecnología en la organización? No: Tecnología a tiempo parcial. Sí: Asesor de cabecera para respaldarlo. Hacé las preguntas de a una y recomendá un formato con su valor.',true,'manual','Asesoría y consultoría · 1/11/2026'),
+ ('devisebit','¿Cómo contrato la asesoría?','Para contratar se agenda una primera reunión (por WhatsApp o en devisebit.com/contacto). Después mandamos una propuesta por escrito con formato, horas, responsable y valor, y damos de alta al cliente en su portal, donde ve las horas, los informes y los pagos. Pago por transferencia a DEVISEBIT SRL con 10% de descuento o tarjeta hasta 3 cuotas sin interés. Horas sueltas y bolsas por adelantado, abonos mes adelantado, con contrato y factura. Siempre ofrecé agendar la reunión y pedí nombre, organización y qué necesita.',true,'manual','Asesoría y consultoría · 1/11/2026'),
+ ('devisebit','¿Tienen licencias o administran licencias de Google Workspace, IA o dominios?','Panel de contenido con tu marca (marca blanca): $190.000 de puesta en marcha + $79.000/mes, mínimo 6 meses. Academia, padrón, obras sociales y CRM: el abono de la lista de precios es la licencia de uso. Gestión de licencias de terceros (altas, usuarios, pagos y renovaciones de Google Workspace, herramientas de IA, dominios): costo de la licencia + 15%, mínimo $15.000 por mes.',true,'manual','Asesoría y consultoría · 1/11/2026')
+) v where not exists (select 1 from config where clave='semilla_bot_asesoria_2026_11');
+insert into config(clave,valor) values ('semilla_bot_asesoria_2026_11','1') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null

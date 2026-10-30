@@ -76,7 +76,10 @@ export default async function Contacto({ params, searchParams }: { params: { id:
     q<any>("select i.id, i.estado, cu.titulo, e.id edicion_id, e.nombre edicion from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos cu on cu.id=e.curso_id where i.contacto_id=$1 order by i.creado desc", [c.id]),
   ])
   const [proyectos, consultas, mails] = nuevo ? [[], [], []] : await Promise.all([
-    q<any>("select p.id, p.nombre, p.estado, s.nombre servicio from db_proyectos p left join db_servicios s on s.id=p.servicio_id where p.contacto_id=$1 order by p.creado desc", [c.id]),
+    q<any>(`select p.id, p.nombre, p.estado, s.nombre servicio,
+      (select sum(h.minutos)::int from as_horas h where h.proyecto_id=p.id) ase_min,
+      (select string_agg(a.nombre, ' · ') from as_planes a where a.proyecto_id=p.id and a.activo) ase_planes
+      from db_proyectos p left join db_servicios s on s.id=p.servicio_id where p.contacto_id=$1 order by p.creado desc`, [c.id]),
     q<any>(`select id, creado, motivo, estado from consultas where empresa='devisebit' and (id=$1 or (length(regexp_replace(coalesce($2::text,''),'\\D','','g'))>=6 and regexp_replace(coalesce(telefono,''),'\\D','','g') like '%'||right(regexp_replace($2,'\\D','','g'),8))) order by creado desc limit 10`, [c.consulta_id ?? 0, c.telefono]),
     correosCon(c.email ?? "").catch(() => []),
   ])
@@ -117,7 +120,7 @@ export default async function Contacto({ params, searchParams }: { params: { id:
           <section className="card flex flex-col gap-2">
             <div className="flex items-center justify-between"><h2 className="m-0 text-base">Proyectos</h2><Link href={`/proyectos/nuevo?contacto=${c.id}`} className="btn-s py-1 px-3 text-xs">+ Proyecto</Link></div>
             {proyectos.length ? proyectos.map((p: any) => (
-              <Link key={p.id} href={`/proyectos/${p.id}`} className="flex justify-between gap-2 py-1.5 border-b border-[#EEF0F3] hover:underline"><span>{p.nombre}<span className="block text-xs text-[#4A515C]">{p.servicio ?? ""}</span></span><span className={`chip self-start ${estadoProy(p.estado).c}`}>{estadoProy(p.estado).n}</span></Link>
+              <Link key={p.id} href={`/proyectos/${p.id}`} className="flex justify-between gap-2 py-1.5 border-b border-[#EEF0F3] hover:underline"><span>{p.nombre}<span className="block text-xs text-[#4A515C]">{p.servicio ?? ""}</span>{(p.ase_planes || p.ase_min) && <span className="block text-xs text-[#0F766E]">Asesoría: {p.ase_planes ?? "horas sueltas"} · {Math.round((p.ase_min ?? 0) / 6) / 10} h cargadas</span>}</span><span className={`chip self-start ${estadoProy(p.estado).c}`}>{estadoProy(p.estado).n}</span></Link>
             )) : <p className="m-0 text-sm text-[#4A515C]">Sin proyectos.</p>}
           </section>
           <section id="portal" className="card flex flex-col gap-2">

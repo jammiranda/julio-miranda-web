@@ -3,6 +3,8 @@
  * Los archivos están en una carpeta no listada de la web (se comparten por link; no se enlazan desde ningún lado).
  */
 export const MV = "https://www.devisebit.com/mv-8f92ddf28895"
+/** Folleto de asesoría: vive en este sistema (public/mv-a7c41e9b3f06, carpeta no listada). Sin datos sensibles: es para clientes. */
+export const PDF_ASESORIA = `${process.env.SISTEMA_URL ?? "https://sistema.devisebit.com"}/mv-a7c41e9b3f06/asesoria-y-consultoria-devisebit.pdf`
 
 export type ItemMaterial = { k: string; titulo: string; detalle?: string; url: string; tipo: "pdf" | "zip" | "png" | "video" | "link"; marca?: "devisebit" | "blanca" }
 export type GrupoMaterial = { t: string; d: string; items: ItemMaterial[] }
@@ -42,6 +44,11 @@ export const VIDEOS = [
 ]
 
 export const GRUPOS: GrupoMaterial[] = [
+  {
+    t: "Asesoría y consultoría",
+    d: "Formatos y valores de la asesoría en tecnología e IA: horas, bolsas, abonos, plan anual y licencias. Con precios: para clientes interesados.",
+    items: [{ k: "asesoria-pdf", titulo: "Asesoría y consultoría en tecnología e IA", detalle: "PDF · valores vigentes al 1/11/2026", url: PDF_ASESORIA, tipo: "pdf", marca: "devisebit" }],
+  },
   {
     t: "Folletos para clientes",
     d: "Versión DEVISEBIT, con QR al pedido de demo. Complementan lo que se manda en la venta; sin precios.",

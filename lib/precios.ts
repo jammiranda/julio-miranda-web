@@ -50,6 +50,27 @@ export const ALTAS: Inicial[] = [
   { linea: "Plataforma para comunidades", producto: "Sistema para obras sociales", precio: 1290000, abono: 229000, condicion: "Hasta 5.000 beneficiarios · abono mínimo 6 meses", incluye: "Padrón de beneficiarios y grupo familiar, órdenes y autorizaciones en línea, prestadores y cartilla, credencial digital y tablero de consumos y auditoría", mercado_desde: 1000000, mercado_hasta: 3000000, fuente: AD, argumento: "Hecho para obras sociales y prepagas chicas: lo esencial de un sistema de salud, sin pagar un ERP grande.", link: "https://www.devisebit.com/comunidad" },
 ]
 
+/** Línea de asesoría: horas sueltas y bolsas se pagan completas por adelantado; los abonos, mes adelantado. */
+export const LINEA_ASESORIA = "Asesoría y consultoría"
+const LA = LINEA_ASESORIA
+const ASE = "https://www.devisebit.com/asesoria"
+
+/** Asesoría y consultoría en tecnología e IA (valores vigentes al 1/11/2026). Sin referencia de mercado publicada: no se compara. */
+export const ALTAS_ASESORIA: Inicial[] = [
+  { linea: LA, producto: "Primera reunión estratégica", precio: 55000, abono: null, condicion: "Una hora · una sola vez por organización · se descuenta completa si contratás un abono en los 30 días siguientes", incluye: "Una hora de estrategia de tecnología e IA con Dirección: entendemos tu situación, ordenamos prioridades y te recomendamos el formato que conviene", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Es la forma de empezar: la primera hora estratégica se cobra como hora técnica.", link: ASE },
+  { linea: LA, producto: "Hora técnica", precio: 55000, abono: null, condicion: "Por hora · fracción mínima 30 minutos · pago por adelantado · USD 35 desde el exterior", incluye: "Una hora con un líder del equipo: análisis, desarrollo, soporte o redes", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Para una duda puntual: revisar un presupuesto de software, elegir un proveedor o destrabar un problema.", link: ASE },
+  { linea: LA, producto: "Hora estratégica", precio: 85000, abono: null, condicion: "Por hora · fracción mínima 30 minutos · pago por adelantado · USD 55 desde el exterior", incluye: "Una hora de estrategia de tecnología e IA o de transformación digital", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Decisiones, no solo respuestas: qué comprar y qué no, cómo ordenar procesos antes de automatizar y cómo usar IA sin exponer datos.", link: ASE },
+  { linea: LA, producto: "Bolsa de 10 horas", precio: 650000, abono: null, condicion: "Vence a los 90 días · pago por adelantado · la hora estratégica descuenta 1,5 h · USD 420", incluye: "10 horas con cualquier perfil del equipo, registradas en tu portal con fecha, persona y tema", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Para consultas a lo largo de los meses sin agenda fija, pagando por adelantado a menor valor por hora.", link: ASE },
+  { linea: LA, producto: "Bolsa de 20 horas", precio: 1200000, abono: null, condicion: "Vence a los 120 días · pago por adelantado · la hora estratégica descuenta 1,5 h · USD 770", incluye: "20 horas con cualquier perfil del equipo, registradas en tu portal con fecha, persona y tema", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Más horas, menor valor por hora que la bolsa de 10.", link: ASE },
+  { linea: LA, producto: "Bolsa de 40 horas", precio: 2200000, abono: null, condicion: "Vence a los 180 días · pago por adelantado · la hora estratégica descuenta 1,5 h · USD 1.410", incluye: "40 horas con cualquier perfil del equipo, registradas en tu portal con fecha, persona y tema", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "El menor valor por hora de las bolsas, con seis meses para usarlas.", link: ASE },
+  { linea: LA, producto: "Abono Asesor de cabecera", precio: null, abono: 390000, condicion: "6 horas por mes · mínimo 3 meses · horas no usadas pasan al mes siguiente una vez · hora extra $65.000 con aviso · USD 250", incluye: "Una reunión cada 15 días, consultas por WhatsApp sin descontar horas, revisión de presupuestos y propuestas de proveedores antes de firmar, e informe mensual", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Ideal si ya tenés a alguien de tecnología y querés respaldarlo con un responsable que conoce tu organización.", link: ASE },
+  { linea: LA, producto: "Abono Tecnología a tiempo parcial", precio: null, abono: 890000, condicion: "16 horas por mes · mínimo 6 meses · horas no usadas pasan al mes siguiente una vez · hora extra $65.000 con aviso · USD 570", incluye: "Un responsable de tecnología sin sumarlo a la planta: comité mensual con la dirección, plan de sistemas, seguimiento de proveedores, seguridad y datos, y tablero de indicadores", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Para organizaciones sin nadie de tecnología: alguien que decide y acompaña todos los meses.", link: ASE },
+  { linea: LA, producto: "Abono Transformación acompañada", precio: null, abono: 1290000, condicion: "24 horas por mes · mínimo 3 meses · horas no usadas pasan al mes siguiente una vez · hora extra $65.000 con aviso · USD 830", incluye: "Implementamos la hoja de ruta con tu equipo: pilotos cortos y medibles, gestión del cambio, capacitación con certificado de ACADEMIA DEVISEBIT y seguimiento mensual de indicadores", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Para pasar del diagnóstico a la implementación con indicadores medidos mes a mes.", link: ASE },
+  { linea: LA, producto: "Plan anual de asesoría", precio: null, abono: null, condicion: "Cualquier abono por 12 meses: pagás 10 meses por adelantado, o 10% menos en 12 cuotas · precio congelado por 12 meses", incluye: "El mismo abono, con meses bonificados y el precio congelado todo el año", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Si ya sabés que vas a trabajar el año entero con nosotros.", link: ASE },
+  { linea: LA, producto: "Licencia Panel de contenido · marca blanca", precio: 190000, abono: 79000, condicion: "Puesta en marcha + abono mensual · mínimo 6 meses", incluye: "Redes, web, anuncios y contactos en un solo panel con tu marca, actualizaciones y soporte", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Usás un producto propio en producción con tu marca, sin pagar un desarrollo a medida.", link: ASE },
+  { linea: LA, producto: "Gestión de licencias de terceros", precio: null, abono: null, condicion: "Costo de la licencia + 15% · mínimo $15.000 por mes", incluye: "Altas, usuarios, pagos y renovaciones de Google Workspace, herramientas de IA, dominios y similares", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Una sola factura y nadie del equipo pendiente de vencimientos.", link: ASE },
+]
+
 export const PAGO = {
   alias: process.env.DB_ALIAS_PAGO ?? "devisebitsrl",
   titular: "DEVISEBIT SRL",
@@ -99,6 +120,14 @@ async function asegurar() {
   // 28/10: el taller pasa a "básico hasta 5 personas" y el diagnóstico a cotizar (solo si nadie los editó desde el sistema)
   await q("update db_precios set precio=290000, condicion=$1 where producto='Taller de Transformación Digital' and precio=390000", ["Taller básico: una jornada de 3 horas · hasta 5 personas · virtual o presencial (CABA y GBA). Para equipos más grandes, a cotizar"])
   await q("update db_precios set precio=null, condicion='A cotizar según el tamaño de la organización' where producto='Diagnóstico y hoja de ruta' and precio=890000")
+  // 1/11/2026: línea "Asesoría y consultoría". Cada producto se agrega una sola vez (por nombre): si después se edita o se desactiva, no se pisa.
+  for (const [i, p] of ALTAS_ASESORIA.entries()) {
+    const ya = await one("select 1 from db_precios where producto=$1", [p.producto])
+    if (ya) continue
+    await q("insert into db_precios(linea,producto,precio,abono,condicion,incluye,mercado_desde,mercado_hasta,fuente,argumento,link,orden) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+      [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, 2000 + i * 10])
+    await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ($1,'alta',$2,'Asesoría y consultoría (valores al 1/11/2026)','Sistema')", [p.producto, String(p.precio ?? p.abono ?? "")])
+  }
   listo = true
 }
 

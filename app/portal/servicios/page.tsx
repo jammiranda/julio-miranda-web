@@ -76,7 +76,7 @@ function Item({ p }: { p: Precio }) {
           </form>
         ) : null}
         <Consultar servicio={p.producto} />
-        {pp && <span className="text-xs text-[#4A515C] w-full">Hoy pagás {pp.tipo === "anticipo" ? "la seña del 50%" : "el primer mes"}: <strong>{ars(pp.monto)}</strong>. Mercado Pago o transferencia (10% off).</span>}
+        {pp && <span className="text-xs text-[#4A515C] w-full">Hoy pagás {pp.tipo === "anticipo" ? "la seña del 50%" : pp.tipo === "total" ? "el total" : "el primer mes"}: <strong>{ars(pp.monto)}</strong>. Mercado Pago o transferencia (10% off).</span>}
       </div>
     </li>
   )
@@ -129,7 +129,7 @@ export default async function Servicios({ searchParams }: { searchParams: { ok?:
       <section id="lista" aria-labelledby="t-lista" className="card flex flex-col gap-5 scroll-mt-4">
         <div>
           <h2 id="t-lista" className="m-0">Lista de precios</h2>
-          <p className="m-0 mt-1 text-sm text-[#4A515C]">Proyectos: 50% de seña al comprar y el resto contra entrega. Abonos: se pagan mes a mes. Todo con contrato y factura de DEVISEBIT SRL.</p>
+          <p className="m-0 mt-1 text-sm text-[#4A515C]">Proyectos: 50% de seña al comprar y el resto contra entrega. Abonos: se pagan mes a mes. Horas y bolsas de asesoría: pago total por adelantado. Todo con contrato y factura de DEVISEBIT SRL.</p>
         </div>
         {!ps.length && <p className="m-0 text-sm text-[#4A515C]">No pudimos cargar la lista. Escribinos por WhatsApp y te la mandamos.</p>}
         {lineas.map((l) => (

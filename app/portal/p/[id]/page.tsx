@@ -8,6 +8,8 @@ import { estadoProy, trelloActivo, trelloResumen } from "@/lib/crm"
 import { notificar } from "@/lib/push"
 import { fecha } from "@/lib/util"
 import FaseBarra from "@/components/FaseBarra"
+import AsesoriaResumen from "@/components/AsesoriaResumen"
+import { asesoriaDe } from "@/lib/asesoria"
 
 export const dynamic = "force-dynamic"
 
@@ -54,9 +56,10 @@ export default async function ProyectoCliente({ params, searchParams }: { params
   const c = await requerirCliente()
   const p = await proyectoDe(c.id, Number(params.id))
   if (!p) notFound()
-  const [hitos, reuniones] = await Promise.all([
+  const [hitos, reuniones, ase] = await Promise.all([
     q<Hito>("select * from db_hitos where proyecto_id=$1 and visible order by fecha desc, id desc", [p.id]),
     q<any>("select inicio, modalidad, link, estado from db_reuniones where contacto_id=$1 and estado in ('confirmada','realizada') and inicio >= coalesce($2::date, '2000-01-01') order by inicio desc limit 20", [c.id, p.inicio]),
+    asesoriaDe(p.id).catch(() => null),
   ])
   let tareas: { total: number; hechas: number; enCurso: number } | null = null
   if (trelloActivo() && p.trello_board) {
@@ -118,6 +121,13 @@ export default async function ProyectoCliente({ params, searchParams }: { params
               <div className="flex flex-wrap gap-2"><button name="op" value="aprobar" className="btn-p">Aprobar</button><button name="op" value="cambios" className="btn-s">Pedir cambios</button></div>
             </form>
           ))}
+        </section>
+      )}
+
+      {ase && (ase.planes.length > 0 || ase.horas.length > 0) && (
+        <section id="asesoria" aria-labelledby="t-ase" className="card flex flex-col gap-3">
+          <h2 id="t-ase" className="m-0 text-base">Horas de asesoría</h2>
+          <AsesoriaResumen planes={ase.planes} horas={ase.horas} saldos={ase.saldos} cliente />
         </section>
       )}
 

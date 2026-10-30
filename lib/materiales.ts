@@ -1,6 +1,6 @@
 import { PAGO } from "./precios"
 import { URL_SISTEMA } from "./brief"
-import { MV } from "./material"
+import { MV, PDF_ASESORIA } from "./material"
 
 /** Material comercial que el bot y el equipo pueden mandar por WhatsApp con un clic. */
 export type Material = { k: string; n: string; link: string; texto: (nombre?: string | null) => string }
@@ -23,6 +23,7 @@ export const MATERIALES: Material[] = [
     k: `folleto-${s}`, n: `Folleto · ${n} (PDF)`, link: `${MV}/folletos/devisebit-${s}.pdf`,
     texto: (nom?: string | null) => `${hola(nom)}te paso el folleto de ${n} para que lo veas con calma: ${MV}/folletos/devisebit-${s}.pdf`,
   })),
+  { k: "asesoria-pdf", n: "Asesoría y consultoría · formatos y valores (PDF)", link: PDF_ASESORIA, texto: (n) => `${hola(n)}te paso las formas de contratar asesoría en tecnología e IA, con valores: ${PDF_ASESORIA}\nSi querés, agendamos una primera reunión para ver cuál te conviene.` },
   { k: "panel-pdf", n: "Panel de Contenido · presentación (PDF)", link: `${MV}/panel-de-contenido-devisebit.pdf`, texto: (n) => `${hola(n)}te paso la presentación del Panel de Contenido, con pantallas reales: ${MV}/panel-de-contenido-devisebit.pdf` },
 ]
 

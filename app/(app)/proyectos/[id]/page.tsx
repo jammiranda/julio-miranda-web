@@ -8,6 +8,9 @@ import FaseBarra from "@/components/FaseBarra"
 import { cargarFactura, nroRecibo, formatoCuit } from "@/lib/comprobantes"
 import { TIPOS_COBRO, tipoCobro, plata, cobrosDe, generarAbonos } from "@/lib/cobros"
 import { registrarPago } from "@/lib/pagos"
+import { FORMATOS, formato, asesoriaDe, planesDe, planPara, venceBolsa, revisarUmbrales } from "@/lib/asesoria"
+import { hoyISO } from "@/lib/util"
+import AsesoriaResumen from "@/components/AsesoriaResumen"
 import { ESTADOS_PROY, estadoProy, trelloActivo, trelloCrearTablero, trelloIdDeUrl, trelloResumen, trelloTarjeta, type TrelloResumen } from "@/lib/crm"
 
 export const dynamic = "force-dynamic"
@@ -179,9 +182,66 @@ async function accionCobro(fd: FormData) {
   redirect(`/proyectos/${id}#cobros`)
 }
 
+async function nuevoPlan(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const f = formato(String(fd.get("formato") ?? ""))
+  const horas = num(s(fd.get("horas"))) ?? f?.horas ?? 0
+  const inicio = s(fd.get("inicio")) ?? hoyISO()
+  if (!f || !(horas > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(inicio)) redirect(`/proyectos/${id}?aerr=${encodeURIComponent("Elegí el formato y las horas")}#asesoria`)
+  const vence = f!.tipo === "bolsa" ? s(fd.get("vence")) ?? venceBolsa(inicio, f!.dias || 90) : null
+  const fin = f!.tipo === "abono" ? s(fd.get("fin")) : null
+  const nombre = s(fd.get("nombre")) ?? f!.n
+  const r = await one<{ id: number }>("insert into as_planes(proyecto_id,formato,nombre,tipo,horas,inicio,vence,fin,creado_por) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", [id, f!.v, nombre, f!.tipo, horas, inicio, vence, fin, u.nombre])
+  // Horas sueltas ya cargadas dentro del período quedan en el plan nuevo
+  await q(`update as_horas set plan_id=$1 where proyecto_id=$2 and plan_id is null and fecha >= $3::date and ($4::date is null or fecha <= $4::date)`, [r!.id, id, inicio, vence ?? fin])
+  await registrarHito(id, { tipo: "sistema", titulo: `Asesoría: ${nombre}`, detalle: f!.tipo === "bolsa" ? `${horas} horas, vencen el ${fecha(vence)}. Las ves en Horas de asesoría.` : `${horas} horas por mes desde el ${fecha(inicio)}. Las ves en Horas de asesoría.`, autor: u.nombre })
+  await audit(u, "asesoria_plan", "db_proyecto", id, `${nombre} · ${horas} h`)
+  await revisarUmbrales(r!.id, undefined, u)
+  redirect(`/proyectos/${id}?aok=plan#asesoria`)
+}
+
+async function accionPlan(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id")), plan = Number(fd.get("plan"))
+  if (fd.get("op") === "terminar") await q("update as_planes set activo=false, fin=coalesce(fin,(now() at time zone 'America/Argentina/Buenos_Aires')::date) where id=$1 and proyecto_id=$2", [plan, id])
+  else await q("update as_planes set activo=true where id=$1 and proyecto_id=$2", [plan, id])
+  await audit(u, "asesoria_plan_" + fd.get("op"), "as_plan", plan)
+  redirect(`/proyectos/${id}#asesoria`)
+}
+
+async function cargarHora(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion", "profesional"])
+  const id = Number(fd.get("id"))
+  const fechaH = s(fd.get("fecha")) ?? hoyISO()
+  const persona = s(fd.get("persona"))
+  const tema = s(fd.get("tema"))?.slice(0, 300)
+  const minutos = Math.round(Number(String(fd.get("horas") ?? "").replace(",", ".")) * 60)
+  const tipo = fd.get("tipo") === "estrategica" ? "estrategica" : "tecnica"
+  if (!persona || !tema || !/^\d{4}-\d{2}-\d{2}$/.test(fechaH)) redirect(`/proyectos/${id}?aerr=${encodeURIComponent("Faltan la fecha, la persona o el tema")}#asesoria`)
+  if (!(minutos > 0) || minutos % 30) redirect(`/proyectos/${id}?aerr=${encodeURIComponent("La duración va en múltiplos de 30 minutos (0,5 · 1 · 1,5 …)")}#asesoria`)
+  const plan = planPara(await planesDe(id), fechaH)
+  await q("insert into as_horas(proyecto_id,plan_id,fecha,persona,tema,minutos,tipo,cargado_por) values ($1,$2,$3,$4,$5,$6,$7,$8)", [id, plan?.id ?? null, fechaH, persona, tema, minutos, tipo, u.nombre])
+  await audit(u, "asesoria_hora", "db_proyecto", id, `${minutos} min ${tipo}`)
+  const avisos = plan ? await revisarUmbrales(plan.id, fechaH.slice(0, 7), u) : []
+  redirect(`/proyectos/${id}?aok=hora${avisos.length ? `&aviso=${Math.max(...avisos)}` : ""}#asesoria`)
+}
+
+async function borrarHora(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id")), h = Number(fd.get("hora"))
+  await q("delete from as_horas where id=$1 and proyecto_id=$2", [h, id])
+  await audit(u, "asesoria_hora_borra", "as_hora", h)
+  redirect(`/proyectos/${id}#asesoria`)
+}
+
 const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : "")
 
-export default async function Proyecto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; terr?: string; contacto?: string; hok?: string; herr?: string; avisado?: string; invitado?: string; cok?: string; cerr?: string } }) {
+export default async function Proyecto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; terr?: string; contacto?: string; hok?: string; herr?: string; avisado?: string; invitado?: string; cok?: string; cerr?: string; aok?: string; aerr?: string; aviso?: string } }) {
   const nuevo = params.id === "nuevo"
   const p: any = nuevo ? { contacto_id: searchParams.contacto ? Number(searchParams.contacto) : null, estado: "planificado" } : await one<any>("select * from db_proyectos where id=$1", [Number(params.id)])
   if (!p) notFound()
@@ -196,6 +256,8 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
     q<Hito>("select * from db_hitos where proyecto_id=$1 order by fecha desc, id desc limit 60", [p.id]),
     p.contacto_id ? one<{ nombre: string; email: string | null; portal_ultimo: string | null }>("select nombre, email, portal_ultimo from db_contactos where id=$1", [p.contacto_id]) : Promise.resolve(null),
   ])
+  const ase = nuevo ? null : await asesoriaDe(p.id)
+  const personas = nuevo ? [] : await q<{ nombre: string }>("select nombre from usuarios where activo order by nombre")
   const trello = trelloActivo()
   let tablero: TrelloResumen | null = null
   let terr = searchParams.terr ?? null
@@ -337,6 +399,65 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
                   {!cobros.length && <tr><td colSpan={5} className="text-[#4A515C]">Sin cobros cargados.{!p.contacto_id ? " Asigná un cliente para poder cargarlos." : ""}</td></tr>}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {!nuevo && ase && (
+        <section id="asesoria" aria-labelledby="t-ase" className="card lg:col-span-3 flex flex-col gap-4 scroll-mt-4">
+          <div>
+            <h2 id="t-ase" className="m-0 text-base">Horas de asesoría</h2>
+            <p className="m-0 text-sm text-[#4A515C]">Bolsa o abono del cliente y cada hora con fecha, persona y tema. El cliente lo ve en su portal (Mi cuenta → Asesoría). Al 80% y al 100% se avisa al equipo.</p>
+          </div>
+          {searchParams.aok && <p role="status" className="m-0 text-sm text-emerald-700">{searchParams.aok === "plan" ? "Plan de asesoría cargado." : "Hora registrada. El cliente ya la ve en su portal."}{searchParams.aviso ? ` Llegó al ${searchParams.aviso}%: avisamos al equipo.` : ""}</p>}
+          {searchParams.aerr && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.aerr}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <form action={cargarHora} className="flex flex-col gap-2 rounded-xl bg-[#F8F9FB] p-4">
+                <input type="hidden" name="id" value={p.id} />
+                <h3 className="m-0 text-sm font-bold">Cargar horas</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="lbl">Fecha<input name="fecha" type="date" required defaultValue={hoyISO()} className="inp" /></label>
+                  <label className="lbl">Duración (h)<select name="horas" className="inp" defaultValue="1">{[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8].map((h) => <option key={h} value={h}>{h.toLocaleString("es-AR")} h</option>)}</select></label>
+                  <label className="lbl">Persona<input name="persona" required list="ase-personas" className="inp" placeholder="Quién dio la hora" /></label>
+                  <label className="lbl">Tipo<select name="tipo" className="inp" defaultValue="tecnica"><option value="tecnica">Técnica</option><option value="estrategica">Estratégica</option></select></label>
+                  <label className="lbl col-span-2">Tema<input name="tema" required maxLength={300} className="inp" placeholder="Ej.: Revisión del presupuesto del proveedor de ERP" /></label>
+                </div>
+                <datalist id="ase-personas">{personas.map((x) => <option key={x.nombre} value={x.nombre} />)}</datalist>
+                <p className="m-0 text-xs text-[#4A515C]">Fracción mínima 30 minutos. En bolsas, la estratégica descuenta 1,5 h. El tema lo ve el cliente: sin datos personales ni sensibles (Ley 25.326).</p>
+                <button className="btn-p">Registrar</button>
+              </form>
+              <details className="rounded-xl bg-[#F8F9FB] p-4" open={!ase.planes.length}>
+                <summary className="cursor-pointer text-sm font-bold">Nueva bolsa o abono</summary>
+                <form action={nuevoPlan} className="mt-2 flex flex-col gap-2">
+                  <input type="hidden" name="id" value={p.id} />
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="lbl col-span-2">Formato<select name="formato" className="inp" defaultValue="bolsa10">{FORMATOS.map((f) => <option key={f.v} value={f.v}>{f.n}{f.horas ? ` · ${f.horas} h${f.tipo === "abono" ? "/mes" : ""}` : ""}</option>)}</select></label>
+                    <label className="lbl">Horas (vacío = las del formato)<input name="horas" inputMode="decimal" className="inp" /></label>
+                    <label className="lbl">Inicio<input name="inicio" type="date" defaultValue={hoyISO()} className="inp" /></label>
+                    <label className="lbl">Vence (bolsas)<input name="vence" type="date" className="inp" /></label>
+                    <label className="lbl">Fin (abonos, opcional)<input name="fin" type="date" className="inp" /></label>
+                  </div>
+                  <p className="m-0 text-xs text-[#4A515C]">Si la bolsa no tiene vencimiento cargado, vence a los 90, 120 o 180 días según el formato. El cobro del abono se configura arriba, en Cobros y abono.</p>
+                  <button className="btn-s">Guardar plan</button>
+                </form>
+              </details>
+              {ase.planes.length > 0 && (
+                <ul className="m-0 p-0 list-none flex flex-col gap-1 text-sm">
+                  {ase.planes.map((pl) => (
+                    <li key={pl.id} className="flex items-center justify-between gap-2">
+                      <span className={pl.activo ? "" : "text-[#4A515C] line-through"}>{pl.nombre} · desde {fecha(pl.inicio)}</span>
+                      <form action={accionPlan}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="plan" value={pl.id} /><button name="op" value={pl.activo ? "terminar" : "reactivar"} className="text-xs underline text-[#4A515C]">{pl.activo ? "Terminar" : "Reactivar"}</button></form>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="lg:col-span-3">
+              <AsesoriaResumen planes={ase.planes} horas={ase.horas} saldos={ase.saldos} accion={(h) => (
+                <form action={borrarHora}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="hora" value={h.id} /><button className="text-xs underline text-rojo">Borrar</button></form>
+              )} />
             </div>
           </div>
         </section>
