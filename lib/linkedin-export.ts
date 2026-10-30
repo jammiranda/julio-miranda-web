@@ -34,11 +34,15 @@ const CAMPOS: Record<string, Regla[]> = {
   seg_total: [/^total followers$|^total de seguidores$|^seguidores totales$|^seguidores total$|^followers$|^seguidores$/],
   // Visitantes (por día)
   vistas_pagina: [
+    (h) => /(page views|visualizaciones de (la )?pagina|vistas de (la )?pagina) en total/.test(h) && !DISP.test(h),
+    (h) => /^total page views/.test(h) && !DISP.test(h),
     (h) => /^total (de )?(page views|visualizaciones de (la )?pagina|vistas de (la )?pagina|visitas a la pagina)( total)?$/.test(h),
     (h) => /(page views|visualizaciones de (la )?pagina|vistas de (la )?pagina)/.test(h) && !/overview|resumen|inicio|general/.test(h) && !DISP.test(h),
     (h) => /(page views|visualizaciones de (la )?pagina|vistas de (la )?pagina)/.test(h) && / total$/.test(h),
   ],
   visitantes_unicos: [
+    (h) => /(unique visitors|visitantes unicos) en total/.test(h) && !DISP.test(h),
+    (h) => /^total unique visitors/.test(h) && !DISP.test(h),
     (h) => /^total (de )?(unique visitors|visitantes unicos)( total)?$/.test(h),
     (h) => /(unique visitors|visitantes unicos)/.test(h) && !/overview|resumen|inicio|general/.test(h) && !DISP.test(h),
     (h) => /(unique visitors|visitantes unicos)/.test(h) && / total$/.test(h),
