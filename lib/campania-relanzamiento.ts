@@ -10,6 +10,13 @@ export const CLAVE_RELANZAMIENTO = "relanzamiento-2026-11"
 const img = (slug: string) => `${URL_SISTEMA}/marca/landings/og-${slug}.jpg`
 const WA = "https://wa.me/5491173466490?text=" + encodeURIComponent("Hola, recibí el correo de DEVISEBIT y quiero hacer una consulta")
 
+export const BLOQUE_IG = [
+  "---",
+  "## Seguinos en Instagram",
+  "Todas las semanas publicamos casos, demos y tips de IA aplicada. Y si nos escribís **DIAGNOSTICO** por mensaje directo, te mandamos el autodiagnóstico gratis al instante.",
+  "[[Seguir a @devisebit en Instagram|https://www.instagram.com/devisebit]]",
+].join("\n\n")
+
 export const RELANZAMIENTO = {
   asunto: "DEVISEBIT se renueva: software e IA para tu organización",
   preheader: "Webs, sistemas, WhatsApp con IA, redes y transformación digital, en un solo lugar.",
@@ -45,6 +52,10 @@ export const RELANZAMIENTO = {
     "Diagnóstico de madurez, hoja de ruta, pilotos y capacitación con certificado. Si querés saber dónde está parada tu organización, hacé el **autodiagnóstico gratis**: son 12 preguntas y te llega el informe por correo.",
     "[[Hacer el autodiagnóstico gratis|https://www.devisebit.com/demos/transformacion-digital.html]]",
     "---",
+    "## Seguinos en Instagram",
+    "Todas las semanas publicamos casos, demos y tips de IA aplicada. Y si nos escribís **DIAGNOSTICO** por mensaje directo, te mandamos el autodiagnóstico gratis al instante.",
+    "[[Seguir a @devisebit en Instagram|https://www.instagram.com/devisebit]]",
+    "---",
     `¿Lo charlamos? Respondé este correo, escribinos por [WhatsApp](${WA}) o [elegí un horario](${URL_SISTEMA}/agendar) para una reunión de 30 minutos sin compromiso.`,
     "Un abrazo,\n**Julio Miranda**\nFundador · DEVISEBIT SRL",
   ].join("\n\n"),
@@ -64,6 +75,11 @@ export async function asegurarRelanzamiento(): Promise<number | null> {
   await q(
     `update em_campanias set asunto=$2, preheader=$3, contenido=$4 where clave=$1 and estado='borrador' and contenido like '%está de nuevo en marcha%' and contenido like '%Volvemos con un **equipo completo**%'`,
     [CLAVE_RELANZAMIENTO, r.asunto, r.preheader, r.contenido],
+  ).catch(() => {})
+  // Bloque de Instagram (29/10/2026): se suma también a la campaña ya lanzada, para los envíos que faltan.
+  await q(
+    `update em_campanias set contenido=replace(contenido, $2, $3) where clave=$1 and contenido not like '%instagram.com/devisebit%' and position($2 in contenido) > 0`,
+    [CLAVE_RELANZAMIENTO, "---\n\n¿Lo charlamos?", BLOQUE_IG + "\n\n---\n\n¿Lo charlamos?"],
   ).catch(() => {})
   const x = await q<{ id: number }>("select id from em_campanias where clave=$1", [CLAVE_RELANZAMIENTO]).catch(() => [])
   return x[0]?.id ?? null
