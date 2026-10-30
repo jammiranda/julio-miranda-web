@@ -3,6 +3,7 @@ import { linkedin } from "@/lib/linkedin"
 import { panelMetricas, youtubeCache, safe } from "@/lib/panel"
 import { publicacionesYouTubeCache } from "@/lib/youtube-publicaciones"
 import { resumenAds } from "@/lib/ads"
+import { linkedinExport } from "@/lib/linkedin-export"
 import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, fmt, plata, fechaCorta, fechaHora } from "./_ui"
 
 export const dynamic = "force-dynamic"
@@ -13,6 +14,7 @@ export default async function Inicio() {
   if (!(await acceso())) return null
   const b = base()
   const [ig, hist, m, yt, ads, li, ytp] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
+  const lix = await safe(linkedinExport())
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
   const p30 = posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5)
@@ -52,11 +54,17 @@ export default async function Inicio() {
           <div className="pc-mono" style={{ fontSize: 13 }}>{yt ? <>{yt.suscriptores != null ? `${fmt(yt.suscriptores)} suscriptores · ` : ""}{fmt(yt.videos)} videos · {fmt(yt.publicados30)} en 30 días</> : "Sin datos del canal"}</div>
           {ytp && <div className="pc-mono pc-muted" style={{ fontSize: 12, marginTop: 4 }}>Publicaciones: {fmt(ytp.totalPublicadas)} publicadas · {fmt(ytp.proximas.length)} programadas{ytp.proximas[0] ? ` · próxima ${new Date(ytp.proximas[0].fecha).toLocaleDateString("es-AR", { day: "numeric", month: "numeric", timeZone: "America/Argentina/Buenos_Aires" })}` : ""}{ytp.totalPublicadas ? ` · ${fmt(ytp.meGusta)} me gusta` : ""}</div>}
         </a>
-        <a className="pc-card pc-red" href="https://www.linkedin.com/company/devisebit" target="_blank" rel="noreferrer">
+        <a className="pc-card pc-red" href={`${b}/linkedin`}>
           <div className="hd"><span className="ic" style={{ background: "rgba(47,140,255,.15)", color: "var(--li)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7" /></svg></span><div><h3>LinkedIn</h3><span className="pc-muted" style={{ fontSize: 12 }}>DEVISEBIT</span></div></div>
+          {lix && (lix.periodo.dias > 0 || lix.posts.length > 0 || lix.seguidores.total != null) ? (
+            <div className="pc-mono" style={{ fontSize: 13, marginBottom: 4 }}>
+              {lix.seguidores.total != null ? `${fmt(lix.seguidores.total)} seguidores · ` : ""}{lix.seguidores.nuevos != null ? `+${fmt(lix.seguidores.nuevos)} en ${lix.mes} · ` : ""}{lix.visitas.vistas != null ? `${fmt(lix.visitas.vistas)} visitas · ` : ""}{fmt(lix.contenido.impresiones)} impresiones{lix.contenido.interaccion != null ? ` · interacción ${fmt(lix.contenido.interaccion, 1)}%` : ""}
+              <span className="pc-muted"> (exportación de LinkedIn{lix.ultimaImportacion ? `, ${fechaHora(lix.ultimaImportacion.creado)}` : ""})</span>
+            </div>
+          ) : null}
           {li.ok ? (
             <div className="pc-mono" style={{ fontSize: 13 }}>
-              {fmt(li.actual.posts)} publicaciones en 30 días · alcance {fmt(li.actual.alcance)} · {fmt(li.actual.reacciones)} reacciones{li.actual.engagement != null ? ` · engagement ${fmt(li.actual.engagement, 1)}%` : ""}
+              <span className="pc-muted">Buffer: </span>{fmt(li.actual.posts)} publicaciones en 30 días · alcance {fmt(li.actual.alcance)} · {fmt(li.actual.reacciones)} reacciones{li.actual.engagement != null ? ` · engagement ${fmt(li.actual.engagement, 1)}%` : ""}
               {li.previo.alcance ? <span className="pc-muted"> (antes: alcance {fmt(li.previo.alcance)})</span> : null}
             </div>
           ) : <span className="pc-muted" style={{ fontSize: 12.5 }}>{li.error === "sin_clave" ? "Datos de la página vía Buffer: falta cargar la clave de Buffer." : `Buffer no respondió: ${li.error}`}</span>}

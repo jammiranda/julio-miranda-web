@@ -485,6 +485,24 @@ create table if not exists pc_competencia (
   fecha date not null default current_date, nota text, creado_por text, creado timestamptz not null default now()
 );
 create index if not exists pc_competencia_cuenta on pc_competencia(lower(cuenta), fecha desc);
+create table if not exists li_diario (
+  fecha date primary key,
+  seg_organicos int, seg_patrocinados int, seg_auto int, seg_nuevos int, seg_total int, seg_acumulado int,
+  vistas_pagina int, visitantes_unicos int,
+  impresiones int, impresiones_unicas int, clics int, reacciones int, comentarios int, compartidos int, engagement numeric,
+  actualizado timestamptz not null default now()
+);
+create table if not exists li_publicaciones (
+  clave text primary key, link text, titulo text, tipo text, campania text, autor text, fecha date, audiencia text,
+  impresiones int, vistas int, clics int, ctr numeric, reacciones int, comentarios int, compartidos int, seguimientos int, engagement numeric,
+  actualizado timestamptz not null default now()
+);
+create index if not exists li_publicaciones_fecha on li_publicaciones(fecha desc);
+create table if not exists li_demografia (
+  fuente text not null, dimension text not null, categoria text not null, valor int not null default 0, actualizado timestamptz not null default now(),
+  primary key (fuente, dimension, categoria)
+);
+create table if not exists li_importaciones (id serial primary key, origen text not null default 'api', por text, resumen jsonb, creado timestamptz not null default now());
 alter table g_documentos add column if not exists origen text not null default 'manual';
 alter table g_documentos add column if not exists externo_id text;
 alter table g_documentos add column if not exists ruta text;
