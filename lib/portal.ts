@@ -8,6 +8,7 @@ import { URL_SISTEMA } from "./brief"
 import { aHtml, plantilla, enviarBrevo } from "./email"
 import { accesoDe, config } from "./cobros"
 import { notificar } from "./push"
+import { URL_ACADEMIA } from "./academia"
 
 /**
  * Portal del cliente: cada cliente entra con un link por email (sin contraseña)
@@ -57,9 +58,11 @@ export function urlPortal(path = "") {
 const COOKIE = "db_cuenta"
 export type Cliente = { id: number; nombre: string; organizacion: string | null; email: string; acceso: "ok" | "bloqueado" | "deuda"; atraso: number; deuda: string }
 
-function dominioCookie() {
-  const h = (headers().get("host") ?? "").toLowerCase().split(":")[0]
-  return h === "devisebit.com" || h.endsWith(".devisebit.com") ? ".devisebit.com" : undefined
+/** En producción (cualquier *.devisebit.com) la cookie se emite para ".devisebit.com": vale en portal y academia. En localhost, sin dominio. */
+export function dominioCookie() {
+  const h = headers()
+  const host = [h.get("x-forwarded-host"), h.get("host")].map((x) => (x ?? "").toLowerCase().split(",")[0].trim().split(":")[0]).find(Boolean) ?? ""
+  return host === "devisebit.com" || host.endsWith(".devisebit.com") ? ".devisebit.com" : undefined
 }
 
 async function crearSesionCliente(contactoId: number) {
@@ -87,13 +90,57 @@ export async function clienteActual(): Promise<Cliente | null> {
     return { ...c, acceso: a.estado, atraso: a.atraso, deuda: a.deuda }
   } catch { return null }
 }
-/** Exige sesión. Con deuda vencida o bloqueo, lo manda a la pantalla de cuenta suspendida (salvo `suspendidoOk`). */
+// ── Destino después de entrar ("volver a") ──
+/**
+ * Solo rutas relativas del mismo sitio: empiezan con "/" y no con "//" ni "/\\" (si no, sería una redirección abierta).
+ * Sin espacios ni barras invertidas, y con un largo razonable. Si no sirve, devuelve `defecto`.
+ */
+export function rutaSegura(a: unknown, defecto: string) {
+  const v = typeof a === "string" ? a.trim() : ""
+  return v.length <= 400 && /^\/(?![\/\\])[^\s\\]*$/.test(v) ? v : defecto
+}
+/** Ruta que pidió el navegador (la deja el middleware en x-ruta, antes de reescribirla). */
+export function rutaActual() {
+  return rutaSegura(headers().get("x-ruta"), "")
+}
+/** Link a la pantalla de ingreso con el destino: /portal/entrar?a=/cursos/3 */
+export const conDestino = (entrar: string, a?: string | null) => (a ? `${entrar}?a=${encodeURIComponent(a).replace(/%2F/g, "/")}` : entrar)
+
+/** Lectura liviana de la sesión (solo nombre y email, sin estado de cuenta): para el header de la Academia. */
+export async function sesionCuenta(): Promise<{ id: number; nombre: string; email: string } | null> {
+  const t = cookies().get(COOKIE)?.value
+  if (!t) return null
+  try {
+    const { payload } = await jwtVerify(t, await secret())
+    if (payload.typ !== "cliente") return null
+    return await one<{ id: number; nombre: string; email: string }>("select id, nombre, email from db_contactos where id=$1 and email is not null and portal_acceso<>'bloqueado'", [payload.cid])
+  } catch { return null }
+}
+
+/** Exige sesión. Con deuda vencida o bloqueo, lo manda a la pantalla de cuenta suspendida (salvo `suspendidoOk`). Al entrar, vuelve a la misma página. */
 export async function requerirCliente(suspendidoOk = false): Promise<Cliente> {
   const c = await clienteActual()
-  if (!c) redirect("/portal/entrar")
+  if (!c) redirect(conDestino("/portal/entrar", rutaActual()))
   if (!suspendidoOk && c.acceso !== "ok") redirect("/portal/suspendido")
   return c
 }
+
+/** Lo mismo, para el espacio del alumno en academia.devisebit.com/mi-cuenta (mismo ingreso, misma cookie). */
+export async function requerirAlumno(): Promise<Cliente> {
+  const c = await clienteActual()
+  if (!c) redirect(conDestino("/mi-cuenta/entrar", rutaActual() || "/mi-cuenta"))
+  // Con deuda o bloqueo, el estado de cuenta y los pagos viven en el portal.
+  if (c.acceso !== "ok") redirect(urlPortal("/suspendido"))
+  return c
+}
+
+/** Dónde se pidió el ingreso: cambia el link del email, el texto y el origen del alta automática. */
+export type Sitio = "portal" | "academia"
+export const SITIOS: Record<Sitio, { entrar: string; inicio: string; nombre: string }> = {
+  portal: { entrar: "/portal/entrar", inicio: "/portal", nombre: "DEVISEBIT Mi cuenta" },
+  academia: { entrar: "/mi-cuenta/entrar", inicio: "/mi-cuenta", nombre: "ACADEMIA DEVISEBIT" },
+}
+export const esSitio = (v: unknown): v is Sitio => v === "portal" || v === "academia"
 
 // ── Links de acceso de un solo uso ──
 const hash = (t: string) => createHash("sha256").update(t).digest("hex")
@@ -152,7 +199,9 @@ type ContactoIngreso = { id: number; nombre: string; portal_acceso: string; clas
  * Pedido de ingreso desde la pantalla única: manda por email un código de 6 dígitos y un link (sirven los dos).
  * Con la política "libre" o "abierto", si el email no existe se crea la cuenta en el momento. Queda todo registrado.
  */
-export async function pedirLink(email: string, nombre?: string | null, ip: string | null = null): Promise<{ resultado: ResultadoPedido; detalle?: string; nueva?: boolean }> {
+export async function pedirLink(email: string, nombre?: string | null, ip: string | null = null, opc: { sitio?: Sitio; a?: string | null } = {}): Promise<{ resultado: ResultadoPedido; detalle?: string; nueva?: boolean }> {
+  const sitio: Sitio = opc.sitio ?? "portal"
+  const acad = sitio === "academia"
   const pol = await politica()
   let c = await one<ContactoIngreso>("select id, nombre, portal_acceso, clase from db_contactos where lower(email)=$1", [email])
   const registrar = async (resultado: ResultadoPedido, detalle?: string) => {
@@ -168,11 +217,11 @@ export async function pedirLink(email: string, nombre?: string | null, ip: strin
   if (c) puede = libre || c.portal_acceso === "habilitado" || (await tienePortal(c.id)) || (pol === "crm" && !!c.clase && c.clase !== "descartado")
   if (!c && libre) {
     if (await excedeAltas(ip)) return registrar("limite", "Demasiadas cuentas nuevas desde la misma IP")
-    // Lista «Por clasificar» (clase sin definir) y origen portal, igual que el resto de las altas automáticas.
+    // Lista «Por clasificar» (clase sin definir) y origen portal o academia, igual que el resto de las altas automáticas.
     c = await one<ContactoIngreso>(
-      `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base','Portal','portal','Portal')
+      `insert into db_contactos(nombre,email,etapa,origen,fuente,categoria) values ($1,$2,'base',$3,$4,$3)
        on conflict (lower(email)) where email is not null do update set actualizado=now() returning id, nombre, portal_acceso, clase`,
-      [nombre || email.split("@")[0], email],
+      [nombre || email.split("@")[0], email, acad ? "Academia" : "Portal", acad ? "academia" : "portal"],
     )
     puede = !!c
     nueva = !!c
@@ -182,13 +231,13 @@ export async function pedirLink(email: string, nombre?: string | null, ip: strin
     await notificar(["gerente", "coordinacion"], "🔑 Pedido de acceso al portal", `${email}${c ? ` (${c.nombre})` : " · no está en Contactos"}: validalo en Portal y accesos`, "/portal-admin").catch(() => {})
     return r
   }
-  const env = await enviarAcceso(c!.id, "ingreso")
+  const env = await enviarAcceso(c!.id, "ingreso", { sitio, a: opc.a })
   if (!env.ok) {
     await notificar(["gerente", "coordinacion"], "⚠️ No salió el código del portal", `${email}: ${env.error}`, "/portal-admin").catch(() => {})
     return registrar("error", env.error)
   }
   if (nueva) {
-    if (pol === "libre") await notificar(["gerente", "coordinacion"], "🆕 Cuenta nueva en el portal", `${email} creó su cuenta (quedó en Por clasificar). Si no corresponde, bloqueala en Portal y accesos.`, `/contactos/${c!.id}`).catch(() => {})
+    if (pol === "libre") await notificar(["gerente", "coordinacion"], acad ? "🆕 Cuenta nueva en la Academia" : "🆕 Cuenta nueva en el portal", `${email} creó su cuenta${acad ? " desde ACADEMIA DEVISEBIT" : ""} (quedó en Por clasificar). Si no corresponde, bloqueala en Portal y accesos.`, `/contactos/${c!.id}`).catch(() => {})
     return { ...(await registrar("enviado", "Cuenta nueva (alta automática)")), nueva: true }
   }
   return registrar("enviado")
@@ -213,7 +262,11 @@ async function hashCodigo(contactoId: number, codigo: string) {
   return createHmac("sha256", Buffer.from(await secret())).update(`${contactoId}:${codigo}`).digest("hex")
 }
 
-export async function crearAcceso(contactoId: number, motivo: "ingreso" | "invitacion") {
+/**
+ * Crea un link de un solo uso (y un código en los ingresos). Con `sitio: "academia"` el link abre
+ * academia.devisebit.com/mi-cuenta/acceso/… (la persona no sale de la Academia); `a` es el destino al entrar.
+ */
+export async function crearAcceso(contactoId: number, motivo: "ingreso" | "invitacion", opc: { sitio?: Sitio; a?: string | null } = {}) {
   const tok = randomBytes(32).toString("base64url")
   const horas = motivo === "invitacion" ? 24 * 7 : 1
   // El código acompaña a los pedidos de ingreso: sirve cuando el link se abre en otro navegador (celulares).
@@ -223,14 +276,21 @@ export async function crearAcceso(contactoId: number, motivo: "ingreso" | "invit
      values ($1,$2, now() + ($3 || ' hours')::interval, $4, $5, case when $5::text is null then null else now() + ($6 || ' minutes')::interval end)`,
     [contactoId, hash(tok), String(horas), motivo, codigo ? await hashCodigo(contactoId, codigo) : null, String(CODIGO_MIN)],
   )
-  return { url: urlPortal(`/acceso/${tok}`), horas, codigo }
+  const a = rutaSegura(opc.a, "")
+  const url = (opc.sitio === "academia" ? `${URL_ACADEMIA.replace(/\/$/, "")}/mi-cuenta/acceso/${tok}` : urlPortal(`/acceso/${tok}`)) + (a ? `?a=${encodeURIComponent(a).replace(/%2F/g, "/")}` : "")
+  return { url, horas, codigo }
 }
 
 /** Manda el acceso por email (código + link en los ingresos; link de 7 días en las invitaciones). */
-export async function enviarAcceso(contactoId: number, motivo: "ingreso" | "invitacion") {
+export async function enviarAcceso(contactoId: number, motivo: "ingreso" | "invitacion", opc: { sitio?: Sitio; a?: string | null } = {}) {
   const c = await one<{ nombre: string; email: string | null; organizacion: string | null }>("select nombre, email, organizacion from db_contactos where id=$1", [contactoId])
   if (!c?.email) return { ok: false, error: "El contacto no tiene email cargado." }
-  const { url, horas, codigo } = await crearAcceso(contactoId, motivo)
+  const { url, horas, codigo } = await crearAcceso(contactoId, motivo, opc)
+  if (motivo === "ingreso" && opc.sitio === "academia") {
+    const md = `# Tu código: ${codigo}\n\nHola {{nombre}}, escribí este código en la pantalla de ingreso de ACADEMIA DEVISEBIT para entrar a tus cursos, clases y certificados. Vence en ${CODIGO_MIN} minutos.\n\n**${codigo}**\n\nO, si preferís, entrá directo con este botón (vale por 1 hora):\n\n[[Entrar a mi cuenta de la Academia|${url}]]\n\nEs la misma cuenta DEVISEBIT de siempre. Si no lo pediste vos, ignorá este correo: nadie puede entrar sin este código.`
+    const r = await enviarBrevo({ email: c.email, name: c.nombre }, `${codigo} es tu código para entrar a ACADEMIA DEVISEBIT`, plantilla(aHtml(md), { nombre: c.nombre, preheader: `Tu código vence en ${CODIGO_MIN} minutos` }))
+    return r.ok ? { ok: true } : { ok: false, error: r.error ?? "No se pudo enviar el email" }
+  }
   const vence = horas >= 24 ? `${horas / 24} días` : "1 hora"
   const md = motivo === "invitacion"
     ? `# Tu cuenta DEVISEBIT ya está activa\n\nHola {{nombre}}, desde hoy tenés todo en un solo lugar: tus proyectos (etapa, entregas, documentos, reuniones y aprobaciones), tu estado de cuenta y tus cursos de ACADEMIA DEVISEBIT.\n\nNo necesitás contraseña: entrás con este botón y, las próximas veces, con tu email en ${urlPortal()} (te mandamos un código).\n\n[[Entrar a mi cuenta|${url}]]\n\nEl botón vale por ${vence} y se usa una sola vez. Cualquier duda, respondé este correo o escribinos por WhatsApp.`
