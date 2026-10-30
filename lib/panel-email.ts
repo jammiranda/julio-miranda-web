@@ -46,7 +46,7 @@ export async function emailPanel(dias = 30) {
             from em_envios e left join db_contactos c on c.id=e.contacto_id where e.estado='enviado' and e.enviado_en > ${desde} group by 1 order by 2 desc`),
     q<{ h: number; n: number }>(`select extract(hour from abierto_en at time zone 'America/Argentina/Buenos_Aires')::int h, count(*)::int n from em_envios where abierto_en > ${desde} group by 1 order by 1`),
     one<{ n: number }>("select count(*)::int n from em_envios e join em_campanias k on k.id=e.campania_id where e.estado='pendiente' and k.estado='enviando'"),
-    one<any>(`select count(*) filter (where email is not null and email_estado='activo' and clase is not null and clase<>'descartado' and not ${EXCLUIDOS_SQL})::int enviables,
+    one<any>(`select count(*) filter (where email is not null and email_estado='activo' and clase is not null and clase<>'descartado' and not ('no-enviar' = any(tags)) and not ${EXCLUIDOS_SQL})::int enviables,
                 count(*) filter (where email is not null and ${EXCLUIDOS_SQL})::int excluidos,
                 count(*) filter (where email is not null and email_estado='activo' and clase is null)::int sin_lista,
                 count(*) filter (where email_estado='baja')::int bajas, count(*) filter (where email_estado='rebotado')::int rebotados,
