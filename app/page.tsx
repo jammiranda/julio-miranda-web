@@ -23,6 +23,7 @@ const NEEDS = [
   { num: "07", title: "Crecer en redes y anuncios", text: "Reels, placas y campañas en Meta y Google, todas las semanas.", href: "/redes" },
   { num: "08", title: "Transformar la organización", text: "Consultoría de transformación digital: diagnóstico, hoja de ruta y capacitación con certificado.", href: "/transformacion-digital" },
   { num: "09", title: "Ordenar un gremio o comunidad", text: "Padrón, beneficios, app y academia con tu marca.", href: "/comunidad" },
+  { num: "10", title: "Decidir con alguien de tecnología al lado", text: "Asesoría en tecnología e IA por horas o con abono mensual, con un responsable único.", href: "/asesoria" },
 ]
 
 const PRODUCTS = [
@@ -103,6 +104,7 @@ export default function HomePage() {
                 <Link href="/transformacion-digital" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
                 <a href="https://academia.devisebit.com/productos/guia-transformacion-digital" target="_blank" rel="noopener noreferrer" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-semibold text-[17px] text-white transition-colors">Guía práctica con bonus</a>
               </div>
+              <p className="m-0 text-[16px] text-[#C3C8D1]">¿Preferís un equipo de tecnología por horas o por mes? <Link href="/asesoria" className="font-bold text-white underline underline-offset-4 decoration-[#FF6A63] hover:text-[#FF6A63]">Conocé la asesoría en tecnología e IA →</Link></p>
             </div>
             <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[["01", "Diagnóstico", "Madurez digital en 4 ejes y 4 niveles."], ["02", "Hoja de ruta", "Retos priorizados, indicadores y plazos."], ["03", "Pilotos", "Resultados rápidos antes de invertir en grande."], ["04", "Cambio y capacitación", "Tu equipo adopta lo nuevo, con certificado."]].map(([n, t, d]) => (
@@ -124,8 +126,8 @@ export default function HomePage() {
               <h2 className={h2}>Elegí tu problema y te mostramos la solución.</h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {NEEDS.map((n) => (
-                <Link key={n.num} href={n.href} className="db-card rounded-2xl border border-[#E2E5EA] bg-white p-6 md:p-7 flex flex-col gap-3 min-h-[180px] text-[#0E1116]">
+              {NEEDS.map((n, i) => (
+                <Link key={n.num} href={n.href} className={"db-card rounded-2xl border border-[#E2E5EA] bg-white p-6 md:p-7 flex flex-col gap-3 min-h-[180px] text-[#0E1116]" + (i === NEEDS.length - 1 && NEEDS.length % 3 === 1 ? " lg:col-start-2" : "")}>
                   <div className="w-11 h-11 rounded-xl bg-[#FDECEB] text-[#C8231F] flex items-center justify-center font-extrabold text-lg">{n.num}</div>
                   <div className="font-tight text-[22px] font-bold">{n.title}</div>
                   <div className="text-base leading-normal text-[#4A515C]">{n.text}</div>

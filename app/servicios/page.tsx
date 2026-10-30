@@ -6,7 +6,7 @@ import { SOLUCIONES, NOMBRE_PRODUCTO } from "@/lib/marca"
 
 export const metadata = pageMeta(
   "Servicios · DEVISEBIT",
-  "Soluciones con precio publicado (webs, WhatsApp con IA, redes, sistemas y comunidades) y servicios a medida: desarrollo, IA, tableros, gestión de proyectos IT, transformación digital y soporte.",
+  "Soluciones con precio publicado (webs, WhatsApp con IA, redes, sistemas, asesoría en tecnología e IA y comunidades) y servicios a medida: desarrollo, IA, tableros, gestión de proyectos IT, transformación digital y soporte.",
   "/servicios",
 )
 
@@ -45,7 +45,7 @@ const SERVICES = [
   },
   {
     id: "transformacion",
-    ver: [{ href: "/transformacion-digital", t: "Ver la consultoría" }, { href: "https://academia.devisebit.com", t: "Academia DEVISEBIT" }], productos: ["academias"],
+    ver: [{ href: "/transformacion-digital", t: "Ver la consultoría" }, { href: "/asesoria", t: "Asesoría por horas o abono" }, { href: "https://academia.devisebit.com", t: "Academia DEVISEBIT" }], productos: ["academias"],
     title: "Consultoría de Transformación Digital",
     text: "Diagnóstico de madurez digital, hoja de ruta, pilotos y capacitación con certificado para ordenar la organización por etapas.",
     items: ["Diagnóstico de madurez digital", "Hoja de ruta con indicadores", "Talleres in company", "Capacitación con certificado"],

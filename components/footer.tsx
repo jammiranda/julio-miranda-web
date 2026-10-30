@@ -9,6 +9,7 @@ const COLUMNAS = [
     title: "Qué hacemos",
     links: [
       { href: "/transformacion-digital", label: "Transformación digital" },
+      { href: "/asesoria", label: "Asesoría en tecnología e IA" },
       { href: "/webs", label: "Páginas web" },
       { href: "/whatsapp", label: "WhatsApp con IA" },
       { href: "/sistemas", label: "Sistemas a medida" },

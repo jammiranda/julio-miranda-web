@@ -14,6 +14,7 @@ const NEEDS = [
   "Web o app",
   "Desarrollo a medida",
   "Consultoría de transformación digital",
+  "Asesoría en tecnología e IA (horas o abono)",
   "Quiero ver una demo",
   "Otro",
 ]

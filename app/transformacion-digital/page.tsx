@@ -115,6 +115,11 @@ export default function TransformacionDigitalPage() {
                   <a href={f.href} target="_blank" rel="noopener noreferrer" className="mt-auto rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 text-center font-bold text-white transition-colors">{f.cta}</a>
                 </article>
               ))}
+              <article className="rounded-2xl border-2 border-dashed border-[#C3C8D1] bg-white p-7 flex flex-col gap-3 justify-center">
+                <h3 className="m-0 font-tight text-[21px] font-bold leading-snug">¿Preferís horas o un abono de asesoría?</h3>
+                <p className="m-0 text-[15px] leading-relaxed text-[#4A515C]">Si lo que necesitás es alguien de tecnología e IA a disposición, sin un proyecto cerrado: hora suelta, bolsa de horas o abono mensual con un responsable único.</p>
+                <Link href="/asesoria" className="self-start rounded-xl border-2 border-[#0E1116] hover:bg-[#0E1116] hover:text-white px-5 py-3 font-bold transition-colors">Ver la asesoría en tecnología e IA →</Link>
+              </article>
             </div>
           </div>
         </section>

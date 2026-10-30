@@ -31,6 +31,7 @@ export const SOLUCIONES = [
   { id: "whatsapp", tag: "WhatsApp con IA", title: "Un asistente que atiende 24 h", text: "Responde, vende y da turnos por WhatsApp sin sumar personal.", price: "Desde $290.000", href: "/whatsapp", img: "/images/landings/og-whatsapp.jpg", productos: ["whatsapp"] },
   { id: "redes", tag: "Redes y anuncios", title: "Tus redes y tu pauta, resueltas", text: "Reels, placas, historias y campañas en Meta y Google.", price: "Desde $299.000/mes", href: "/redes", img: "/images/landings/og-redes.jpg", productos: [] as string[] },
   { id: "sistemas", tag: "Sistemas", title: "CRM, turnos y tableros", text: "Partimos de módulos probados: menos costo y menos tiempo.", price: "Desde $890.000", href: "/sistemas", img: "/images/landings/og-sistemas.jpg", productos: ["clinicas", "crm", "tableros", "documental"] },
+  { id: "asesoria", tag: "Asesoría en tecnología e IA", title: "Un equipo de tecnología, por horas o por mes", text: "Horas sueltas, bolsas o abono mensual con un responsable único y todo registrado en tu portal.", price: "Desde $55.000 la hora", href: "/asesoria", img: "/images/landings/og-asesoria.jpg", productos: [] as string[] },
   { id: "comunidad", tag: "Comunidades", title: "Academia y padrón con tu marca", text: "Para gremios, asociaciones, colegios y cámaras.", price: "Desde $1.490.000", href: "/comunidad", img: "/images/landings/og-comunidad.jpg", productos: ["academias", "app", "votacion"] },
 ] as const
 
@@ -42,6 +43,12 @@ export const SOLUCION_DE_PRODUCTO: Record<string, (typeof SOLUCIONES)[number]["i
 export const NOMBRE_PRODUCTO: Record<string, string> = {
   clinicas: "Sistema para clínicas", whatsapp: "Asistente de WhatsApp con IA", crm: "CRM de afiliados y prestadores", tableros: "Tableros de control",
   app: "App y credencial digital", academias: "Academias online", votacion: "Votación y control de acceso", documental: "Gestor documental con firma digital",
+}
+
+// ── Asesoría y consultoría en tecnología e IA (landing /asesoria) ──
+export const ASESORIA = {
+  href: "/asesoria",
+  pdf: "/descargas/asesoria-y-consultoria-tecnologia-ia-devisebit.pdf",
 }
 
 // ── YouTube: la lista de subidas del canal se actualiza sola con cada video o short nuevo ──

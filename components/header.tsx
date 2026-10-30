@@ -18,6 +18,7 @@ const AUTODIAG = "/diagnostico"
 const SERVICIOS = [
   { href: "/servicios", label: "Todos los servicios" },
   { href: "/transformacion-digital", label: "Transformación digital", desc: "Consultoría, talleres y diagnóstico" },
+  { href: "/asesoria", label: "Asesoría en tecnología e IA", desc: "Por horas o con abono mensual" },
   { href: AUTODIAG, label: "Autodiagnóstico gratis", desc: "3 niveles: madurez, procesos e IA", plain: true },
 ]
 
@@ -50,7 +51,7 @@ export default function Header() {
 
   useEffect(() => { setOpen(false); setDrop(null) }, [pathname])
 
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : href === "/servicios" ? ["/servicios", "/transformacion-digital"].some((p) => pathname.startsWith(p)) : href === "/nosotros" ? ["/nosotros", "/casos-de-exito", "/alianzas-estrategicas", "/trabaja-con-nosotros"].some((p) => pathname.startsWith(p)) : pathname.startsWith(href))
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : href === "/servicios" ? ["/servicios", "/transformacion-digital", "/asesoria"].some((p) => pathname.startsWith(p)) : href === "/nosotros" ? ["/nosotros", "/casos-de-exito", "/alianzas-estrategicas", "/trabaja-con-nosotros"].some((p) => pathname.startsWith(p)) : pathname.startsWith(href))
   const linkCls = (href: string) =>
     "px-2.5 xl:px-3 py-3 rounded-lg text-[14px] xl:text-[15px] whitespace-nowrap transition-colors " +
     (isActive(href) ? "text-white font-semibold bg-white/10" : "text-[#D3D7DE] font-medium hover:text-white hover:bg-white/5")
@@ -134,6 +135,7 @@ export default function Header() {
             ))}
             <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Consultoría</p>
             <Link href="/transformacion-digital" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Transformación digital</Link>
+            <Link href="/asesoria" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Asesoría en tecnología e IA</Link>
             <a href={AUTODIAG} className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Autodiagnóstico gratis</a>
             <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Nosotros</p>
             {NOSOTROS.map((l) =>
