@@ -15,7 +15,7 @@ const PRIMEROS_PASOS = [
   { i: "▦", t: "Servicios y productos", d: "Webs, sistemas, agentes de WhatsApp con IA, tableros y más. Con precios de referencia.", href: "/portal/servicios" },
   { i: "◷", t: "Agendar una reunión", d: "Elegí día y horario para charlar con el equipo, sin compromiso.", href: "/portal/reuniones" },
   { i: "✓", t: "Autodiagnóstico digital", d: "En 5 minutos sabés en qué punto está tu organización y por dónde seguir.", href: "https://www.devisebit.com/demos/transformacion-digital.html", externo: true },
-  { i: "★", t: "ACADEMIA DEVISEBIT", d: "Guías, videos y cursos con certificado. Entrás con esta misma cuenta.", href: URL_ACADEMIA, externo: true },
+  { i: "★", t: "ACADEMIA DEVISEBIT", d: "Guías, videos y cursos con certificado. Entrás con esta misma cuenta.", href: `${URL_ACADEMIA}/mi-cuenta`, externo: true },
   { i: "✉", t: "Escribinos por WhatsApp", d: "Contanos qué necesitás y te respondemos en el día.", href: WA, externo: true },
 ]
 
@@ -145,7 +145,7 @@ export default async function Portal() {
         </section>
       </div>
       <section aria-labelledby="t-rec" className="card flex flex-col gap-3">
-        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a target="_blank" rel="noopener noreferrer" href={URL_ACADEMIA} className="text-sm font-semibold text-[#C8231F]">Ir a la Academia →</a></div>
+        <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="t-rec" className="m-0 text-base">Recursos de la Academia</h2><a href={`${URL_ACADEMIA}/mi-cuenta`} className="text-sm font-semibold text-[#C8231F]">Ir a mi Academia →</a></div>
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-3">
           {guias.map((g) => <li key={g.slug}><a target="_blank" rel="noopener noreferrer" href={`${URL_ACADEMIA}/guias/${g.slug}`} className="block rounded-xl border border-[#E2E5EA] p-3 hover:border-[#C8231F]"><span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{g.categoria ?? "Guía"}</span><strong className="block text-sm mt-1">{g.titulo}</strong></a></li>)}
         </ul>

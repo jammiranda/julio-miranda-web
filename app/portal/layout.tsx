@@ -7,6 +7,9 @@ import { URL_ACADEMIA } from "@/lib/academia"
 import LinksExternos from "@/components/LinksExternos"
 import Redes from "@/components/Redes"
 
+/** El espacio del alumno dentro de la Academia (misma sesión): cursos, clases y certificados, o los cursos abiertos si todavía no tiene. */
+const MI_ACADEMIA = `${URL_ACADEMIA}/mi-cuenta`
+
 export const metadata: Metadata = { title: "Mi cuenta · DEVISEBIT", robots: { index: false, follow: false } }
 
 async function salir() {
@@ -25,7 +28,7 @@ export default async function PortalLayout({ children }: { children: React.React
       <header className="bg-white border-b border-[#E2E5EA]">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <Link href="/portal" aria-label="DEVISEBIT Mi cuenta, inicio"><Marca chico sub="MI CUENTA" /></Link>
-          {!c && <a href={URL_ACADEMIA} className="text-sm font-semibold text-[#0F766E] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
+          {!c && <a href={MI_ACADEMIA} className="text-sm font-semibold text-[#0F766E] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
           {c && (
             <div className="flex items-center gap-3 text-sm">
               <span className="hidden sm:flex flex-col leading-tight text-right"><span className="font-semibold">{c.nombre}</span>{c.organizacion && <span className="text-xs text-[#4A515C]">{c.organizacion}</span>}</span>
@@ -36,7 +39,7 @@ export default async function PortalLayout({ children }: { children: React.React
         {c && (
           <nav aria-label="Mi cuenta" className="max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
             {items.map((i) => <Link key={i.href} href={i.href} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">{i.t}</Link>)}
-            <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" title="Entrás con esta misma cuenta" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#0F766E] hover:bg-[#E6F6F4] whitespace-nowrap">ACADEMIA DEVISEBIT ↗</a>
+            <a href={MI_ACADEMIA} title="Tus cursos, clases y certificados. Entrás con esta misma cuenta" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#0F766E] hover:bg-[#E6F6F4] whitespace-nowrap">ACADEMIA DEVISEBIT ↗</a>
           </nav>
         )}
       </header>
