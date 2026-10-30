@@ -132,7 +132,7 @@ export async function preciosParaBot() {
   let actual = ""
   for (const p of ps) {
     if (p.linea !== actual) { actual = p.linea; lineas.push(`\n${p.linea.toUpperCase()}`) }
-    const valor = p.precio != null && p.abono != null ? `${ars(p.precio)} + ${ars(p.abono)}/mes` : p.precio != null ? ars(p.precio) : `${ars(p.abono)}/mes`
+    const valor = p.precio != null && p.abono != null ? `${ars(p.precio)} + ${ars(p.abono)}/mes` : p.precio != null ? ars(p.precio) : p.abono != null ? `${ars(p.abono)}/mes` : "sin precio de lista (a cotizar, no des un número)"
     lineas.push(`- ${p.producto}: ${valor}. ${p.condicion ?? ""}. Incluye: ${p.incluye ?? ""}.${p.link ? ` Link: ${p.link}` : ""}`)
   }
   return lineas.join("\n").trim()
