@@ -115,7 +115,7 @@ html:has(.acad) { scroll-padding-top: 5rem; }
 /* ===== Academia: un color por tipo de contenido (cursos, programas, guías, autodiagnóstico) ===== */
 .acad {
   --a-cursos: #C8231F; --a-cursos-suave: #FDECEB;
-  --a-prog: #F5B83D; --a-prog-tinta: #0E1116;
+  --a-prog: #A78BFA; --a-prog-tinta: #0E1116;
   --a-guias: #0B7462; --a-guias-suave: #E3F3EE;
   --a-diag: #2347C5; --a-diag-suave: #E8EDFC;
 }

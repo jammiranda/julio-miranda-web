@@ -40,7 +40,7 @@ export default async function Academia() {
   const puertas = [
     { href: "#cursos", t: "Cursos", d: `${n.cursos} cursos a tu ritmo, con certificado`, cls: "bg-[#C8231F] text-white", sub: "text-white/85" },
     { href: "#diagnostico", t: "Diagnóstico", d: "Autodiagnóstico gratis en 5 minutos", cls: "bg-[#2347C5] text-white", sub: "text-white/85" },
-    { href: "#programas", t: "Programas", d: "Ejecutivos, desde noviembre", cls: "bg-[#F5B83D] text-[#0E1116]", sub: "text-[#0E1116]/75" },
+    { href: "#programas", t: "Programas", d: "Ejecutivos, desde noviembre", cls: "bg-[#7C5CFC] text-white", sub: "text-white/80" },
     { href: "#guias", t: "Guías", d: `${n.guias} guías prácticas gratis`, cls: "bg-[#0B7462] text-white", sub: "text-white/85" },
   ]
 
@@ -141,11 +141,11 @@ export default async function Academia() {
         <div className="max-w-6xl mx-auto px-4 py-14 sm:py-20">
           <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3" data-revelar>
             <div className="max-w-2xl">
-              <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[#F5B83D]" />
+              <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[#A78BFA]" />
               <h2 id="t-programas" className="acad-h2 m-0 mt-4 font-extrabold tracking-tight text-white">Programas ejecutivos</h2>
               <p className="m-0 mt-2 text-[17px] text-white/75">Varias semanas, casos reales y un proyecto aplicado a tu organización. Abren la inscripción pronto: dejá tu email y te avisamos.</p>
             </div>
-            <Link href="/programas" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[#F5B83D] hover:underline">Ver los programas <Flecha /></Link>
+            <Link href="/programas" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[#A78BFA] hover:underline">Ver los programas <Flecha /></Link>
           </div>
           <ol className="m-0 mt-8 p-0 list-none flex flex-col">
             {PROGRAMAS.map((p, i) => (
@@ -153,13 +153,13 @@ export default async function Academia() {
                 <Link href={`/programas#${p.slug}`} className="group grid grid-cols-1 md:grid-cols-[220px_1fr_auto] gap-2 md:gap-8 items-start md:items-center border-t border-white/10 py-6 sm:py-7 no-underline text-white">
                   <span className="flex md:flex-col gap-2 md:gap-0 items-baseline">
                     <span className="text-xs text-white/70 md:mb-1">Inicio</span>
-                    <strong className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#F5B83D] leading-none">{p.cuando}</strong>
+                    <strong className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#A78BFA] leading-none">{p.cuando}</strong>
                   </span>
                   <span className="flex flex-col gap-1 min-w-0">
                     <span className="text-sm font-semibold text-white/70">{p.tipo}</span>
-                    <span className="text-lg sm:text-xl font-bold leading-snug group-hover:text-[#F5B83D] transition-colors">{p.titulo}</span>
+                    <span className="text-lg sm:text-xl font-bold leading-snug group-hover:text-[#A78BFA] transition-colors">{p.titulo}</span>
                   </span>
-                  <span className="mt-2 md:mt-0 inline-flex items-center justify-center gap-1.5 self-start md:self-center rounded-xl border border-[#F5B83D]/60 text-[#F5B83D] px-4 min-h-[44px] text-sm font-bold group-hover:bg-[#F5B83D] group-hover:text-[#0E1116] transition-colors whitespace-nowrap">Quiero que me avisen</span>
+                  <span className="mt-2 md:mt-0 inline-flex items-center justify-center gap-1.5 self-start md:self-center rounded-xl border border-[#A78BFA]/60 text-[#A78BFA] px-4 min-h-[44px] text-sm font-bold group-hover:bg-[#A78BFA] group-hover:text-[#0E1116] transition-colors whitespace-nowrap">Quiero que me avisen</span>
                 </Link>
               </li>
             ))}
