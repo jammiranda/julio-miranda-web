@@ -160,7 +160,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = (key: string): string => {
     const dict = dictionaries[locale] || dictionaries[defaultLocale]
-    return dict[key] || key
+    return (dict as Record<string, string>)[key] || key
   }
 
   return <I18nContext.Provider value={{ locale, setLocale, t }}>{children}</I18nContext.Provider>

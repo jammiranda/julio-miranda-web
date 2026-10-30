@@ -9,11 +9,11 @@ export const DEMOS: Demo[] = [
   { slug: "obras-sociales", titulo: "Sistema para obras sociales", texto: "Afiliados, órdenes, autorizaciones, prestadores y el tablero de la conducción.", para: "Obras sociales y prepagas" },
   { slug: "academia", titulo: "Plataforma de cursos", texto: "Inscribite, cursá una lección, rendí el examen y obtené un certificado verificable.", para: "Instituciones, gremios, empresas y capacitadores" },
   { slug: "panel-de-contenido", titulo: "Panel de Contenido", texto: "Redes, web, competencia y publicaciones en un solo tablero.", para: "Marcas, agencias y equipos de comunicación" },
-  { slug: "transformacion-digital", titulo: "Autodiagnóstico de madurez digital", texto: "12 preguntas y obtenés tu nivel, un gráfico por área y 3 prioridades.", para: "Pymes, empresas familiares y organismos" },
+  { slug: "transformacion-digital", titulo: "Autodiagnóstico de madurez digital", texto: "12 preguntas: tu puntaje en 6 dimensiones y 3 acciones prioritarias. Es el primero de 3 niveles gratis.", para: "Pymes, empresas familiares y organismos" },
 ]
 
 /** Las demos son privadas: se piden con email. Solo el autodiagnóstico es público. */
-export const demoUrl = (slug: string, _blanca = false) => (slug === "transformacion-digital" ? "/demos/transformacion-digital.html" : `/demos?d=${slug}#pedir`)
+export const demoUrl = (slug: string, _blanca = false) => (slug === "transformacion-digital" ? "/diagnostico" : `/demos?d=${slug}#pedir`)
 export const demoDe = (slug: string) => DEMOS.find((d) => d.slug === slug)
 
 /** Producto de /productos → demo que lo muestra */

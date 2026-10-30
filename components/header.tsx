@@ -13,12 +13,12 @@ const MAIN = [
   { href: "/productos", label: "Productos" },
   { href: "/novedades", label: "Novedades" },
 ]
-const AUTODIAG = "/demos/transformacion-digital.html"
+const AUTODIAG = "/diagnostico"
 
 const SERVICIOS = [
   { href: "/servicios", label: "Todos los servicios" },
   { href: "/transformacion-digital", label: "Transformación digital", desc: "Consultoría, talleres y diagnóstico" },
-  { href: AUTODIAG, label: "Autodiagnóstico gratis", desc: "Medí tu madurez digital en 5 minutos", plain: true },
+  { href: AUTODIAG, label: "Autodiagnóstico gratis", desc: "3 niveles: madurez, procesos e IA", plain: true },
 ]
 
 const NOSOTROS = [

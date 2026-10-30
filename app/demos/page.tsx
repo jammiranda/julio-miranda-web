@@ -58,10 +58,10 @@ export default function Demos() {
             <div className="flex flex-col gap-3">
               <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Gratis y abierto</p>
               <h2 className="m-0 font-tight text-[28px] md:text-[36px] font-extrabold leading-tight">Autodiagnóstico de madurez digital</h2>
-              <p className="m-0 text-lg text-[#4A515C]">12 preguntas, 5 minutos. Te dice en qué nivel está tu organización y por dónde empezar, y te llega el informe por email.</p>
+              <p className="m-0 text-lg text-[#4A515C]">Tres niveles gratis: madurez digital, procesos y automatización con IA. Cada uno te dice por dónde seguir y destraba el siguiente; el informe te llega por email.</p>
             </div>
             <div className="flex flex-wrap gap-3 md:justify-end">
-              <a href="/demos/transformacion-digital.html" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-7 py-4 font-bold text-white text-[17px] transition-colors"><Gauge size={19} aria-hidden="true" /> Hacer el autodiagnóstico</a>
+              <a href="/diagnostico" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-7 py-4 font-bold text-white text-[17px] transition-colors"><Gauge size={19} aria-hidden="true" /> Hacer el autodiagnóstico</a>
               <Link href="/contacto?tema=Quiero%20ver%20una%20demo#formulario" className="rounded-xl border-2 border-[#0E1116] px-[22px] py-[14px] font-bold text-[17px] hover:bg-[#0E1116] hover:text-white transition-colors">Pedir una presentación</Link>
             </div>
           </div>

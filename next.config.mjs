@@ -17,6 +17,9 @@ const nextConfig = {
     return [
       { source: "/precios", destination: "https://sistema.devisebit.com/lista-precios", permanent: false },
       { source: "/lista-precios", destination: "https://sistema.devisebit.com/lista-precios", permanent: false },
+      // El autodiagnóstico estático pasó a /diagnostico (3 niveles): los links publicados (YouTube, LinkedIn, emails, bot) siguen andando
+      { source: "/demos/transformacion-digital.html", destination: "/diagnostico", permanent: true },
+      { source: "/demos/transformacion-digital", destination: "/diagnostico", permanent: true },
       // Las demos de producto son privadas: los links viejos (QR, videos) llevan al pedido por email
       ...["whatsapp", "webs", "sistemas", "padron", "obras-sociales", "academia", "panel-de-contenido"].map((s) => ({ source: `/demos/${s}.html`, destination: `/demos?d=${s}#pedir`, permanent: false })),
     ]

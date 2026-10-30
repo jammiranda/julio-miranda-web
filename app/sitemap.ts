@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/seo"
 const PAGINAS: [string, number][] = [
   ["/", 1], ["/servicios", 0.9], ["/productos", 0.9], ["/transformacion-digital", 0.9], ["/casos-de-exito", 0.8],
   ["/webs", 0.8], ["/whatsapp", 0.8], ["/sistemas", 0.8], ["/redes", 0.8], ["/comunidad", 0.8],
-  ["/demos", 0.7], ["/demos/transformacion-digital.html", 0.6], ["/nosotros", 0.7], ["/alianzas-estrategicas", 0.5],
+  ["/demos", 0.7], ["/diagnostico", 0.7], ["/diagnostico/procesos", 0.5], ["/diagnostico/automatizacion", 0.5], ["/nosotros", 0.7], ["/alianzas-estrategicas", 0.5],
   ["/trabaja-con-nosotros", 0.5], ["/contacto", 0.8], ["/novedades", 0.7], ["/privacidad", 0.3],
 ]
 
