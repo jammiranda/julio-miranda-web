@@ -8,7 +8,9 @@ export type Perfil = {
   nombre: string
   iniciales: string
   rol: string
-  grupo: "direccion" | "especialista"
+  grupo: "academica" | "direccion" | "especialista"
+  /** Especialista invitado (no es parte del staff de DEVISEBIT). */
+  invitado?: boolean
   titular: string
   resumen: string
   bio: string[]
@@ -29,7 +31,7 @@ export const EQUIPO: Perfil[] = [
     nombre: "Georgina N. Varela Cilio",
     iniciales: "GV",
     rol: "Directora académica",
-    grupo: "direccion",
+    grupo: "academica",
     titular: "Gestión educativa · Liderazgo de equipos · Innovación y transformación digital",
     resumen: "Licenciada y Profesora en Ciencias de la Educación, con 17 años en educación y coordinación de proyectos de digitalización en la UBA.",
     bio: [
@@ -60,11 +62,68 @@ export const EQUIPO: Perfil[] = [
     actualizado: "2026-10-28",
   },
   {
+    slug: "julio-miranda",
+    nombre: "Julio Miranda",
+    iniciales: "JM",
+    rol: "Fundador y Director de DEVISEBIT SRL",
+    grupo: "direccion",
+    titular: "Transformación digital e inteligencia artificial aplicada",
+    resumen: "Más de 15 años liderando proyectos de software, datos y transformación digital en salud, gobierno y educación.",
+    bio: [
+      "Fundó la empresa en 2009 como Web y Graf, que hoy es DEVISEBIT SRL: desarrolla software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas.",
+      "Coordinó plataformas tecnológicas federales en el Ministerio de Ambiente de la Nación y dirigió el Centro Metropolitano de Diseño y el BA Laboratorio Tecnológico en la Ciudad de Buenos Aires. Entre 2021 y 2024 fue asesor tecnológico de la Subsecretaría de Modernización y Transformación Digital de la Universidad de Buenos Aires.",
+      "En la Academia enseña lo que aplica todos los días con su equipo: IA aplicada a procesos reales, asistentes de WhatsApp, sistemas, tableros y salud digital, como la digitalización de San Patricio Servicios de Salud, uno de los proyectos de DEVISEBIT.",
+    ],
+    cifras: [["15+", "años liderando proyectos de tecnología"], ["2009", "funda Web y Graf, hoy DEVISEBIT SRL"]],
+    trayectoria: [
+      { a: "Desde 2009", t: "Fundador y Director · DEVISEBIT SRL (antes Web y Graf)", d: "Software, apps, datos e IA para salud, gobierno, universidades, gremios y empresas." },
+      { a: "2021 – 2024", t: "Asesor tecnológico · Subsecretaría de Modernización y Transformación Digital, Universidad de Buenos Aires" },
+      { a: "Ciudad de Buenos Aires", t: "Dirigió el Centro Metropolitano de Diseño y el BA Laboratorio Tecnológico" },
+      { a: "Gobierno nacional", t: "Coordinó plataformas tecnológicas federales · Ministerio de Ambiente de la Nación" },
+    ],
+    formacion: [
+      ["Diplomatura en Transformación Digital", "Completa"],
+      ["Diplomatura en Tecnología y Salud", "UTN.BA · en curso"],
+    ],
+    areas: ["Transformación digital", "IA aplicada", "Asistentes de WhatsApp con IA", "Sistemas y plataformas", "Datos y tableros", "Salud digital"],
+    enLaAcademia: { t: "En la Academia", items: ["Dirige la ACADEMIA DEVISEBIT junto con la dirección académica.", "Cursos de IA para pymes, asistentes de WhatsApp con IA y casos reales del ecosistema digital de DEVISEBIT."] },
+    links: [{ t: "julio.devisebit.com", url: "https://julio.devisebit.com" }],
+    actualizado: "2026-10-30",
+  },
+  {
+    slug: "matias-gonzalez-dalessandro",
+    nombre: "Matías González D'Alessandro",
+    iniciales: "MG",
+    rol: "Analista de Transformación Digital · PM",
+    grupo: "especialista",
+    titular: "Diagnóstico de madurez digital, planes de transformación y gestión ágil de proyectos",
+    resumen: "Ingeniero Industrial (Universidad de Mendoza). Analista de Transformación Digital en DEVISEBIT: diagnósticos y consultoría a empresas.",
+    bio: [
+      "Es Analista de Transformación Digital en DEVISEBIT desde mayo de 2026: hace el diagnóstico de madurez digital de los clientes, diseña e implementa los planes de transformación digital, releva requerimientos con los distintos actores de cada organización, acompaña la gestión del cambio y hace el seguimiento con reportes.",
+      "Es Ingeniero Industrial por la Universidad de Mendoza y complementó su formación con gestión ágil de proyectos, Python y análisis de datos con SQL y Power BI.",
+    ],
+    trayectoria: [
+      { a: "Mayo 2026 – hoy", t: "Analista de Transformación Digital · DEVISEBIT SRL", d: "Diagnóstico de madurez digital, planes de transformación digital, relevamiento de requerimientos con stakeholders, gestión del cambio y seguimiento con reportes." },
+    ],
+    formacion: [
+      ["Ingeniería Industrial", "Universidad de Mendoza · 2015 – 2022"],
+      ["Gestión Ágil de Proyectos", "Universidad de Mendoza · 2022"],
+      ["Python 3 Paso a Paso", "Centro de e-Learning UTN FRBA · 2023"],
+      ["Data Analytics con SQL y Power BI", "Coderhouse · 2026"],
+      ["Data Science I con Python, Pandas y NumPy", "Coderhouse · 2026"],
+    ],
+    areas: ["Diagnóstico de madurez digital", "Planes de transformación digital", "Gestión ágil de proyectos", "Análisis de datos y tableros (Power BI, SQL, Python)", "Gestión del cambio"],
+    enLaAcademia: { t: "Lo que suma a la Academia", items: ["El curso gratis de Introducción a la transformación digital.", "Los diagnósticos de transformación digital y la devolución de los autodiagnósticos."] },
+    links: [{ t: "LinkedIn", url: "https://www.linkedin.com/in/matias-gonzalez-d-alessandro/" }],
+    actualizado: "2026-10-30",
+  },
+  {
     slug: "oscar-schmitz",
     nombre: "Oscar Schmitz",
     iniciales: "OS",
     rol: "Coach ejecutivo · Liderazgo e IA",
     grupo: "especialista",
+    invitado: true,
     titular: "Coach ejecutivo, consultor y speaker en liderazgo en la era de la inteligencia artificial",
     resumen: "Ingeniero en Sistemas (UTN) y MBA (UCEMA), con más de 25 años en tecnología, coaching ejecutivo y estrategia de negocios.",
     bio: [
