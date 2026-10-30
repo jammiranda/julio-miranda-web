@@ -27,8 +27,9 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
       from am_inscripciones i join db_contactos c on c.id=i.contacto_id join am_ediciones e on e.id=i.edicion_id join am_cursos cu on cu.id=e.curso_id
       where ($1::text is null or lower(c.nombre||' '||coalesce(c.email,'')||' '||cu.titulo) like $1)
       order by i.creado desc limit 200`, [like]).catch(() => []) : Promise.resolve([]),
-    vista === "compradores" ? q<any>(`select o.id, o.nombre, o.email, p.titulo, o.monto, o.moneda, o.pagada_en from am_ordenes o join am_productos p on p.id=o.producto_id
-      where o.estado='pagada' and ($1::text is null or lower(coalesce(o.nombre,'')||' '||o.email||' '||p.titulo) like $1) order by o.pagada_en desc limit 200`, [like]).catch(() => []) : Promise.resolve([]),
+    vista === "compradores" ? q<any>(`select o.id, o.nombre, o.email, coalesce(p.titulo, 'Curso: ' || cu.titulo) titulo, o.monto, o.moneda, o.pagada_en from am_ordenes o
+      left join am_productos p on p.id=o.producto_id left join am_cursos cu on cu.id=o.curso_id
+      where o.estado='pagada' and ($1::text is null or lower(coalesce(o.nombre,'')||' '||o.email||' '||coalesce(p.titulo, cu.titulo, '')) like $1) order by o.pagada_en desc limit 200`, [like]).catch(() => []) : Promise.resolve([]),
     vista === "suscriptos" ? q<any>(`select id, nombre, email, suscrito_en, tags from db_contactos where suscrito_en is not null and email_estado='activo'
       and ($1::text is null or lower(coalesce(nombre,'')||' '||coalesce(email,'')) like $1) order by suscrito_en desc limit 200`, [like]).catch(() => []) : Promise.resolve([]),
   ])

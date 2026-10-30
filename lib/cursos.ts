@@ -198,7 +198,7 @@ export async function misInscripciones(cid: number) {
 export async function inscripcionDe(cid: number, iid: number) {
   return await one<any>(
     `select i.*, e.nombre edicion, e.inicio, e.fin, e.horario, e.lugar, e.link, e.estado edicion_estado,
-       c.id curso_id, c.titulo, c.slug, c.bajada, c.descripcion, c.imagen, c.modalidad, c.horas, c.docente, c.req_lecciones, c.req_asistencia, c.certifica,
+       c.id curso_id, c.titulo, c.slug, c.bajada, c.descripcion, c.imagen, c.modalidad, c.horas, c.docente, c.req_lecciones, c.req_asistencia, c.certifica, c.videollamada, c.docente_slug, c.precio,
        ce.codigo certificado
      from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id
      left join am_certificados ce on ce.inscripcion_id=i.id and not ce.anulado
@@ -278,4 +278,51 @@ export async function comprasDe(email: string) {
      from am_ordenes o join am_productos p on p.id=o.producto_id where lower(o.email)=lower($1) and o.estado='pagada' order by coalesce(o.pagada_en, o.creado) desc`,
     [email],
   ).catch(() => [])
+}
+
+// ── Cursos pagos a tu ritmo: precios, compra y videollamada con el docente ──
+/** Tipo de cambio de referencia para pasar USD a pesos al cargar precios (los precios quedan guardados y se editan en Sistema Academia). */
+export const TC_REFERENCIA = 1560
+/** USD → ARS "prolijo": el número terminado en 4.900 o 9.900 más cercano (49 USD → $ 74.900). */
+export const arsDesdeUsd = (usd: number) => Math.max(4900, Math.round((usd * TC_REFERENCIA - 4900) / 5000) * 5000 + 4900)
+export const pesos = (v: number | string | null | undefined) => (v == null ? "" : `$ ${Number(v).toLocaleString("es-AR")}`)
+export const dolares = (v: number | string | null | undefined) => (v == null ? "" : `USD ${Number(v).toLocaleString("es-AR")}`)
+/** "3 cuotas sin interés de $ 24.967" (redondeado hacia arriba). */
+export const textoCuotas = (precio: number | string | null | undefined, cuotas: number | null | undefined) =>
+  precio && cuotas && cuotas > 1 ? `Hasta ${cuotas} cuotas sin interés de ${pesos(Math.ceil(Number(precio) / cuotas))}` : ""
+
+/** Edición permanente de un curso a tu ritmo (sin fechas ni clases en vivo). La crea si no existe. */
+export async function edicionPermanente(cursoId: number) {
+  const e = await one<{ id: number }>(
+    "select id from am_ediciones where curso_id=$1 and inicio is null and estado in ('inscripcion','en_curso') order by id limit 1", [cursoId])
+  if (e) return e.id
+  return (await one<{ id: number }>("insert into am_ediciones(curso_id, nombre) values ($1,'A tu ritmo') returning id", [cursoId]))!.id
+}
+
+/**
+ * Entrega de una orden pagada de un curso: alta o búsqueda del contacto, inscripción en la edición "A tu ritmo"
+ * y email de bienvenida con el acceso al aula. Devuelve el id de la inscripción.
+ */
+export async function inscribirPorCompra(o: { id: number; email: string; nombre: string | null; curso_id: number; pasarela: string }) {
+  const cid = await contactoPorEmail(o.email, o.nombre, { origen: "Academia (compra de curso)" })
+  const ed = await edicionPermanente(o.curso_id)
+  const r = await inscribir(cid, ed, `compra:${o.pasarela}`, true)
+  if (!r.ok) return null
+  await q("update am_ordenes set inscripcion_id=$1 where id=$2", [r.id, o.id])
+  await q("update db_contactos set tags=(select array(select distinct unnest(tags || array['comprador']::text[]))), actualizado=now() where id=$1", [cid]).catch(() => {})
+  return r.id
+}
+
+// ── Quiz corto de una lección ──
+export type Pregunta = { p: string; o: string[]; c: number; e?: string }
+/** Lee el quiz guardado (jsonb) y descarta preguntas mal armadas. */
+export function quizDe(v: unknown): Pregunta[] {
+  const l = Array.isArray(v) ? v : typeof v === "string" ? (() => { try { return JSON.parse(v) } catch { return [] } })() : []
+  return (l as any[]).filter((x) => x && typeof x.p === "string" && Array.isArray(x.o) && x.o.length >= 2 && Number.isInteger(x.c) && x.c >= 0 && x.c < x.o.length)
+}
+/** Para aprobar el quiz de una lección: 2 de 3 (o el 70 %) de respuestas correctas. */
+export const QUIZ_MINIMO = 0.7
+export function corregirQuiz(quiz: Pregunta[], respuestas: (number | null)[]) {
+  const bien = quiz.filter((x, k) => respuestas[k] === x.c).length
+  return { bien, total: quiz.length, ok: !quiz.length || bien / quiz.length >= QUIZ_MINIMO - 0.04 }
 }

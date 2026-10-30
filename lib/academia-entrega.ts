@@ -2,14 +2,22 @@ import { q, one } from "./db"
 import { aHtml, plantilla, enviarBrevo } from "./email"
 import { URL_ACADEMIA } from "./academia"
 import { notificar } from "./push"
+import { inscribirPorCompra } from "./cursos"
 
 /**
  * Marca una orden de la Academia como pagada y entrega el producto (descarga o coordinación del servicio).
  * La usan Mercado Pago (pesos) y PayPal (dólares, pagos desde el exterior). Si la orden ya estaba pagada no hace nada.
  */
-export async function entregarOrden(orden: number, pagoRef: string, pasarela: "mercadopago" | "paypal") {
+export async function entregarOrden(orden: number, pagoRef: string, pasarela: "mercadopago" | "paypal" | "prueba") {
   const o = await one<any>("update am_ordenes set estado='pagada', mp_pago=$1, pasarela=$3, pagada_en=now() where id=$2 and estado<>'pagada' returning *", [pagoRef, orden, pasarela])
   if (!o) return false
+  // Curso a tu ritmo: la compra inscribe sola y el email de bienvenida lleva el acceso al aula.
+  if (o.curso_id) {
+    const c = await one<{ titulo: string }>("select titulo from am_cursos where id=$1", [o.curso_id])
+    const iid = await inscribirPorCompra({ id: o.id, email: o.email, nombre: o.nombre, curso_id: o.curso_id, pasarela })
+    await notificar(["gerente", "coordinacion"], "💰 Venta de curso", `${c?.titulo ?? "Curso"} · ${o.email} · ${o.moneda} ${o.monto} · ${pasarela === "paypal" ? "PayPal" : pasarela === "prueba" ? "Prueba" : "Mercado Pago"}${iid ? "" : " · NO SE PUDO INSCRIBIR, revisar"}`, "/sistema/cursos").catch(() => {})
+    return true
+  }
   const prod = await one<any>("select titulo, servicio from am_productos where id=$1", [o.producto_id])
   await q(`insert into db_contactos(nombre,email,etapa,origen,categoria,tags,consentimiento,clase) values (coalesce($1,split_part($2,'@',1)),$2,'ganado','Academia (compra)','Cliente academia',array['comprador']::text[],'Sí','alumno')
            on conflict (lower(email)) where email is not null do update set tags=(select array(select distinct unnest(db_contactos.tags || array['comprador']::text[]))), clase=coalesce(db_contactos.clase,'alumno'), actualizado=now()`, [o.nombre, o.email]).catch(() => {})

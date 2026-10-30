@@ -683,6 +683,17 @@ create table if not exists diag_insignias (
 update am_recursos set url='https://www.devisebit.com/diagnostico', titulo='Autodiagnóstico de madurez digital · nivel 1 (gratis)', mensaje='12 preguntas, 5 minutos: tu puntaje en 6 dimensiones y las 3 acciones prioritarias. Es el primero de 3 niveles gratis.' where palabra='DIAGNOSTICO' and url='https://www.devisebit.com/demos/transformacion-digital.html';
 insert into am_recursos(palabra,titulo,url,mensaje) values ('PROCESOS','Autodiagnóstico de procesos · nivel 2 (gratis)','https://www.devisebit.com/diagnostico/procesos','15 preguntas: los 3 procesos que más te conviene digitalizar y cuántas horas por mes te llevan. Si todavía no hiciste el nivel 1, empezás por ahí (5 minutos).') on conflict (palabra) do nothing;
 insert into am_recursos(palabra,titulo,url,mensaje) values ('IA','Autodiagnóstico de automatización e IA · nivel 3 (gratis)','https://www.devisebit.com/diagnostico/automatizacion','12 preguntas: qué automatizar primero, qué hace falta antes y tu hoja de ruta de 90 días. Se destraba al terminar los niveles 1 y 2.') on conflict (palabra) do nothing;
+alter table am_cursos add column if not exists precio_usd numeric;
+alter table am_cursos add column if not exists cuotas int not null default 1;
+alter table am_cursos add column if not exists docente_slug text;
+alter table am_cursos add column if not exists nuevo boolean not null default false;
+alter table am_cursos add column if not exists videollamada boolean not null default false;
+alter table am_cursos add column if not exists nota_interna text;
+alter table am_lecciones add column if not exists quiz jsonb;
+alter table am_ordenes add column if not exists curso_id int references am_cursos(id) on delete set null;
+alter table am_ordenes add column if not exists inscripcion_id int;
+alter table am_inscripciones add column if not exists videollamada_en timestamptz;
+alter table am_inscripciones add column if not exists videollamada_consulta int
 `
 
 let ready: Promise<void> | null = null

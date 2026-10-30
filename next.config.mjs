@@ -2,7 +2,7 @@
 const nextConfig = {
   poweredByHeader: false,
   // Fotos del perfil de WhatsApp y archivos chicos desde formularios
-  experimental: { serverActions: { bodySizeLimit: "5mb", allowedOrigins: ["panel.devisebit.com"] }, outputFileTracingIncludes: { "/academia/descarga/[token]": ["./private/**"], "/demo/[token]/[slug]": ["./private/demos/**"] } },
+  experimental: { serverActions: { bodySizeLimit: "5mb", allowedOrigins: ["panel.devisebit.com"] }, outputFileTracingIncludes: { "/academia/descarga/[token]": ["./private/**"], "/academia/mi-cuenta/descargar/[iid]/[lid]": ["./private/cursos/**"], "/portal/descargar/[iid]/[lid]": ["./private/cursos/**"], "/demo/[token]/[slug]": ["./private/demos/**"] } },
   async headers() {
     return [
       { source: "/:path*", headers: [

@@ -2,7 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
-import { slugDe, URL_ACADEMIA } from "@/lib/academia"
+import { slugDe, URL_ACADEMIA, sembrar } from "@/lib/academia"
 import { modalidad } from "@/lib/cursos"
 
 export const dynamic = "force-dynamic"
@@ -22,6 +22,7 @@ async function crear(fd: FormData) {
 
 export default async function CursosAdmin({ searchParams }: { searchParams: { err?: string } }) {
   await requerir(["gerente", "coordinacion", "profesional"])
+  await sembrar()
   const [cursos, kpi] = await Promise.all([
     q<any>(`select c.*, (select count(*)::int from am_lecciones l where l.curso_id=c.id) lecciones,
               (select count(*)::int from am_inscripciones i join am_ediciones e on e.id=i.edicion_id where e.curso_id=c.id and i.estado<>'baja') alumnos,

@@ -4,7 +4,7 @@ import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { slugDe, URL_ACADEMIA } from "@/lib/academia"
-import { MODALIDADES, TIPOS_LECCION, ESTADOS_EDICION, tipoLeccion } from "@/lib/cursos"
+import { MODALIDADES, TIPOS_LECCION, ESTADOS_EDICION, tipoLeccion, quizDe, arsDesdeUsd, TC_REFERENCIA, textoCuotas } from "@/lib/cursos"
 import { fecha } from "@/lib/util"
 
 export const dynamic = "force-dynamic"
@@ -24,10 +24,12 @@ async function guardar(fd: FormData) {
   const est = String(fd.get("estado"))
   await q(
     `update am_cursos set titulo=$1, slug=$2, bajada=$3, descripcion=$4, imagen=$5, categoria=$6, nivel=$7, docente=$8, horas=$9, modalidad=$10,
-       precio=$11, estado=$12, req_lecciones=$13, req_asistencia=$14, certifica=$15, destacado=$16, actualizado=now() where id=$17`,
+       precio=$11, estado=$12, req_lecciones=$13, req_asistencia=$14, certifica=$15, destacado=$16,
+       precio_usd=$18, cuotas=$19, docente_slug=$20, nuevo=$21, videollamada=$22, nota_interna=$23, actualizado=now() where id=$17`,
     [titulo, slug, s(fd.get("bajada")), String(fd.get("descripcion") ?? ""), url(s(fd.get("imagen"))), s(fd.get("categoria")), s(fd.get("nivel")), s(fd.get("docente")),
       n(s(fd.get("horas"))), MODALIDADES.some((m) => m.v === mod) ? mod : "online", n(s(fd.get("precio"))), ["borrador", "publicado", "archivado"].includes(est) ? est : "borrador",
-      Math.min(100, Math.max(0, Number(fd.get("req_lecciones")) || 0)), Math.min(100, Math.max(0, Number(fd.get("req_asistencia")) || 0)), fd.get("certifica") === "1", fd.get("destacado") === "1", id],
+      Math.min(100, Math.max(0, Number(fd.get("req_lecciones")) || 0)), Math.min(100, Math.max(0, Number(fd.get("req_asistencia")) || 0)), fd.get("certifica") === "1", fd.get("destacado") === "1", id,
+      n(s(fd.get("precio_usd"))), Math.min(12, Math.max(1, Number(fd.get("cuotas")) || 1)), s(fd.get("docente_slug")), fd.get("nuevo") === "1", fd.get("videollamada") === "1", s(fd.get("nota_interna"))],
   )
   await audit(u, "edita_curso", "am_curso", id, est)
   redirect(`/sistema/cursos/${id}?ok=1`)
@@ -49,9 +51,14 @@ async function leccion(fd: FormData) {
   const titulo = s(fd.get("titulo"))
   if (!titulo) redirect(`/sistema/cursos/${id}?lerr=1#lecciones`)
   const tipo = TIPOS_LECCION.some((t) => t.v === fd.get("tipo")) ? String(fd.get("tipo")) : "lectura"
-  const v = [s(fd.get("modulo")), titulo, tipo, String(fd.get("contenido") ?? ""), url(s(fd.get("video_url"))), url(s(fd.get("archivo_url"))), Number(fd.get("duracion_min")) || null, fd.get("publicada") === "1"]
-  if (lid) await q("update am_lecciones set modulo=$1, titulo=$2, tipo=$3, contenido=$4, video_url=$5, archivo_url=$6, duracion_min=$7, publicada=$8 where id=$9 and curso_id=$10", [...v, lid, id])
-  else await q("insert into am_lecciones(curso_id, orden, modulo, titulo, tipo, contenido, video_url, archivo_url, duracion_min, publicada) values ($1, coalesce((select max(orden) from am_lecciones where curso_id=$1),0)+1, $2,$3,$4,$5,$6,$7,$8,$9)", [id, ...v])
+  // Material: un link (Drive, Dropbox…) o un archivo cifrado del repositorio ("enc:private/cursos/…")
+  const arch = s(fd.get("archivo_url"))
+  const archivo = arch && /^enc:private\/[\w./-]+\.enc$/.test(arch) ? arch : url(arch)
+  // Quiz opcional en JSON: [{"p":"Pregunta","o":["A","B","C"],"c":0,"e":"Explicación"}]
+  const qz = quizDe(String(fd.get("quiz") ?? "").trim())
+  const v = [s(fd.get("modulo")), titulo, tipo, String(fd.get("contenido") ?? ""), url(s(fd.get("video_url"))), archivo, Number(fd.get("duracion_min")) || null, fd.get("publicada") === "1", qz.length ? JSON.stringify(qz) : null]
+  if (lid) await q("update am_lecciones set modulo=$1, titulo=$2, tipo=$3, contenido=$4, video_url=$5, archivo_url=$6, duracion_min=$7, publicada=$8, quiz=$9 where id=$10 and curso_id=$11", [...v, lid, id])
+  else await q("insert into am_lecciones(curso_id, orden, modulo, titulo, tipo, contenido, video_url, archivo_url, duracion_min, publicada, quiz) values ($1, coalesce((select max(orden) from am_lecciones where curso_id=$1),0)+1, $2,$3,$4,$5,$6,$7,$8,$9,$10)", [id, ...v])
   await audit(u, lid ? "edita_leccion" : "crea_leccion", "am_curso", id, titulo)
   redirect(`/sistema/cursos/${id}?lok=1#lecciones`)
 }
@@ -86,6 +93,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <Link href="/sistema/cursos" className="text-sm underline text-[#4A515C]">← Cursos</Link>
         {c.estado === "publicado" && <a href={`${URL_ACADEMIA}/cursos/${c.slug}`} target="_blank" rel="noopener noreferrer" className="btn-s py-1.5">Ver publicado ↗</a>}
       </div>
+      {c.nota_interna && <p role="note" className="m-0 card py-3 text-sm !bg-amber-50 !border-amber-200"><strong>Nota interna:</strong> {c.nota_interna}</p>}
       {searchParams.nuevo && <p role="status" className="m-0 card py-3 text-sm">Curso creado en borrador con una edición. Completá los datos, cargá las lecciones y cuando esté listo pasalo a <strong>Publicado</strong>.</p>}
 
       <form action={guardar} className="card grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -100,13 +108,20 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <Campo l="Categoría"><input name="categoria" defaultValue={c.categoria ?? ""} className="inp" placeholder="IA, Gestión, Salud digital…" /></Campo>
         <Campo l="Nivel"><input name="nivel" defaultValue={c.nivel ?? ""} className="inp" placeholder="Inicial, intermedio…" /></Campo>
         <Campo l="Docente"><input name="docente" defaultValue={c.docente ?? ""} className="inp" /></Campo>
-        <Campo l="Precio (vacío = gratis)"><input name="precio" inputMode="decimal" defaultValue={c.precio ?? ""} className="inp" /></Campo>
+        <Campo l="Precio en pesos (vacío = gratis)"><input name="precio" inputMode="decimal" defaultValue={c.precio ?? ""} className="inp" /></Campo>
+        <Campo l="Precio en USD (PayPal)"><input name="precio_usd" inputMode="decimal" defaultValue={c.precio_usd ?? ""} className="inp" /></Campo>
+        <Campo l="Cuotas sin interés (Mercado Pago)"><input name="cuotas" type="number" min={1} max={12} defaultValue={c.cuotas ?? 1} className="inp" /></Campo>
+        <Campo l="Docentes (perfiles de /equipo, separados por coma)"><input name="docente_slug" defaultValue={c.docente_slug ?? ""} className="inp" placeholder="oscar-schmitz" /></Campo>
         <Campo l="Dirección web (slug)"><input name="slug" defaultValue={c.slug} className="inp" /></Campo>
         <Campo l="Imagen (URL)"><input name="imagen" type="url" defaultValue={c.imagen ?? ""} className="inp" /></Campo>
         <Campo l="Para aprobar: % de lecciones"><input name="req_lecciones" type="number" min={0} max={100} defaultValue={c.req_lecciones} className="inp" /></Campo>
         <Campo l="Para aprobar: % de asistencia"><input name="req_asistencia" type="number" min={0} max={100} defaultValue={c.req_asistencia} className="inp" /></Campo>
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="certifica" value="1" defaultChecked={c.certifica} /> Emite certificado</label>
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="destacado" value="1" defaultChecked={c.destacado} /> Destacado</label>
+        <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="nuevo" value="1" defaultChecked={c.nuevo} /> Marcar como “Nuevo”</label>
+        <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="videollamada" value="1" defaultChecked={c.videollamada} /> Incluye videollamada de 30 min con el docente</label>
+        <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">Referencia: USD 1 = $ {TC_REFERENCIA.toLocaleString("es-AR")}{c.precio_usd ? ` → USD ${Number(c.precio_usd)} ≈ $ ${arsDesdeUsd(Number(c.precio_usd)).toLocaleString("es-AR")}` : ""}. {textoCuotas(c.precio, c.cuotas)}</p>
+        <Campo l="Nota interna (no se publica: revisiones pendientes, a quién consultar…)" className="md:col-span-4"><textarea name="nota_interna" rows={2} defaultValue={c.nota_interna ?? ""} className="inp text-sm" /></Campo>
         <Campo l="Descripción (texto simple: ## títulos, - listas, **negrita**)" className="md:col-span-4"><textarea name="descripcion" rows={8} defaultValue={c.descripcion} className="inp font-mono text-sm" /></Campo>
         {puede && <div className="md:col-span-4"><button className="btn-p">Guardar curso</button></div>}
       </form>
@@ -145,7 +160,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
           {lecciones.map((l, k) => (
             <li key={l.id} className={`flex flex-wrap items-center gap-3 py-2 border-b border-[#EEF0F3] ${l.publicada ? "" : "opacity-60"}`}>
               <span className="w-7 text-center text-[#C8231F]" aria-hidden="true">{tipoLeccion(l.tipo).i}</span>
-              <span className="flex-1 min-w-[200px]"><span className="text-xs text-[#4A515C]">{k + 1}. {l.modulo ? `${l.modulo} · ` : ""}{tipoLeccion(l.tipo).n}{l.duracion_min ? ` · ${l.duracion_min} min` : ""}{!l.publicada ? " · Oculta" : ""} · {l.hechas} completaron</span><strong className="block text-sm">{l.titulo}</strong></span>
+              <span className="flex-1 min-w-[200px]"><span className="text-xs text-[#4A515C]">{k + 1}. {l.modulo ? `${l.modulo} · ` : ""}{tipoLeccion(l.tipo).n}{l.duracion_min ? ` · ${l.duracion_min} min` : ""}{l.quiz ? ` · Quiz (${quizDe(l.quiz).length})` : ""}{!l.publicada ? " · Oculta" : ""} · {l.hechas} completaron</span><strong className="block text-sm">{l.titulo}</strong></span>
               <form action={leccion} className="flex gap-1 items-center text-xs">
                 <input type="hidden" name="id" value={c.id} /><input type="hidden" name="lid" value={l.id} />
                 <button name="op" value="subir" disabled={k === 0} aria-label="Subir" className="w-7 h-7 rounded hover:bg-[#F5F6F8] disabled:opacity-30">↑</button>
@@ -163,9 +178,10 @@ export default async function Curso({ params, searchParams }: { params: { id: st
           <Campo l="Módulo"><input name="modulo" defaultValue={ed?.modulo ?? ""} className="inp" placeholder="Módulo 1 · Fundamentos" /></Campo>
           <Campo l="Tipo"><select name="tipo" defaultValue={ed?.tipo ?? "video"} className="inp">{TIPOS_LECCION.map((t) => <option key={t.v} value={t.v}>{t.n}</option>)}</select></Campo>
           <Campo l="Video (YouTube, Vimeo, Loom o Drive)" className="md:col-span-2"><input name="video_url" type="url" defaultValue={ed?.video_url ?? ""} className="inp" /></Campo>
-          <Campo l="Material para descargar (link)"><input name="archivo_url" type="url" defaultValue={ed?.archivo_url ?? ""} className="inp" placeholder="Drive, Dropbox…" /></Campo>
+          <Campo l="Material para descargar (link o enc:private/cursos/…)"><input name="archivo_url" defaultValue={ed?.archivo_url ?? ""} className="inp" placeholder="Drive, Dropbox…" /></Campo>
           <Campo l="Duración (min)"><input name="duracion_min" type="number" min={0} defaultValue={ed?.duracion_min ?? ""} className="inp" /></Campo>
           <Campo l="Contenido (texto simple)" className="md:col-span-4"><textarea name="contenido" rows={6} defaultValue={ed?.contenido ?? ""} className="inp font-mono text-sm" /></Campo>
+          <Campo l={`Quiz corto (opcional, JSON: [{"p":"Pregunta","o":["A","B","C"],"c":0,"e":"Por qué"}] · c = número de la opción correcta, desde 0)`} className="md:col-span-4"><textarea name="quiz" rows={3} defaultValue={ed?.quiz ? JSON.stringify(ed.quiz) : ""} className="inp font-mono text-xs" /></Campo>
           <label className="flex gap-2 items-center text-sm"><input type="checkbox" name="publicada" value="1" defaultChecked={ed ? ed.publicada : true} /> Visible para alumnos</label>
           <div className="md:col-span-3 flex gap-2 justify-end">{ed && <Link href={`/sistema/cursos/${c.id}#lecciones`} className="btn-s">Cancelar</Link>}<button name="op" value="guardar" className="btn-p">{ed ? "Guardar cambios" : "Agregar lección"}</button></div>
           <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">El material descargable solo lo abren los inscriptos con la cuenta al día; cada descarga queda registrada.</p>

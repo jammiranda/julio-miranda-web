@@ -58,7 +58,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
   const [guias, productos, ordenes, subs, programas] = await Promise.all([
     q<any>("select * from am_guias order by publicada, creado desc"),
     q<any>("select p.*, (select count(*)::int from db_contactos c where ('espera-'||p.slug) = any(c.tags)) espera from am_productos p order by id"),
-    q<any>("select o.*, p.titulo from am_ordenes o join am_productos p on p.id=o.producto_id order by o.creado desc limit 30"),
+    q<any>("select o.*, coalesce(p.titulo, 'Curso: ' || c.titulo) titulo from am_ordenes o left join am_productos p on p.id=o.producto_id left join am_cursos c on c.id=o.curso_id order by o.creado desc limit 30"),
     one<any>("select count(*) filter (where suscrito_en is not null and email_estado='activo')::int activos, count(*) filter (where suscrito_en > now() - interval '7 days')::int semana from db_contactos"),
     q<{ tag: string; n: number }>("select t tag, count(*)::int n from db_contactos, unnest(tags) t where t like 'espera-programa-%' group by t"),
   ])

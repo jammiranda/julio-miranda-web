@@ -4,7 +4,7 @@ import Link from "next/link"
 import { q, one } from "@/lib/db"
 import { sembrar } from "@/lib/academia"
 import Suscribir from "@/components/Suscribir"
-import { modalidad } from "@/lib/cursos"
+import { modalidad, pesos } from "@/lib/cursos"
 import { PROGRAMAS } from "@/lib/programas"
 
 export const dynamic = "force-dynamic"
@@ -15,7 +15,7 @@ export default async function Academia() {
   const [guias, kit, cursos] = await Promise.all([
     q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 6"),
     one<any>("select slug, titulo, bajada, precio, estado from am_productos where slug='kit-ia-pymes' and estado<>'oculto'"),
-    q<any>("select slug, titulo, bajada, modalidad, horas, precio from am_cursos where estado='publicado' order by destacado desc, creado desc limit 3"),
+    q<any>("select slug, titulo, bajada, modalidad, horas, precio, precio_usd, docente, nuevo from am_cursos where estado='publicado' order by nuevo desc, (precio is null) desc, destacado desc, creado desc limit 6"),
   ])
   const iman = guias.find((g) => g.exclusiva)
   return (
@@ -74,13 +74,14 @@ export default async function Academia() {
 
       {cursos.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 pt-10 sm:pt-14">
-          <div className="flex flex-wrap items-end justify-between gap-3"><h2 className="acad-h2 m-0 font-extrabold">Cursos con certificado</h2><Link href="/cursos" className="inline-flex items-center min-h-[44px] font-semibold text-[#C8231F]">Ver todos →</Link></div>
+          <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="acad-h2 m-0 font-extrabold">Cursos a tu ritmo, con certificado</h2><p className="m-0 mt-1 text-[#4A515C]">Empezás cuando quieras. Los pagos incluyen una videollamada con el docente.</p></div><Link href="/cursos" className="inline-flex items-center min-h-[44px] font-semibold text-[#C8231F]">Ver todos →</Link></div>
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {cursos.map((c) => (
               <Link key={c.slug} href={`/cursos/${c.slug}`} className="card flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#C8231F] hover:-translate-y-1 transition-transform">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} h` : ""} · {c.precio ? "Pago" : "Gratis"}</span>
+                <span className="flex flex-wrap items-center gap-2">{c.nuevo && <span className="chip bg-[#C8231F] text-white">Nuevo</span>}<span className="text-xs font-bold uppercase tracking-wider text-[#C8231F]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} h` : ""}</span></span>
                 <span className="text-lg font-bold leading-snug">{c.titulo}</span>
-                {c.bajada && <span className="text-[15px] leading-snug text-[#4A515C]">{c.bajada}</span>}
+                {c.bajada && <span className="text-[15px] leading-snug text-[#4A515C] line-clamp-2">{c.bajada}</span>}
+                <span className="mt-auto pt-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">{c.docente && <span className="text-[#262C37]">{c.docente}</span>}<strong className={c.precio ? "" : "text-emerald-700"}>{c.precio ? `${pesos(c.precio)}${c.precio_usd ? ` · USD ${Number(c.precio_usd)}` : ""}` : "Gratis"}</strong></span>
               </Link>
             ))}
           </div>

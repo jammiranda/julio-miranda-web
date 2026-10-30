@@ -1,5 +1,6 @@
 import { q, one } from "./db"
 import { LOTE_2026_10, GUIAS_2026_10 } from "./academia-lote-2026-10"
+import { sembrarCursos } from "./academia-cursos-2026-11"
 
 /** ACADEMIA DEVISEBIT (academia.devisebit.com): guías gratis, newsletter y productos digitales. */
 export const URL_ACADEMIA = process.env.ACADEMIA_URL ?? "https://academia.devisebit.com"
@@ -10,8 +11,15 @@ export function mdWeb(md: string) {
   const inline = (s: string) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`(.+?)`/g, "<code>$1</code>").replace(/\[(.+?)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g, '<a href="$2">$1</a>')
   const out: string[] = []
   let lista: { tipo: "ul" | "ol"; items: string[] } | null = null
+  let codigo: string[] | null = null
   const cerrar = () => { if (lista) { out.push(`<${lista.tipo}>${lista.items.map((i) => `<li>${inline(i)}</li>`).join("")}</${lista.tipo}>`); lista = null } }
   for (const linea of md.replace(/\r/g, "").split("\n")) {
+    // Bloques de código (```): se muestran tal cual, con scroll horizontal (fragmentos, diagramas en texto, plantillas para copiar)
+    if (/^\s*```/.test(linea)) {
+      if (codigo) { out.push(`<pre><code>${esc(codigo.join("\n"))}</code></pre>`); codigo = null } else { cerrar(); codigo = [] }
+      continue
+    }
+    if (codigo) { codigo.push(linea); continue }
     const l = linea.trimEnd()
     let m
     if ((m = l.match(/^\s*[-*] (.+)/))) { if (lista?.tipo !== "ul") { cerrar(); lista = { tipo: "ul", items: [] } } lista.items.push(m[1]); continue }
@@ -25,6 +33,7 @@ export function mdWeb(md: string) {
     else out.push(`<p>${inline(l)}</p>`)
   }
   cerrar()
+  if (codigo) out.push(`<pre><code>${esc(codigo.join("\n"))}</code></pre>`)
   return out.join("\n")
 }
 
@@ -32,7 +41,8 @@ export const slugDe = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").
 
 /** Mercado Pago Checkout Pro (MP_ACCESS_TOKEN). */
 export const mpConfigurado = () => !!process.env.MP_ACCESS_TOKEN
-export async function crearPreferencia(o: { orden: number; titulo: string; precio: number; email: string; token: string }) {
+/** `cuotas`: máximo de cuotas que ofrece el checkout (las cuotas sin interés se activan en la cuenta de Mercado Pago). */
+export async function crearPreferencia(o: { orden: number; titulo: string; precio: number; email: string; token: string; cuotas?: number }) {
   const r = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`, "Content-Type": "application/json" },
@@ -41,6 +51,7 @@ export async function crearPreferencia(o: { orden: number; titulo: string; preci
       payer: { email: o.email }, external_reference: String(o.orden), statement_descriptor: "DEVISEBIT",
       back_urls: { success: `${URL_ACADEMIA}/gracias/${o.token}`, pending: `${URL_ACADEMIA}/gracias/${o.token}`, failure: `${URL_ACADEMIA}/gracias/${o.token}?e=1` },
       auto_return: "approved", notification_url: `https://sistema.devisebit.com/api/academia/mp`,
+      ...(o.cuotas && o.cuotas > 1 ? { payment_methods: { installments: o.cuotas } } : {}),
     }),
   })
   const j = await r.json().catch(() => ({}))
@@ -49,6 +60,7 @@ export async function crearPreferencia(o: { orden: number; titulo: string; preci
 
 /** Carga inicial de guías y del primer producto (solo si no hay nada). */
 export async function sembrar() {
+  await sembrarCursos()
   const hay = await one<{ n: number }>("select count(*)::int n from am_guias")
   if ((hay?.n ?? 0) > 0) return sembrarLote(LOTE_2026_10, GUIAS_2026_10)
   for (const g of GUIAS) await q("insert into am_guias(slug,titulo,bajada,categoria,contenido,exclusiva,publicada,destacada) values ($1,$2,$3,$4,$5,$6,true,$7) on conflict do nothing", [g.slug, g.titulo, g.bajada, g.categoria, g.contenido, !!g.exclusiva, !!g.destacada])

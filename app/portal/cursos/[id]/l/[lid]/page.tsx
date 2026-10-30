@@ -2,12 +2,13 @@ import { notFound } from "next/navigation"
 import { q } from "@/lib/db"
 import { requerirCliente } from "@/lib/portal"
 import { inscripcionDe, leccionesDe } from "@/lib/cursos"
+import { leerQuiz } from "@/components/aula/Aula"
 import { AulaLeccion } from "@/components/aula/Aula"
 import AvisoAula from "../../../AvisoAula"
 
 export const dynamic = "force-dynamic"
 
-export default async function Leccion({ params }: { params: { id: string; lid: string } }) {
+export default async function Leccion({ params, searchParams }: { params: { id: string; lid: string }; searchParams: { quiz?: string; r?: string } }) {
   const c = await requerirCliente()
   const i = await inscripcionDe(c.id, Number(params.id))
   if (!i) notFound()
@@ -18,7 +19,7 @@ export default async function Leccion({ params }: { params: { id: string; lid: s
   return (
     <div className="flex flex-col gap-4">
       <AvisoAula ruta={`/mi-cuenta/cursos/${i.id}/l/${lecciones[k].id}`} />
-      <AulaLeccion base="/portal/cursos" i={i} lecciones={lecciones} k={k} />
+      <AulaLeccion base="/portal/cursos" i={i} lecciones={lecciones} k={k} quiz={leerQuiz(searchParams)} />
     </div>
   )
 }

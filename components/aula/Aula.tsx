@@ -1,7 +1,7 @@
 import Link from "next/link"
-import { estadoInsc, modalidad, tipoLeccion, urlCertificado, embedVideo, descargaAula, type BaseAula, type Avance } from "@/lib/cursos"
+import { estadoInsc, modalidad, tipoLeccion, urlCertificado, embedVideo, descargaAula, quizDe, type BaseAula, type Avance } from "@/lib/cursos"
 import { mdWeb } from "@/lib/academia"
-import { completarLeccion } from "@/lib/aula-acciones"
+import { completarLeccion, pedirVideollamada } from "@/lib/aula-acciones"
 import { fecha } from "@/lib/util"
 
 /**
@@ -126,6 +126,24 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
         </section>
 
         <aside className="flex flex-col gap-5">
+          {i.videollamada && (
+            <section className="card flex flex-col gap-3 !border-[#C8231F]/40" aria-labelledby="t-video">
+              <h2 id="t-video" className="m-0 text-base">Pedí una videollamada con el docente</h2>
+              {i.videollamada_en ? (
+                <>
+                  <p className="m-0 text-sm text-[#4A515C]">Ya la pediste el {fecha(i.videollamada_en)}. Si todavía no elegiste día y horario, hacelo desde la agenda. Si ya la agendaste, te llegó la confirmación por email.</p>
+                  <form action={pedirVideollamada}><input type="hidden" name="base" value={base} /><input type="hidden" name="iid" value={i.id} /><button className="btn-s w-full">Ver o elegir horario</button></form>
+                </>
+              ) : (
+                <form action={pedirVideollamada} className="flex flex-col gap-2">
+                  <input type="hidden" name="base" value={base} /><input type="hidden" name="iid" value={i.id} />
+                  <p className="m-0 text-sm text-[#4A515C]">Tu curso incluye <strong className="text-[#0E1116]">1 videollamada de 30 minutos</strong>{i.docente ? <> con {i.docente}</> : null} para resolver dudas o revisar tu caso. Elegís día y horario en la agenda.</p>
+                  <label className="lbl text-sm">¿De qué querés hablar? (opcional)<textarea name="tema" rows={2} maxLength={600} className="inp text-sm" placeholder="Ej.: revisar mi plan de automatización" /></label>
+                  <button className="btn-p">Pedir mi videollamada</button>
+                </form>
+              )}
+            </section>
+          )}
           {(i.link || i.lugar || clases.length > 0) && (
             <section className="card flex flex-col gap-2" aria-labelledby="t-clases">
               <h2 id="t-clases" className="m-0 text-base">Clases en vivo</h2>
@@ -154,9 +172,10 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
 }
 
 /** Vista de una lección: video, contenido, material y "marcar como vista". */
-export function AulaLeccion({ base, i, lecciones, k }: { base: BaseAula; i: any; lecciones: any[]; k: number }) {
+export function AulaLeccion({ base, i, lecciones, k, quiz }: { base: BaseAula; i: any; lecciones: any[]; k: number; quiz?: { bien: number; total: number; r: (number | null)[] } }) {
   const l = lecciones[k], ant = lecciones[k - 1], sig = lecciones[k + 1]
   const video = embedVideo(l.video_url)
+  const preguntas = quizDe(l.quiz)
   return (
     <div className="flex flex-col gap-4 max-w-3xl">
       <Link href={`${base}/${i.id}`} className="text-sm underline text-[#4A515C] self-start">← {i.titulo}</Link>
@@ -176,13 +195,44 @@ export function AulaLeccion({ base, i, lecciones, k }: { base: BaseAula; i: any;
           <span><strong className="block">Descargar material</strong><span className="text-xs text-[#4A515C]">Exclusivo para inscriptos</span></span>
         </a>
       )}
-      <form action={completarLeccion} className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E2E5EA] pt-4">
+      <form action={completarLeccion} className="flex flex-col gap-4 border-t border-[#E2E5EA] pt-4">
         <input type="hidden" name="base" value={base} /><input type="hidden" name="iid" value={i.id} /><input type="hidden" name="lid" value={l.id} />{sig && <input type="hidden" name="siguiente" value={sig.id} />}
+        {preguntas.length > 0 && !l.completada && (
+          <fieldset id="quiz" className="card m-0 flex flex-col gap-4 scroll-mt-24">
+            <legend className="sr-only">Autoevaluación</legend>
+            <div><h2 className="m-0 text-lg">Autoevaluación</h2><p className="m-0 text-sm text-[#4A515C]">Respondé para marcar la lección como vista. Necesitás {Math.ceil(preguntas.length * 0.7 - 0.04)} de {preguntas.length} bien; podés intentarlo las veces que quieras.</p></div>
+            {quiz && <p role="alert" className="m-0 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm"><strong>Tuviste {quiz.bien} de {quiz.total}.</strong> Revisá las marcadas y probá de nuevo.</p>}
+            {preguntas.map((p, n) => {
+              const marcada = quiz?.r[n]
+              const mal = quiz && marcada !== p.c
+              return (
+                <div key={n} role="radiogroup" aria-labelledby={`qp${n}`} className={`flex flex-col gap-2 ${mal ? "rounded-xl bg-[#FDECEB] p-3 -mx-3" : ""}`}>
+                  <p id={`qp${n}`} className="m-0 font-semibold">{n + 1}. {p.p}</p>
+                  {p.o.map((o, j) => (
+                    <label key={j} className="flex gap-3 items-start text-[15px] rounded-xl border border-[#E2E5EA] bg-white p-3 min-h-[48px] cursor-pointer has-[:checked]:border-[#C8231F]">
+                      <input type="radio" name={`q${n}`} value={j} required defaultChecked={marcada === j} className="mt-0.5" /><span>{o}</span>
+                    </label>
+                  ))}
+                  {quiz && !mal && p.e && <p className="m-0 text-sm text-emerald-800">✓ {p.e}</p>}
+                </div>
+              )
+            })}
+          </fieldset>
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-3">
         {ant ? <Link href={`${base}/${i.id}/l/${ant.id}`} className="btn-s">← Anterior</Link> : <span />}
         {l.completada
           ? <span className="flex flex-wrap items-center gap-3"><span className="text-sm text-emerald-700 font-semibold">✓ Vista</span><button name="op" value="deshacer" className="text-xs underline text-[#4A515C] bg-transparent border-0 cursor-pointer">Desmarcar</button>{sig && <Link href={`${base}/${i.id}/l/${sig.id}`} className="btn-p">Siguiente →</Link>}</span>
-          : <button name="op" value="completar" className="btn-p">{sig ? "Marcar como vista y seguir →" : "Marcar como vista"}</button>}
+          : <button name="op" value="completar" className="btn-p">{preguntas.length ? "Enviar respuestas y marcar como vista" : sig ? "Marcar como vista y seguir →" : "Marcar como vista"}</button>}
+        </div>
       </form>
     </div>
   )
+}
+
+/** Resultado de un intento de quiz que vuelve en la URL (?quiz=2-3&r=0.1.x). */
+export function leerQuiz(sp: { quiz?: string; r?: string }) {
+  const m = sp.quiz?.match(/^(\d+)-(\d+)$/)
+  if (!m) return undefined
+  return { bien: Number(m[1]), total: Number(m[2]), r: (sp.r ?? "").split(".").map((x) => (/^\d+$/.test(x) ? Number(x) : null)) }
 }
