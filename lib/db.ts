@@ -695,7 +695,25 @@ alter table am_ordenes add column if not exists inscripcion_id int;
 alter table am_inscripciones add column if not exists videollamada_en timestamptz;
 alter table am_inscripciones add column if not exists videollamada_consulta int;
 update am_cursos set descripcion=replace(descripcion,'con el docente','con quien lo enseña') where descripcion like '%con el docente%';
-update am_lecciones set contenido=replace(replace(replace(contenido,'con el docente','con quien lo enseña'),'que el docente revise','que quien enseña el curso revise'),'| Docentes |','| Quienes enseñan |') where contenido like '%con el docente%' or contenido like '%que el docente revise%' or contenido like '%| Docentes |%'
+update am_lecciones set contenido=replace(replace(replace(contenido,'con el docente','con quien lo enseña'),'que el docente revise','que quien enseña el curso revise'),'| Docentes |','| Quienes enseñan |') where contenido like '%con el docente%' or contenido like '%que el docente revise%' or contenido like '%| Docentes |%';
+-- Autores (docentes) de la Academia: entran con su email (código o link, cookie db_cuenta) a academia.devisebit.com/autor
+-- y solo ven los cursos cuyo docente_slug coincide con alguno de los suyos. Los da de alta Dirección en /sistema/autores.
+create table if not exists am_autores (
+  id serial primary key, email text not null, docente_slug text not null, nombre text,
+  activo boolean not null default true, creado_por text, creado timestamptz not null default now()
+);
+create unique index if not exists am_autores_email_slug on am_autores(lower(email), docente_slug);
+-- Cambios que hace un autor en sus cursos: quedan para revisión de Dirección (con el antes, para poder revertir).
+-- Los pedidos de cambio de estado (publicar, pasar a borrador, archivar) no se aplican hasta que Dirección los aprueba.
+create table if not exists am_cambios_autor (
+  id bigserial primary key, autor text not null, curso_id int references am_cursos(id) on delete cascade, leccion_id int,
+  tipo text not null check (tipo in ('curso','leccion','leccion_nueva','leccion_orden','pedido_estado')),
+  resumen text, antes jsonb, despues jsonb,
+  estado text not null default 'pendiente' check (estado in ('pendiente','revisado','revertido','aprobado','rechazado')),
+  revisado_por text, revisado_en timestamptz, creado timestamptz not null default now()
+);
+create index if not exists am_cambios_autor_pend on am_cambios_autor(estado, creado desc);
+alter table am_inscripciones add column if not exists videollamada_nota text
 `
 
 let ready: Promise<void> | null = null

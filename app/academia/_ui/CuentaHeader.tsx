@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { salirCuenta } from "@/lib/ingreso"
 
-type Yo = { cuenta: { nombre: string; email: string } | null; sistema: boolean }
+type Yo = { cuenta: { nombre: string; email: string } | null; sistema: boolean; autor?: boolean }
 
 const PORTAL = "https://portal.devisebit.com"
 
@@ -43,6 +43,7 @@ function opciones(yo: Yo) {
       { href: "/mi-cuenta#mis-cursos", t: "Mis cursos", d: "Tu avance y el aula" },
       { href: "/mi-cuenta#certificados", t: "Certificados", d: "Verlos y descargarlos" },
     ] : []),
+    ...(yo.cuenta && yo.autor ? [{ href: "/autor", t: "Panel de autor", d: "Tus cursos como docente" }] : []),
     ...(yo.sistema ? [{ href: "/sistema", t: "Sistema Academia", d: "Gestión interna (equipo)", equipo: true }] : []),
     ...(yo.cuenta ? [{ href: PORTAL, t: "DEVISEBIT Mi cuenta ↗", d: "Proyectos, pagos y facturas", secundario: true }] : []),
   ] as { href: string; t: string; d: string; equipo?: boolean; secundario?: boolean }[]

@@ -79,11 +79,12 @@ export default async function Curso({ params, searchParams }: { params: { id: st
   const u = await requerir(["gerente", "coordinacion", "profesional"])
   const c = await one<any>("select * from am_cursos where id=$1", [Number(params.id)])
   if (!c) notFound()
-  const [lecciones, ediciones] = await Promise.all([
+  const [lecciones, ediciones, deAutores] = await Promise.all([
     q<any>("select l.*, (select count(*)::int from am_progreso p where p.leccion_id=l.id) hechas from am_lecciones l where l.curso_id=$1 order by l.orden, l.id", [c.id]),
     q<any>(`select e.*, (select count(*)::int from am_inscripciones i where i.edicion_id=e.id and i.estado<>'baja') inscriptos,
               (select count(*)::int from am_inscripciones i where i.edicion_id=e.id and i.estado='aprobado') aprobados
             from am_ediciones e where e.curso_id=$1 order by e.inicio nulls first, e.id`, [c.id]),
+    q<{ n: number }>("select count(*)::int n from am_cambios_autor where curso_id=$1 and estado='pendiente'", [c.id]).catch(() => [{ n: 0 }]),
   ])
   const ed = searchParams.editar ? lecciones.find((l) => l.id === Number(searchParams.editar)) : null
   const puede = u.rol !== "profesional"
@@ -93,6 +94,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <Link href="/sistema/cursos" className="text-sm underline text-[#4A515C]">← Cursos</Link>
         {c.estado === "publicado" && <a href={`${URL_ACADEMIA}/cursos/${c.slug}`} target="_blank" rel="noopener noreferrer" className="btn-s py-1.5">Ver publicado ↗</a>}
       </div>
+      {(deAutores[0]?.n ?? 0) > 0 && <p role="note" className="m-0 card py-3 text-sm !bg-amber-50 !border-amber-200">El autor de este curso hizo {deAutores[0].n} {deAutores[0].n === 1 ? "cambio" : "cambios"} para revisar. <Link href="/sistema/autores" className="underline font-semibold">Revisar en Autores</Link></p>}
       {c.nota_interna && <p role="note" className="m-0 card py-3 text-sm !bg-amber-50 !border-amber-200"><strong>Nota interna:</strong> {c.nota_interna}</p>}
       {searchParams.nuevo && <p role="status" className="m-0 card py-3 text-sm">Curso creado en borrador con una edición. Completá los datos, cargá las lecciones y cuando esté listo pasalo a <strong>Publicado</strong>.</p>}
 

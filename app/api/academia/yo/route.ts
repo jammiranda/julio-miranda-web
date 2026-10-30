@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { sesionCuenta } from "@/lib/portal"
 import { usuarioActual } from "@/lib/auth"
+import { slugsDe } from "@/lib/autores"
 
 export const dynamic = "force-dynamic"
 
@@ -11,8 +12,9 @@ export const dynamic = "force-dynamic"
  */
 export async function GET() {
   const [c, u] = await Promise.all([sesionCuenta().catch(() => null), usuarioActual().catch(() => null)])
+  const autor = c ? (await slugsDe(c.email).catch(() => [])).length > 0 : false
   return NextResponse.json(
-    { cuenta: c ? { nombre: c.nombre, email: c.email } : null, sistema: !!u?.espacios.includes("academia") },
+    { cuenta: c ? { nombre: c.nombre, email: c.email } : null, sistema: !!u?.espacios.includes("academia"), autor },
     { headers: { "Cache-Control": "private, no-store" } },
   )
 }

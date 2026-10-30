@@ -4,6 +4,7 @@ import { randomBytes } from "crypto"
 import { requerir, ROL_NOMBRE, type Rol } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { fecha, s } from "@/lib/util"
+import { URL_ACADEMIA } from "@/lib/academia"
 
 export const dynamic = "force-dynamic"
 
@@ -58,7 +59,7 @@ export default async function Usuarios({ searchParams }: { searchParams: { link?
     <div className="flex flex-col gap-4">
       <h1 className="m-0">Usuarios</h1>
       <div className="card text-sm text-[#262C37]">
-        <strong>Roles:</strong> Dirección ve y edita todo, incluidos usuarios y auditoría. Comercial atiende conversaciones, contactos, proyectos y el bot. Desarrollo y Solo lectura ven el CRM sin editar. <strong>Sistemas:</strong> cada persona puede ver el Sistema comercial, el Sistema Academia o los dos (por ejemplo, la dirección académica solo Academia).
+        <strong>Roles:</strong> Dirección ve y edita todo, incluidos usuarios y auditoría. Comercial atiende conversaciones, contactos, proyectos y el bot. Desarrollo y Solo lectura ven el CRM sin editar. <strong>Sistemas:</strong> cada persona puede ver el Sistema comercial, el Sistema Academia o los dos (por ejemplo, la dirección académica solo Academia). <strong>Docentes de la Academia:</strong> no se cargan acá; tienen un acceso de autor propio (solo sus cursos, alumnos y videollamadas) que se da de alta en <a href={`${URL_ACADEMIA}/sistema/autores`} className="underline font-semibold">Sistema Academia → Autores</a>.
       </div>
       {link && (
         <div className="card border-[#C8231F]">

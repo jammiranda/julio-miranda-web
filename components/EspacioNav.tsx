@@ -76,7 +76,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           ...(edita ? [{ href: "/sistema/cursos", t: "Cursos", i: "libro" }, { href: "/sistema#guias", t: "Guías", i: "guia" }, { href: "/sistema#productos", t: "Productos y ventas", i: "bolsa" }] : []),
         ] },
         { t: "Comunicación", items: edita ? [{ href: "/email", t: "Envíos de email", i: "mail" }, { href: "/sistema/recursos", t: "Recursos con palabra clave", i: "etiqueta" }] : [] },
-        { t: "Administración", items: gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }] : [] },
+        { t: "Administración", items: gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/sistema/autores", t: "Autores (docentes)", i: "birrete" }] : [] },
         { t: null, items: [{ href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
       ]
     : [
