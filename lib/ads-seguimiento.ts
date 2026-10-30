@@ -40,6 +40,7 @@ export async function guardarCampania(c: Partial<Seguimiento> & { campania_id: s
 
 /** Suma una entrada a la bitácora. En los controles guarda además seguidores y usos de la palabra clave del momento. */
 export async function anotar(campania_id: string, e: { tipo: EntradaBitacora["tipo"]; texto: string; por: string; datos?: Control; fecha?: string }) {
+  if (campania_id === "120250033073090320") await asegurarPrimera().catch(() => {})
   const s = await one<Seguimiento>("select * from ads_seguimiento where campania_id=$1", [campania_id])
   if (!s) throw new Error("No existe esa campaña en el seguimiento")
   const datos = e.tipo === "control" ? { ...(e.datos ?? {}), seguidores: await seguidoresHoy(), palabra_usos: await usosPalabra(s.base_palabra) } : e.datos
@@ -48,8 +49,30 @@ export async function anotar(campania_id: string, e: { tipo: EntradaBitacora["ti
   return entrada
 }
 
+
+/** Primera campaña (29/10/2026): se asegura una sola vez por si la carga desde el navegador no llegó. */
+let asegurada = false
+async function asegurarPrimera() {
+  if (asegurada) return
+  asegurada = true
+  const ya = await one("select 1 from ads_seguimiento where campania_id='120250033073090320'").catch(() => ({}))
+  if (ya) return
+  await guardarCampania({
+    plataforma: "meta", campania_id: "120250033073090320", nombre: "DEVISEBIT · Seguidores Instagram · Base depurada (prueba 10 días)",
+    objetivo: "Tráfico → visitas al perfil de Instagram @devisebit", presupuesto_diario: 3000, moneda: "ARS",
+    inicio: "2026-10-29T22:25:00-03:00", fin: "2026-11-08T22:25:00-03:00",
+    publico: "Base depurada de contactos (lista de clientes) + público similar 1% · Argentina · Advantage+",
+    anuncios: "1) DIAGNOSTICO · placa \"¿Empezamos por un diagnóstico?\" con texto propio: seguir a @devisebit y escribir DIAGNOSTICO por DM (el bot responde con el autodiagnóstico).\n2) Servicios · rota 4 posteos: asistente de WhatsApp con IA, IA en salud, CRM con WhatsApp y \"Así trabajamos\".\nBotón: Ir al perfil de Instagram.",
+    meta: "Prueba de 10 días para sumar seguidores calificados en Instagram y pedidos de DIAGNOSTICO; ver qué anuncio rinde mejor antes de escalar.",
+    estado: "activa", base_palabra: "DIAGNOSTICO",
+  })
+  await anotar("120250033073090320", { tipo: "decision", por: "Julio", fecha: "2026-10-29T22:55:00-03:00", texto: "Lanzamos la prueba: 10 días, $3.000 por día, cuenta en pesos. Se cambiaron las notas del blog por posteos de servicios (IA y WhatsApp) y se sumó un anuncio con DIAGNOSTICO. Bot de DIAGNOSTICO probado por DM: responde bien." })
+  await anotar("120250033073090320", { tipo: "nota", por: "Claude", fecha: "2026-10-29T23:00:00-03:00", texto: "Seguimiento automático lunes, miércoles y viernes 11:43 h: Claude carga acá los números de Meta y avisa. Pendiente: si se sube un reel del bot de WhatsApp a @devisebit, sumarlo como tercer anuncio (mismo presupuesto)." })
+}
+
 /** Fichas con los indicadores calculados para el Panel. */
 export async function seguimientos() {
+  await asegurarPrimera().catch(() => {})
   const filas = await q<Seguimiento>("select *, to_char(inicio,'YYYY-MM-DD\"T\"HH24:MI:SSOF') inicio, to_char(fin,'YYYY-MM-DD\"T\"HH24:MI:SSOF') fin from ads_seguimiento order by (ads_seguimiento.estado='activa') desc, ads_seguimiento.inicio desc nulls last limit 12")
   const segHoy = await seguidoresHoy()
   return Promise.all(filas.map(async (s) => {
