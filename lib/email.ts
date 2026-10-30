@@ -148,10 +148,10 @@ export async function encolar(cid: number) {
 /** Manda lo pendiente respetando el límite diario. Devuelve cuántos salieron. */
 export async function procesarCola(max = LIMITE_DIARIO) {
   if (!brevoConfigurado()) return { enviados: 0, motivo: "Brevo no configurado" }
-  const cupo = Math.max(0, Math.min(max, LIMITE_DIARIO - (await enviadosHoy())))
-  if (!cupo) return { enviados: 0, motivo: "Límite diario alcanzado" }
   // Lo excluido que ya estaba en cola no sale
   await q(`update em_envios e set estado='omitido', error='Excluido de los envíos' where e.estado='pendiente' and (${EMAIL_EXCLUIDO("e.email")} or exists (select 1 from db_contactos c where c.id=e.contacto_id and (${EXCLUIDOS_SQL} or 'no-enviar' = any(c.tags))))`).catch(() => {})
+  const cupo = Math.max(0, Math.min(max, LIMITE_DIARIO - (await enviadosHoy())))
+  if (!cupo) return { enviados: 0, motivo: "Límite diario alcanzado" }
   const lote = await q<any>(
     `select e.id, e.email, e.campania_id, ct.nombre, ct.email_token, k.asunto, k.preheader, k.contenido, k.estilo, k.portada
      from em_envios e join em_campanias k on k.id=e.campania_id left join db_contactos ct on ct.id=e.contacto_id
