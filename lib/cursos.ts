@@ -3,7 +3,7 @@ import { q, one, audit } from "./db"
 import { aHtml, plantilla, enviarBrevo } from "./email"
 import { notificar } from "./push"
 import { URL_ACADEMIA } from "./academia"
-import { crearAcceso, urlPortal } from "./portal"
+import { crearAcceso } from "./portal"
 
 /**
  * ACADEMIA DEVISEBIT · cursos (modelo tomado de Academia USL):
@@ -124,7 +124,7 @@ export async function aprobar(iid: number, por: string) {
   await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'aprobado',$3)", [i.contacto_id, iid, d.slug])
   await audit({ id: 0, usuario: por }, "curso_aprobado", "am_inscripcion", iid, d.titulo)
   if (d.email) {
-    const md = `# ¡Felicitaciones, terminaste el curso!\n\nHola {{nombre}}, aprobaste **${d.titulo}**.${cert ? `\n\nTu certificado ya está disponible. Cualquier persona puede verificarlo con el código **${cert}**.\n\n[[Ver mi certificado|${urlCertificado(cert)}]]` : ""}\n\nEn tu cuenta tenés todos tus cursos y certificados. Gracias por aprender con la ACADEMIA DEVISEBIT.\n\n[[Ver más cursos|${URL_ACADEMIA}/cursos]]`
+    const md = `# ¡Felicitaciones, terminaste el curso!\n\nHola {{nombre}}, aprobaste **${d.titulo}**.${cert ? `\n\nTu certificado ya está disponible. Cualquier persona puede verificarlo con el código **${cert}**.\n\n[[Ver mi certificado|${urlCertificado(cert)}]]` : ""}\n\nEn [tu cuenta de la Academia](${URL_ACADEMIA}/mi-cuenta) tenés todos tus cursos y certificados. Gracias por aprender con la ACADEMIA DEVISEBIT.\n\n[[Ver más cursos|${URL_ACADEMIA}/cursos]]`
     await enviarBrevo({ email: d.email, name: d.nombre }, `Aprobaste ${d.titulo}${cert ? " · tu certificado" : ""}`, plantilla(aHtml(md), { nombre: d.nombre, preheader: "Tu certificado está listo" })).catch(() => {})
   }
   await notificar(["gerente", "coordinacion"], "🎓 Curso aprobado", `${d.nombre} · ${d.titulo}`, `/sistema/cursos/edicion/${i.edicion_id}`).catch(() => {})
@@ -163,10 +163,10 @@ export async function bienvenida(iid: number) {
     `select i.contacto_id, k.nombre, k.email, c.titulo, e.nombre edicion, to_char(e.inicio,'YYYY-MM-DD') inicio, e.horario, e.link
      from am_inscripciones i join db_contactos k on k.id=i.contacto_id join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id where i.id=$1`, [iid])
   if (!d?.email) return
-  const { url } = await crearAcceso(d.contacto_id, "invitacion")
-  const ir = `${url}?ir=${encodeURIComponent(`/portal/cursos/${iid}`)}`
+  // El link abre el aula dentro de la Academia (academia.devisebit.com/mi-cuenta/cursos/…), no el portal.
+  const { url: ir } = await crearAcceso(d.contacto_id, "invitacion", { sitio: "academia", a: `/mi-cuenta/cursos/${iid}` })
   const inicio = d.inicio ? `\n\nArranca el **${new Date(d.inicio + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long" })}**${d.horario ? ` · ${d.horario}` : ""}.` : ""
-  const md = `# ¡Ya estás inscripto!\n\nHola {{nombre}}, te damos la bienvenida a **${d.titulo}** (${d.edicion}).${inicio}\n\nEn tu cuenta vas a encontrar las clases, los materiales para descargar, tu avance y, al terminar, tu certificado.\n\n[[Entrar al curso|${ir}]]\n\nEl botón vale 7 días. Después podés entrar siempre desde ${urlPortal()} con tu email.`
+  const md = `# ¡Ya estás inscripto!\n\nHola {{nombre}}, te damos la bienvenida a **${d.titulo}** (${d.edicion}).${inicio}\n\nEn tu cuenta vas a encontrar las clases, los materiales para descargar, tu avance y, al terminar, tu certificado.\n\n[[Entrar al curso|${ir}]]\n\nEl botón vale 7 días. Después podés entrar siempre desde ${URL_ACADEMIA}/mi-cuenta con tu email.`
   await enviarBrevo({ email: d.email, name: d.nombre }, `Bienvenido a ${d.titulo}`, plantilla(aHtml(md), { nombre: d.nombre, preheader: "Tu acceso al curso" }))
 }
 
@@ -224,9 +224,58 @@ export async function recordatoriosClases() {
   let n = 0
   for (const x of l) {
     const hora = new Date(x.fecha).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })
-    const md = `# Hoy tenés clase\n\nHola {{nombre}}, hoy a las **${hora}** es la clase de **${x.titulo}**${x.tema ? `: ${x.tema}` : ""}.${x.lugar ? `\n\nLugar: ${x.lugar}` : ""}\n\n${x.link ? `[[Entrar a la clase|${x.link}]]` : `[[Ver el curso|${urlPortal(`/cursos/${x.iid}`)}]]`}`
+    const md = `# Hoy tenés clase\n\nHola {{nombre}}, hoy a las **${hora}** es la clase de **${x.titulo}**${x.tema ? `: ${x.tema}` : ""}.${x.lugar ? `\n\nLugar: ${x.lugar}` : ""}\n\n${x.link ? `[[Entrar a la clase|${x.link}]]` : `[[Ver el curso|${URL_ACADEMIA}/mi-cuenta/cursos/${x.iid}]]`}`
     const r = await enviarBrevo({ email: x.email, name: x.nombre }, `Hoy ${hora} · ${x.titulo}`, plantilla(aHtml(md), { nombre: x.nombre, preheader: x.tema ?? "Recordatorio de clase" })).catch(() => ({ ok: false }))
     if (r.ok) n++
   }
   return n
+}
+
+// ── Aula del alumno (compartida por el portal y por academia.devisebit.com/mi-cuenta) ──
+/** Rutas del aula según dónde se muestre: portal (/portal/cursos) o Academia (/mi-cuenta/cursos). */
+export const BASES_AULA = ["/portal/cursos", "/mi-cuenta/cursos"] as const
+export type BaseAula = (typeof BASES_AULA)[number]
+export const esBaseAula = (v: unknown): v is BaseAula => BASES_AULA.includes(v as BaseAula)
+/** Descarga de materiales de cada lugar. */
+export const descargaAula = (base: BaseAula, iid: number, lid: number) => (base === "/portal/cursos" ? `/portal/descargar/${iid}/${lid}` : `/mi-cuenta/descargar/${iid}/${lid}`)
+
+/** Todo lo que muestra el aula de un curso: inscripción, lecciones con avance, clases con asistencia. Null si no es suyo. */
+export async function aulaDe(cid: number, iid: number) {
+  const i = await inscripcionDe(cid, iid)
+  if (!i) return null
+  const [lecciones, av, clases] = await Promise.all([
+    leccionesDe(i.curso_id, i.id),
+    avance(i.id),
+    q<any>(`select cl.*, a.presente from am_clases cl left join am_asistencias a on a.clase_id=cl.id and a.inscripcion_id=$2 where cl.edicion_id=$1 order by cl.fecha`, [i.edicion_id, i.id]),
+  ])
+  return { i, lecciones, av, clases }
+}
+
+/** Próximas clases en vivo de todos sus cursos activos (para el inicio del alumno). */
+export async function proximasClasesDe(cid: number, limite = 5) {
+  return await q<any>(
+    `select cl.id, cl.fecha, cl.tema, coalesce(cl.link, e.link) link, e.lugar, c.titulo, i.id iid
+     from am_clases cl join am_ediciones e on e.id=cl.edicion_id join am_cursos c on c.id=e.curso_id
+     join am_inscripciones i on i.edicion_id=e.id and i.contacto_id=$1 and i.estado in ('inscripto','cursando')
+     where cl.fecha > now() - interval '3 hours' order by cl.fecha limit $2`,
+    [cid, limite],
+  )
+}
+
+/** Material descargable de una lección, solo si la persona está inscripta en ese curso. */
+export async function materialDe(cid: number, iid: number, lid: number) {
+  return await one<{ archivo_url: string }>(
+    `select l.archivo_url from am_lecciones l join am_ediciones e on e.curso_id=l.curso_id join am_inscripciones i on i.edicion_id=e.id
+     where i.id=$1 and i.contacto_id=$2 and i.estado<>'baja' and l.id=$3 and l.publicada and l.archivo_url is not null`,
+    [iid, cid, lid],
+  )
+}
+
+/** Guías y productos de la Academia que compró con ese email (órdenes pagadas). */
+export async function comprasDe(email: string) {
+  return await q<any>(
+    `select o.token, o.pagada_en, o.creado, p.titulo, p.slug, p.servicio, (p.archivo_url is not null) descarga
+     from am_ordenes o join am_productos p on p.id=o.producto_id where lower(o.email)=lower($1) and o.estado='pagada' order by coalesce(o.pagada_en, o.creado) desc`,
+    [email],
+  ).catch(() => [])
 }

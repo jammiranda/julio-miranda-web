@@ -2,11 +2,12 @@
 import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import CuentaHeader from "./CuentaHeader"
 
 type Item = { href: string; label: string }
 
 /** Menú hamburguesa de la Academia (solo celular/tablet vertical). Accesible: aria-expanded, Escape, foco y bloqueo de scroll. */
-export default function MenuMovil({ items }: { items: Item[] }) {
+export default function MenuMovil({ items, cuenta = false }: { items: Item[]; cuenta?: boolean }) {
   const [abierto, setAbierto] = useState(false)
   const boton = useRef<HTMLButtonElement>(null)
   const panel = useRef<HTMLDivElement>(null)
@@ -58,6 +59,7 @@ export default function MenuMovil({ items }: { items: Item[] }) {
             <span className="block mt-1 text-base font-semibold">Autodiagnóstico de transformación digital →</span>
           </a>
           <a href="/#suscribirme" onClick={() => setAbierto(false)} className="mt-4 min-h-[48px] inline-flex items-center justify-center rounded-xl border border-white/25 text-white font-semibold no-underline">Suscribirme a las guías</a>
+          {cuenta && <CuentaHeader menu />}
         </nav>
       </div>
     </>

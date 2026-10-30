@@ -4,7 +4,7 @@ import type { Metadata } from "next"
 import { q, one, audit } from "@/lib/db"
 import { mdWeb } from "@/lib/academia"
 import { modalidad, tipoLeccion, inscribir, contactoPorEmail } from "@/lib/cursos"
-import { clienteActual, urlPortal } from "@/lib/portal"
+import { clienteActual } from "@/lib/portal"
 import { fecha } from "@/lib/util"
 import BarraAccion from "../../_ui/BarraAccion"
 import BotonEnviar from "../../_ui/BotonEnviar"
@@ -42,7 +42,7 @@ async function anotarme(fd: FormData) {
   const r = await inscribir(cid, edicion, "web", true)
   await audit({ id: 0, usuario: `alumno:${cid}` }, r.ok ? "curso_inscripcion" : "curso_inscripcion_error", "am_edicion", edicion, r.ok ? slug : r.error)
   if (!r.ok) redirect(`/cursos/${slug}?e=${encodeURIComponent(r.error)}#inscripcion`)
-  if (yo && yo.id === cid) redirect(urlPortal(`/cursos/${r.id}`))
+  if (yo && yo.id === cid) redirect(`/mi-cuenta/cursos/${r.id}`)
   redirect(`/cursos/${slug}?ok=1#inscripcion`)
 }
 
@@ -99,9 +99,9 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
           <div className="card flex flex-col gap-3 [@media(min-width:768px)_and_(min-height:900px)]:sticky md:top-24 shadow-[0_8px_30px_rgba(14,17,22,.06)]">
             <p className="m-0 text-2xl font-extrabold">{c.precio ? `$ ${Number(c.precio).toLocaleString("es-AR")}` : "Gratis"}</p>
             {searchParams.ok ? (
-              <div role="status" className="rounded-xl bg-emerald-50 p-4 text-sm"><strong className="block mb-1">¡Listo, ya estás inscripto!</strong>Te mandamos un email con el acceso al curso. Revisá también spam o promociones.</div>
+              <div role="status" className="rounded-xl bg-emerald-50 p-4 text-sm"><strong className="block mb-1">¡Listo, ya estás inscripto!</strong>Te mandamos un email con el acceso al curso (revisá también spam o promociones). También podés entrar desde <Link href="/mi-cuenta" className="underline font-semibold">Mi cuenta</Link> con tu email.</div>
             ) : ya ? (
-              <a href={urlPortal(`/cursos/${ya.id}`)} className="btn-p min-h-[52px] text-base">Ir a mi curso</a>
+              <Link href={`/mi-cuenta/cursos/${ya.id}`} className="btn-p min-h-[52px] text-base">Ir a mi curso</Link>
             ) : !abiertas.length ? (
               <p className="m-0 text-sm text-[#4A515C]">No hay ediciones con inscripción abierta. Suscribite a la newsletter desde la portada y te avisamos.</p>
             ) : (
