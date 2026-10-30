@@ -487,6 +487,13 @@ insert into g_modulos(codigo,nombre,responsable,entregable,orden) values
   ('m10','ACADEMIA DEVISEBIT','Julio + Jime','Plan de cursos y avales para certificar',10)
   on conflict (codigo) do nothing;
 create table if not exists g_cache (clave text primary key, valor jsonb, actualizado timestamptz not null default now());
+create table if not exists ads_seguimiento (
+  id serial primary key, plataforma text not null default 'meta', campania_id text not null unique, nombre text not null,
+  objetivo text, presupuesto_diario numeric, moneda text not null default 'ARS', inicio timestamptz, fin timestamptz,
+  publico text, anuncios text, meta text, estado text not null default 'activa',
+  base_seguidores int, base_palabra text, base_palabra_usos int,
+  bitacora jsonb not null default '[]'::jsonb, creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
 create table if not exists pc_ig_seguidores (dia date primary key, seguidores int not null, siguiendo int, publicaciones int, actualizado timestamptz not null default now());
 create table if not exists pc_competencia (
   id serial primary key, cuenta text not null, red text not null default 'instagram', seguidores int not null,
