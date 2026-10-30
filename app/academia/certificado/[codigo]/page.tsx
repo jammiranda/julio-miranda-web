@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { one } from "@/lib/db"
 import Imprimir from "@/components/Imprimir"
 import { modalidad } from "@/lib/cursos"
+import { firmaCertificado } from "@/lib/portadas"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Verificación de certificado", robots: { index: false, follow: false } }
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: "Verificación de certificado", robot
 export default async function Certificado({ params }: { params: { codigo: string } }) {
   const cod = params.codigo.toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 20)
   const c = await one<any>(
-    `select ce.*, cu.modalidad, cu.docente, to_char(ce.emitido at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD') dia
+    `select ce.*, cu.modalidad, cu.docente, cu.docente_slug, to_char(ce.emitido at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD') dia
      from am_certificados ce join am_inscripciones i on i.id=ce.inscripcion_id join am_ediciones e on e.id=i.edicion_id join am_cursos cu on cu.id=e.curso_id
      where ce.codigo=$1`, [cod])
   if (!c || c.anulado)
@@ -49,7 +50,7 @@ export default async function Certificado({ params }: { params: { codigo: string
           </div>
           <div className="w-full flex items-end justify-between gap-4 text-left">
             <div className="text-[clamp(8px,1vw,11px)] text-[#4A515C] leading-relaxed">Emitido el {dia}<br />Código de verificación: <strong className="text-[#0E1116]">{c.codigo}</strong><br />Verificalo en academia.devisebit.com/certificado/{c.codigo}</div>
-            <div className="text-center text-[clamp(8px,1vw,11px)] text-[#4A515C]"><div className="border-t border-[#0E1116]/40 pt-1 px-6">{c.docente ? <><strong className="text-[#0E1116]">{c.docente}</strong><br />Lo enseñó</> : <><strong className="text-[#0E1116]">DEVISEBIT SRL</strong><br />Academia</>}</div></div>
+            <div className="text-center text-[clamp(8px,1vw,11px)] text-[#4A515C]"><div className="border-t border-[#0E1116]/40 pt-1 px-6">{c.docente ? (firmaCertificado(c.docente_slug) === "Creado por" ? <>Creado por<br /><strong className="text-[#0E1116]">{c.docente}</strong></> : <><strong className="text-[#0E1116]">{c.docente}</strong><br />{firmaCertificado(c.docente_slug)}</>) : <><strong className="text-[#0E1116]">DEVISEBIT SRL</strong><br />Academia</>}</div></div>
           </div>
         </div>
       </section>

@@ -16,7 +16,7 @@ const CURSOS = [
   { slug: "ia-para-tu-pyme-5-tareas-en-una-semana", tema: "Automatización", t: ["IA para tu pyme:", "5 tareas en", "una semana"], bg: "#F3B23C", fg: "#14110A", ac: "#C8231F", motivo: "tareas" },
   { slug: "whatsapp-con-ia-asistente-de-tu-negocio", tema: "WhatsApp e IA", t: ["WhatsApp con IA", "para tu negocio"], bg: "#0D5E46", fg: "#FFFFFF", ac: "#7BE0A8", motivo: "chat" },
   { slug: "introduccion-a-la-transformacion-digital", tema: "Transformación digital", t: ["Introducción", "a la transformación", "digital"], bg: "#1F3FB0", fg: "#FFFFFF", ac: "#FFD166", motivo: "escalera" },
-  { slug: "panel-de-contenido-con-ia-de-cero-a-produccion", tema: "Desarrollo con IA", t: ["Panel de", "contenido con IA,", "de cero a producción"], bg: "#0E1116", fg: "#FFFFFF", ac: "#2EC4B6", motivo: "barras" },
+  { slug: "panel-de-contenido-con-ia-de-cero-a-produccion", tema: "Desarrollo con IA", t: ["Creá tu panel", "de contenido", "con IA"], bg: "#0E1116", fg: "#FFFFFF", ac: "#2EC4B6", motivo: "barras" },
   { slug: "transforma-tu-empresa-con-ia-el-ecosistema-digital", tema: "Transformación digital", t: ["Transformá", "tu empresa", "con IA"], bg: "#B51F1B", fg: "#FFFFFF", ac: "#FFC2BE", motivo: "orbitas" },
 ]
 

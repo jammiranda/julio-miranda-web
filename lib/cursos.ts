@@ -81,13 +81,18 @@ export async function avance(iid: number): Promise<Avance> {
 /** Revisa si ya cumple los requisitos y, si corresponde, aprueba y emite el certificado. */
 export async function evaluar(iid: number) {
   const i = await one<any>(
-    `select i.estado, e.estado edicion_estado, c.req_lecciones, c.req_asistencia,
+    `select i.estado, i.parcial, e.estado edicion_estado, c.req_lecciones, c.req_asistencia,
        (select count(*)::int from am_clases k where k.edicion_id=i.edicion_id) clases
      from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id where i.id=$1`,
     [iid],
   )
   if (!i || !["inscripto", "cursando"].includes(i.estado)) return false
   const a = await avance(iid)
+  // Inscripción gratuita (solo el primer módulo): cursa y avanza, pero la aprobación y el certificado exigen pagar el curso.
+  if (i.parcial) {
+    if (i.estado === "inscripto" && a.hechas > 0) await q("update am_inscripciones set estado='cursando' where id=$1 and estado='inscripto'", [iid])
+    return false
+  }
   const okLecciones = a.pctLecciones >= i.req_lecciones
   const okAsistencia = i.clases === 0 || (i.edicion_estado === "finalizada" && a.pctAsistencia >= i.req_asistencia)
   if (okLecciones && okAsistencia && (a.lecciones > 0 || i.clases > 0)) { await aprobar(iid, "automático"); return true }
@@ -103,7 +108,7 @@ const codigo = () => {
 /** Aprueba (a mano o automático), emite certificado si el curso certifica y avisa al alumno. */
 export async function aprobar(iid: number, por: string) {
   const i = await one<any>(
-    `update am_inscripciones set estado='aprobado', aprobado_en=coalesce(aprobado_en, now()) where id=$1 and estado<>'aprobado'
+    `update am_inscripciones set estado='aprobado', aprobado_en=coalesce(aprobado_en, now()) where id=$1 and estado<>'aprobado' and not parcial
      returning id, contacto_id, edicion_id`, [iid])
   if (!i) return null
   const d = await one<any>(
@@ -133,18 +138,23 @@ export async function aprobar(iid: number, por: string) {
 
 // ── Inscripción ──
 /** Inscribe a un contacto en una edición (sin duplicar), lo etiqueta en el CRM y le manda la bienvenida con acceso. */
-export async function inscribir(contactoId: number, edicionId: number, origen: string, conEmail = true) {
+export async function inscribir(contactoId: number, edicionId: number, origen: string, conEmail = true, opc: { parcial?: boolean } = {}) {
+  const parcial = !!opc.parcial
   const e = await one<any>(
     `select e.*, c.titulo, c.slug, c.estado curso_estado, (select count(*)::int from am_inscripciones i where i.edicion_id=e.id and i.estado<>'baja') inscriptos
      from am_ediciones e join am_cursos c on c.id=e.curso_id where e.id=$1`, [edicionId])
   if (!e) return { ok: false as const, error: "La edición no existe." }
-  const ya = await one<{ id: number; estado: string }>("select id, estado from am_inscripciones where edicion_id=$1 and contacto_id=$2", [edicionId, contactoId])
-  if (ya && ya.estado !== "baja") return { ok: true as const, id: ya.id, ya: true }
+  const ya = await one<{ id: number; estado: string; parcial: boolean }>("select id, estado, parcial from am_inscripciones where edicion_id=$1 and contacto_id=$2", [edicionId, contactoId])
+  if (ya && ya.estado !== "baja") {
+    // Ya estaba con el módulo gratis y ahora entra completo (alta del equipo o compra): se convierte la misma inscripción.
+    if (ya.parcial && !parcial) await completarAcceso(ya.id, origen)
+    return { ok: true as const, id: ya.id, ya: true }
+  }
   if (["finalizada", "cancelada"].includes(e.estado)) return { ok: false as const, error: "La inscripción a esta edición está cerrada." }
   if (e.cupo && e.inscriptos >= e.cupo) return { ok: false as const, error: "No quedan vacantes en esta edición." }
   const r = ya
-    ? await one<{ id: number }>("update am_inscripciones set estado='inscripto', origen=$2 where id=$1 returning id", [ya.id, origen])
-    : await one<{ id: number }>("insert into am_inscripciones(edicion_id, contacto_id, origen) values ($1,$2,$3) returning id", [edicionId, contactoId, origen])
+    ? await one<{ id: number }>("update am_inscripciones set estado='inscripto', origen=$2, parcial=$3 where id=$1 returning id", [ya.id, origen, parcial])
+    : await one<{ id: number }>("insert into am_inscripciones(edicion_id, contacto_id, origen, parcial) values ($1,$2,$3,$4) returning id", [edicionId, contactoId, origen, parcial])
   const iid = r!.id
   await q(
     `update db_contactos set tags=(select array(select distinct unnest(tags || array['alumno', $2::text]))),
@@ -153,21 +163,46 @@ export async function inscribir(contactoId: number, edicionId: number, origen: s
   )
   await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'inscripcion',$3)", [contactoId, iid, e.slug])
   if (conEmail) await bienvenida(iid).catch(() => {})
-  await notificar(["gerente", "coordinacion"], "🎓 Nueva inscripción", `${e.titulo} · ${e.nombre}`, `/sistema/cursos/edicion/${edicionId}`).catch(() => {})
+  await notificar(["gerente", "coordinacion"], parcial ? "🎓 Nueva inscripción (módulo gratis)" : "🎓 Nueva inscripción", `${e.titulo} · ${e.nombre}`, `/sistema/cursos/edicion/${edicionId}`).catch(() => {})
   return { ok: true as const, id: iid, ya: false }
+}
+
+/**
+ * Convierte una inscripción gratuita (solo el primer módulo) en el curso completo: misma inscripción, mismo avance.
+ * Avisa por email que se desbloqueó todo. Devuelve false si ya estaba completa.
+ */
+export async function completarAcceso(iid: number, origen: string, conEmail = true) {
+  const r = await one<{ contacto_id: number }>("update am_inscripciones set parcial=false where id=$1 and parcial returning contacto_id", [iid])
+  if (!r) return false
+  await q("insert into am_eventos(contacto_id, inscripcion_id, tipo, ref) values ($1,$2,'desbloqueo',$3)", [r.contacto_id, iid, origen]).catch(() => {})
+  if (conEmail) await avisoDesbloqueo(iid).catch(() => {})
+  return true
+}
+
+async function avisoDesbloqueo(iid: number) {
+  const d = await one<any>(
+    `select i.contacto_id, k.nombre, k.email, c.titulo from am_inscripciones i join db_contactos k on k.id=i.contacto_id
+     join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id where i.id=$1`, [iid])
+  if (!d?.email) return
+  const { url: ir } = await crearAcceso(d.contacto_id, "invitacion", { sitio: "academia", a: `/mi-cuenta/cursos/${iid}` })
+  const md = `# ¡Desbloqueaste el curso completo!\n\nHola {{nombre}}, ya tenés **${d.titulo}** completo. Tu avance del módulo 1 quedó guardado: seguís desde donde estabas.\n\nAhora tenés todos los módulos, el apunte y el cuaderno de trabajo en PDF (son tuyos), las plantillas, la videollamada de 30 minutos y, al terminar, tu certificado verificable. El acceso es de por vida.\n\n[[Seguir con el curso|${ir}]]\n\nEl botón vale 7 días. Después podés entrar siempre desde ${URL_ACADEMIA}/mi-cuenta con tu email.`
+  await enviarBrevo({ email: d.email, name: d.nombre }, `Ya tenés ${d.titulo} completo`, plantilla(aHtml(md), { nombre: d.nombre, preheader: "Seguís desde donde estabas" }))
 }
 
 /** Email de bienvenida con link directo al curso (entra sin contraseña). */
 export async function bienvenida(iid: number) {
   const d = await one<any>(
-    `select i.contacto_id, k.nombre, k.email, c.titulo, e.nombre edicion, to_char(e.inicio,'YYYY-MM-DD') inicio, e.horario, e.link
+    `select i.contacto_id, i.parcial, k.nombre, k.email, c.titulo, e.nombre edicion, to_char(e.inicio,'YYYY-MM-DD') inicio, e.horario, e.link
      from am_inscripciones i join db_contactos k on k.id=i.contacto_id join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id where i.id=$1`, [iid])
   if (!d?.email) return
   // El link abre el aula dentro de la Academia (academia.devisebit.com/mi-cuenta/cursos/…), no el portal.
   const { url: ir } = await crearAcceso(d.contacto_id, "invitacion", { sitio: "academia", a: `/mi-cuenta/cursos/${iid}` })
   const inicio = d.inicio ? `\n\nArranca el **${new Date(d.inicio + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long" })}**${d.horario ? ` · ${d.horario}` : ""}.` : ""
-  const md = `# ¡Ya estás inscripto!\n\nHola {{nombre}}, te damos la bienvenida a **${d.titulo}** (${d.edicion}).${inicio}\n\nEn tu cuenta vas a encontrar las clases, los materiales para descargar, tu avance y, al terminar, tu certificado.\n\n[[Entrar al curso|${ir}]]\n\nEl botón vale 7 días. Después podés entrar siempre desde ${URL_ACADEMIA}/mi-cuenta con tu email.`
-  await enviarBrevo({ email: d.email, name: d.nombre }, `Bienvenido a ${d.titulo}`, plantilla(aHtml(md), { nombre: d.nombre, preheader: "Tu acceso al curso" }))
+  const md = d.parcial
+    ? `# ¡Ya podés empezar gratis!\n\nHola {{nombre}}, te damos la bienvenida a **${d.titulo}**. El **módulo 1 es gratis**: lecciones y autoevaluaciones completas, a tu ritmo.\n\nCuando quieras seguir, desbloqueás el curso completo desde el aula: todos los módulos, el apunte y el cuaderno en PDF, las plantillas, la videollamada y el certificado. Tu avance queda guardado.\n\n[[Empezar el módulo 1|${ir}]]`
+    : `# ¡Ya estás inscripto!\n\nHola {{nombre}}, te damos la bienvenida a **${d.titulo}** (${d.edicion}).${inicio}\n\nEn tu cuenta vas a encontrar las clases, los materiales para descargar, tu avance y, al terminar, tu certificado.\n\n[[Entrar al curso|${ir}]]`
+  const md2 = `${md}\n\nEl botón vale 7 días. Después podés entrar siempre desde ${URL_ACADEMIA}/mi-cuenta con tu email.`
+  await enviarBrevo({ email: d.email, name: d.nombre }, `Bienvenido a ${d.titulo}`, plantilla(aHtml(md2), { nombre: d.nombre, preheader: d.parcial ? "Tu acceso al módulo 1 gratis" : "Tu acceso al curso" }))
 }
 
 /** Busca o crea el contacto por email (para inscripciones públicas y altas masivas). */
@@ -188,7 +223,7 @@ export async function contactoPorEmail(email: string, nombre?: string | null, ex
 export async function misInscripciones(cid: number) {
   const l = await q<any>(
     `select i.id, i.estado, i.creado, i.aprobado_en, e.id edicion_id, e.nombre edicion, e.inicio, e.fin, e.horario, e.estado edicion_estado,
-       c.id curso_id, c.titulo, c.slug, c.imagen, c.modalidad, c.horas, ce.codigo certificado
+       c.id curso_id, c.titulo, c.slug, c.imagen, c.modalidad, c.horas, i.parcial, c.gratis_modulos, ce.codigo certificado
      from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id
      left join am_certificados ce on ce.inscripcion_id=i.id and not ce.anulado
      where i.contacto_id=$1 and i.estado<>'baja' order by i.estado='aprobado', i.creado desc`, [cid])
@@ -199,20 +234,54 @@ export async function inscripcionDe(cid: number, iid: number) {
   return await one<any>(
     `select i.*, e.nombre edicion, e.inicio, e.fin, e.horario, e.lugar, e.link, e.estado edicion_estado,
        c.id curso_id, c.titulo, c.slug, c.bajada, c.descripcion, c.imagen, c.modalidad, c.horas, c.docente, c.req_lecciones, c.req_asistencia, c.certifica, c.videollamada, c.docente_slug, c.precio,
-       ce.codigo certificado
+       c.precio_usd, c.cuotas, c.gratis_modulos, ce.codigo certificado
      from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id
      left join am_certificados ce on ce.inscripcion_id=i.id and not ce.anulado
      where i.id=$1 and i.contacto_id=$2 and i.estado<>'baja'`, [iid, cid])
 }
 
 export async function leccionesDe(cursoId: number, iid?: number) {
-  return await q<any>(
-    `select l.*, ${iid ? "p.completada" : "null::timestamptz completada"} from am_lecciones l
-     ${iid ? "left join am_progreso p on p.leccion_id=l.id and p.inscripcion_id=$2" : ""}
-     where l.curso_id=$1 and l.publicada order by l.orden, l.id`,
-    iid ? [cursoId, iid] : [cursoId],
-  )
+  const [l, acc] = await Promise.all([
+    q<any>(
+      `select l.*, ${iid ? "p.completada" : "null::timestamptz completada"} from am_lecciones l
+       ${iid ? "left join am_progreso p on p.leccion_id=l.id and p.inscripcion_id=$2" : ""}
+       where l.curso_id=$1 and l.publicada order by l.orden, l.id`,
+      iid ? [cursoId, iid] : [cursoId],
+    ),
+    iid ? accesoDe(iid) : null,
+  ])
+  return conBloqueo(l, acc)
 }
+
+// ── Primer módulo gratis ──
+export const nombreModulo = (l: { modulo?: string | null }) => l.modulo || "Contenido"
+
+/** Si la inscripción es la gratuita (parcial) y cuántos módulos gratis tiene el curso. */
+export async function accesoDe(iid: number) {
+  return await one<{ parcial: boolean; gratis_modulos: number }>(
+    "select i.parcial, c.gratis_modulos from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos c on c.id=e.curso_id where i.id=$1", [iid])
+}
+
+/**
+ * Marca cada lección con su número de módulo (por orden de aparición) y, para una inscripción gratuita, cuáles quedan
+ * bloqueadas. Lo bloqueado se devuelve SIN contenido, video, quiz ni archivo (el servidor nunca lo manda), y en la parte
+ * gratis tampoco van los archivos: apunte, cuaderno y plantillas se descargan con el curso completo.
+ */
+export function conBloqueo<T extends { modulo?: string | null; archivo_url?: string | null }>(lecciones: T[], acc: { parcial: boolean; gratis_modulos: number } | null) {
+  const orden: string[] = []
+  return lecciones.map((l) => {
+    const m = nombreModulo(l)
+    if (!orden.includes(m)) orden.push(m)
+    const nmodulo = orden.indexOf(m)
+    if (!acc?.parcial) return { ...l, nmodulo, bloqueada: false, conArchivo: !!l.archivo_url }
+    const bloqueada = nmodulo >= Number(acc.gratis_modulos || 0)
+    const base = { ...l, nmodulo, bloqueada, conArchivo: !!l.archivo_url, archivo_url: null }
+    return bloqueada ? { ...base, contenido: "", video_url: null, quiz: null } : base
+  })
+}
+
+/** Rótulo del primer módulo gratis ("Módulo 1 gratis") según cuántos son. */
+export const textoGratis = (n: number) => (n > 1 ? `Módulos 1 a ${n} gratis` : "Módulo 1 gratis")
 
 /** Recordatorio por email de las clases de hoy (cron de las 8). */
 export async function recordatoriosClases() {
@@ -266,7 +335,7 @@ export async function proximasClasesDe(cid: number, limite = 5) {
 export async function materialDe(cid: number, iid: number, lid: number) {
   return await one<{ archivo_url: string }>(
     `select l.archivo_url from am_lecciones l join am_ediciones e on e.curso_id=l.curso_id join am_inscripciones i on i.edicion_id=e.id
-     where i.id=$1 and i.contacto_id=$2 and i.estado<>'baja' and l.id=$3 and l.publicada and l.archivo_url is not null`,
+     where i.id=$1 and i.contacto_id=$2 and i.estado<>'baja' and not i.parcial and l.id=$3 and l.publicada and l.archivo_url is not null`,
     [iid, cid, lid],
   )
 }
@@ -305,12 +374,24 @@ export async function edicionPermanente(cursoId: number) {
  */
 export async function inscribirPorCompra(o: { id: number; email: string; nombre: string | null; curso_id: number; pasarela: string }) {
   const cid = await contactoPorEmail(o.email, o.nombre, { origen: "Academia (compra de curso)" })
-  const ed = await edicionPermanente(o.curso_id)
-  const r = await inscribir(cid, ed, `compra:${o.pasarela}`, true)
-  if (!r.ok) return null
-  await q("update am_ordenes set inscripcion_id=$1 where id=$2", [r.id, o.id])
+  // Si ya cursaba el módulo gratis (en cualquier edición del curso), se convierte esa inscripción: no se duplica y conserva el avance.
+  const gratis = await one<{ id: number }>(
+    `select i.id from am_inscripciones i join am_ediciones e on e.id=i.edicion_id where e.curso_id=$1 and i.contacto_id=$2 and i.estado<>'baja' and i.parcial order by i.id limit 1`,
+    [o.curso_id, cid])
+  let iid: number
+  if (gratis) {
+    await completarAcceso(gratis.id, `compra:${o.pasarela}`)
+    if (o.nombre) await q("update db_contactos set nombre=$2, actualizado=now() where id=$1 and (nombre is null or nombre=split_part(email,'@',1))", [cid, o.nombre]).catch(() => {})
+    iid = gratis.id
+  } else {
+    const ed = await edicionPermanente(o.curso_id)
+    const r = await inscribir(cid, ed, `compra:${o.pasarela}`, true)
+    if (!r.ok) return null
+    iid = r.id
+  }
+  await q("update am_ordenes set inscripcion_id=$1 where id=$2", [iid, o.id])
   await q("update db_contactos set tags=(select array(select distinct unnest(tags || array['comprador']::text[]))), actualizado=now() where id=$1", [cid]).catch(() => {})
-  return r.id
+  return iid
 }
 
 // ── Quiz corto de una lección ──

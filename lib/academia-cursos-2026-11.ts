@@ -19,6 +19,18 @@ export type CursoSemilla = {
   lecciones: LeccionSemilla[]
 }
 
+/**
+ * Cursos pagos con el primer módulo gratis (con cuenta). Panel de contenido y WhatsApp con IA quedan 100 % pagos
+ * y el curso de Matías es gratis entero. En bases existentes lo aplica la migración "freemium-2026-11" de lib/db.ts.
+ */
+export const CURSOS_PRIMER_MODULO_GRATIS = [
+  "prompt-engineering-para-ejecutivos",
+  "liderazgo-en-la-era-de-la-ia",
+  "marca-personal-en-linkedin-para-lideres",
+  "ia-para-tu-pyme-5-tareas-en-una-semana",
+  "transforma-tu-empresa-con-ia-el-ecosistema-digital",
+]
+
 export async function sembrarCursos() {
   const nuevo = await one<{ lote: string }>("insert into am_semillas(lote) values ($1) on conflict do nothing returning lote", [LOTE_CURSOS_2026_11])
   if (!nuevo) return
@@ -35,11 +47,11 @@ async function sembrarCurso(c: CursoSemilla) {
   const ars = c.usd ? arsDesdeUsd(c.usd) : null
   const r = await one<{ id: number }>(
     `insert into am_cursos(slug, titulo, bajada, descripcion, categoria, nivel, docente, docente_slug, horas, modalidad, precio, precio_usd, cuotas,
-       estado, req_lecciones, req_asistencia, certifica, destacado, nuevo, videollamada, nota_interna)
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'online',$10,$11,$12,'publicado',100,0,true,$13,$14,$15,$16)
+       estado, req_lecciones, req_asistencia, certifica, destacado, nuevo, videollamada, nota_interna, gratis_modulos)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'online',$10,$11,$12,'publicado',100,0,true,$13,$14,$15,$16,$17)
      on conflict (slug) do nothing returning id`,
     [c.slug, c.titulo, c.bajada, c.descripcion, c.categoria, c.nivel, c.docente, c.docente_slug, c.horas, ars, c.usd, ars ? 3 : 1,
-      !!c.destacado, !!c.nuevo, !!c.usd, c.nota_interna ?? null],
+      !!c.destacado, !!c.nuevo, !!c.usd, c.nota_interna ?? null, ars && CURSOS_PRIMER_MODULO_GRATIS.includes(c.slug) ? 1 : 0],
   )
   if (!r) return
   await edicionPermanente(r.id)

@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { requerir, URL_ESPACIO } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
-import { ESTADOS_EDICION, ESTADOS_INSC, estadoInsc, avance, evaluar, aprobar, inscribir, bienvenida, contactoPorEmail, urlCertificado, modalidad } from "@/lib/cursos"
+import { ESTADOS_EDICION, ESTADOS_INSC, estadoInsc, avance, evaluar, aprobar, inscribir, bienvenida, contactoPorEmail, urlCertificado, modalidad, completarAcceso } from "@/lib/cursos"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 120
@@ -63,6 +63,8 @@ async function alumno(fd: FormData) {
   if (!i) back(id)
   const op = String(fd.get("op"))
   if (op === "aprobar") await aprobar(iid, u.usuario)
+  // Pasa una inscripción del módulo gratis al curso completo (pago por transferencia, beca…): misma inscripción, mismo avance.
+  else if (op === "completo") await completarAcceso(iid, `equipo:${u.usuario}`)
   else if (op === "acceso") await bienvenida(iid)
   else if (op === "anular") await q("update am_certificados set anulado=true where inscripcion_id=$1", [iid])
   else if (ESTADOS_INSC.some((e) => e.v === op)) {
@@ -157,7 +159,7 @@ export default async function Edicion({ params, searchParams }: { params: { id: 
         <h2 id="t-al" className="m-0 text-base">Alumnos ({activos.length})</h2>
         {sp.alta && <p role="status" className="m-0 text-sm text-emerald-700">{sp.alta} inscriptos nuevos{Number(sp.ya) ? `, ${sp.ya} ya estaban` : ""}.</p>}
         {sp.aerr && <p role="alert" className="m-0 text-sm text-rojo">No se pudieron inscribir: {sp.aerr}</p>}
-        {sp.aok && <p role="status" className="m-0 text-sm text-emerald-700">{sp.aok === "acceso" ? "Acceso reenviado por email." : sp.aok === "aprobar" ? "Aprobado y certificado enviado." : "Actualizado."}</p>}
+        {sp.aok && <p role="status" className="m-0 text-sm text-emerald-700">{sp.aok === "acceso" ? "Acceso reenviado por email." : sp.aok === "aprobar" ? "Aprobado y certificado enviado." : sp.aok === "completo" ? "Ahora tiene el curso completo (le avisamos por email)." : "Actualizado."}</p>}
         <div className="overflow-x-auto">
           <table className="tbl">
             <thead><tr><th>Alumno</th><th>Estado</th><th>Lecciones</th>{clases.length > 0 && <th>Asistencia</th>}<th>Certificado</th><th><span className="sr-only">Acciones</span></th></tr></thead>
@@ -168,14 +170,15 @@ export default async function Edicion({ params, searchParams }: { params: { id: 
                 return (
                   <tr key={a.id} className={a.estado === "baja" ? "opacity-50" : ""}>
                     <td>{u.espacios.includes("comercial") ? <a href={`${URL_ESPACIO.comercial}/contactos/${a.contacto_id}`} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline" title="Abrir la ficha en el Sistema comercial">{a.nombre}</a> : <strong>{a.nombre}</strong>}<span className="block text-xs text-[#4A515C]">{a.email}{a.organizacion ? ` · ${a.organizacion}` : ""}</span></td>
-                    <td><span className={`chip ${estadoInsc(a.estado).c}`}>{estadoInsc(a.estado).n}</span>{cumple && ["inscripto", "cursando"].includes(a.estado) && <span className="block text-xs text-emerald-700 mt-1">Cumple requisitos</span>}</td>
+                    <td><span className={`chip ${estadoInsc(a.estado).c}`}>{estadoInsc(a.estado).n}</span>{a.parcial && <span className="chip bg-[#FDECEB] text-[#9E1A17] ml-1">Módulo gratis</span>}{cumple && !a.parcial && ["inscripto", "cursando"].includes(a.estado) && <span className="block text-xs text-emerald-700 mt-1">Cumple requisitos</span>}</td>
                     <td className="whitespace-nowrap">{x.lecciones ? `${x.hechas}/${x.lecciones} · ${x.pctLecciones}%` : "—"}</td>
                     {clases.length > 0 && <td className="whitespace-nowrap">{x.presentes}/{x.clases} · {x.pctAsistencia}%</td>}
                     <td>{a.certificado ? <a href={urlCertificado(a.certificado)} target="_blank" rel="noopener noreferrer" className="underline text-xs">{a.certificado}</a> : "—"}</td>
                     <td>
                       <form action={alumno} className="flex flex-wrap gap-1 justify-end">
                         <input type="hidden" name="id" value={e.id} /><input type="hidden" name="iid" value={a.id} />
-                        {a.estado !== "aprobado" && a.estado !== "baja" && <button name="op" value="aprobar" className="btn-s py-1 px-2 text-xs">Aprobar</button>}
+                        {a.parcial && a.estado !== "baja" && <button name="op" value="completo" className="btn-s py-1 px-2 text-xs" title="Pagó por otro medio o tiene beca: pasa al curso completo con su avance">Dar curso completo</button>}
+                        {!a.parcial && a.estado !== "aprobado" && a.estado !== "baja" && <button name="op" value="aprobar" className="btn-s py-1 px-2 text-xs">Aprobar</button>}
                         {a.estado !== "baja" && <button name="op" value="acceso" className="btn-s py-1 px-2 text-xs">Reenviar acceso</button>}
                         {["inscripto", "cursando"].includes(a.estado) && <button name="op" value="desaprobado" className="btn-s py-1 px-2 text-xs">No aprobó</button>}
                         {a.estado === "baja" ? <button name="op" value="inscripto" className="btn-s py-1 px-2 text-xs">Reactivar</button> : <button name="op" value="baja" className="py-1 px-2 text-xs underline text-rojo">Baja</button>}

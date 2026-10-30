@@ -29,7 +29,7 @@ export default async function Academia() {
   await sembrar()
   const [guias, cursos, totales] = await Promise.all([
     q<any>("select slug, titulo, bajada, categoria, exclusiva, destacada from am_guias where publicada order by destacada desc, creado desc limit 7"),
-    q<any>("select slug, titulo, bajada, categoria, modalidad, horas, precio, precio_usd, cuotas, imagen, nuevo from am_cursos where estado='publicado' order by nuevo desc, (precio is null) desc, destacado desc, creado desc limit 6"),
+    q<any>("select slug, titulo, bajada, categoria, modalidad, horas, precio, precio_usd, cuotas, imagen, nuevo, videollamada, docente_slug, gratis_modulos from am_cursos where estado='publicado' order by nuevo desc, (precio is null) desc, destacado desc, creado desc limit 6"),
     q<{ cursos: number; guias: number }>("select (select count(*)::int from am_cursos where estado='publicado') cursos, (select count(*)::int from am_guias where publicada) guias"),
   ])
   const n = totales[0] ?? { cursos: cursos.length, guias: guias.length }
@@ -98,7 +98,7 @@ export default async function Academia() {
             <div className="max-w-2xl">
               <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[#C8231F]" />
               <h2 id="t-cursos" className="acad-h2 m-0 mt-4 font-extrabold tracking-tight">Cursos a tu ritmo, con certificado</h2>
-              <p className="m-0 mt-2 text-[17px] text-[#4A515C]">Empezás cuando quieras. Los pagos incluyen una videollamada de 30 minutos con quien lo enseña.</p>
+              <p className="m-0 mt-2 text-[17px] text-[#4A515C]">Empezás cuando quieras, y en varios el módulo 1 es gratis. Los pagos son tuyos de por vida: apunte y cuaderno en PDF, plantillas, certificado y una videollamada de 30 minutos.</p>
             </div>
             <Link href="/cursos" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[#B91F1B] hover:underline">Ver los {n.cursos} cursos <Flecha /></Link>
           </div>

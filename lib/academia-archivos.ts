@@ -1,6 +1,7 @@
 import { createHash } from "crypto"
 import { q, one } from "./db"
 import { descifrarBloque, cifrarBloque, claveCursos } from "./cifrado-gcm"
+import { firmaCurso, conQuien } from "./portadas"
 
 /**
  * Materiales protegidos de la Academia guardados en la base (apuntes y cuadernos de los cursos, en PDF).
@@ -148,8 +149,10 @@ export async function sembrarMateriales() {
   if (!nuevo) return
   try {
     for (const slug of CURSOS_CON_MATERIALES) {
-      const c = await one<{ id: number }>("select id from am_cursos where slug=$1", [slug])
+      const c = await one<{ id: number; docente_slug: string | null }>("select id, docente_slug from am_cursos where slug=$1", [slug])
       if (!c) continue
+      // En los cursos "creados por" (Julio) la videollamada es con esa persona, no "con quien enseña el curso".
+      const conX = firmaCurso(c.docente_slug) === "Creado por" ? conQuien(c.docente_slug) : "con quien enseña el curso"
       for (const m of MATERIALES) {
         const url = `${PREFIJO_DB}cursos/${slug}/${m.archivo}`
         const ya = await one<{ id: number }>("select id from am_lecciones where curso_id=$1 and (archivo_url=$2 or titulo=$3) limit 1", [c.id, url, m.titulo])
@@ -158,7 +161,7 @@ export async function sembrarMateriales() {
         await q(
           `insert into am_lecciones(curso_id, orden, modulo, titulo, tipo, contenido, archivo_url, duracion_min, publicada)
            values ($1, coalesce((select max(orden) from am_lecciones where curso_id=$1),0)+1, 'Materiales del curso', $2, 'descarga', $3, $4, null, $5)`,
-          [c.id, m.titulo, m.contenido, url, !!hay],
+          [c.id, m.titulo, m.contenido.replace("con quien enseña el curso", conX), url, !!hay],
         )
       }
     }

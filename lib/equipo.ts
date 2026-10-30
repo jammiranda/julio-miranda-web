@@ -11,6 +11,13 @@ export type Perfil = {
   grupo: "academica" | "direccion" | "especialista"
   /** Especialista invitado (no es parte del staff de DEVISEBIT). */
   invitado?: boolean
+  /**
+   * Cómo se firman sus cursos. Por defecto "Lo enseña"; "Creado por" para quien arma el curso y no quiere figurar
+   * como docente (Julio). Se usa en tarjetas, página del curso, aula y certificado (ver firmaCurso en lib/portadas.ts).
+   */
+  firma?: "Creado por"
+  /** La foto se muestra solo en las páginas de equipo (/equipo): no va en metadatos (Open Graph) ni en ningún otro lado. */
+  fotoSoloEnEquipo?: boolean
   titular: string
   resumen: string
   bio: string[]
@@ -67,6 +74,8 @@ export const EQUIPO: Perfil[] = [
     iniciales: "JM",
     rol: "Fundador de DEVISEBIT",
     grupo: "direccion",
+    firma: "Creado por",
+    fotoSoloEnEquipo: true,
     titular: "Transformación digital e inteligencia artificial aplicada",
     resumen: "Más de 15 años liderando proyectos de software, datos y transformación digital en salud, gobierno y educación.",
     bio: [

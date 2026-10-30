@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { estadoInsc, modalidad, tipoLeccion, urlCertificado, embedVideo, descargaAula, quizDe, type BaseAula, type Avance } from "@/lib/cursos"
-import { mdWeb } from "@/lib/academia"
+import { estadoInsc, modalidad, tipoLeccion, urlCertificado, embedVideo, descargaAula, quizDe, pesos, dolares, textoCuotas, textoGratis, type BaseAula, type Avance } from "@/lib/cursos"
+import { mdWeb, URL_ACADEMIA } from "@/lib/academia"
+import { firmaCurso } from "@/lib/portadas"
 import { completarLeccion, pedirVideollamada } from "@/lib/aula-acciones"
 import { fecha } from "@/lib/util"
 
@@ -18,6 +19,41 @@ export const Barra = ({ pct, label }: { pct: number; label: string }) => (
   </div>
 )
 
+const Candado = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" /><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" /></svg>
+)
+
+/** Dónde se compra el curso completo (desde el portal va a la Academia). */
+const urlCompra = (base: BaseAula, slug: string) => `${base === "/mi-cuenta/cursos" ? "" : URL_ACADEMIA}/cursos/${slug}#inscripcion`
+
+/**
+ * Llamado para pasar del módulo gratis al curso completo: precio en pesos y dólares, cuotas y qué se desbloquea.
+ * La compra convierte esta misma inscripción (no se duplica) y conserva el avance.
+ */
+export function Desbloquear({ base, i, titulo = "Desbloqueá el curso completo", texto }: { base: BaseAula; i: any; titulo?: string; texto?: string }) {
+  return (
+    <section className="card flex flex-col gap-3 !border-[#C8231F]/40" aria-labelledby="t-desbloquear">
+      <div className="flex items-start gap-3">
+        <span className="w-10 h-10 shrink-0 rounded-xl bg-[#FDECEB] text-[#C8231F] flex items-center justify-center"><Candado className="w-5 h-5" /></span>
+        <div className="flex flex-col gap-1">
+          <h2 id="t-desbloquear" className="m-0 text-base">{titulo}</h2>
+          <p className="m-0 text-sm text-[#4A515C]">{texto ?? `Estás cursando gratis ${Number(i.gratis_modulos) > 1 ? `los módulos 1 a ${i.gratis_modulos}` : "el módulo 1"}. Con el curso completo seguís con todos los módulos, descargás el apunte y el cuaderno en PDF (son tuyos), las plantillas, pedís tu videollamada y obtenés el certificado verificable. Tu avance queda guardado.`}</p>
+        </div>
+      </div>
+      {i.precio && (
+        <div className="flex flex-wrap items-end justify-between gap-3 border-t border-[#EEF0F3] pt-3">
+          <div className="flex flex-col gap-0.5">
+            <strong className="text-2xl leading-none">{pesos(i.precio)} <span className="text-sm font-semibold text-[#4A515C]">ARS</span></strong>
+            {i.precio_usd && <span className="text-sm text-[#262C37]"><strong>{dolares(i.precio_usd)}</strong> desde el exterior</span>}
+            {i.cuotas > 1 && <span className="text-sm font-semibold text-emerald-700">{textoCuotas(i.precio, i.cuotas)}</span>}
+          </div>
+          <a href={urlCompra(base, i.slug)} className="btn-p">Desbloquear el curso completo</a>
+        </div>
+      )}
+    </section>
+  )
+}
+
 /** Tarjetas de "Mis cursos" con avance. */
 export function TarjetasCursos({ ins, base }: { ins: any[]; base: BaseAula }) {
   return (
@@ -28,7 +64,7 @@ export function TarjetasCursos({ ins, base }: { ins: any[]; base: BaseAula }) {
           <Link key={x.id} href={`${base}/${x.id}`} className="card flex flex-col gap-3 no-underline text-[#0E1116] hover:border-[#C8231F]">
             <div className="flex items-start justify-between gap-2">
               <div><strong className="block text-[17px]">{x.titulo}</strong><span className="text-sm text-[#4A515C]">{modalidad(x.modalidad)} · {x.edicion}</span></div>
-              <span className={`chip ${e.c} shrink-0`}>{e.n}</span>
+              <span className="flex flex-col items-end gap-1 shrink-0"><span className={`chip ${e.c}`}>{e.n}</span>{x.parcial && <span className="chip bg-[#FDECEB] text-[#9E1A17]">{textoGratis(x.gratis_modulos)}</span>}</span>
             </div>
             {x.av.lecciones > 0 && <Barra pct={x.av.pctLecciones} label={`Lecciones: ${x.av.hechas} de ${x.av.lecciones}`} />}
             {x.av.clases > 0 && <Barra pct={x.av.pctAsistencia} label={`Asistencia: ${x.av.presentes} de ${x.av.clases} clases`} />}
@@ -66,7 +102,7 @@ export function Certificados({ ins }: { ins: any[] }) {
 /** Vista de un curso: certificado o siguiente lección, avance, contenido por módulo y clases en vivo. */
 export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoRecien }: { base: BaseAula; i: any; lecciones: any[]; av: Avance; clases: any[]; volver: { href: string; t: string }; aprobadoRecien?: boolean }) {
   const e = estadoInsc(i.estado)
-  const siguiente = lecciones.find((l) => !l.completada)
+  const siguiente = lecciones.find((l) => !l.completada && !l.bloqueada)
   const corte = Date.now() - 3 * 3600e3
   const proximas = clases.filter((k) => new Date(k.fecha).getTime() > corte)
   const pasadas = clases.filter((k) => new Date(k.fecha).getTime() <= corte)
@@ -80,7 +116,7 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
     <div className="flex flex-col gap-5">
       <Link href={volver.href} className="text-sm underline text-[#4A515C] self-start">← {volver.t}</Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div><h1 className="m-0">{i.titulo}</h1><p className="m-0 text-[#4A515C]">{modalidad(i.modalidad)} · {i.edicion}{i.docente ? ` · Lo enseña ${i.docente}` : ""}</p></div>
+        <div><h1 className="m-0">{i.titulo}</h1><p className="m-0 text-[#4A515C]">{modalidad(i.modalidad)} · {i.edicion}{i.docente ? ` · ${firmaCurso(i.docente_slug)} ${i.docente}` : ""}</p></div>
         <span className={`chip ${e.c}`}>{e.n}</span>
       </div>
 
@@ -98,6 +134,10 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
         </div>
       ) : null}
 
+      {i.parcial && !i.certificado && (siguiente
+        ? <Desbloquear base={base} i={i} />
+        : <Desbloquear base={base} i={i} titulo="¡Terminaste la parte gratis! Desbloqueá el curso completo" texto="Seguí con los módulos siguientes desde donde estás: tu avance queda guardado. Además descargás el apunte y el cuaderno en PDF (son tuyos), las plantillas, pedís tu videollamada y obtenés el certificado verificable." />)}
+
       <section className="card grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Tu avance">
         {av.lecciones > 0 && <div><span className="text-xs text-[#4A515C]">Lecciones</span><strong className="block text-xl">{av.hechas} / {av.lecciones}</strong><span className="text-xs text-[#4A515C]">Necesitás {i.req_lecciones}%</span></div>}
         {av.clases > 0 && <div><span className="text-xs text-[#4A515C]">Asistencia</span><strong className="block text-xl">{av.presentes} / {av.clases}</strong><span className="text-xs text-[#4A515C]">Necesitás {i.req_asistencia}%</span></div>}
@@ -110,14 +150,22 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
           {!lecciones.length && <p className="m-0 text-sm text-[#4A515C]">El contenido se habilita con el inicio de la cursada.</p>}
           {modulos.map((m) => (
             <div key={m.nombre}>
-              <h3 className="m-0 mb-1 text-xs font-bold uppercase tracking-wider text-[#4A515C]">{m.nombre}</h3>
+              <h3 className="m-0 mb-1 text-xs font-bold uppercase tracking-wider text-[#4A515C]">{m.nombre}{i.parcial && !m.items[0]?.bloqueada && <span className="ml-2 normal-case tracking-normal font-bold text-emerald-700">· Gratis</span>}</h3>
               <ul className="m-0 p-0 list-none">
                 {m.items.map((l) => (
                   <li key={l.id}>
+                    {l.bloqueada ? (
+                      <Link href={`${base}/${i.id}/l/${l.id}`} className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg no-underline text-[#4A515C] hover:bg-[#F5F6F8]">
+                        <span className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-[#F5F6F8] text-[#4A515C] border border-[#E2E5EA]"><Candado className="w-3.5 h-3.5" /></span>
+                        <span className="flex-1 text-sm"><strong className="font-semibold">{l.titulo}</strong><span className="block text-xs">{tipoLeccion(l.tipo).n}{l.duracion_min ? ` · ${l.duracion_min} min` : ""} · Con el curso completo</span></span>
+                        <span className="sr-only">(bloqueada)</span>
+                      </Link>
+                    ) : (
                     <Link href={`${base}/${i.id}/l/${l.id}`} className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg no-underline text-[#0E1116] hover:bg-[#F5F6F8]">
                       <span className={`w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0 ${l.completada ? "bg-[#0E1116] text-white" : "bg-[#F5F6F8] text-[#C8231F] border border-[#E2E5EA]"}`} aria-hidden="true">{l.completada ? "✓" : tipoLeccion(l.tipo).i}</span>
                       <span className="flex-1 text-sm"><strong className="font-semibold">{l.titulo}</strong><span className="block text-xs text-[#4A515C]">{tipoLeccion(l.tipo).n}{l.duracion_min ? ` · ${l.duracion_min} min` : ""}{l.completada ? " · Completada" : ""}</span></span>
                     </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -129,7 +177,9 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
           {i.videollamada && (
             <section className="card flex flex-col gap-3 !border-[#C8231F]/40" aria-labelledby="t-video">
               <h2 id="t-video" className="m-0 text-base">Pedí tu videollamada{i.docente ? ` con ${i.docente}` : " con quien enseña el curso"}</h2>
-              {i.videollamada_en ? (
+              {i.parcial ? (
+                <p className="m-0 text-sm text-[#4A515C] flex gap-2 items-start"><Candado className="w-4 h-4 mt-0.5 shrink-0" /><span>Viene con el curso completo: <strong className="text-[#0E1116]">1 videollamada de 30 minutos</strong>{i.docente ? <> con {i.docente}</> : null} para resolver dudas o revisar tu caso. <a href={urlCompra(base, i.slug)} className="underline font-semibold text-[#C8231F]">Desbloquear</a></span></p>
+              ) : i.videollamada_en ? (
                 <>
                   <p className="m-0 text-sm text-[#4A515C]">Ya la pediste el {fecha(i.videollamada_en)}. Si todavía no elegiste día y horario, hacelo desde la agenda. Si ya la agendaste, te llegó la confirmación por email.</p>
                   <form action={pedirVideollamada}><input type="hidden" name="base" value={base} /><input type="hidden" name="iid" value={i.id} /><button className="btn-s w-full">Ver o elegir horario</button></form>
@@ -176,6 +226,22 @@ export function AulaLeccion({ base, i, lecciones, k, quiz }: { base: BaseAula; i
   const l = lecciones[k], ant = lecciones[k - 1], sig = lecciones[k + 1]
   const video = embedVideo(l.video_url)
   const preguntas = quizDe(l.quiz)
+  // Lección de un módulo pago con la inscripción gratuita: el servidor no manda el contenido, solo el llamado a desbloquear.
+  if (l.bloqueada)
+    return (
+      <div className="flex flex-col gap-4 max-w-3xl">
+        <Link href={`${base}/${i.id}`} className="text-sm underline text-[#4A515C] self-start">← {i.titulo}</Link>
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4A515C]">{l.modulo || "Contenido"} · Lección {k + 1} de {lecciones.length} · {tipoLeccion(l.tipo).n}</span>
+          <h1 className="m-0 mt-1 flex items-center gap-2"><Candado className="w-6 h-6 shrink-0 text-[#4A515C]" />{l.titulo}</h1>
+        </div>
+        <Desbloquear base={base} i={i} titulo="Esta lección es parte del curso completo" />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E2E5EA] pt-4">
+          {ant ? <Link href={`${base}/${i.id}/l/${ant.id}`} className="btn-s">← Anterior</Link> : <span />}
+          <Link href={`${base}/${i.id}`} className="btn-s">Volver al curso</Link>
+        </div>
+      </div>
+    )
   return (
     <div className="flex flex-col gap-4 max-w-3xl">
       <Link href={`${base}/${i.id}`} className="text-sm underline text-[#4A515C] self-start">← {i.titulo}</Link>
@@ -189,6 +255,12 @@ export function AulaLeccion({ base, i, lecciones, k, quiz }: { base: BaseAula; i
         </div>
       ) : l.video_url ? <a href={l.video_url} target="_blank" rel="noopener noreferrer" className="btn-s self-start">Ver el video ↗</a> : null}
       {l.contenido && <article className="card prosa" dangerouslySetInnerHTML={{ __html: mdWeb(l.contenido) }} />}
+      {!l.archivo_url && l.conArchivo && (
+        <a href={urlCompra(base, i.slug)} className="card flex items-center gap-3 no-underline text-[#0E1116] hover:border-[#C8231F]">
+          <span className="w-10 h-10 rounded-xl bg-[#F5F6F8] text-[#4A515C] flex items-center justify-center" aria-hidden="true"><Candado className="w-5 h-5" /></span>
+          <span><strong className="block">Material descargable</strong><span className="text-xs text-[#4A515C]">Se descarga con el curso completo: desbloquealo y es tuyo</span></span>
+        </a>
+      )}
       {l.archivo_url && (
         <a href={descargaAula(base, i.id, l.id)} target="_blank" rel="noopener noreferrer" className="card flex items-center gap-3 no-underline text-[#0E1116] hover:border-[#C8231F]">
           <span className="w-10 h-10 rounded-xl bg-[#FDECEB] text-[#C8231F] flex items-center justify-center text-lg" aria-hidden="true">⤓</span>

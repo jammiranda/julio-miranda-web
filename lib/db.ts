@@ -754,7 +754,19 @@ select * from (values
  ('devisebit','¿Cómo contrato la asesoría?','Para contratar se agenda una primera reunión (por WhatsApp o en devisebit.com/contacto). Después mandamos una propuesta por escrito con formato, horas, responsable y valor, y damos de alta al cliente en su portal, donde ve las horas, los informes y los pagos. Pago por transferencia a DEVISEBIT SRL con 10% de descuento o tarjeta hasta 3 cuotas sin interés. Horas sueltas y bolsas por adelantado, abonos mes adelantado, con contrato y factura. Siempre ofrecé agendar la reunión y pedí nombre, organización y qué necesita.',true,'manual','Asesoría y consultoría · 1/11/2026'),
  ('devisebit','¿Tienen licencias o administran licencias de Google Workspace, IA o dominios?','Panel de contenido con tu marca (marca blanca): $190.000 de puesta en marcha + $79.000/mes, mínimo 6 meses. Academia, padrón, obras sociales y CRM: el abono de la lista de precios es la licencia de uso. Gestión de licencias de terceros (altas, usuarios, pagos y renovaciones de Google Workspace, herramientas de IA, dominios): costo de la licencia + 15%, mínimo $15.000 por mes.',true,'manual','Asesoría y consultoría · 1/11/2026')
 ) v where not exists (select 1 from config where clave='semilla_bot_asesoria_2026_11');
-insert into config(clave,valor) values ('semilla_bot_asesoria_2026_11','1') on conflict (clave) do nothing
+insert into config(clave,valor) values ('semilla_bot_asesoria_2026_11','1') on conflict (clave) do nothing;
+-- "Primer módulo gratis": cuántos módulos del curso (en orden) se cursan gratis con cuenta. 0 = sin parte gratis.
+-- Una inscripción "parcial" es la gratuita de un curso pago: cursa solo esos módulos y al pagar pasa a parcial=false (misma inscripción, mismo avance).
+alter table am_cursos add column if not exists gratis_modulos int not null default 0;
+alter table am_inscripciones add column if not exists parcial boolean not null default false;
+-- Se aplica una sola vez (lote en am_semillas): después lo maneja el equipo en Sistema Academia y no se vuelve a pisar.
+with lote as (insert into am_semillas(lote) values ('freemium-2026-11') on conflict do nothing returning lote)
+update am_cursos set gratis_modulos=1 where exists (select 1 from lote) and precio is not null and slug in ('prompt-engineering-para-ejecutivos','liderazgo-en-la-era-de-la-ia','marca-personal-en-linkedin-para-lideres','ia-para-tu-pyme-5-tareas-en-una-semana','transforma-tu-empresa-con-ia-el-ecosistema-digital');
+-- Nuevo título del curso del panel ("Armé…" no se entendía): solo si sigue el título viejo.
+update am_cursos set titulo='Creá tu panel de contenido con IA: de cero a producción con Claude', actualizado=now() where slug='panel-de-contenido-con-ia-de-cero-a-produccion' and titulo='Armé un panel de contenido con IA: de cero a producción con Claude';
+-- Cursos de Julio: no "lo enseña" sino "creado por", así que la videollamada es "con Julio" (descripción, lecciones y materiales).
+update am_cursos set descripcion=replace(descripcion,'videollamada de 30 minutos con quien lo enseña','videollamada de 30 minutos con Julio') where docente_slug='julio-miranda' and descripcion like '%videollamada de 30 minutos con quien lo enseña%';
+update am_lecciones l set contenido=replace(replace(replace(l.contenido,'videollamada de 30 minutos con quien lo enseña','videollamada de 30 minutos con Julio'),'videollamada con quien enseña el curso','videollamada con Julio'),'videollamada con quien lo enseña','videollamada con Julio') from am_cursos c where c.id=l.curso_id and c.docente_slug='julio-miranda' and (l.contenido like '%videollamada de 30 minutos con quien lo enseña%' or l.contenido like '%videollamada con quien enseña el curso%' or l.contenido like '%videollamada con quien lo enseña%')
 `
 
 let ready: Promise<void> | null = null

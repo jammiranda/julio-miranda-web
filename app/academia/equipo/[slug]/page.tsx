@@ -9,7 +9,8 @@ export const generateStaticParams = () => EQUIPO.map((p) => ({ slug: p.slug }))
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const p = perfil(params.slug)
   if (!p) return {}
-  return { title: `${p.nombre} · ${p.rol}`, description: p.resumen, openGraph: { images: [{ url: fotoDe(p.slug) }] } }
+  // Quien pidió su foto solo en las páginas de equipo (Julio) no la lleva en los metadatos: al compartir el link sale la imagen de la Academia.
+  return { title: `${p.nombre} · ${p.rol}`, description: p.resumen, openGraph: p.fotoSoloEnEquipo ? undefined : { images: [{ url: fotoDe(p.slug) }] } }
 }
 
 const fecha = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-AR", { month: "long", year: "numeric" })

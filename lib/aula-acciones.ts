@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import { q, one } from "./db"
 import { requerirCliente, requerirAlumno } from "./portal"
 import { randomBytes } from "crypto"
-import { inscripcionDe, evaluar, esBaseAula, quizDe, corregirQuiz } from "./cursos"
+import { inscripcionDe, leccionesDe, evaluar, esBaseAula, quizDe, corregirQuiz } from "./cursos"
+import { firmaCurso } from "./portadas"
 import { notificar } from "./push"
 import { URL_SISTEMA } from "./brief"
 
@@ -15,6 +16,8 @@ export async function completarLeccion(fd: FormData) {
   const iid = Number(fd.get("iid")), lid = Number(fd.get("lid"))
   const i = await inscripcionDe(c.id, iid)
   if (!i || !(await one("select 1 from am_lecciones where id=$1 and curso_id=$2 and publicada", [lid, i.curso_id]))) redirect(base)
+  // Con el módulo gratis, las lecciones de los módulos siguientes no se pueden marcar (ni responder su quiz) hasta pagar.
+  if ((await leccionesDe(i.curso_id, iid)).find((l) => l.id === lid)?.bloqueada) redirect(`${base}/${iid}/l/${lid}`)
   const deshacer = fd.get("op") === "deshacer"
   // Lección con quiz: para marcarla como vista hay que aprobarlo (70 %). Si no, vuelve con el resultado.
   if (!deshacer) {
@@ -51,8 +54,10 @@ export async function pedirVideollamada(fd: FormData) {
   const iid = Number(fd.get("iid"))
   const i = await inscripcionDe(c.id, iid)
   if (!i) redirect(base)
-  const x = await one<{ videollamada: boolean; docente: string | null; consulta: number | null; tel: string | null }>(
-    `select cu.videollamada, cu.docente, i.videollamada_consulta consulta, k.telefono tel
+  // La videollamada viene con el curso completo: con el módulo gratis no se puede pedir.
+  if (i.parcial) redirect(`${base}/${iid}`)
+  const x = await one<{ videollamada: boolean; docente: string | null; docente_slug: string | null; consulta: number | null; tel: string | null }>(
+    `select cu.videollamada, cu.docente, cu.docente_slug, i.videollamada_consulta consulta, k.telefono tel
      from am_inscripciones i join am_ediciones e on e.id=i.edicion_id join am_cursos cu on cu.id=e.curso_id join db_contactos k on k.id=i.contacto_id where i.id=$1`, [iid])
   if (!x?.videollamada) redirect(`${base}/${iid}`)
   let tok: string | null = null
@@ -64,7 +69,7 @@ export async function pedirVideollamada(fd: FormData) {
       `insert into consultas(empresa,canal,nombre,email,telefono,organizacion,motivo,mensaje,fuente,necesita_humano,brief_token)
        values ('devisebit','academia',$1,$2,$3,$4,$5,$6,'academia',true,$7) returning id`,
       [c.nombre, c.email, x.tel, c.organizacion, `Videollamada${x.docente ? ` con ${x.docente}` : ""} · ${i.titulo}`,
-        `${c.nombre} pidió la videollamada de 30 minutos incluida en el curso "${i.titulo}"${x.docente ? ` (lo enseña ${x.docente})` : ""}.${tema ? ` Quiere hablar de: ${tema}` : ""}`, tok],
+        `${c.nombre} pidió la videollamada de 30 minutos incluida en el curso "${i.titulo}"${x.docente ? ` (${firmaCurso(x.docente_slug).toLowerCase()} ${x.docente})` : ""}.${tema ? ` Quiere hablar de: ${tema}` : ""}`, tok],
     )
     await q("update am_inscripciones set videollamada_en=now(), videollamada_consulta=$1 where id=$2", [n!.id, iid])
     await q("update db_contactos set consulta_id=coalesce(consulta_id,$1), proximo=$2, proximo_fecha=(now() at time zone 'America/Argentina/Buenos_Aires')::date + 1, actualizado=now() where id=$3",

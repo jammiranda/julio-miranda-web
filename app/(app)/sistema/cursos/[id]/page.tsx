@@ -25,11 +25,12 @@ async function guardar(fd: FormData) {
   await q(
     `update am_cursos set titulo=$1, slug=$2, bajada=$3, descripcion=$4, imagen=$5, categoria=$6, nivel=$7, docente=$8, horas=$9, modalidad=$10,
        precio=$11, estado=$12, req_lecciones=$13, req_asistencia=$14, certifica=$15, destacado=$16,
-       precio_usd=$18, cuotas=$19, docente_slug=$20, nuevo=$21, videollamada=$22, nota_interna=$23, actualizado=now() where id=$17`,
+       precio_usd=$18, cuotas=$19, docente_slug=$20, nuevo=$21, videollamada=$22, nota_interna=$23, gratis_modulos=$24, actualizado=now() where id=$17`,
     [titulo, slug, s(fd.get("bajada")), String(fd.get("descripcion") ?? ""), url(s(fd.get("imagen"))), s(fd.get("categoria")), s(fd.get("nivel")), s(fd.get("docente")),
       n(s(fd.get("horas"))), MODALIDADES.some((m) => m.v === mod) ? mod : "online", n(s(fd.get("precio"))), ["borrador", "publicado", "archivado"].includes(est) ? est : "borrador",
       Math.min(100, Math.max(0, Number(fd.get("req_lecciones")) || 0)), Math.min(100, Math.max(0, Number(fd.get("req_asistencia")) || 0)), fd.get("certifica") === "1", fd.get("destacado") === "1", id,
-      n(s(fd.get("precio_usd"))), Math.min(12, Math.max(1, Number(fd.get("cuotas")) || 1)), s(fd.get("docente_slug")), fd.get("nuevo") === "1", fd.get("videollamada") === "1", s(fd.get("nota_interna"))],
+      n(s(fd.get("precio_usd"))), Math.min(12, Math.max(1, Number(fd.get("cuotas")) || 1)), s(fd.get("docente_slug")), fd.get("nuevo") === "1", fd.get("videollamada") === "1", s(fd.get("nota_interna")),
+      Math.min(20, Math.max(0, Number(fd.get("gratis_modulos")) || 0))],
   )
   await audit(u, "edita_curso", "am_curso", id, est)
   redirect(`/sistema/cursos/${id}?ok=1`)
@@ -113,6 +114,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <Campo l="Precio en pesos (vacío = gratis)"><input name="precio" inputMode="decimal" defaultValue={c.precio ?? ""} className="inp" /></Campo>
         <Campo l="Precio en USD (PayPal)"><input name="precio_usd" inputMode="decimal" defaultValue={c.precio_usd ?? ""} className="inp" /></Campo>
         <Campo l="Cuotas sin interés (Mercado Pago)"><input name="cuotas" type="number" min={1} max={12} defaultValue={c.cuotas ?? 1} className="inp" /></Campo>
+        <Campo l="Módulos gratis (con cuenta; 0 = ninguno)"><input name="gratis_modulos" type="number" min={0} max={20} defaultValue={c.gratis_modulos ?? 0} className="inp" /></Campo>
         <Campo l="Quién lo enseña: perfiles de /equipo, separados por coma"><input name="docente_slug" defaultValue={c.docente_slug ?? ""} className="inp" placeholder="oscar-schmitz" /></Campo>
         <Campo l="Dirección web (slug)"><input name="slug" defaultValue={c.slug} className="inp" /></Campo>
         <Campo l="Imagen (URL)"><input name="imagen" type="url" defaultValue={c.imagen ?? ""} className="inp" /></Campo>
@@ -122,7 +124,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="destacado" value="1" defaultChecked={c.destacado} /> Destacado</label>
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="nuevo" value="1" defaultChecked={c.nuevo} /> Marcar como “Nuevo”</label>
         <label className="flex gap-2 items-center text-sm self-end pb-3"><input type="checkbox" name="videollamada" value="1" defaultChecked={c.videollamada} /> Incluye videollamada de 30 min con quien lo enseña</label>
-        <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">Referencia: USD 1 = $ {TC_REFERENCIA.toLocaleString("es-AR")}{c.precio_usd ? ` → USD ${Number(c.precio_usd)} ≈ $ ${arsDesdeUsd(Number(c.precio_usd)).toLocaleString("es-AR")}` : ""}. {textoCuotas(c.precio, c.cuotas)}</p>
+        <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">{c.precio && Number(c.gratis_modulos) > 0 ? `Primer módulo gratis: con ${c.gratis_modulos} ${Number(c.gratis_modulos) === 1 ? "módulo" : "módulos"}, el alumno se inscribe gratis y cursa ${Number(c.gratis_modulos) === 1 ? "el primero" : `los primeros ${c.gratis_modulos}`}; para seguir, descargar PDF y plantillas, pedir la videollamada y certificar tiene que comprar. ` : ""}Referencia: USD 1 = $ {TC_REFERENCIA.toLocaleString("es-AR")}{c.precio_usd ? ` → USD ${Number(c.precio_usd)} ≈ $ ${arsDesdeUsd(Number(c.precio_usd)).toLocaleString("es-AR")}` : ""}. {textoCuotas(c.precio, c.cuotas)}</p>
         <Campo l="Nota interna (no se publica: revisiones pendientes, a quién consultar…)" className="md:col-span-4"><textarea name="nota_interna" rows={2} defaultValue={c.nota_interna ?? ""} className="inp text-sm" /></Campo>
         <Campo l="Descripción (texto simple: ## títulos, - listas, **negrita**)" className="md:col-span-4"><textarea name="descripcion" rows={8} defaultValue={c.descripcion} className="inp font-mono text-sm" /></Campo>
         {puede && <div className="md:col-span-4"><button className="btn-p">Guardar curso</button></div>}
