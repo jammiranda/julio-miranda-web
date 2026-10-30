@@ -50,7 +50,7 @@ export async function anotar(campania_id: string, e: { tipo: EntradaBitacora["ti
 
 /** Fichas con los indicadores calculados para el Panel. */
 export async function seguimientos() {
-  const filas = await q<Seguimiento>("select *, to_char(inicio,'YYYY-MM-DD\"T\"HH24:MI:SSOF') inicio, to_char(fin,'YYYY-MM-DD\"T\"HH24:MI:SSOF') fin from ads_seguimiento order by (estado='activa') desc, inicio desc nulls last limit 12")
+  const filas = await q<Seguimiento>("select *, to_char(inicio,'YYYY-MM-DD\"T\"HH24:MI:SSOF') inicio, to_char(fin,'YYYY-MM-DD\"T\"HH24:MI:SSOF') fin from ads_seguimiento order by (ads_seguimiento.estado='activa') desc, ads_seguimiento.inicio desc nulls last limit 12")
   const segHoy = await seguidoresHoy()
   return Promise.all(filas.map(async (s) => {
     const controles = s.bitacora.filter((b) => b.tipo === "control" && b.datos)
