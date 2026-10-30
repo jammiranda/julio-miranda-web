@@ -19,7 +19,6 @@ export const metadata: Metadata = {
 }
 
 const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20quiero%20info%20sobre%20la%20asesor%C3%ADa%20en%20tecnolog%C3%ADa%20e%20IA"
-const AGENDAR = "https://sistema.devisebit.com/agendar"
 const LISTA = "https://sistema.devisebit.com/lista-precios"
 const FORM = `/contacto?tema=${encodeURIComponent("Asesoría en tecnología e IA (horas o abono)")}#formulario`
 
@@ -52,8 +51,8 @@ const LICENCIAS = [
 ]
 
 const DIRECCION = [
-  { area: "Dirección", nombre: "Julio Miranda", d: "Estrategia de tecnología e IA, arquitectura, proveedores y presupuestos grandes." },
-  { area: "Transformación digital", nombre: "Matías González D'Alessandro", d: "Diagnóstico de madurez digital, hoja de ruta, gestión del cambio y Programa Kit 4.0." },
+  { area: "Dirección", titulo: "Estrategia de tecnología e IA", d: "Arquitectura, proveedores y presupuestos grandes. Lo atiende la dirección de DEVISEBIT." },
+  { area: "Transformación digital", titulo: "Diagnóstico y hoja de ruta", d: "Diagnóstico de madurez digital, hoja de ruta, gestión del cambio y Programa Kit 4.0. Lo atiende el equipo de transformación digital." },
 ]
 const AREAS = [
   { t: "Coordinación", d: "Agenda, seguimiento e informes de tu abono." },
@@ -83,7 +82,7 @@ const PREGUNTAS = [
 ]
 
 const EMPEZAR = [
-  { n: "01", t: "Primera reunión", d: "Agendala por WhatsApp o desde el formulario de contacto." },
+  { n: "01", t: "Primera reunión gratuita", d: "Completá el formulario o escribinos por WhatsApp. Revisamos tu consulta y, si podemos ayudarte, agendamos 30 minutos sin costo." },
   { n: "02", t: "Propuesta por escrito", d: "Formato, horas, responsable y valor." },
   { n: "03", t: "Alta en tu portal", d: "Desde ahí ves las horas, los informes y los pagos." },
 ]
@@ -104,7 +103,7 @@ export default function AsesoriaPage() {
         >
           <div className="flex flex-wrap gap-2.5 mt-2">
             <a href={WA} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#1EB956] px-5 py-3.5 font-bold text-[#0B0D12] transition-colors"><MessageCircle size={19} aria-hidden="true" /> Consultar por WhatsApp</a>
-            <a href={AGENDAR} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3.5 font-bold text-white transition-colors"><CalendarClock size={19} aria-hidden="true" /> Agendar la primera reunión</a>
+            <Link href={FORM} className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3.5 font-bold text-white transition-colors"><CalendarClock size={19} aria-hidden="true" /> Pedir la primera reunión gratis</Link>
             <a href={ASESORIA.pdf} download className={btnSec}><Download size={19} aria-hidden="true" /> Descargar el PDF</a>
           </div>
           <nav aria-label="En esta página" className="flex flex-wrap gap-2 mt-3">
@@ -158,8 +157,8 @@ export default function AsesoriaPage() {
               ))}
             </ol>
             <div className="rounded-2xl border border-[#C8231F]/60 bg-[#C8231F]/10 p-5 md:p-6 flex flex-col gap-1.5">
-              <strong className="text-sm uppercase tracking-[0.14em] text-[#FF6A63]">Primera reunión</strong>
-              <p className="m-0 text-[16px] leading-relaxed text-[#E6E8EC]">La primera hora estratégica se cobra como hora técnica ($55.000) y se descuenta completa si contratás un abono en los 30 días siguientes.</p>
+              <strong className="text-sm uppercase tracking-[0.14em] text-[#FF6A63]">Primera reunión sin costo</strong>
+              <p className="m-0 text-[16px] leading-relaxed text-[#E6E8EC]">La primera reunión es gratuita y dura 30 minutos. Para cuidar el tiempo de todos, antes completás un formulario breve con tu organización y lo que necesitás decidir; revisamos tu consulta y, si podemos ayudarte, te agendamos.</p>
             </div>
           </div>
         </section>
@@ -237,7 +236,7 @@ export default function AsesoriaPage() {
               {DIRECCION.map((p) => (
                 <article key={p.area} className="rounded-2xl border border-[#262C37] bg-[#161A22] p-6 md:p-7 flex flex-col gap-2">
                   <p className="m-0 text-xs font-bold uppercase tracking-[0.14em] text-[#FF6A63]">{p.area}</p>
-                  <h3 className="m-0 font-tight text-[24px] font-bold">{p.nombre}</h3>
+                  <h3 className="m-0 font-tight text-[24px] font-bold">{p.titulo}</h3>
                   <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{p.d}</p>
                 </article>
               ))}
@@ -315,14 +314,13 @@ export default function AsesoriaPage() {
         <section className="db-tech bg-[#0B0D12] text-white border-t border-white/10">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 flex flex-wrap gap-6 items-center justify-between">
             <div className="flex-[1_1_520px] min-w-0 flex flex-col gap-3">
-              <h2 className="m-0 font-tight text-[28px] md:text-[34px] font-extrabold">¿Arrancamos con una primera reunión?</h2>
-              <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Contanos qué tenés que decidir y te proponemos el formato, las horas y el responsable, por escrito.</p>
+              <h2 className="m-0 font-tight text-[28px] md:text-[34px] font-extrabold">¿Arrancamos con una primera reunión gratuita?</h2>
+              <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Contanos qué tenés que decidir y, si podemos ayudarte, te proponemos el formato, las horas y el responsable, por escrito.</p>
               <Redes />
             </div>
             <div className="flex flex-wrap gap-2.5">
               <a href={WA} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#1EB956] px-6 py-4 font-bold text-[#0B0D12] transition-colors"><MessageCircle size={19} aria-hidden="true" /> WhatsApp</a>
-              <a href={AGENDAR} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-white transition-colors"><CalendarClock size={19} aria-hidden="true" /> Agendar reunión</a>
-              <Link href={FORM} className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-6 py-4 font-bold text-white transition-colors"><FileText size={19} aria-hidden="true" /> Dejar mis datos</Link>
+              <Link href={FORM} className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-white transition-colors"><CalendarClock size={19} aria-hidden="true" /> Pedir la primera reunión gratis</Link>
             </div>
           </div>
         </section>
