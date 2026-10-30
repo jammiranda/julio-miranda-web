@@ -713,7 +713,14 @@ create table if not exists am_cambios_autor (
   revisado_por text, revisado_en timestamptz, creado timestamptz not null default now()
 );
 create index if not exists am_cambios_autor_pend on am_cambios_autor(estado, creado desc);
-alter table am_inscripciones add column if not exists videollamada_nota text
+alter table am_inscripciones add column if not exists videollamada_nota text;
+create table if not exists am_archivos (
+  id serial primary key, clave text not null, version int not null default 1, nombre text not null,
+  mime text not null default 'application/pdf', tamano int not null default 0, partes int not null default 0, sha256 text,
+  completo boolean not null default false, vigente boolean not null default false, subido_por text,
+  creado timestamptz not null default now(), unique (clave, version)
+);
+create table if not exists am_archivo_partes (archivo_id int not null references am_archivos(id) on delete cascade, n int not null, datos text not null, primary key (archivo_id, n))
 `
 
 let ready: Promise<void> | null = null

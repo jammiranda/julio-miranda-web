@@ -1,6 +1,7 @@
 import { q, one } from "./db"
 import { LOTE_2026_10, GUIAS_2026_10 } from "./academia-lote-2026-10"
 import { sembrarCursos } from "./academia-cursos-2026-11"
+import { sembrarMateriales } from "./academia-archivos"
 
 /** ACADEMIA DEVISEBIT (academia.devisebit.com): guías gratis, newsletter y productos digitales. */
 export const URL_ACADEMIA = process.env.ACADEMIA_URL ?? "https://academia.devisebit.com"
@@ -61,6 +62,7 @@ export async function crearPreferencia(o: { orden: number; titulo: string; preci
 /** Carga inicial de guías y del primer producto (solo si no hay nada). */
 export async function sembrar() {
   await sembrarCursos()
+  await sembrarMateriales()
   const hay = await one<{ n: number }>("select count(*)::int n from am_guias")
   if ((hay?.n ?? 0) > 0) return sembrarLote(LOTE_2026_10, GUIAS_2026_10)
   for (const g of GUIAS) await q("insert into am_guias(slug,titulo,bajada,categoria,contenido,exclusiva,publicada,destacada) values ($1,$2,$3,$4,$5,$6,true,$7) on conflict do nothing", [g.slug, g.titulo, g.bajada, g.categoria, g.contenido, !!g.exclusiva, !!g.destacada])

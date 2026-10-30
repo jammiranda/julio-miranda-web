@@ -180,7 +180,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
           <Campo l="Módulo"><input name="modulo" defaultValue={ed?.modulo ?? ""} className="inp" placeholder="Módulo 1 · Fundamentos" /></Campo>
           <Campo l="Tipo"><select name="tipo" defaultValue={ed?.tipo ?? "video"} className="inp">{TIPOS_LECCION.map((t) => <option key={t.v} value={t.v}>{t.n}</option>)}</select></Campo>
           <Campo l="Video (YouTube, Vimeo, Loom o Drive)" className="md:col-span-2"><input name="video_url" type="url" defaultValue={ed?.video_url ?? ""} className="inp" /></Campo>
-          <Campo l="Material para descargar (link o enc:private/cursos/…)"><input name="archivo_url" defaultValue={ed?.archivo_url ?? ""} className="inp" placeholder="Drive, Dropbox…" /></Campo>
+          <Campo l="Material para descargar (link, enc:private/cursos/… o enc:db:cursos/…)"><input name="archivo_url" defaultValue={ed?.archivo_url ?? ""} className="inp" placeholder="Drive, Dropbox…" /></Campo>
           <Campo l="Duración (min)"><input name="duracion_min" type="number" min={0} defaultValue={ed?.duracion_min ?? ""} className="inp" /></Campo>
           <Campo l="Contenido (texto simple)" className="md:col-span-4"><textarea name="contenido" rows={6} defaultValue={ed?.contenido ?? ""} className="inp font-mono text-sm" /></Campo>
           <Campo l={`Quiz corto (opcional, JSON: [{"p":"Pregunta","o":["A","B","C"],"c":0,"e":"Por qué"}] · c = número de la opción correcta, desde 0)`} className="md:col-span-4"><textarea name="quiz" rows={3} defaultValue={ed?.quiz ? JSON.stringify(ed.quiz) : ""} className="inp font-mono text-xs" /></Campo>
