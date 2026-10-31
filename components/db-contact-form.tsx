@@ -19,26 +19,48 @@ const NEEDS = [
   "Otro",
 ]
 
+const NEEDS_EN = [
+  "AI-powered WhatsApp assistant",
+  "System for clinics or care centers",
+  "Dashboards and KPIs",
+  "CRM for members or customers",
+  "Online academy",
+  "Website or app",
+  "Custom software development",
+  "Digital transformation consulting",
+  "Technology & AI advisory (hourly or retainer)",
+  "I'd like to see a demo",
+  "Other",
+]
+
+const TXT = {
+  es: { name: "Nombre", org: "Organización", need: "¿Qué necesitás?", more: "Contanos un poco más", send: "Enviar consulta", sending: "Enviando…", okTitle: "¡Recibimos tu consulta!", okText: "Te respondemos en 24 horas hábiles con los próximos pasos.", again: "Enviar otra consulta", errA: "No pudimos enviarla.", errLink: "Mandala por correo", errB: "o escribinos a info@devisebit.com.", subj: "Consulta web", n: "Nombre", o: "Organización", t: "Tema" },
+  en: { name: "Name", org: "Company or organization", need: "What do you need?", more: "Tell us a little more", send: "Send message", sending: "Sending…", okTitle: "We got your message!", okText: "We reply within one business day with the next steps.", again: "Send another message", errA: "We couldn't send it.", errLink: "Email it to us", errB: "or write to info@devisebit.com.", subj: "Web inquiry (EN)", n: "Name", o: "Company", t: "Topic" },
+}
+
 const EMPTY = { nombre: "", org: "", email: "", tel: "", tema: NEEDS[0], msg: "", website: "" }
 
-export default function DbContactForm({ dark = false }: { dark?: boolean }) {
+export default function DbContactForm({ dark = false, lang = "es" }: { dark?: boolean; lang?: "es" | "en" }) {
   const router = useRouter()
-  const [f, setF] = useState(EMPTY)
+  const en = lang === "en"
+  const T = TXT[lang]
+  const NEEDS_L = en ? NEEDS_EN : NEEDS
+  const [f, setF] = useState(() => (en ? { ...EMPTY, tema: NEEDS_EN[0] } : EMPTY))
   const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle")
   // ?tema=Demo: Producto (desde Productos) completa el formulario
   useEffect(() => {
     try {
       const t = new URLSearchParams(window.location.search).get("tema")
       if (!t) return
-      if (NEEDS.includes(t)) setF((x) => ({ ...x, tema: t }))
-      else if (/^demo/i.test(t)) setF((x) => ({ ...x, tema: "Quiero ver una demo", msg: x.msg || `Quiero ver una demo de ${t.replace(/^demo:\s*/i, "")}.` }))
+      if (NEEDS_L.includes(t)) setF((x) => ({ ...x, tema: t }))
+      else if (/^demo/i.test(t)) setF((x) => ({ ...x, tema: en ? NEEDS_EN[9] : "Quiero ver una demo", msg: x.msg || (en ? `I'd like to see a demo of ${t.replace(/^demo:\s*/i, "")}.` : `Quiero ver una demo de ${t.replace(/^demo:\s*/i, "")}.`) }))
     } catch {}
   }, [])
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value })
 
   const mailto = () => {
-    const subject = `Consulta web · ${f.tema} · ${f.nombre}`
-    const body = `Nombre: ${f.nombre}\nOrganización: ${f.org}\nEmail: ${f.email}\nWhatsApp: ${f.tel}\nTema: ${f.tema}\n\n${f.msg}`
+    const subject = `${T.subj} · ${f.tema} · ${f.nombre}`
+    const body = `${T.n}: ${f.nombre}\n${T.o}: ${f.org}\nEmail: ${f.email}\nWhatsApp: ${f.tel}\n${T.t}: ${f.tema}\n\n${f.msg}`
     return `mailto:info@devisebit.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   }
 
@@ -48,9 +70,9 @@ export default function DbContactForm({ dark = false }: { dark?: boolean }) {
     try {
       const ok = await sendForm({ ...f, pagina: typeof window !== "undefined" ? window.location.pathname : "" })
       if (ok) {
-        setState("ok"); setF(EMPTY)
+        setState("ok"); setF(en ? { ...EMPTY, tema: NEEDS_EN[0] } : EMPTY)
         try { (window as any).gtag?.("event", "conversion", { send_to: "AW-10953063902/fEQsCN6s7aQdEN776eYo", value: 1.0, currency: "ARS" }) } catch {}
-        setTimeout(() => router.push("/gracias"), 400)
+        if (!en) setTimeout(() => router.push("/gracias"), 400)
       } else setState("error")
     } catch {
       setState("error")
@@ -66,33 +88,33 @@ export default function DbContactForm({ dark = false }: { dark?: boolean }) {
     return (
       <div role="status" className={"rounded-[20px] border p-8 flex flex-col gap-3 " + box}>
         <div className="w-12 h-12 rounded-full bg-[#E3F2E8] text-[#0B7A3B] flex items-center justify-center text-2xl font-extrabold" aria-hidden="true">✓</div>
-        <h3 className="m-0 font-tight text-2xl font-extrabold">¡Recibimos tu consulta!</h3>
-        <p className={"m-0 text-[17px] leading-relaxed " + muted}>Te respondemos en 24 horas hábiles con los próximos pasos.</p>
-        <button type="button" onClick={() => setState("idle")} className="self-start mt-2 font-bold text-[#C8231F] hover:text-[#9E1A17]">Enviar otra consulta</button>
+        <h3 className="m-0 font-tight text-2xl font-extrabold">{T.okTitle}</h3>
+        <p className={"m-0 text-[17px] leading-relaxed " + muted}>{T.okText}</p>
+        <button type="button" onClick={() => setState("idle")} className="self-start mt-2 font-bold text-[#C8231F] hover:text-[#9E1A17]">{T.again}</button>
       </div>
     )
   }
 
   return (
     <form onSubmit={submit} className={"rounded-[20px] border p-6 md:p-8 grid gap-4 sm:grid-cols-2 " + box}>
-      <label className={label}>Nombre<input required value={f.nombre} onChange={set("nombre")} className={input} autoComplete="name" /></label>
-      <label className={label}>Organización<input value={f.org} onChange={set("org")} className={input} autoComplete="organization" /></label>
+      <label className={label}>{T.name}<input required value={f.nombre} onChange={set("nombre")} className={input} autoComplete="name" /></label>
+      <label className={label}>{T.org}<input value={f.org} onChange={set("org")} className={input} autoComplete="organization" /></label>
       <label className={label}>Email<input required type="email" value={f.email} onChange={set("email")} className={input} autoComplete="email" /></label>
       <label className={label}>WhatsApp<input type="tel" value={f.tel} onChange={set("tel")} className={input} autoComplete="tel" /></label>
-      <label className={label + " sm:col-span-2"}>¿Qué necesitás?
+      <label className={label + " sm:col-span-2"}>{T.need}
         <select value={f.tema} onChange={set("tema")} className={input}>
-          {NEEDS.map((n) => <option key={n}>{n}</option>)}
+          {NEEDS_L.map((n) => <option key={n}>{n}</option>)}
         </select>
       </label>
-      <label className={label + " sm:col-span-2"}>Contanos un poco más<textarea rows={4} value={f.msg} onChange={set("msg")} className={input + " font-[inherit]"} /></label>
+      <label className={label + " sm:col-span-2"}>{T.more}<textarea rows={4} value={f.msg} onChange={set("msg")} className={input + " font-[inherit]"} /></label>
       <input type="text" name="website" value={f.website} onChange={set("website")} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       <div className="sm:col-span-2 flex flex-wrap items-center gap-4">
         <button type="submit" disabled={state === "sending"} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] disabled:opacity-60 px-7 py-4 font-bold text-white text-[17px] transition-colors">
-          {state === "sending" ? "Enviando…" : "Enviar consulta"}
+          {state === "sending" ? T.sending : T.send}
         </button>
         {state === "error" && (
           <p role="alert" className={"m-0 " + muted}>
-            No pudimos enviarla. <a href={mailto()} className="font-bold text-[#C8231F]">Mandala por correo</a> o escribinos a info@devisebit.com.
+            {T.errA} <a href={mailto()} className="font-bold text-[#C8231F]">{T.errLink}</a> {T.errB}
           </p>
         )}
       </div>

@@ -1,3 +1,4 @@
+import SkipLink from "@/components/skip-link"
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Inter_Tight, Playfair_Display } from "next/font/google"
@@ -51,7 +52,7 @@ export default function RootLayout({
       <body>
         <JsonLd data={ORGANIZACION} />
         <JsonLd data={SITIO_WEB} />
-        <a href="#contenido" className="skip-link">Saltar al contenido</a>
+        <SkipLink />
         <I18nProvider>{children}</I18nProvider>
         <WhatsappFloat />
         <Attribution />

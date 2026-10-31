@@ -11,6 +11,7 @@ export const REDES = [
   { id: "blog", nombre: "Blog", usuario: "Novedades", href: "https://www.devisebit.com/novedades" },
 ] as const
 
+export const WHATSAPP_EN = "https://wa.me/5491173466490?text=Hi%20DEVISEBIT%2C%20I%27d%20like%20to%20talk%20about%20a%20project"
 export const WHATSAPP = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20quiero%20hacer%20una%20consulta"
 
 // ── Equipo: líderes con equipos propios ──

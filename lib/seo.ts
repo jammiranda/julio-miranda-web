@@ -1,15 +1,19 @@
 import type { Metadata } from "next"
+import { equivalente, esEn } from "@/lib/rutas"
 
 export const SITE_URL = "https://www.devisebit.com"
 export const OG_IMAGE = { url: "/og.png", width: 1200, height: 630, alt: "DEVISEBIT · Software e IA. Desde 2009" }
 
-/** Título, descripción, canónica y Open Graph de cada página, con la imagen de marca. */
+/** Título, descripción, canónica, hreflang y Open Graph de cada página, con la imagen de marca. */
 export function pageMeta(title: string, description: string, path: string, extra: Partial<Metadata> = {}): Metadata {
+  const en = esEn(path)
+  const otra = equivalente(path)
+  const languages = otra ? { "es-AR": en ? otra : path, en: en ? path : otra, "x-default": en ? otra : path } : undefined
   return {
     title,
     description,
-    alternates: { canonical: path },
-    openGraph: { title, description, url: path, siteName: "DEVISEBIT", locale: "es_AR", type: "website", images: [OG_IMAGE] },
+    alternates: { canonical: path, ...(languages ? { languages } : {}) },
+    openGraph: { title, description, url: path, siteName: "DEVISEBIT", locale: en ? "en_US" : "es_AR", ...(otra ? { alternateLocale: en ? "es_AR" : "en_US" } : {}), type: "website", images: [OG_IMAGE] },
     twitter: { card: "summary_large_image", title, description, images: [OG_IMAGE.url] },
     ...extra,
   }
@@ -41,7 +45,7 @@ export const ORGANIZACION = {
     "https://www.linkedin.com/company/devisebit",
     "https://www.youtube.com/@devisebitsrl",
   ],
-  contactPoint: [{ "@type": "ContactPoint", contactType: "ventas", telephone: "+54 9 11 7346-6490", email: "info@devisebit.com", availableLanguage: "es", areaServed: "AR" }],
+  contactPoint: [{ "@type": "ContactPoint", contactType: "ventas", telephone: "+54 9 11 7346-6490", email: "info@devisebit.com", availableLanguage: ["es", "en"], areaServed: "AR" }],
 }
 
 export const SITIO_WEB = {
@@ -50,16 +54,16 @@ export const SITIO_WEB = {
   "@id": `${SITE_URL}/#website`,
   url: SITE_URL,
   name: "DEVISEBIT",
-  inLanguage: "es-AR",
+  inLanguage: ["es-AR", "en"],
   publisher: { "@id": ORG_ID },
 }
 
 /** Migas de pan: [nombre, ruta]. La home se agrega sola. */
-export function breadcrumb(items: [string, string][]) {
+export function breadcrumb(items: [string, string][], lang: "es" | "en" = "es") {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: [["Inicio", "/"], ...items].map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: SITE_URL + (path === "/" ? "" : path) })),
+    itemListElement: [lang === "en" ? ["Home", "/en"] : ["Inicio", "/"], ...items].map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: SITE_URL + (path === "/" ? "" : path) })),
   }
 }
 

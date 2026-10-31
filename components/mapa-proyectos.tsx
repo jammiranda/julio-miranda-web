@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import * as THREE from "three"
-import { GALAXIAS, TOTAL_NODOS, type Galaxia, type Nodo } from "@/lib/mapa-datos"
+import { GALAXIAS as GALAXIAS_ES, TOTAL_NODOS as TOTAL_NODOS_ES, type Galaxia, type Nodo } from "@/lib/mapa-datos"
+import { GALAXIAS_EN, TOTAL_NODOS_EN } from "@/lib/mapa-datos-en"
 
 /**
  * Mapa 3D de proyectos: cada sector es una galaxia y cada proyecto o cliente, un nodo.
@@ -44,7 +45,48 @@ function webglDisponible() {
   }
 }
 
-const buscar = (id: string): { g: Galaxia; n: Nodo } | null => {
+const TXT = {
+  es: {
+    section: "Mapa 3D de proyectos",
+    kicker: "Mapa de proyectos",
+    title: (n: number, g: number) => `Explorá ${n} proyectos en ${g} sectores`,
+    hint: "Arrastrá para girar. Tocá un sector o un punto de luz.",
+    zoomIn: "Acercar",
+    zoomOut: "Alejar",
+    all: "Todo",
+    allAria: "Ver todos los sectores",
+    goTo: "Ir a un sector",
+    list: "Ver como lista ↓",
+    listHref: "#todos",
+    close: "Cerrar",
+    cta: "Quiero algo así",
+    ctaHref: "/contacto#formulario",
+    loading: "Cargando el mapa…",
+    noGl: "Tu dispositivo no puede mostrar el 3D. Mirá los proyectos en la lista de abajo.",
+    count: (n: number) => `${n} proyectos`,
+  },
+  en: {
+    section: "3D project map",
+    kicker: "Project map",
+    title: (n: number, g: number) => `Explore ${n} projects across ${g} sectors`,
+    hint: "Drag to rotate. Tap a sector or a point of light.",
+    zoomIn: "Zoom in",
+    zoomOut: "Zoom out",
+    all: "All",
+    allAria: "Show all sectors",
+    goTo: "Jump to a sector",
+    list: "View as a list ↓",
+    listHref: "#casos",
+    close: "Close",
+    cta: "I want something like this",
+    ctaHref: "/en/contact#formulario",
+    loading: "Loading the map…",
+    noGl: "Your device can't display the 3D map. Browse the projects in the list below.",
+    count: (n: number) => `${n} projects`,
+  },
+} as const
+
+const buscar = (GALAXIAS: Galaxia[], id: string): { g: Galaxia; n: Nodo } | null => {
   for (const g of GALAXIAS) {
     const n = g.nodos.find((x) => x.id === id)
     if (n) return { g, n }
@@ -52,7 +94,10 @@ const buscar = (id: string): { g: Galaxia; n: Nodo } | null => {
   return null
 }
 
-export default function MapaProyectos() {
+export default function MapaProyectos({ lang = "es" }: { lang?: "es" | "en" } = {}) {
+  const GALAXIAS = lang === "en" ? GALAXIAS_EN : GALAXIAS_ES
+  const TOTAL_NODOS = lang === "en" ? TOTAL_NODOS_EN : TOTAL_NODOS_ES
+  const T = TXT[lang]
   const caja = useRef<HTMLDivElement>(null)
   const lienzo = useRef<HTMLCanvasElement>(null)
   const motor = useRef<Motor | null>(null)
@@ -68,11 +113,11 @@ export default function MapaProyectos() {
     selRef.current = id
     setSel(id)
     if (id) {
-      const f = buscar(id)
+      const f = buscar(GALAXIAS, id)
       if (f) setFoco(f.g.id)
     }
     motor.current?.seleccionar(id)
-  }, [])
+  }, [GALAXIAS])
 
   const enfocar = useCallback((id: string | null) => {
     setFoco(id)
@@ -380,7 +425,7 @@ export default function MapaProyectos() {
       if (eh) {
         if (hoverId && posNodo.has(hoverId)) {
           tmp.copy(posNodo.get(hoverId)!).project(camara)
-          eh.textContent = buscar(hoverId)?.n.t ?? ""
+          eh.textContent = buscar(GALAXIAS, hoverId)?.n.t ?? ""
           eh.style.opacity = "1"
           eh.style.transform = `translate(-50%, -100%) translate(${((tmp.x + 1) / 2) * w}px, ${((1 - tmp.y) / 2) * h - 16}px)`
         } else eh.style.opacity = "0"
@@ -424,13 +469,13 @@ export default function MapaProyectos() {
       renderer.dispose()
       motor.current = null
     }
-  }, [seleccionar])
+  }, [seleccionar, GALAXIAS])
 
-  const actual = useMemo(() => (sel ? buscar(sel) : null), [sel])
-  const gFoco = useMemo(() => GALAXIAS.find((g) => g.id === foco) ?? null, [foco])
+  const actual = useMemo(() => (sel ? buscar(GALAXIAS, sel) : null), [sel, GALAXIAS])
+  const gFoco = useMemo(() => GALAXIAS.find((g) => g.id === foco) ?? null, [foco, GALAXIAS])
 
   return (
-    <section aria-label="Mapa 3D de proyectos" className="relative bg-[#05060A] text-white overflow-hidden border-y border-white/10">
+    <section aria-label={T.section} className="relative bg-[#05060A] text-white overflow-hidden border-y border-white/10">
       <div ref={caja} className="relative h-[78svh] min-h-[520px] max-h-[820px] w-full">
         <canvas ref={lienzo} className="absolute inset-0 w-full h-full cursor-grab touch-none" aria-hidden="true" />
 
@@ -453,21 +498,21 @@ export default function MapaProyectos() {
 
         {/* título */}
         <div className="pointer-events-none absolute left-4 md:left-8 top-4 md:top-6 z-10 max-w-[calc(100%-96px)] md:max-w-[420px]">
-          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Mapa de proyectos</p>
-          <p className="m-0 mt-1 font-tight text-[22px] md:text-[28px] leading-tight font-extrabold">Explorá {TOTAL_NODOS} proyectos en {GALAXIAS.length} sectores</p>
-          <p className="m-0 mt-1 text-[13px] text-[#AEB5C2]">Arrastrá para girar. Tocá un sector o un punto de luz.</p>
+          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{T.kicker}</p>
+          <p className="m-0 mt-1 font-tight text-[22px] md:text-[28px] leading-tight font-extrabold">{T.title(TOTAL_NODOS, GALAXIAS.length)}</p>
+          <p className="m-0 mt-1 text-[13px] text-[#AEB5C2]">{T.hint}</p>
         </div>
 
         {/* controles */}
         <div className="absolute right-4 md:right-8 top-4 md:top-6 z-20 flex flex-col gap-2">
-          <button onClick={() => motor.current?.zoom(0.75)} aria-label="Acercar" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-xl font-bold hover:border-[#FF6A63]">+</button>
-          <button onClick={() => motor.current?.zoom(1.33)} aria-label="Alejar" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-xl font-bold hover:border-[#FF6A63]">−</button>
-          <button onClick={() => { enfocar(null); setFoco(null) }} aria-label="Ver todos los sectores" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-[11px] font-bold hover:border-[#FF6A63]">Todo</button>
+          <button onClick={() => motor.current?.zoom(0.75)} aria-label={T.zoomIn} className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-xl font-bold hover:border-[#FF6A63]">+</button>
+          <button onClick={() => motor.current?.zoom(1.33)} aria-label={T.zoomOut} className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-xl font-bold hover:border-[#FF6A63]">−</button>
+          <button onClick={() => { enfocar(null); setFoco(null) }} aria-label={T.allAria} className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-[11px] font-bold hover:border-[#FF6A63]">{T.all}</button>
         </div>
 
         {/* galaxias (acceso rápido) */}
         <div className="absolute left-0 right-0 bottom-0 z-10 px-4 md:px-8 pb-4 pt-10 bg-gradient-to-t from-[#05060A] via-[#05060A]/80 to-transparent">
-          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Ir a un sector">
+          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label={T.goTo}>
             {GALAXIAS.map((g) => (
               <button
                 key={g.id}
@@ -479,7 +524,7 @@ export default function MapaProyectos() {
                 {g.nombre}
               </button>
             ))}
-            <a href="#todos" className="shrink-0 rounded-full border border-white/20 px-3.5 py-2 text-[13px] font-semibold text-[#D3D7DE] hover:border-[#FF6A63]">Ver como lista ↓</a>
+            <a href={T.listHref} className="shrink-0 rounded-full border border-white/20 px-3.5 py-2 text-[13px] font-semibold text-[#D3D7DE] hover:border-[#FF6A63]">{T.list}</a>
           </div>
         </div>
 
@@ -493,7 +538,7 @@ export default function MapaProyectos() {
           >
             <div className="flex items-start justify-between gap-3">
               <p className="m-0 text-xs font-bold uppercase tracking-[0.14em]" style={{ color: actual.g.color }}>{actual.g.nombre}</p>
-              <button onClick={() => seleccionar(null)} aria-label="Cerrar" className="-mt-1 -mr-1 w-8 h-8 rounded-lg text-lg text-[#AEB5C2] hover:text-white">×</button>
+              <button onClick={() => seleccionar(null)} aria-label={T.close} className="-mt-1 -mr-1 w-8 h-8 rounded-lg text-lg text-[#AEB5C2] hover:text-white">×</button>
             </div>
             <h2 className="m-0 mt-1 font-tight text-[20px] md:text-[22px] leading-snug font-bold">{actual.n.t}</h2>
             {actual.n.cliente && !actual.n.t.includes(actual.n.cliente) && <p className="m-0 mt-1 text-[13px] text-[#AEB5C2]">{actual.n.cliente}</p>}
@@ -506,16 +551,16 @@ export default function MapaProyectos() {
                 {actual.n.tags.map((t) => <li key={t} className="rounded-full border border-white/15 px-2.5 py-1 text-[12px] text-[#C3C8D1]">{t}</li>)}
               </ul>
             )}
-            <Link href="/contacto#formulario" className="mt-4 inline-flex w-full justify-center rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-3 text-[15px] font-bold text-white transition-colors">Quiero algo así</Link>
+            <Link href={T.ctaHref} className="mt-4 inline-flex w-full justify-center rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-3 text-[15px] font-bold text-white transition-colors">{T.cta}</Link>
           </aside>
         )}
 
-        {!listo && !sinWebgl && <div className="absolute inset-0 grid place-items-center text-sm text-[#AEB5C2]">Cargando el mapa…</div>}
-        {sinWebgl && <div className="absolute inset-0 grid place-items-center px-6 text-center text-[15px] text-[#C3C8D1]">Tu dispositivo no puede mostrar el 3D. Mirá los proyectos en la lista de abajo.</div>}
+        {!listo && !sinWebgl && <div className="absolute inset-0 grid place-items-center text-sm text-[#AEB5C2]">{T.loading}</div>}
+        {sinWebgl && <div className="absolute inset-0 grid place-items-center px-6 text-center text-[15px] text-[#C3C8D1]">{T.noGl}</div>}
       </div>
 
       {/* detalle del foco actual para lectores de pantalla */}
-      <p className="sr-only" aria-live="polite">{gFoco ? `${gFoco.nombre}: ${gFoco.nodos.length} proyectos` : ""}</p>
+      <p className="sr-only" aria-live="polite">{gFoco ? `${gFoco.nombre}: ${T.count(gFoco.nodos.length)}` : ""}</p>
     </section>
   )
 }

@@ -133,6 +133,7 @@ export default function TransformacionDigitalPage() {
               <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Financiamiento</p>
               <h2 id="t-kit" className="m-0 font-tight text-[30px] md:text-[38px] leading-[1.12] font-extrabold">Programa Kit 4.0: hasta el 50% cofinanciado.</h2>
               <p className="m-0 text-[17px] leading-relaxed text-[#4A515C]">El programa nacional Kit 4.0 cofinancia la transformación digital de las mipymes. Desde septiembre de 2026 alcanza a todos los sectores económicos. En el diagnóstico te decimos si tu organización califica y qué kit del catálogo oficial conviene.</p>
+              <Link href="/kit-4-0" className="self-start mt-1 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Usá la herramienta gratis del Kit 4.0</Link>
             </div>
             <ul className="m-0 p-0 list-none grid sm:grid-cols-2 gap-3">
               {[["Qué cubre", "Hasta el 50% del valor de un kit de soluciones digitales del catálogo oficial."], ["Cómo se paga", "La pyme paga su parte; el Estado cubre el resto con crédito fiscal al proveedor."], ["Quiénes", "Mipymes con certificado MiPyME, dos años de actividad y sin deudas exigibles."], ["Ojo", "Rige hasta agotar el cupo y las condiciones cambian: lo verificamos en el sitio oficial antes de empezar."]].map(([t, d]) => (
