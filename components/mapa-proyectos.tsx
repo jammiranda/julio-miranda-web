@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import * as THREE from "three"
-import { GALAXIAS, TOTAL_NODOS, type Galaxia, type Nodo } from "@/lib/universo-datos"
+import { GALAXIAS, TOTAL_NODOS, type Galaxia, type Nodo } from "@/lib/mapa-datos"
 
 /**
- * Universo de proyectos: cada sector es una galaxia y cada proyecto o cliente, un nodo.
+ * Mapa 3D de proyectos: cada sector es una galaxia y cada proyecto o cliente, un nodo.
  * Se navega arrastrando (rotar), con los botones +/− o pellizcando (zoom) y tocando un nodo.
  * Sin WebGL, o con "reducir movimiento", queda la vista lista (que además siempre está debajo).
  */
@@ -52,7 +52,7 @@ const buscar = (id: string): { g: Galaxia; n: Nodo } | null => {
   return null
 }
 
-export default function Universo() {
+export default function MapaProyectos() {
   const caja = useRef<HTMLDivElement>(null)
   const lienzo = useRef<HTMLCanvasElement>(null)
   const motor = useRef<Motor | null>(null)
@@ -294,7 +294,7 @@ export default function Universo() {
       if (eraUno && movido < 8) {
         const id = nodoEn(e.clientX, e.clientY)
         // se actualiza el estado de React; el motor se entera por seleccionar()
-        window.dispatchEvent(new CustomEvent("universo:toque", { detail: id }))
+        window.dispatchEvent(new CustomEvent("mapa:toque", { detail: id }))
       }
     }
     cv.addEventListener("pointerdown", abajo)
@@ -396,7 +396,7 @@ export default function Universo() {
       if (id) seleccionar(id)
       else if (selRef.current) seleccionar(null)
     }
-    window.addEventListener("universo:toque", alToque)
+    window.addEventListener("mapa:toque", alToque)
 
     const visibilidad = () => {
       if (document.hidden) { vivo = false; cancelAnimationFrame(raf) }
@@ -412,7 +412,7 @@ export default function Universo() {
       cv.removeEventListener("pointermove", mover)
       cv.removeEventListener("pointerup", arriba)
       cv.removeEventListener("pointercancel", arriba)
-      window.removeEventListener("universo:toque", alToque)
+      window.removeEventListener("mapa:toque", alToque)
       document.removeEventListener("visibilitychange", visibilidad)
       escena.traverse((o) => {
         const m = o as THREE.Mesh
@@ -430,7 +430,7 @@ export default function Universo() {
   const gFoco = useMemo(() => GALAXIAS.find((g) => g.id === foco) ?? null, [foco])
 
   return (
-    <section aria-label="Universo de proyectos en 3D" className="relative bg-[#05060A] text-white overflow-hidden border-y border-white/10">
+    <section aria-label="Mapa 3D de proyectos" className="relative bg-[#05060A] text-white overflow-hidden border-y border-white/10">
       <div ref={caja} className="relative h-[78svh] min-h-[520px] max-h-[820px] w-full">
         <canvas ref={lienzo} className="absolute inset-0 w-full h-full cursor-grab touch-none" aria-hidden="true" />
 
@@ -452,22 +452,22 @@ export default function Universo() {
         <div ref={etiquetaHover} aria-hidden="true" className="pointer-events-none absolute left-0 top-0 z-10 max-w-[240px] rounded-lg bg-white text-[#0E1116] px-2.5 py-1.5 text-[12px] font-bold leading-tight shadow-lg transition-opacity" style={{ opacity: 0 }} />
 
         {/* título */}
-        <div className="pointer-events-none absolute left-4 md:left-8 top-4 md:top-6 z-10 max-w-[420px]">
-          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Universo DEVISEBIT</p>
-          <p className="m-0 mt-1 font-tight text-[22px] md:text-[28px] leading-tight font-extrabold">{GALAXIAS.length} galaxias, {TOTAL_NODOS} proyectos para explorar</p>
-          <p className="m-0 mt-1 text-[13px] text-[#AEB5C2]">Arrastrá para girar. Tocá una galaxia o un punto de luz.</p>
+        <div className="pointer-events-none absolute left-4 md:left-8 top-4 md:top-6 z-10 max-w-[calc(100%-96px)] md:max-w-[420px]">
+          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Mapa de proyectos</p>
+          <p className="m-0 mt-1 font-tight text-[22px] md:text-[28px] leading-tight font-extrabold">Explorá {TOTAL_NODOS} proyectos en {GALAXIAS.length} sectores</p>
+          <p className="m-0 mt-1 text-[13px] text-[#AEB5C2]">Arrastrá para girar. Tocá un sector o un punto de luz.</p>
         </div>
 
         {/* controles */}
         <div className="absolute right-4 md:right-8 top-4 md:top-6 z-20 flex flex-col gap-2">
           <button onClick={() => motor.current?.zoom(0.75)} aria-label="Acercar" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-xl font-bold hover:border-[#FF6A63]">+</button>
           <button onClick={() => motor.current?.zoom(1.33)} aria-label="Alejar" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-xl font-bold hover:border-[#FF6A63]">−</button>
-          <button onClick={() => { enfocar(null); setFoco(null) }} aria-label="Ver todo el universo" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-[11px] font-bold hover:border-[#FF6A63]">Todo</button>
+          <button onClick={() => { enfocar(null); setFoco(null) }} aria-label="Ver todos los sectores" className="w-10 h-10 rounded-xl border border-white/20 bg-black/50 backdrop-blur text-[11px] font-bold hover:border-[#FF6A63]">Todo</button>
         </div>
 
         {/* galaxias (acceso rápido) */}
         <div className="absolute left-0 right-0 bottom-0 z-10 px-4 md:px-8 pb-4 pt-10 bg-gradient-to-t from-[#05060A] via-[#05060A]/80 to-transparent">
-          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Ir a una galaxia">
+          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Ir a un sector">
             {GALAXIAS.map((g) => (
               <button
                 key={g.id}
@@ -479,7 +479,7 @@ export default function Universo() {
                 {g.nombre}
               </button>
             ))}
-            <a href="#catalogo" className="shrink-0 rounded-full border border-white/20 px-3.5 py-2 text-[13px] font-semibold text-[#D3D7DE] hover:border-[#FF6A63]">Ver como lista ↓</a>
+            <a href="#todos" className="shrink-0 rounded-full border border-white/20 px-3.5 py-2 text-[13px] font-semibold text-[#D3D7DE] hover:border-[#FF6A63]">Ver como lista ↓</a>
           </div>
         </div>
 
@@ -510,7 +510,7 @@ export default function Universo() {
           </aside>
         )}
 
-        {!listo && !sinWebgl && <div className="absolute inset-0 grid place-items-center text-sm text-[#AEB5C2]">Cargando el universo…</div>}
+        {!listo && !sinWebgl && <div className="absolute inset-0 grid place-items-center text-sm text-[#AEB5C2]">Cargando el mapa…</div>}
         {sinWebgl && <div className="absolute inset-0 grid place-items-center px-6 text-center text-[15px] text-[#C3C8D1]">Tu dispositivo no puede mostrar el 3D. Mirá los proyectos en la lista de abajo.</div>}
       </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -7,7 +8,7 @@ import { EQUIPO, EQUIPO_PIE } from "@/lib/marca"
 import DbHero from "@/components/db-hero"
 
 export const metadata = pageMeta(
-  "Nosotros · DEVISEBIT",
+  "Nosotros: equipo de software e IA desde 2009 · DEVISEBIT",
   "Desde 2009 desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Conocé al equipo.",
   "/nosotros",
 )
@@ -40,7 +41,7 @@ const LOGOS = [
   { src: "/images/client-uba-posgrado.png", alt: "UBA Posgrado" },
   { src: "/images/client-atm-misiones.png", alt: "ATM Misiones" },
   { src: "/images/client-cla-training.png", alt: "CLA Training" },
-  { src: "/images/client-salud.png", alt: "Urobaires" },
+  { src: "/images/client-salud.webp", alt: "Urobaires" },
 ]
 
 const VALUES = [
@@ -56,6 +57,7 @@ const SKILLS = ["Desarrollo web full stack", "Aplicaciones móviles", "Inteligen
 export default function NosotrosPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Nosotros", "/nosotros"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <DbHero

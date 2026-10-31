@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Lock, Mail, PlayCircle, Gauge } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -7,8 +8,8 @@ import DemoPedidoForm from "@/components/demo-pedido-form"
 import { DEMOS } from "@/lib/demos"
 
 export const metadata = pageMeta(
-  "Pedí una demo · DEVISEBIT",
-  "Probá nuestros productos con datos de ejemplo: te mandamos un link personal por email. Asistente de WhatsApp con IA, webs, sistemas a medida, padrón, obras sociales, plataforma de cursos y panel de contenido.",
+  "Pedí una demo de software y asistentes con IA · DEVISEBIT",
+  "Probá nuestros productos con datos de ejemplo: te mandamos un link personal por email. WhatsApp con IA, webs, sistemas, padrón, cursos y panel de contenido.",
   "/demos",
 )
 
@@ -16,6 +17,7 @@ export default function Demos() {
   const productos = DEMOS.filter((d) => d.slug !== "transformacion-digital")
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Demos", "/demos"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">

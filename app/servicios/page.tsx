@@ -1,12 +1,13 @@
 import Link from "next/link"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { SOLUCIONES, NOMBRE_PRODUCTO } from "@/lib/marca"
 
 export const metadata = pageMeta(
-  "Servicios · DEVISEBIT",
-  "Soluciones con precio publicado (webs, WhatsApp con IA, redes, sistemas, asesoría en tecnología e IA y comunidades) y servicios a medida: desarrollo, IA, tableros, gestión de proyectos IT, transformación digital y soporte.",
+  "Servicios de software, IA y transformación digital · DEVISEBIT",
+  "Webs, WhatsApp con IA, redes, sistemas, asesoría en tecnología e IA y comunidades con precio publicado, más desarrollo a medida, tableros y transformación digital.",
   "/servicios",
 )
 
@@ -71,6 +72,7 @@ const STEPS = [
 export default function ServiciosPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Servicios", "/servicios"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">

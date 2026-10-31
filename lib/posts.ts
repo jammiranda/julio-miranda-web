@@ -1,8 +1,9 @@
-export type Post = { slug: string; date: string; dateTxt: string; kicker: string; title: string; desc: string; body: string[]; box?: string[]; sources: { t: string; u: string }[] }
+export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: string; dateTxt: string; kicker: string; title: string; desc: string; body: string[]; box?: string[]; sources: { t: string; u: string }[] }
 
 export const posts: Post[] = [
   {
     slug: "salud-digital-2026-interoperabilidad",
+    seoTitle: "Salud digital 2026: sistemas que se hablan",
     date: "2026-10-21",
     dateTxt: "21 de octubre de 2026",
     kicker: "Salud digital",
@@ -28,6 +29,8 @@ export const posts: Post[] = [
   },
   {
     "slug": "whatsapp-cobra-respuestas-octubre-2026",
+    "seoTitle": "WhatsApp Business cobra respuestas desde octubre",
+    "seoDesc": "Desde el 1 de octubre de 2026 las respuestas en la ventana de 24 horas se cobran por mensaje, con 1.000 conversaciones gratis al mes. Qué revisar antes.",
     "date": "2026-09-15",
     "dateTxt": "15 de septiembre de 2026",
     "kicker": "WhatsApp",
@@ -54,6 +57,8 @@ export const posts: Post[] = [
   },
   {
     "slug": "pymes-argentinas-usan-ia-2026",
+    "seoTitle": "4 de cada 10 pymes argentinas ya usan IA",
+    "seoDesc": "Una encuesta de la UTDT, Fundar, el BID y el Observatorio Pyme muestra que el 41,6% de las pymes usa IA, sobre todo en ventas y administración.",
     "date": "2026-05-28",
     "dateTxt": "28 de mayo de 2026",
     "kicker": "Inteligencia artificial",
@@ -80,6 +85,8 @@ export const posts: Post[] = [
   },
   {
     "slug": "google-modo-ia-espanol-seo-pymes",
+    "seoTitle": "Modo IA de Google en español y tu negocio",
+    "seoDesc": "El Modo IA de Google ya está en la Argentina: consultas más largas y respuestas que citan pocas fuentes. Estar bien posicionado vale más que antes.",
     "date": "2025-09-26",
     "dateTxt": "26 de septiembre de 2025",
     "kicker": "Buscadores",
@@ -110,6 +117,8 @@ export const posts: Post[] = [
   },
   {
     "slug": "receta-electronica-obligatoria-toda-prescripcion",
+    "seoTitle": "Receta electrónica obligatoria: guía para clínicas",
+    "seoDesc": "La Resolución 2214/2025 extiende la receta electrónica a toda prescripción médica. Qué conviene ordenar en el sistema de tu institución.",
     "date": "2025-07-24",
     "dateTxt": "24 de julio de 2025",
     "kicker": "Salud digital",
@@ -140,6 +149,8 @@ export const posts: Post[] = [
   },
   {
     "slug": "whatsapp-business-cobro-por-mensaje-julio-2025",
+    "seoTitle": "WhatsApp Business cobra por mensaje: qué cambia",
+    "seoDesc": "Desde el 1 de julio de 2025, Meta cobra la API de WhatsApp Business por cada plantilla enviada según su categoría, y no por conversación.",
     "date": "2025-07-03",
     "dateTxt": "3 de julio de 2025",
     "kicker": "WhatsApp",

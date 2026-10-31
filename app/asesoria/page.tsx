@@ -1,6 +1,7 @@
 import Link from "next/link"
+import { JsonLd } from "@/components/json-ld"
 import type { Metadata } from "next"
-import { pageMeta } from "@/lib/seo"
+import { pageMeta, breadcrumb, servicio } from "@/lib/seo"
 import { MessageCircle, CalendarClock, Download, Tag } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -9,7 +10,7 @@ import Redes from "@/components/redes"
 import { ASESORIA } from "@/lib/marca"
 
 const TITULO = "Asesoría y consultoría en tecnología e IA · DEVISEBIT"
-const DESCRIPCION = "Un equipo de tecnología e IA a disposición de tu organización, por horas o por mes: horas sueltas, bolsas de horas, abonos con responsable único, plan anual y licencias."
+const DESCRIPCION = "Un equipo de tecnología e IA para tu organización, por horas o por mes: horas sueltas, bolsas, abonos con responsable único, plan anual y licencias."
 const OG = { url: "/images/landings/og-asesoria.jpg", width: 1200, height: 630, alt: "Asesoría y consultoría en tecnología e IA · DEVISEBIT" }
 const base = pageMeta(TITULO, DESCRIPCION, "/asesoria")
 export const metadata: Metadata = {
@@ -94,6 +95,8 @@ const btnSec = "inline-flex items-center gap-2 rounded-xl border border-white/20
 export default function AsesoriaPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Asesoría en tecnología e IA", "/asesoria"]])} />
+      <JsonLd data={servicio("Asesoría y consultoría en tecnología e IA", "Equipo de tecnología e IA a disposición de tu organización, por horas o por mes, con responsable único y registro en tu portal.", "/asesoria", "Consultoría en tecnología e inteligencia artificial")} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <DbHero

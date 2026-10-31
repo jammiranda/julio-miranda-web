@@ -4,7 +4,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { posts } from "@/lib/posts"
 import NotaCta from "@/components/nota-cta"
-import { pageMeta, OG_IMAGE } from "@/lib/seo"
+import { pageMeta, OG_IMAGE, SITE_URL, ORG_ID, breadcrumb } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
 
 const NUM: Record<number, string> = { 2: "Dos", 3: "Tres", 4: "Cuatro", 5: "Cinco", 6: "Seis" }
 
@@ -16,8 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const p = posts.find((x) => x.slug === slug)
   if (!p) return {}
-  return pageMeta(`${p.title} · DEVISEBIT`, p.desc, `/novedades/${p.slug}`, {
-    openGraph: { title: p.title, description: p.desc, url: `/novedades/${p.slug}`, siteName: "DEVISEBIT", locale: "es_AR", type: "article", publishedTime: p.date, images: [OG_IMAGE] },
+  const desc = p.seoDesc ?? p.desc
+  return pageMeta(`${p.seoTitle ?? p.title} · DEVISEBIT`, desc, `/novedades/${p.slug}`, {
+    openGraph: { title: p.title, description: desc, url: `/novedades/${p.slug}`, siteName: "DEVISEBIT", locale: "es_AR", type: "article", publishedTime: p.date, images: [OG_IMAGE] },
   })
 }
 
@@ -27,6 +29,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   if (!p) notFound()
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Novedades", "/novedades"], [p.title, `/novedades/${p.slug}`]])} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: p.title,
+          description: p.seoDesc ?? p.desc,
+          datePublished: p.date,
+          dateModified: p.date,
+          inLanguage: "es-AR",
+          mainEntityOfPage: `${SITE_URL}/novedades/${p.slug}`,
+          image: `${SITE_URL}${OG_IMAGE.url}`,
+          author: { "@id": ORG_ID },
+          publisher: { "@id": ORG_ID },
+          citation: p.sources.map((x) => ({ "@type": "CreativeWork", name: x.t, url: x.u })),
+        }}
+      />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">

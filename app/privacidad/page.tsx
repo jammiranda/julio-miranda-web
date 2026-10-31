@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer"
 
 export const metadata = pageMeta(
   "Política de privacidad · DEVISEBIT",
-  "Cómo DEVISEBIT SRL trata los datos personales de quienes nos contactan por la web, WhatsApp, redes o correo.",
+  "Cómo DEVISEBIT SRL trata los datos personales de quienes nos contactan por la web, WhatsApp, redes o correo electrónico.",
   "/privacidad",
 )
 

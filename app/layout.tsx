@@ -6,7 +6,8 @@ import "./globals.css"
 import { I18nProvider } from "@/lib/i18n/context"
 import WhatsappFloat from "@/components/whatsapp-float"
 import Attribution from "@/components/attribution"
-import { SITE_URL, pageMeta } from "@/lib/seo"
+import { SITE_URL, pageMeta, ORGANIZACION, SITIO_WEB } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   ...pageMeta(
     "DEVISEBIT · Software e IA para salud e instituciones",
-    "Software e IA. Desde 2009 · sistemas en producción. Desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas, con alcance, fecha y precio fijo.",
+    "Software e IA desde 2009. Desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas, con precio fijo.",
     "/",
   ),
   icons: {
@@ -46,8 +47,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${interTight.variable} ${playfair.variable} antialiased`}>
+    <html lang="es-AR" className={`${inter.variable} ${interTight.variable} ${playfair.variable} antialiased`}>
       <body>
+        <JsonLd data={ORGANIZACION} />
+        <JsonLd data={SITIO_WEB} />
         <a href="#contenido" className="skip-link">Saltar al contenido</a>
         <I18nProvider>{children}</I18nProvider>
         <WhatsappFloat />

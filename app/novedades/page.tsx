@@ -1,12 +1,13 @@
 import Link from "next/link"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbHero from "@/components/db-hero"
 import { posts } from "@/lib/posts"
 
 export const metadata = pageMeta(
-  "Novedades · DEVISEBIT",
+  "Novedades sobre software, IA y salud digital · DEVISEBIT",
   "Notas semanales sobre software, inteligencia artificial y salud digital, siempre con sus fuentes. El blog de DEVISEBIT.",
   "/novedades",
 )
@@ -16,6 +17,7 @@ export default function NovedadesPage() {
   const [first, ...rest] = list
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Novedades", "/novedades"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <DbHero kicker="Novedades" title="Software, IA y salud digital." sub="Notas breves sobre lo que pasa en tecnología, siempre con sus fuentes. Una nueva cada semana." />

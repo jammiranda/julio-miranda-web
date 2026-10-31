@@ -1,5 +1,6 @@
 import Image from "next/image"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -20,6 +21,7 @@ const PARTNERS = [
 export default function AlianzasPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Alianzas estratégicas", "/alianzas-estrategicas"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <DbHero

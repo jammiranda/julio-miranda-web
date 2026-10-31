@@ -1,5 +1,6 @@
 import { Header } from "@/components/header"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Footer } from "@/components/footer"
 import DbHero from "@/components/db-hero"
 import DbCvForm from "@/components/db-cv-form"
@@ -7,7 +8,7 @@ import { MapPin, Mail } from "lucide-react"
 
 export const metadata = pageMeta(
   "Trabajá con nosotros · DEVISEBIT",
-  "Sumate al equipo de DEVISEBIT: desarrollo, datos, QA, diseño, proyectos y ciberseguridad.",
+  "Sumate al equipo de DEVISEBIT: trabajamos en desarrollo, datos, QA, diseño, proyectos y ciberseguridad. Dejanos tu CV y tu perfil.",
   "/trabaja-con-nosotros",
 )
 
@@ -20,6 +21,7 @@ const WHY = [
 export default function TrabajaConNosotros() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Trabajá con nosotros", "/trabaja-con-nosotros"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <DbHero

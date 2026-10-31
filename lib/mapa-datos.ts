@@ -1,5 +1,5 @@
 /**
- * Datos del "Universo de proyectos" de DEVISEBIT.
+ * Datos del mapa 3D de proyectos de DEVISEBIT.
  * Cada galaxia es un sector; cada nodo, un proyecto o cliente ya publicado en el sitio
  * (casos de éxito y /trabajos). Los textos salen de esas páginas: no se inventan datos.
  */

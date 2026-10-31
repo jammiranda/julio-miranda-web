@@ -41,8 +41,8 @@ const PRODUCT_IDS = ["clinicas", "whatsapp", "crm", "tableros", "app", "academia
 
 const CASES = [
   { img: "https://julio.devisebit.com/media/trabajos/plataforma-academia.jpg", tag: "Comunidad y academia", title: "Comunidad USL · Academia", text: "Comunidad y academia online: cursos, inscripciones, beneficios y padrón en un solo panel. Más de 1.000 inscriptos en un año." },
-  { img: "/images/case-tigre-new.png", tag: "Gobierno municipal", title: "Municipio de Tigre · app Soy Tigre", text: "Desarrollo y soporte de la app: comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
-  { img: "/images/case-academia-new.png", tag: "Gobierno y educación", title: "GCBA · Academia BA Emprende", text: "Oferta académica online para emprendedores de la Ciudad: WordPress y Moodle unificados con un solo ingreso y conexión al CRM." },
+  { img: "/images/case-tigre-new.webp", tag: "Gobierno municipal", title: "Municipio de Tigre · app Soy Tigre", text: "Desarrollo y soporte de la app: comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
+  { img: "/images/case-academia-new.webp", tag: "Gobierno y educación", title: "GCBA · Academia BA Emprende", text: "Oferta académica online para emprendedores de la Ciudad: WordPress y Moodle unificados con un solo ingreso y conexión al CRM." },
 ]
 
 const STEPS = [

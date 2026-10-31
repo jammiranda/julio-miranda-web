@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb, servicio } from "@/lib/seo"
 import { MessageCircle, CalendarClock, FileText, Award } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -45,6 +46,8 @@ const PARA = ["Directores y gerentes", "Pymes y empresas familiares", "Gremios, 
 export default function TransformacionDigitalPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Transformación digital", "/transformacion-digital"]])} />
+      <JsonLd data={servicio("Consultoría de transformación digital", "Diagnóstico de madurez digital, hoja de ruta, pilotos y capacitación con certificado para pymes, empresas familiares, gremios y organismos públicos.", "/transformacion-digital", "Consultoría de transformación digital")} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <DbHero

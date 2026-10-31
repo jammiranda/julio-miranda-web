@@ -10,10 +10,11 @@ const PAGINAS: [string, number][] = [
   ["/trabaja-con-nosotros", 0.5], ["/contacto", 0.8], ["/novedades", 0.7], ["/privacidad", 0.3],
 ]
 
+// Sin lastModified en las páginas fijas: una fecha que cambia en cada deploy le quita valor al dato para Google.
+// Las notas del blog sí llevan su fecha real de publicación.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const hoy = new Date()
   return [
-    ...PAGINAS.map(([p, priority]) => ({ url: SITE_URL + p, lastModified: hoy, priority })),
+    ...PAGINAS.map(([p, priority]) => ({ url: SITE_URL + p, priority })),
     ...posts.map((p) => ({ url: `${SITE_URL}/novedades/${p.slug}`, lastModified: new Date(p.date), priority: 0.6 })),
   ]
 }

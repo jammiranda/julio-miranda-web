@@ -1,2 +1,3 @@
-import { redirect } from "next/navigation"
-export default function TrabajosPage() { redirect("/casos-de-exito#todos") }
+import { permanentRedirect } from "next/navigation"
+// Redirección permanente (308): le dice a Google que el catálogo ahora vive en /casos-de-exito
+export default function TrabajosPage() { permanentRedirect("/casos-de-exito#todos") }

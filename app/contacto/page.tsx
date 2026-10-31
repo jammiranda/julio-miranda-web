@@ -1,5 +1,6 @@
 import { Header } from "@/components/header"
-import { pageMeta } from "@/lib/seo"
+import { JsonLd } from "@/components/json-ld"
+import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import { Mail, MessageCircle, MapPin, CalendarClock, FileText, Tag } from "lucide-react"
@@ -7,7 +8,7 @@ import Redes from "@/components/redes"
 import { WHATSAPP } from "@/lib/marca"
 
 export const metadata = pageMeta(
-  "Contacto · DEVISEBIT",
+  "Contacto: pedí tu propuesta · DEVISEBIT",
   "Escribinos por WhatsApp, email o con el formulario. Te respondemos en 24 horas hábiles, de lunes a viernes de 8 a 18 h.",
   "/contacto",
 )
@@ -15,6 +16,7 @@ export const metadata = pageMeta(
 export default function ContactoPage() {
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
+      <JsonLd data={breadcrumb([["Contacto", "/contacto"]])} />
       <Header />
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
