@@ -1,3 +1,4 @@
+import { firmarToken } from "@/lib/diagnosticos"
 import { NextResponse, type NextRequest } from "next/server"
 import { one, q, audit } from "@/lib/db"
 import { notificar } from "@/lib/push"
@@ -55,7 +56,7 @@ async function guardar(req: NextRequest) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px">${barras}</table>
 ${prio.length ? `<p style="margin:0 0 8px;font-weight:800;font-size:15px">Tus 3 prioridades</p><ol style="margin:0 0 18px;padding-left:0;list-style:none;font-size:14px;line-height:1.5">${prioHtml}</ol>` : ""}
 ${blanca ? "" : `<p style="margin:0 0 18px;font-size:14px;line-height:1.6;color:#262C37">Si querés, lo repasamos juntos en una reunión de 30 minutos sin cargo y te decimos por dónde empezar.</p>
-<p style="margin:0 0 8px"><a href="https://sistema.devisebit.com/agendar" style="display:inline-block;background:#C8231F;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:10px">Agendar una reunión</a></p>
+<p style="margin:0 0 8px"><a href="https://sistema.devisebit.com/agendar${contactoId ? `?t=${await firmarToken(contactoId)}` : ""}" style="display:inline-block;background:#C8231F;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:10px">Agendar una reunión</a></p>
 <p style="margin:12px 0 0;font-size:13px;color:#4A515C">Para profundizar: <a href="https://academia.devisebit.com/productos/guia-transformacion-digital" style="color:#C8231F">Guía práctica de transformación digital</a>.</p>`}`
   const html = blanca
     ? `<!doctype html><html><body style="margin:0;background:#F5F6F8;font-family:Inter,Segoe UI,Arial,sans-serif"><table role="presentation" width="100%"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="100%" style="max-width:600px;background:#fff;border-radius:16px"><tr><td style="padding:28px">${cuerpo}</td></tr></table></td></tr></table></body></html>`

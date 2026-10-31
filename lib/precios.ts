@@ -57,7 +57,6 @@ const ASE = "https://www.devisebit.com/asesoria"
 
 /** Asesoría y consultoría en tecnología e IA (valores vigentes al 1/11/2026). Sin referencia de mercado publicada: no se compara. */
 export const ALTAS_ASESORIA: Inicial[] = [
-  { linea: LA, producto: "Primera reunión estratégica", precio: 55000, abono: null, condicion: "Una hora · una sola vez por organización · se descuenta completa si contratás un abono en los 30 días siguientes", incluye: "Una hora de estrategia de tecnología e IA con Dirección: entendemos tu situación, ordenamos prioridades y te recomendamos el formato que conviene", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Es la forma de empezar: la primera hora estratégica se cobra como hora técnica.", link: ASE },
   { linea: LA, producto: "Hora técnica", precio: 55000, abono: null, condicion: "Por hora · fracción mínima 30 minutos · pago por adelantado · USD 35 desde el exterior", incluye: "Una hora con un líder del equipo: análisis, desarrollo, soporte o redes", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Para una duda puntual: revisar un presupuesto de software, elegir un proveedor o destrabar un problema.", link: ASE },
   { linea: LA, producto: "Hora estratégica", precio: 85000, abono: null, condicion: "Por hora · fracción mínima 30 minutos · pago por adelantado · USD 55 desde el exterior", incluye: "Una hora de estrategia de tecnología e IA o de transformación digital", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Decisiones, no solo respuestas: qué comprar y qué no, cómo ordenar procesos antes de automatizar y cómo usar IA sin exponer datos.", link: ASE },
   { linea: LA, producto: "Bolsa de 10 horas", precio: 650000, abono: null, condicion: "Vence a los 90 días · pago por adelantado · la hora estratégica descuenta 1,5 h · USD 420", incluye: "10 horas con cualquier perfil del equipo, registradas en tu portal con fecha, persona y tema", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Para consultas a lo largo de los meses sin agenda fija, pagando por adelantado a menor valor por hora.", link: ASE },
@@ -128,6 +127,8 @@ async function asegurar() {
       [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, 2000 + i * 10])
     await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ($1,'alta',$2,'Asesoría y consultoría (valores al 1/11/2026)','Sistema')", [p.producto, String(p.precio ?? p.abono ?? "")])
   }
+  // 31/10/2026: la primera reunión es gratuita (con autodiagnóstico previo). Se retira del listado de precios.
+  await q("update db_precios set activo=false where producto='Primera reunión estratégica'")
   listo = true
 }
 
