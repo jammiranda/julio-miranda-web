@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
 import Integracion from "@/components/integracion"
+import EscaleraMadurez from "@/components/escalera-madurez"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb } from "@/lib/seo"
 import { WHATSAPP_EN as WHATSAPP } from "@/lib/marca"
@@ -85,27 +86,38 @@ export default function HomeEnPage() {
           <div className="db-scan"><i /></div>
         </section>
 
-        {/* Digital transformation */}
-        <section id="transformation" className="db-tech relative overflow-hidden bg-[#0B0D12] text-white border-t-4 border-[#C8231F]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 grid lg:grid-cols-[1.15fr_1fr] gap-10 items-center">
-            <div className="flex flex-col gap-4">
-              <p className={kicker + " text-[#FF6A63]"}>Digital transformation consulting</p>
-              <h2 className="m-0 font-tight text-[34px] md:text-[46px] leading-[1.08] font-extrabold">Get your organization in order with technology and strategy.</h2>
-              <p className="m-0 text-lg leading-relaxed text-[#C3C8D1] max-w-[620px]">We measure your digital maturity, build a staged roadmap and put it into motion with your team, including training and a certificate. We also help you find available funding for technology investment.</p>
-              <div className="flex flex-wrap gap-3 pt-1">
-                <Link href="/en/digital-transformation" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Explore the consulting →</Link>
+        {/* Digital transformation (light, to break the dark rhythm) */}
+        <section id="transformation" className="relative overflow-hidden bg-[#FFF4F2]">
+          <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
+          <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
+            <div className="flex flex-col gap-5">
+              <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Digital Transformation Consulting</p>
+              <h2 className="m-0 font-tight text-[36px] md:text-[54px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#0B0D12]">Your organization, <span className="text-[#C8231F]">one level higher.</span></h2>
+              <p className="m-0 text-lg leading-relaxed text-[#3B424D] max-w-[600px]">We measure your digital maturity, build a staged roadmap and put it into motion with your team, with training and a certificate. We also help you secure funding to do it.</p>
+              <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
+                {["Assessment across 4 areas", "Roadmap with KPIs", "Pilots in weeks", "Training with certificate", "Funding support"].map((x) => (
+                  <li key={x} className="rounded-full border border-[#C8231F]/25 bg-white px-3.5 py-1.5 text-[14px] font-semibold text-[#7E1512]">{x}</li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Link href="/en/digital-transformation" className="rounded-xl bg-[#0B0D12] hover:bg-[#1B2029] px-6 py-4 font-bold text-[17px] text-white transition-colors">Explore the consulting →</Link>
+                <Link href="/en/digital-kit" className="rounded-xl border-2 border-[#0B0D12] hover:bg-[#0B0D12] hover:text-white px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">DEVISEBIT Kits + funding</Link>
               </div>
-              <p className="m-0 text-[16px] text-[#C3C8D1]">Prefer a tech team by the hour or by the month? <Link href="/en/advisory" className="font-bold text-white underline underline-offset-4 decoration-[#FF6A63] hover:text-[#FF6A63]">See our technology and AI advisory →</Link></p>
+              <p className="m-0 text-[16px] text-[#3B424D]">Prefer a tech team by the hour or by the month? <Link href="/en/advisory" className="font-bold text-[#C8231F] underline underline-offset-4">Technology and AI advisory →</Link></p>
             </div>
-            <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[["01", "Assessment", "Digital maturity across 4 areas and 4 levels."], ["02", "Roadmap", "Prioritized challenges, KPIs and timelines."], ["03", "Pilots", "Quick results before you invest big."], ["04", "Change and training", "Your team adopts the new tools, with a certificate."]].map(([n, t, d]) => (
-                <li key={n} className="db-card db-dark rounded-2xl border border-[#262C37] bg-[#161A22] p-5 flex flex-col gap-1.5">
-                  <span className="font-tight text-2xl font-extrabold text-[#FF6A63]">{n}</span>
-                  <strong className="text-lg">{t}</strong>
-                  <span className="text-[15px] text-[#C3C8D1]">{d}</span>
-                </li>
-              ))}
-            </ol>
+            <div className="rounded-[28px] bg-white border border-[#F0C9C6] shadow-[0_30px_80px_-30px_rgba(200,35,31,.35)] p-6 md:p-8 flex flex-col gap-5">
+              <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#C8231F]">Digital maturity ladder</p>
+              <EscaleraMadurez niveles={[["1", "Initial", "28%"], ["2", "Organized", "52%"], ["3", "Integrated", "76%"], ["4", "Optimized", "100%"]]} />
+              <ol className="m-0 p-0 list-none grid grid-cols-2 gap-2.5">
+                {[["Assessment", "Where you stand today"], ["Roadmap", "What to do and in what order"], ["Pilots", "Results before big investment"], ["Training", "Your team adopts the change"]].map(([t, d], i) => (
+                  <li key={t} className="rounded-xl bg-[#F5F6F8] p-3.5 flex flex-col gap-0.5">
+                    <span className="text-[13px] font-extrabold text-[#C8231F]">{String(i + 1).padStart(2, "0")}</span>
+                    <strong className="text-[15px] text-[#0B0D12]">{t}</strong>
+                    <span className="text-[13.5px] text-[#4A515C] leading-snug">{d}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         </section>
 

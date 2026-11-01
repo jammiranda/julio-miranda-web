@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
 import Integracion from "@/components/integracion"
+import EscaleraMadurez from "@/components/escalera-madurez"
 import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
 
@@ -86,7 +87,7 @@ export default function HomePage() {
           <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
           <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
             <div className="flex flex-col gap-5">
-              <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Nuevo · Consultoría de Transformación Digital</p>
+              <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Consultoría de Transformación Digital</p>
               <h2 className="m-0 font-tight text-[36px] md:text-[54px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#0B0D12]">Tu organización, <span className="text-[#C8231F]">un nivel más arriba.</span></h2>
               <p className="m-0 text-lg leading-relaxed text-[#3B424D] max-w-[600px]">Medimos en qué nivel de madurez digital está tu organización, armamos la hoja de ruta por etapas y la ponemos en marcha con tu equipo, con capacitación y certificado. Y te ayudamos a conseguir financiamiento para hacerlo.</p>
               <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
@@ -102,16 +103,7 @@ export default function HomePage() {
             </div>
             <div className="rounded-[28px] bg-white border border-[#F0C9C6] shadow-[0_30px_80px_-30px_rgba(200,35,31,.35)] p-6 md:p-8 flex flex-col gap-5">
               <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#C8231F]">Escalera de madurez digital</p>
-              <div className="flex items-end gap-3 h-[210px]" role="img" aria-label="Cuatro niveles de madurez digital, de inicial a optimizado">
-                {[["1", "Inicial", "28%"], ["2", "En orden", "52%"], ["3", "Integrado", "76%"], ["4", "Optimizado", "100%"]].map(([n, t, h], i) => (
-                  <div key={n} className="flex-1 flex flex-col justify-end h-full">
-                    <div className="rounded-t-2xl p-3 flex flex-col justify-between text-white" style={{ height: h, background: i === 3 ? "#C8231F" : ["#E7B7B4", "#DB8C88", "#CF5F5A"][i] }}>
-                      <span className="font-tight text-2xl font-extrabold leading-none">{n}</span>
-                      <span className="text-[13px] font-bold leading-tight">{t}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <EscaleraMadurez niveles={[["1", "Inicial", "28%"], ["2", "En orden", "52%"], ["3", "Integrado", "76%"], ["4", "Optimizado", "100%"]]} />
               <ol className="m-0 p-0 list-none grid grid-cols-2 gap-2.5">
                 {[["Diagnóstico", "Dónde estás hoy"], ["Hoja de ruta", "Qué hacer y en qué orden"], ["Pilotos", "Resultados antes de invertir fuerte"], ["Capacitación", "Tu equipo adopta lo nuevo"]].map(([t, d], i) => (
                   <li key={t} className="rounded-xl bg-[#F5F6F8] p-3.5 flex flex-col gap-0.5">

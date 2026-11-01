@@ -1,6 +1,8 @@
 /** Kits DEVISEBIT: paquetes de tecnología con alcance cerrado, hechos con productos que ya funcionan en producción. */
 export type Lang = "es" | "en"
 
+export type Siguiente = { t: string; href: string }
+
 export type Kit = {
   id: string
   nombre: string
@@ -9,6 +11,10 @@ export type Kit = {
   incluye: string[]
   entregables: string[]
   producto: string
+  icono: string
+  corto: string
+  chips: string[]
+  siguiente: { texto: string; links: Siguiente[] }
 }
 
 export const KITS: Record<Lang, Kit[]> = {
@@ -21,6 +27,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["Sitio web o tienda conectada a tu operación", "Formulario de pedidos, presupuestos, reservas o turnos", "WhatsApp Business integrado con la web", "Medios de pago y avisos automáticos", "Panel para ver y atender lo que entra"],
       entregables: ["Sitio publicado en tu dominio", "Panel de gestión con usuarios", "Integraciones probadas con datos reales", "Manual de uso y capacitación del equipo"],
       producto: "Webs conectadas + WhatsApp",
+      icono: "🌐",
+      corto: "Que te encuentren, te escriban y te compren sin atender cada consulta a mano.",
+      chips: ["Web conectada", "WhatsApp integrado", "Pagos y avisos"],
+      siguiente: { texto: "Cuando el canal funciona, sumá el abono de web con mantenimiento y WhatsApp con IA, o un sistema a medida.", links: [{ t: "Webs y abonos", href: "/webs" }, { t: "WhatsApp con IA", href: "/whatsapp" }, { t: "Sistemas a medida", href: "/sistemas" } ] },
     },
     {
       id: "crm",
@@ -30,6 +40,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["CRM con embudos de venta y seguimiento", "Importación ordenada de tus contactos", "Automatizaciones de avisos, recordatorios y posventa", "Conexión con WhatsApp, correo y formularios", "Tablero con indicadores comerciales"],
       entregables: ["CRM configurado con tus procesos", "Automatizaciones activas y documentadas", "Tablero de indicadores", "Capacitación del equipo comercial"],
       producto: "CRM + tableros",
+      icono: "📈",
+      corto: "Cada contacto con su historial, ningún seguimiento perdido y lo repetitivo, automático.",
+      chips: ["CRM con embudos", "Automatizaciones", "Tablero comercial"],
+      siguiente: { texto: "Después del CRM, sumá tableros, WhatsApp con IA y la asesoría para sacarle el jugo.", links: [{ t: "Sistemas y tableros", href: "/sistemas" }, { t: "WhatsApp con IA", href: "/whatsapp" }, { t: "Asesoría", href: "/asesoria" } ] },
     },
     {
       id: "ia",
@@ -39,6 +53,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["Asistente de WhatsApp con IA entrenado con tu información", "Clasificación y derivación de consultas a personas", "Resúmenes y reportes automáticos", "Tablero de análisis de consultas y ventas", "Reglas de seguridad y supervisión humana"],
       entregables: ["Asistente en producción y supervisado", "Base de conocimiento cargada y mantenible", "Tablero de resultados", "Guía de uso y mejora continua"],
       producto: "WhatsApp con IA + analítica",
+      icono: "🤖",
+      corto: "Atención 24 h con derivación a personas y datos que se vuelven decisiones.",
+      chips: ["Asistente con IA", "Derivación a personas", "Tablero de consultas"],
+      siguiente: { texto: "Con el asistente andando, seguí con el CRM, el abono de mejora continua o la asesoría en IA.", links: [{ t: "WhatsApp con IA", href: "/whatsapp" }, { t: "Sistemas y CRM", href: "/sistemas" }, { t: "Asesoría en IA", href: "/asesoria" } ] },
     },
     {
       id: "gestion",
@@ -48,6 +66,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["Gestor documental con carpetas, permisos y versiones", "Firma digital de documentos", "Circuitos de aprobación con avisos", "Búsqueda y trazabilidad de cada trámite", "Migración ordenada de tu archivo actual"],
       entregables: ["Gestor documental en producción", "Circuitos configurados", "Migración inicial del archivo", "Capacitación y manual de uso"],
       producto: "Gestor documental con firma digital",
+      icono: "🗂️",
+      corto: "Documentos ordenados, con responsable, trazabilidad y firma en línea.",
+      chips: ["Gestor documental", "Firma digital", "Circuitos de aprobación"],
+      siguiente: { texto: "Una vez ordenado el archivo, seguí con sistemas a medida, tableros y capacitación para tu equipo.", links: [{ t: "Sistemas a medida", href: "/sistemas" }, { t: "Transformación digital", href: "/transformacion-digital" }, { t: "Asesoría", href: "/asesoria" } ] },
     },
   ],
   en: [
@@ -59,6 +81,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["A website or store connected to your operation", "Order, quote, booking or appointment forms", "WhatsApp Business integrated with the site", "Payment methods and automatic notifications", "A panel to see and handle what comes in"],
       entregables: ["Site published on your domain", "Management panel with users", "Integrations tested with real data", "User manual and team training"],
       producto: "Connected websites + WhatsApp",
+      icono: "🌐",
+      corto: "Customers find you, message you and buy without anyone handling every inquiry by hand.",
+      chips: ["Connected website", "Integrated WhatsApp", "Payments and alerts"],
+      siguiente: { texto: "Once the channel works, add a maintained website plan with WhatsApp AI, or a custom system.", links: [{ t: "Products", href: "/en/products" }, { t: "Services", href: "/en/services" }, { t: "Advisory", href: "/en/advisory" } ] },
     },
     {
       id: "crm",
@@ -68,6 +94,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["CRM with sales pipelines and follow-up", "Clean import of your contacts", "Automations for alerts, reminders and after-sales", "Connection with WhatsApp, email and forms", "Dashboard with sales indicators"],
       entregables: ["CRM configured around your processes", "Active, documented automations", "KPI dashboard", "Sales team training"],
       producto: "CRM + dashboards",
+      icono: "📈",
+      corto: "Every contact with a history, no follow-up lost and repetitive work automated.",
+      chips: ["CRM with pipelines", "Automations", "Sales dashboard"],
+      siguiente: { texto: "After the CRM, add dashboards, WhatsApp AI and advisory to get the most out of it.", links: [{ t: "Products", href: "/en/products" }, { t: "Services", href: "/en/services" }, { t: "Advisory", href: "/en/advisory" } ] },
     },
     {
       id: "ia",
@@ -77,6 +107,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["WhatsApp AI assistant trained on your information", "Inquiry classification and handover to people", "Automatic summaries and reports", "Inquiry and sales analytics dashboard", "Safety rules and human supervision"],
       entregables: ["Supervised assistant in production", "Maintainable knowledge base", "Results dashboard", "Usage guide and continuous improvement"],
       producto: "WhatsApp AI + analytics",
+      icono: "🤖",
+      corto: "24/7 service with handover to people, and data that turns into decisions.",
+      chips: ["AI assistant", "Handover to people", "Inquiry dashboard"],
+      siguiente: { texto: "With the assistant live, continue with the CRM, a continuous-improvement plan or AI advisory.", links: [{ t: "Products", href: "/en/products" }, { t: "Services", href: "/en/services" }, { t: "Advisory", href: "/en/advisory" } ] },
     },
     {
       id: "gestion",
@@ -86,6 +120,10 @@ export const KITS: Record<Lang, Kit[]> = {
       incluye: ["Document manager with folders, permissions and versions", "Digital signature of documents", "Approval workflows with alerts", "Search and traceability for every case", "Orderly migration of your current archive"],
       entregables: ["Document manager in production", "Configured workflows", "Initial archive migration", "Training and user manual"],
       producto: "Document manager with e-signature",
+      icono: "🗂️",
+      corto: "Organized documents with an owner, a trail and online signature.",
+      chips: ["Document manager", "Digital signature", "Approval workflows"],
+      siguiente: { texto: "Once the archive is in order, continue with custom systems, dashboards and team training.", links: [{ t: "Products", href: "/en/products" }, { t: "Digital transformation", href: "/en/digital-transformation" }, { t: "Advisory", href: "/en/advisory" } ] },
     },
   ],
 }
@@ -94,7 +132,17 @@ export const TEXTO = {
   es: {
     kicker: "Kits DEVISEBIT",
     h1: "Tecnología lista para implementar, con alcance cerrado.",
-    sub: "Cuatro kits construidos sobre productos que ya funcionan en producción. Sabés qué incluye, qué recibís y quién responde, antes de empezar. Y si necesitás financiarlo, te ayudamos a conseguirlo.",
+    sub: "Elegí un kit, sabé qué recibís y empezá. Y si necesitás financiarlo, te ayudamos a conseguirlo.",
+    eligeT: "Elegí tu kit",
+    contratar: "Contratar este kit",
+    detalle: "Ver detalle completo",
+    ocultar: "Ocultar detalle",
+    despuesT: "Y después, seguí creciendo",
+    sigueH: "El kit es el primer paso.",
+    sigueP: "Cuando funciona, la mayoría suma productos, un abono o asesoría para seguir mejorando.",
+    sigCards: [["Productos", "Sistemas probados para sumar", "/productos"], ["Servicios y abonos", "Web, redes, WhatsApp con IA", "/servicios"], ["Asesoría", "Un equipo de tecnología por horas o por mes", "/asesoria"]],
+    finCorto: "¿Necesitás financiarlo? Te ayudamos a identificar y tramitar el cofinanciamiento. No financiamos nosotros.",
+    finLink: "Cómo te ayudamos",
     ctaPrincipal: "Armá tu kit",
     ctaDiag: "Hacé el autodiagnóstico gratis",
     pasosT: "Cómo funciona",
@@ -111,7 +159,7 @@ export const TEXTO = {
     finP: "Hay programas públicos y líneas de promoción que cofinancian tecnología para empresas e instituciones. Conseguirlos exige carpeta, presupuesto desglosado y trámite correcto. Eso lo hacemos con vos.",
     finPts: [
       ["Relevamos qué te corresponde", "Programas nacionales como el Kit 4.0, líneas de promoción de la innovación y beneficios para pymes."],
-      ["Vinculación tecnológica (UVT)", "Contamos con un especialista que trabaja con Unidades de Vinculación Tecnológica y proyectos de innovación."],
+      ["Seguimiento del trámite", "Te acompañamos hasta la presentación y respondemos las observaciones del organismo."],
       ["Armamos la carpeta", "Presupuesto desglosado, descripción del proyecto, checklist de documentación y seguimiento del trámite."],
       ["Vos decidís", "Si el financiamiento no sale o no te conviene, el kit se puede contratar igual, con plan de pagos acordado."],
     ],
@@ -130,8 +178,6 @@ export const TEXTO = {
       ["¿Cuánto cuesta?", "Depende del alcance. Cada kit se cotiza por escrito, con presupuesto desglosado y precio fijo. La primera reunión es gratuita."],
       ["¿Es lo mismo que el Programa Kit 4.0?", "No. El Programa Kit 4.0 es una iniciativa pública con sus propios proveedores y requisitos. Los Kits DEVISEBIT son nuestros paquetes: los podés contratar directamente y, si corresponde, te ayudamos a buscar financiamiento."],
       ["¿Me financian el kit?", "No financiamos nosotros. Te ayudamos a identificar y tramitar las líneas de cofinanciamiento que te correspondan, y a veces acordamos un plan de pagos."],
-      ["¿Y si necesito algo distinto?", "Armamos un kit a medida con la misma lógica: alcance cerrado, entregables claros y un responsable."],
-      ["¿Quién responde si algo falla?", "Una sola persona de DEVISEBIT. No tenés que ir de proveedor en proveedor."],
     ],
     cierreH: "¿Revisamos tu caso, sin cargo?",
     cierreP: "La primera reunión es gratuita, después del autodiagnóstico. Te decimos qué kit conviene y qué financiamiento podría aplicar.",
@@ -143,7 +189,17 @@ export const TEXTO = {
   en: {
     kicker: "DEVISEBIT Kits",
     h1: "Ready-to-deploy technology with a fixed scope.",
-    sub: "Four kits built on products already running in production. You know what is included, what you receive and who is accountable before we start. And if you need funding, we help you secure it.",
+    sub: "Pick a kit, know what you get and start. And if you need funding, we help you secure it.",
+    eligeT: "Pick your kit",
+    contratar: "Hire this kit",
+    detalle: "See full detail",
+    ocultar: "Hide detail",
+    despuesT: "Then keep growing",
+    sigueH: "The kit is the first step.",
+    sigueP: "Once it works, most teams add products, a plan or advisory to keep improving.",
+    sigCards: [["Products", "Proven systems to add", "/en/products"], ["Services and plans", "Web, social, WhatsApp AI", "/en/services"], ["Advisory", "A technology team by the hour or month", "/en/advisory"]],
+    finCorto: "Need funding? We help you identify and file for co-financing. We do not lend.",
+    finLink: "How we help",
     ctaPrincipal: "Build your kit",
     ctaDiag: "Take the free self-assessment",
     pasosT: "How it works",
@@ -160,7 +216,7 @@ export const TEXTO = {
     finP: "Public programs and innovation grants co-finance technology for companies and institutions. Securing them takes a file, an itemized quote and the right procedure. We do that with you.",
     finPts: [
       ["We map what applies to you", "National programs such as Kit 4.0, innovation grants and SME benefits."],
-      ["Technology liaison (UVT)", "We have a specialist who works with Technology Liaison Units (UVT) and innovation projects."],
+      ["Follow-up of the procedure", "We stay with you through filing and answer the agency's observations."],
       ["We build the file", "Itemized quote, project description, documentation checklist and follow-up of the procedure."],
       ["You decide", "If funding does not come through or does not suit you, the kit can still be hired with an agreed payment plan."],
     ],
@@ -179,8 +235,6 @@ export const TEXTO = {
       ["How much does it cost?", "It depends on the scope. Each kit is quoted in writing with an itemized quote and a fixed price. The first meeting is free."],
       ["Is it the same as the Kit 4.0 Program?", "No. Kit 4.0 is a public initiative with its own vendors and requirements. DEVISEBIT Kits are our own packages: you can hire them directly and, where it applies, we help you look for funding."],
       ["Do you finance the kit?", "No. We help you identify and file the co-financing lines that apply to you, and sometimes agree a payment plan."],
-      ["What if I need something different?", "We build a custom kit with the same logic: fixed scope, clear deliverables and one accountable lead."],
-      ["Who answers if something fails?", "One person at DEVISEBIT. You do not chase vendor after vendor."],
     ],
     cierreH: "Shall we review your case, free of charge?",
     cierreP: "The first meeting is free. We tell you which kit fits and what funding might apply.",
