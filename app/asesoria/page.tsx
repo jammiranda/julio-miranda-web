@@ -1,3 +1,4 @@
+import CasosRelacionados from "@/components/casos-relacionados"
 import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
@@ -116,7 +117,7 @@ export default function AsesoriaPage() {
             ))}
           </nav>
         </DbHero>
-        <Integracion lang="es" />
+        <Integracion lang="es" compacta />
 
         {/* En una página */}
         <section aria-labelledby="t-res" className="bg-white">
@@ -329,6 +330,7 @@ export default function AsesoriaPage() {
             </div>
           </div>
         </section>
+        <CasosRelacionados ids={[1, 4, 8]} lang="es" />
       </main>
       <Footer />
     </div>

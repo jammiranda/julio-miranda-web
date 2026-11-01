@@ -1,3 +1,4 @@
+import CasosRelacionados from "@/components/casos-relacionados"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb } from "@/lib/seo"
@@ -96,6 +97,7 @@ export default function ProductsPage() {
             </div>
           </div>
         </section>
+        <CasosRelacionados ids={[5, 9, 3]} lang="en" />
       </main>
       <Footer lang="en" />
     </div>

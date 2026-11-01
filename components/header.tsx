@@ -38,7 +38,8 @@ const SERVICIOS = [
   { href: "/servicios", label: "Todos los servicios" },
   { href: "/transformacion-digital", label: "Transformación digital", desc: "Consultoría, talleres y diagnóstico" },
   { href: "/asesoria", label: "Asesoría en tecnología e IA", desc: "Por horas o con abono mensual" },
-  { href: "/kit-4-0", label: "Kit 4.0 para pymes", desc: "Cofinanciá hasta el 50% de tu tecnología" },
+  { href: "/kit-digital", label: "Kits DEVISEBIT", desc: "Tecnología con alcance cerrado y ayuda de financiamiento" },
+  { href: "/kit-4-0", label: "Kit 4.0 para pymes", desc: "Guía del programa de cofinanciamiento" },
   { href: AUTODIAG, label: "Autodiagnóstico gratis", desc: "3 niveles: madurez, procesos e IA", plain: true },
 ]
 
@@ -171,6 +172,7 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
               <>
                 <Link href="/transformacion-digital" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Transformación digital</Link>
                 <Link href="/asesoria" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Asesoría en tecnología e IA</Link>
+                <Link href="/kit-digital" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Kits DEVISEBIT</Link>
                 <Link href="/kit-4-0" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Kit 4.0 para pymes</Link>
                 <a href={AUTODIAG} className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Autodiagnóstico gratis</a>
               </>

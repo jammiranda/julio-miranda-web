@@ -3,7 +3,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
-import Resolver from "@/components/resolver"
 import Integracion from "@/components/integracion"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb } from "@/lib/seo"
@@ -112,11 +111,6 @@ export default function HomeEnPage() {
 
         {/* Needs */}
         <Integracion lang="en" />
-        <section id="services" className="bg-[#F5F6F8]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20">
-            <Resolver lang="en" />
-          </div>
-        </section>
 
         {/* Products */}
         <section id="products" className="bg-white">

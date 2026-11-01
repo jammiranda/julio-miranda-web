@@ -1,4 +1,6 @@
+import CasosRelacionados from "@/components/casos-relacionados"
 import Link from "next/link"
+import Resolver from "@/components/resolver"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Header } from "@/components/header"
@@ -30,6 +32,12 @@ export default function ServicesPage() {
             </nav>
           </div>
           <div className="db-scan"><i /></div>
+        </section>
+
+        <section id="finder" className="bg-[#F5F6F8] scroll-mt-[72px]">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-14 md:py-16">
+            <Resolver lang="en" />
+          </div>
         </section>
 
         <section id="soluciones" aria-labelledby="t-sol" className="bg-white scroll-mt-[72px]">
@@ -121,6 +129,7 @@ export default function ServicesPage() {
             <Link href="/en/contact" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Request a free intro call</Link>
           </div>
         </section>
+        <CasosRelacionados ids={[5, 3, 6]} lang="en" />
       </main>
       <Footer lang="en" />
     </div>

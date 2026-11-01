@@ -3,7 +3,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
-import Resolver from "@/components/resolver"
 import Integracion from "@/components/integracion"
 import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
@@ -82,38 +81,52 @@ export default function HomePage() {
           <div className="db-scan"><i /></div>
         </section>
 
-        {/* Transformación digital (destacado) */}
-        <section id="transformacion" className="db-tech relative overflow-hidden bg-[#0B0D12] text-white border-t-4 border-[#C8231F]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 grid lg:grid-cols-[1.15fr_1fr] gap-10 items-center">
-            <div className="flex flex-col gap-4">
-              <p className={kicker + " text-[#FF6A63]"}>Nuevo · Consultoría de Transformación Digital</p>
-              <h2 className="m-0 font-tight text-[34px] md:text-[46px] leading-[1.08] font-extrabold">Ordená tu organización con tecnología y estrategia.</h2>
-              <p className="m-0 text-lg leading-relaxed text-[#C3C8D1] max-w-[620px]">Medimos tu madurez digital, armamos la hoja de ruta por etapas y la ponemos en marcha con tu equipo, con capacitación y certificado. Te orientamos además sobre el financiamiento disponible, como el Programa Kit 4.0.</p>
-              <div className="flex flex-wrap gap-3 pt-1">
-                <Link href="/transformacion-digital" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
-                <a href="https://academia.devisebit.com/productos/guia-transformacion-digital" target="_blank" rel="noopener noreferrer" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[14px] font-semibold text-[17px] text-white transition-colors">Guía práctica con bonus</a>
+        {/* Transformación digital (destacado, claro para cortar el ritmo oscuro) */}
+        <section id="transformacion" className="relative overflow-hidden bg-[#FFF4F2]">
+          <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
+          <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
+            <div className="flex flex-col gap-5">
+              <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Nuevo · Consultoría de Transformación Digital</p>
+              <h2 className="m-0 font-tight text-[36px] md:text-[54px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#0B0D12]">Tu organización, <span className="text-[#C8231F]">un nivel más arriba.</span></h2>
+              <p className="m-0 text-lg leading-relaxed text-[#3B424D] max-w-[600px]">Medimos en qué nivel de madurez digital está tu organización, armamos la hoja de ruta por etapas y la ponemos en marcha con tu equipo, con capacitación y certificado. Y te ayudamos a conseguir financiamiento para hacerlo.</p>
+              <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
+                {["Diagnóstico en 4 ejes", "Hoja de ruta con indicadores", "Pilotos en semanas", "Capacitación con certificado", "Gestión de financiamiento"].map((x) => (
+                  <li key={x} className="rounded-full border border-[#C8231F]/25 bg-white px-3.5 py-1.5 text-[14px] font-semibold text-[#7E1512]">{x}</li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Link href="/transformacion-digital" className="rounded-xl bg-[#0B0D12] hover:bg-[#1B2029] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
+                <Link href="/kit-digital" className="rounded-xl border-2 border-[#0B0D12] hover:bg-[#0B0D12] hover:text-white px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Kits DEVISEBIT + financiamiento</Link>
               </div>
-              <p className="m-0 text-[16px] text-[#C3C8D1]">¿Preferís un equipo de tecnología por horas o por mes? <Link href="/asesoria" className="font-bold text-white underline underline-offset-4 decoration-[#FF6A63] hover:text-[#FF6A63]">Conocé la asesoría en tecnología e IA →</Link></p>
+              <p className="m-0 text-[16px] text-[#3B424D]">¿Preferís un equipo de tecnología por horas o por mes? <Link href="/asesoria" className="font-bold text-[#C8231F] underline underline-offset-4">Asesoría en tecnología e IA →</Link></p>
             </div>
-            <ol className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[["01", "Diagnóstico", "Madurez digital en 4 ejes y 4 niveles."], ["02", "Hoja de ruta", "Retos priorizados, indicadores y plazos."], ["03", "Pilotos", "Resultados rápidos antes de invertir en grande."], ["04", "Cambio y capacitación", "Tu equipo adopta lo nuevo, con certificado."]].map(([n, t, d]) => (
-                <li key={n} className="db-card db-dark rounded-2xl border border-[#262C37] bg-[#161A22] p-5 flex flex-col gap-1.5">
-                  <span className="font-tight text-2xl font-extrabold text-[#FF6A63]">{n}</span>
-                  <strong className="text-lg">{t}</strong>
-                  <span className="text-[15px] text-[#C3C8D1]">{d}</span>
-                </li>
-              ))}
-            </ol>
+            <div className="rounded-[28px] bg-white border border-[#F0C9C6] shadow-[0_30px_80px_-30px_rgba(200,35,31,.35)] p-6 md:p-8 flex flex-col gap-5">
+              <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#C8231F]">Escalera de madurez digital</p>
+              <div className="flex items-end gap-3 h-[210px]" role="img" aria-label="Cuatro niveles de madurez digital, de inicial a optimizado">
+                {[["1", "Inicial", "28%"], ["2", "En orden", "52%"], ["3", "Integrado", "76%"], ["4", "Optimizado", "100%"]].map(([n, t, h], i) => (
+                  <div key={n} className="flex-1 flex flex-col justify-end h-full">
+                    <div className="rounded-t-2xl p-3 flex flex-col justify-between text-white" style={{ height: h, background: i === 3 ? "#C8231F" : ["#E7B7B4", "#DB8C88", "#CF5F5A"][i] }}>
+                      <span className="font-tight text-2xl font-extrabold leading-none">{n}</span>
+                      <span className="text-[13px] font-bold leading-tight">{t}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <ol className="m-0 p-0 list-none grid grid-cols-2 gap-2.5">
+                {[["Diagnóstico", "Dónde estás hoy"], ["Hoja de ruta", "Qué hacer y en qué orden"], ["Pilotos", "Resultados antes de invertir fuerte"], ["Capacitación", "Tu equipo adopta lo nuevo"]].map(([t, d], i) => (
+                  <li key={t} className="rounded-xl bg-[#F5F6F8] p-3.5 flex flex-col gap-0.5">
+                    <span className="text-[13px] font-extrabold text-[#C8231F]">{String(i + 1).padStart(2, "0")}</span>
+                    <strong className="text-[15px] text-[#0B0D12]">{t}</strong>
+                    <span className="text-[13.5px] text-[#4A515C] leading-snug">{d}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         </section>
 
-        {/* Necesidades */}
+        {/* Integración (la clave de la venta) */}
         <Integracion lang="es" />
-        <section id="servicios" className="bg-[#F5F6F8]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20">
-            <Resolver lang="es" />
-          </div>
-        </section>
 
         {/* Productos */}
         <section id="productos" className="bg-white">

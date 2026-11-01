@@ -10,6 +10,7 @@ const COLUMNAS = [
     links: [
       { href: "/transformacion-digital", label: "Transformación digital" },
       { href: "/asesoria", label: "Asesoría en tecnología e IA" },
+      { href: "/kit-digital", label: "Kits DEVISEBIT" },
       { href: "/kit-4-0", label: "Kit 4.0 para pymes" },
       { href: "/webs", label: "Páginas web" },
       { href: "/whatsapp", label: "WhatsApp con IA" },

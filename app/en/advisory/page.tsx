@@ -1,3 +1,4 @@
+import CasosRelacionados from "@/components/casos-relacionados"
 import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
@@ -105,7 +106,7 @@ export default function AdvisoryPage() {
             ))}
           </nav>
         </DbHero>
-        <Integracion lang="en" />
+        <Integracion lang="en" compacta />
 
         {/* At a glance */}
         <section aria-labelledby="t-res" className="bg-white">
@@ -313,6 +314,7 @@ export default function AdvisoryPage() {
             </div>
           </div>
         </section>
+        <CasosRelacionados ids={[1, 4, 8]} lang="en" />
       </main>
       <Footer lang="en" />
     </div>

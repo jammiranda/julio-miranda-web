@@ -1,3 +1,4 @@
+import CasosRelacionados from "@/components/casos-relacionados"
 import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
@@ -63,7 +64,7 @@ export default function TransformacionDigitalPage() {
             <Link href="/contacto#formulario" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><FileText size={19} aria-hidden="true" /> Dejar mis datos</Link>
           </div>
         </DbHero>
-        <Integracion lang="es" />
+        <Integracion lang="es" compacta />
 
         <section aria-labelledby="t-pil" className="bg-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
@@ -135,6 +136,7 @@ export default function TransformacionDigitalPage() {
               <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#C8231F]">Financiamiento</p>
               <h2 id="t-kit" className="m-0 font-tight text-[30px] md:text-[38px] leading-[1.12] font-extrabold">Programa Kit 4.0: hasta el 50% cofinanciado.</h2>
               <p className="m-0 text-[17px] leading-relaxed text-[#4A515C]">El programa nacional Kit 4.0 cofinancia la transformación digital de las mipymes. Desde septiembre de 2026 alcanza a todos los sectores económicos. En el diagnóstico te decimos si tu organización califica y qué kit del catálogo oficial conviene.</p>
+              <Link href="/kit-digital" className="self-start mt-1 mr-2 rounded-xl border-2 border-[#C8231F] px-5 py-[10px] font-bold text-[#C8231F] hover:bg-[#C8231F] hover:text-white transition-colors">Kits DEVISEBIT</Link>
               <Link href="/kit-4-0" className="self-start mt-1 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Usá la herramienta gratis del Kit 4.0</Link>
             </div>
             <ul className="m-0 p-0 list-none grid sm:grid-cols-2 gap-3">
@@ -177,6 +179,7 @@ export default function TransformacionDigitalPage() {
             </div>
           </div>
         </section>
+        <CasosRelacionados ids={[1, 2, 9]} lang="es" />
       </main>
       <Footer />
     </div>

@@ -8,6 +8,7 @@ export const PARES: [string, string][] = [
   ["/casos-de-exito", "/en/success-stories"],
   ["/nosotros", "/en/about"],
   ["/contacto", "/en/contact"],
+  ["/kit-digital", "/en/digital-kit"],
 ]
 
 export const esEn = (p: string) => p === "/en" || p.startsWith("/en/")

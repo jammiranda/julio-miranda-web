@@ -43,6 +43,11 @@ export default function CasosDeExitoPage() {
 
         <section aria-labelledby="t-lista" className="bg-[#0B0D12] text-white border-t border-white/10">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-10 flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/casos-de-exito/todos" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Ver todos los casos detallados →</Link>
+              <Link href="/casos-de-exito/todos#todos" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[18px] py-[10px] font-semibold text-white transition-colors">Catálogo de +150 trabajos</Link>
+              <Link href="/casos-de-exito/todos#redes" className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[18px] py-[10px] font-semibold text-white transition-colors">Redes que gestionamos</Link>
+            </div>
             <details className="rounded-2xl border border-[#262C37] bg-[#161A22] p-5">
               <summary id="t-lista" className="cursor-pointer font-bold text-[17px]">Prefiero verlo como lista</summary>
               <ul className="mt-4 mb-0 p-0 list-none grid md:grid-cols-2 gap-4">

@@ -1,4 +1,6 @@
+import CasosRelacionados from "@/components/casos-relacionados"
 import Link from "next/link"
+import Resolver from "@/components/resolver"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Header } from "@/components/header"
@@ -90,6 +92,12 @@ export default function ServiciosPage() {
           <div className="db-scan"><i /></div>
         </section>
 
+        <section id="buscador" className="bg-[#F5F6F8] scroll-mt-[72px]">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-14 md:py-16">
+            <Resolver lang="es" />
+          </div>
+        </section>
+
         <section id="soluciones" aria-labelledby="t-sol" className="bg-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
@@ -179,6 +187,7 @@ export default function ServiciosPage() {
             <Link href="/contacto" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Agendar reunión</Link>
           </div>
         </section>
+        <CasosRelacionados ids={[5, 3, 6]} lang="es" />
       </main>
       <Footer />
     </div>

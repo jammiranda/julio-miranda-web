@@ -116,6 +116,13 @@ export default function Kit40Page() {
           </div>
         </section>
 
+        <section className="bg-[#FFF4F2] border-t border-[#F0C9C6]">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-10 flex flex-wrap gap-4 items-center justify-between">
+            <p className="m-0 text-[17px] text-[#3B424D] max-w-[760px]"><strong className="text-[#0B0D12]">¿Querés contratar directamente?</strong> Los Kits DEVISEBIT son nuestros paquetes de tecnología con alcance cerrado, y te ayudamos a buscar financiamiento.</p>
+            <Link href="/kit-digital" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-3.5 font-bold text-white transition-colors">Ver los Kits DEVISEBIT →</Link>
+          </div>
+        </section>
+
         <section className="db-tech bg-[#0B0D12] text-white border-t border-white/10">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 flex flex-wrap gap-6 items-center justify-between">
             <div className="flex-[1_1_560px] flex flex-col gap-3">
