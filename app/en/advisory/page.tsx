@@ -1,3 +1,4 @@
+import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb, servicio } from "@/lib/seo"
@@ -104,6 +105,7 @@ export default function AdvisoryPage() {
             ))}
           </nav>
         </DbHero>
+        <Integracion lang="en" />
 
         {/* At a glance */}
         <section aria-labelledby="t-res" className="bg-white">

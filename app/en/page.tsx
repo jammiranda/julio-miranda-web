@@ -3,6 +3,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
+import Resolver from "@/components/resolver"
+import Integracion from "@/components/integracion"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb } from "@/lib/seo"
 import { WHATSAPP_EN as WHATSAPP } from "@/lib/marca"
@@ -18,19 +20,6 @@ const STATS = [
   { n: "150+", c: 150, pre: "+", l: "projects delivered" },
   { n: "12", c: 12, pre: "", l: "industries with proven solutions" },
   { n: "24/7", c: 0, pre: "", l: "system support and monitoring" },
-]
-
-const NEEDS = [
-  { num: "01", title: "Serve more people without hiring", text: "A WhatsApp AI assistant that books appointments and answers questions around the clock.", href: "/en/products" },
-  { num: "02", title: "Run a clinic or care center", text: "Scheduling, electronic health records and billing in one system.", href: "/en/products" },
-  { num: "03", title: "See your numbers daily", text: "Dashboards with alerts for usage, costs and sales.", href: "/en/products" },
-  { num: "04", title: "Manage members and customers", text: "A custom CRM with member registry, approvals and a sales pipeline.", href: "/en/products" },
-  { num: "05", title: "Train a lot of people", text: "An online academy with payments, a mobile app and certificates.", href: "/en/products" },
-  { num: "06", title: "Have a website that works", text: "Sites with booking, forms and WhatsApp connected to your systems.", href: "/en/services" },
-  { num: "07", title: "Grow on social media and ads", text: "Reels, graphics and Meta and Google campaigns, every week.", href: "/en/services" },
-  { num: "08", title: "Transform the organization", text: "Digital transformation consulting: assessment, roadmap and certified training.", href: "/en/digital-transformation" },
-  { num: "09", title: "Organize a union or member community", text: "Member registry, benefits, app and academy under your brand.", href: "/en/products" },
-  { num: "10", title: "Decide with a tech expert beside you", text: "Technology and AI advisory by the hour or on a monthly plan, with one accountable lead.", href: "/en/advisory" },
 ]
 
 const PRODUCTS = [
@@ -122,22 +111,10 @@ export default function HomeEnPage() {
         </section>
 
         {/* Needs */}
+        <Integracion lang="en" />
         <section id="services" className="bg-[#F5F6F8]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-8">
-            <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#C8231F]"}>What do you need to solve?</p>
-              <h2 className={h2}>Pick your problem. We will show you the solution.</h2>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {NEEDS.map((n, i) => (
-                <Link key={n.num} href={n.href} className={"db-card rounded-2xl border border-[#E2E5EA] bg-white p-6 md:p-7 flex flex-col gap-3 min-h-[180px] text-[#0E1116]" + (i === NEEDS.length - 1 && NEEDS.length % 3 === 1 ? " lg:col-start-2" : "")}>
-                  <div className="w-11 h-11 rounded-xl bg-[#FDECEB] text-[#C8231F] flex items-center justify-center font-extrabold text-lg">{n.num}</div>
-                  <div className="font-tight text-[22px] font-bold">{n.title}</div>
-                  <div className="text-base leading-normal text-[#4A515C]">{n.text}</div>
-                  <div className="mt-auto text-[15px] font-bold text-[#C8231F]">See how it works →</div>
-                </Link>
-              ))}
-            </div>
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20">
+            <Resolver lang="en" />
           </div>
         </section>
 

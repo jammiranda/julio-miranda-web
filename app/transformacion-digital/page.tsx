@@ -1,3 +1,4 @@
+import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb, servicio } from "@/lib/seo"
@@ -62,6 +63,7 @@ export default function TransformacionDigitalPage() {
             <Link href="/contacto#formulario" className="inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3.5 font-bold text-white transition-colors"><FileText size={19} aria-hidden="true" /> Dejar mis datos</Link>
           </div>
         </DbHero>
+        <Integracion lang="es" />
 
         <section aria-labelledby="t-pil" className="bg-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">

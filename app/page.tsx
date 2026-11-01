@@ -3,6 +3,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
+import Resolver from "@/components/resolver"
+import Integracion from "@/components/integracion"
 import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
 
@@ -11,19 +13,6 @@ const STATS = [
   { n: "+150", c: 150, pre: "+", l: "proyectos entregados" },
   { n: "12", c: 12, pre: "", l: "rubros con soluciones propias" },
   { n: "24/7", c: 0, pre: "", l: "soporte y monitoreo de sistemas" },
-]
-
-const NEEDS = [
-  { num: "01", title: "Atender más sin sumar personal", text: "Asistente de WhatsApp con IA que da turnos y responde las 24 horas.", href: "/whatsapp" },
-  { num: "02", title: "Ordenar una clínica o centro", text: "Turnos, historia clínica electrónica y facturación en un solo sistema.", href: "/productos#clinicas" },
-  { num: "03", title: "Ver los números al día", text: "Tableros de control con alertas de consumo, costos y ventas.", href: "/productos#tableros" },
-  { num: "04", title: "Gestionar afiliados y clientes", text: "CRM a medida con padrón, autorizaciones y embudo de ventas.", href: "/productos#crm" },
-  { num: "05", title: "Capacitar a mucha gente", text: "Academia online con pagos, app y certificados.", href: "/comunidad" },
-  { num: "06", title: "Tener una web que trabaje", text: "Sitios con turnos, formularios y WhatsApp conectados a tus sistemas.", href: "/webs" },
-  { num: "07", title: "Crecer en redes y anuncios", text: "Reels, placas y campañas en Meta y Google, todas las semanas.", href: "/redes" },
-  { num: "08", title: "Transformar la organización", text: "Consultoría de transformación digital: diagnóstico, hoja de ruta y capacitación con certificado.", href: "/transformacion-digital" },
-  { num: "09", title: "Ordenar un gremio o comunidad", text: "Padrón, beneficios, app y academia con tu marca.", href: "/comunidad" },
-  { num: "10", title: "Decidir con alguien de tecnología al lado", text: "Asesoría en tecnología e IA por horas o con abono mensual, con un responsable único.", href: "/asesoria" },
 ]
 
 const PRODUCTS = [
@@ -119,22 +108,10 @@ export default function HomePage() {
         </section>
 
         {/* Necesidades */}
+        <Integracion lang="es" />
         <section id="servicios" className="bg-[#F5F6F8]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-8">
-            <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#C8231F]"}>¿Qué necesitás resolver?</p>
-              <h2 className={h2}>Elegí tu problema y te mostramos la solución.</h2>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {NEEDS.map((n, i) => (
-                <Link key={n.num} href={n.href} className={"db-card rounded-2xl border border-[#E2E5EA] bg-white p-6 md:p-7 flex flex-col gap-3 min-h-[180px] text-[#0E1116]" + (i === NEEDS.length - 1 && NEEDS.length % 3 === 1 ? " lg:col-start-2" : "")}>
-                  <div className="w-11 h-11 rounded-xl bg-[#FDECEB] text-[#C8231F] flex items-center justify-center font-extrabold text-lg">{n.num}</div>
-                  <div className="font-tight text-[22px] font-bold">{n.title}</div>
-                  <div className="text-base leading-normal text-[#4A515C]">{n.text}</div>
-                  <div className="mt-auto text-[15px] font-bold text-[#C8231F]">Ver cómo funciona →</div>
-                </Link>
-              ))}
-            </div>
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20">
+            <Resolver lang="es" />
           </div>
         </section>
 

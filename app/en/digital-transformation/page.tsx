@@ -1,3 +1,4 @@
+import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
 import { pageMeta, breadcrumb, servicio } from "@/lib/seo"
@@ -56,6 +57,7 @@ export default function DigitalTransformationPage() {
             <a href={WA} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#1EB956] px-5 py-3.5 font-bold text-[#0B0D12] transition-colors"><MessageCircle size={19} aria-hidden="true" /> Message us on WhatsApp</a>
           </div>
         </DbHero>
+        <Integracion lang="en" />
 
         <section aria-labelledby="t-pil" className="bg-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">

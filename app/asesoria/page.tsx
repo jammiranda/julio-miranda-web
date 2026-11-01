@@ -1,3 +1,4 @@
+import Integracion from "@/components/integracion"
 import Link from "next/link"
 import { JsonLd } from "@/components/json-ld"
 import type { Metadata } from "next"
@@ -115,6 +116,7 @@ export default function AsesoriaPage() {
             ))}
           </nav>
         </DbHero>
+        <Integracion lang="es" />
 
         {/* En una página */}
         <section aria-labelledby="t-res" className="bg-white">
