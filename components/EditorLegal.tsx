@@ -11,7 +11,9 @@ export default function EditorLegal({ titulo, cuerpo, campos }: { titulo: string
 
   const html = useMemo(() => {
     const esc = (x: string) => x.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!)
-    return esc(cuerpo).replace(/\{\{(\w+)\}\}/g, (_, k) => (v[k] ? `<b>${esc(v[k])}</b>` : `<mark>[${esc(campos.find((c) => c.k === k)?.l ?? k)}]</mark>`)).replace(/\n/g, "<br>")
+    const cuit = v.cuit_devisebit ? `CUIT ${esc(v.cuit_devisebit)} · ` : ""
+    const membrete = `<table style="width:100%;border-bottom:3px solid #C8231F;margin-bottom:22px"><tr><td style="width:64px;vertical-align:middle;padding-bottom:8px"><img src="https://sistema.devisebit.com/marca/logo-devisebit.png" width="56" height="56" alt="DEVISEBIT"></td><td style="vertical-align:middle;padding-bottom:8px"><div style="font-size:20pt;font-weight:800;letter-spacing:.5px;color:#0B0D12">DEVISE<span style="color:#C8231F">BIT</span> <span style="font-size:10pt;font-weight:600;color:#4A515C">SRL</span></div><div style="font-size:9pt;color:#4A515C">Software e inteligencia artificial · desde 2009</div></td><td style="vertical-align:middle;text-align:right;font-size:8.5pt;color:#4A515C;padding-bottom:8px">${cuit}www.devisebit.com<br>info@devisebit.com · WhatsApp +54 9 11 7346-6490<br>Luna 24, 6.º piso, Parque Patricios, CABA<br>Av. de los Lagos 7008, Nordelta, Tigre</td></tr></table>`
+    return membrete + esc(cuerpo).replace(/\{\{(\w+)\}\}/g, (_, k) => (v[k] ? `<b>${esc(v[k])}</b>` : `<mark>[${esc(campos.find((c) => c.k === k)?.l ?? k)}]</mark>`)).replace(/\n/g, "<br>")
   }, [cuerpo, v, campos])
 
   const firma = `<br><br><table style="width:100%;margin-top:40px"><tr><td style="width:50%;vertical-align:bottom"><div style="border-top:1px solid #000;width:80%;padding-top:4px">${v.firmante || "Julio A. Miranda"}<br>${v.cargo || "Gerente"}<br>DEVISEBIT SRL</div></td><td style="vertical-align:bottom"><div style="border-top:1px solid #000;width:80%;padding-top:4px">${v.representante || "Representante del cliente"}<br>${v.cliente || "Cliente"}</div></td></tr></table>`
