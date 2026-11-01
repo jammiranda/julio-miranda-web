@@ -18,6 +18,9 @@ export const CAMPOS: { k: string; l: string; ph?: string; def?: string }[] = [
   { k: "firmante", l: "Firma por DEVISEBIT: nombre", def: "Julio A. Miranda" },
   { k: "cargo", l: "Firma por DEVISEBIT: cargo", def: "Gerente" },
   { k: "cuit_devisebit", l: "CUIT de DEVISEBIT SRL", ph: "Completar" },
+  { k: "kit", l: "Kit DEVISEBIT contratado", ph: "Ej.: Kit CRM y Automatización" },
+  { k: "programa", l: "Programa o línea de financiamiento", ph: "Ej.: Programa Kit 4.0 / línea de promoción de la innovación" },
+  { k: "honorarios", l: "Honorarios por la gestión del financiamiento", ph: "Ej.: $300.000 + IVA / % acordado" },
 ]
 
 const PARTES = `Entre DEVISEBIT SRL, CUIT {{cuit_devisebit}}, con domicilio en Luna 24, 6.º piso, Parque Patricios, Ciudad Autónoma de Buenos Aires, representada por {{firmante}} en su carácter de {{cargo}} (en adelante, “DEVISEBIT”), y {{cliente}}, CUIT/DNI {{cuit}}, con domicilio en {{domicilio}}, representado por {{representante}} (en adelante, “el CLIENTE”), se acuerda lo siguiente:`
@@ -196,6 +199,114 @@ Desde esta fecha comienza la garantía de corrección de errores prevista en el 
 La autorización no incluye datos personales ni información confidencial, rige por {{plazo}} y puede revocarse por escrito con aviso de 15 días, sin afectar lo ya publicado en material impreso.
 
 En {{ciudad}}, a {{fecha}}.`,
+  },
+  {
+    k: "kit", titulo: "Contrato de Kit DEVISEBIT (alcance cerrado)", para: "Kit Canal Digital, CRM y Automatización, IA Comercial o Gestión Documental.",
+    cuerpo: `CONTRATO DE KIT DEVISEBIT
+
+${PARTES}
+
+PRIMERA · Objeto. DEVISEBIT implementará para el CLIENTE el {{kit}}, con el alcance, los entregables y el presupuesto desglosado de la propuesta aceptada, que forma parte de este contrato.
+
+SEGUNDA · Alcance cerrado. El kit incluye únicamente lo detallado en la propuesta. Todo pedido adicional se cotiza y se aprueba por escrito antes de realizarse.
+
+TERCERA · Plazo. La implementación se realiza en {{plazo}} desde la recepción de los accesos, la información y el pago inicial. Los plazos se suspenden mientras el CLIENTE no entregue lo que le corresponde.
+
+CUARTA · Precio y forma de pago. El precio total es de {{monto}}, según el presupuesto desglosado. Se paga conforme al plan acordado en la propuesta. Si una parte se financia con un programa de cofinanciamiento, el CLIENTE responde por su parte del precio en los plazos acordados, aunque el trámite del beneficio demore.
+
+QUINTA · Implementación y pruebas. Cada integración se prueba con datos reales del CLIENTE antes de la puesta en producción. DEVISEBIT designa un responsable único del proyecto.
+
+SEXTA · Entregables y recepción. Al finalizar se entregan el sistema configurado, la documentación y la capacitación indicadas. Se firma el Acta de Recepción Conforme; vencidos 5 días hábiles sin observaciones, la implementación se considera aceptada.
+
+SÉPTIMA · Licencias y propiedad intelectual. El CLIENTE recibe el derecho de uso de lo implementado para su operación. DEVISEBIT conserva la titularidad de sus productos, componentes y herramientas preexistentes. Los datos del CLIENTE son del CLIENTE.
+
+OCTAVA · Garantía y soporte. DEVISEBIT corrige sin costo los errores respecto de lo acordado durante 30 días desde la recepción. El soporte posterior, las licencias de terceros y el hosting se contratan por separado.
+
+NOVENA · Confidencialidad y datos personales. Las partes mantienen la confidencialidad de la información no pública. DEVISEBIT trata los datos personales solo para prestar el servicio y conforme a la normativa vigente.
+
+DÉCIMA · Financiamiento. DEVISEBIT no otorga financiamiento. La gestión de programas de cofinanciamiento, si se contrata, se rige por el acuerdo de gestión de financiamiento. La aprobación depende del organismo y no está garantizada.
+
+UNDÉCIMA · Limitación de responsabilidad. La responsabilidad de DEVISEBIT se limita al monto efectivamente pagado por el kit, salvo dolo. No responde por servicios de terceros ni por lucro cesante.
+
+DUODÉCIMA · Rescisión y jurisdicción. Cualquiera de las partes puede rescindir con aviso escrito de 15 días ante incumplimiento no subsanado; el CLIENTE abona lo realizado. Para cualquier controversia, las partes se someten a los Tribunales Ordinarios de la Ciudad Autónoma de Buenos Aires.
+
+En {{ciudad}}, a {{fecha}}, se firman dos ejemplares de un mismo tenor.`,
+  },
+  {
+    k: "presupuesto-kit", titulo: "Presupuesto desglosado del kit", para: "El formato que piden los programas de cofinanciamiento: software, implementación, servicios, integraciones, capacitación y soporte.",
+    cuerpo: `PRESUPUESTO DESGLOSADO
+
+Proveedor: DEVISEBIT SRL, CUIT {{cuit_devisebit}}, Luna 24, 6.º piso, Parque Patricios, Ciudad Autónoma de Buenos Aires.
+Cliente: {{cliente}}, CUIT/DNI {{cuit}}, {{domicilio}}.
+Fecha: {{fecha}}. Validez: 15 días corridos.
+
+SOLUCIÓN: {{kit}}
+Descripción del problema y del uso esperado: {{servicio}}
+
+DETALLE POR RUBRO (completar importes sin IVA)
+1. Software y licencias ............................ $ ________
+2. Implementación y configuración ................ $ ________
+3. Servicios profesionales (relevamiento, diseño) .. $ ________
+4. Integraciones ................................... $ ________
+5. Capacitación del equipo ........................ $ ________
+6. Soporte y garantía (período: {{plazo}}) ......... $ ________
+
+SUBTOTAL sin IVA ................................. $ ________
+IVA ............................................... $ ________
+TOTAL ............................................. {{monto}}
+
+ENTREGABLES: sistema configurado y en producción, integraciones probadas con datos reales, documentación, capacitación y acta de recepción conforme.
+
+NOTA SOBRE FINANCIAMIENTO: si una parte de este presupuesto se presenta ante {{programa}}, el monto cofinanciable y los topes los determina el programa. DEVISEBIT no otorga financiamiento.
+
+Por DEVISEBIT SRL.`,
+  },
+  {
+    k: "gestion-financiamiento", titulo: "Acuerdo de gestión de financiamiento", para: "Cuando DEVISEBIT ayuda al cliente a identificar y tramitar cofinanciamiento (Kit 4.0, innovación, UVT).",
+    cuerpo: `ACUERDO DE GESTIÓN DE FINANCIAMIENTO
+
+${PARTES}
+
+PRIMERA · Objeto. DEVISEBIT asistirá al CLIENTE para identificar, preparar y presentar la solicitud de {{programa}} vinculada a: {{servicio}}. La asistencia incluye el relevamiento de requisitos, la preparación del presupuesto desglosado, la carpeta de documentación y el seguimiento del trámite.
+
+SEGUNDA · Alcance. DEVISEBIT no otorga financiamiento ni garantiza su aprobación. La decisión, los montos, los topes y los plazos dependen del organismo y de que el CLIENTE cumpla los requisitos vigentes.
+
+TERCERA · Obligaciones del CLIENTE. Entregar la información y documentación exacta y actualizada, mantener su situación fiscal y previsional al día y firmar o presentar lo que le corresponda. El CLIENTE es responsable de la veracidad de lo declarado.
+
+CUARTA · Honorarios. El CLIENTE abona {{honorarios}} por la gestión, con independencia de la aprobación del beneficio, salvo pacto escrito en contrario. Si el CLIENTE contrata también un kit, se rige por su contrato.
+
+QUINTA · Plazo. Este acuerdo rige por {{plazo}} desde su firma y se extiende mientras dure el trámite acordado.
+
+SEXTA · Confidencialidad y datos. Las partes mantienen la confidencialidad de la información no pública, y DEVISEBIT trata los datos solo para esta gestión.
+
+SÉPTIMA · Jurisdicción. Para cualquier controversia, las partes se someten a los Tribunales Ordinarios de la Ciudad Autónoma de Buenos Aires.
+
+En {{ciudad}}, a {{fecha}}, se firman dos ejemplares de un mismo tenor.`,
+  },
+  {
+    k: "carpeta-financiamiento", titulo: "Checklist de carpeta de financiamiento", para: "Lista de control de documentación por cliente antes de presentar un cofinanciamiento.",
+    cuerpo: `CHECKLIST DE CARPETA DE FINANCIAMIENTO
+
+Cliente: {{cliente}} · CUIT {{cuit}}
+Programa / línea: {{programa}} · Kit: {{kit}}
+Fecha: {{fecha}}
+
+[ ] CUIT activo y clave fiscal con nivel de seguridad suficiente
+[ ] Adhesión a Trámites a Distancia (TAD) y, si es sociedad, delegación de servicios en ARCA
+[ ] Certificado MiPyME vigente
+[ ] Constancias de actividad (inscripciones, facturas, balances) por el período que exija el programa
+[ ] Libre de deuda fiscal y previsional exigible
+[ ] Presupuesto desglosado del proveedor (software, implementación, servicios, integraciones, capacitación, soporte)
+[ ] Descripción del problema, del uso esperado y del alcance
+[ ] Si hay IA o analítica: descripción de los datos disponibles y cómo se usan hoy
+[ ] Solicitud presentada en el sistema del programa, con el presupuesto adjunto
+[ ] Comprobante de presentación y número de trámite
+[ ] Reserva de cupo / aprobación recibida
+[ ] Acta de inicio firmada con el proveedor
+[ ] Implementación realizada y Acta de Recepción Conforme firmada
+[ ] Rendición o documentación final presentada
+
+Responsable en DEVISEBIT: {{firmante}}.`,
   },
 ]
 
