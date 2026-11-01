@@ -37,7 +37,7 @@ export default async function TableroDireccion() {
         (select count(*) from g_vencimientos where estado='pendiente' and vence < $1)::int venc_tarde,
         (select count(*) from g_licitaciones where estado in ('detectada','analizando','preparando','presentada'))::int licitaciones,
         (select count(*) from g_documentos)::int documentos`, [hoy, h30, ini, finMes]),
-    q<any>("select * from g_modulos order by orden"),
+    Promise.resolve([] as any[]),
     q<Item>(
       `select * from (
         select k.vence::text f, k.concepto t, coalesce(c.organizacion,c.nombre) d, 'Cobro' area, '/proyectos/'||coalesce(k.proyecto_id::text,'') href, k.monto::text||' '||k.moneda monto
@@ -54,8 +54,6 @@ export default async function TableroDireccion() {
           from db_proyectos p left join db_contactos c on c.id=p.contacto_id where p.estado in ('planificado','en_curso','pausado') and p.entrega <= $2
         union all select a.vence::text, 'Renovar '||a.nombre, coalesce(a.cliente,'Sin asignar')||' · '||coalesce(a.proveedor,''), 'Renovación', '/activos?editar='||a.id, a.costo::text||' '||a.moneda
           from g_activos a where a.estado in ('activo','a_revisar') and a.vence <= $2
-        union all select m.fecha::text, m.nombre||': '||coalesce(m.proximo,''), m.responsable, 'Módulo', '/modulos#'||m.codigo, null
-          from g_modulos m where m.estado<>'listo' and m.fecha <= $2
       ) x where f is not null order by f limit 40`, [hoy, h30]),
     eventosCalendario(30).catch(() => ({ eventos: [], cuando: null, ok: false })),
     fin ? correosGmail().catch(() => ({ hilos: [], cuando: null, ok: false })) : Promise.resolve({ hilos: [], cuando: null, ok: false }),
@@ -84,8 +82,8 @@ export default async function TableroDireccion() {
   return (
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
-        <div><div className="eyebrow">Dirección</div><h1 className="m-0">Tablero de dirección</h1><p>Toda la empresa en una pantalla: ventas, plata, legales, licitaciones y el estado de los 10 módulos. {nombrePeriodo(per)}.</p></div>
-        <div className="pag-acc"><Link href="/modulos" className="btn-s">Actualizar módulos</Link>{fin && <Link href="/finanzas" className="btn-p">Ver finanzas</Link>}</div>
+        <div><div className="eyebrow">Dirección</div><h1 className="m-0">Tablero de dirección</h1><p>Toda la empresa en una pantalla: ventas, plata, legales, licitaciones y el equipo de agentes. {nombrePeriodo(per)}.</p></div>
+        <div className="pag-acc"><Link href="/agentes" className="btn-s">Equipo de agentes</Link>{fin && <Link href="/finanzas" className="btn-p">Ver finanzas</Link>}</div>
       </header>
 
       <section aria-label="Indicadores" className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -95,7 +93,6 @@ export default async function TableroDireccion() {
         <Kpi t="Proyectos activos" v={n.proyectos} d={n.proy_tarde ? `${n.proy_tarde} con entrega vencida` : "Entregas al día"} tono={n.proy_tarde ? "rojo" : undefined} href="/proyectos" />
         {fin && <Kpi t="Legales" v={n.venc_30} d={n.venc_tarde ? `${n.venc_tarde} vencidos sin resolver` : `vencimientos en 30 días · ${n.contratos_firma} contratos a firmar`} tono={n.venc_tarde ? "rojo" : n.venc_30 ? "ambar" : undefined} href="/legales?ver=vencimientos" />}
         <Kpi t="Licitaciones abiertas" v={n.licitaciones} href="/licitaciones" />
-        <Kpi t="Módulos trabados" v={trabados.length} d={trabados.length ? trabados.map((t) => t.nombre).join(", ") : "Nada trabado"} tono={trabados.length ? "rojo" : "verde"} href="/modulos" />
         <Kpi t="Reuniones en 7 días" v={cal.ok ? proxReu.length : "—"} d={cal.ok ? (proxReu[0] ? `Próxima: ${fecha(proxReu[0].f).slice(0, 5)} ${proxReu[0].hora} · ${proxReu[0].t}` : "Agenda libre") : "Conectá Google Calendar"} href={cal.ok ? undefined : "/integraciones"} />
       </section>
 
@@ -130,23 +127,9 @@ export default async function TableroDireccion() {
         </section>
 
         <div className="flex flex-col gap-5">
-        <section className="card flex flex-col gap-3" aria-label="Módulos">
-          <div className="flex items-center justify-between gap-2"><h2 className="m-0 text-base">Los 10 módulos</h2><Link href="/modulos" className="btn-s py-1 px-3 text-xs">Abrir</Link></div>
-          <ul className="m-0 p-0 list-none flex flex-col gap-1">
-            {mods.map((m, i) => {
-              const e = ESTADOS_MOD.find((x) => x.v === m.estado)!
-              return (
-                <li key={m.codigo}>
-                  <Link href={`/modulos#${m.codigo}`} className="flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-lg hover:bg-[var(--sup-2)]">
-                    <span className="text-[11px] font-bold tabular-nums text-[var(--ac-texto)] w-5">{String(i + 1).padStart(2, "0")}</span>
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: PUNTO[m.estado] }} aria-hidden="true" />
-                    <span className="flex-1 min-w-0"><span className="block text-sm font-semibold truncate">{m.nombre}</span>{(m.bloqueo || m.proximo) && <span className={`block text-xs truncate ${m.bloqueo ? "text-rojo" : "text-[var(--gris)]"}`}>{m.bloqueo ? `Trabado: ${m.bloqueo}` : m.proximo}</span>}</span>
-                    <span className="text-xs text-[var(--gris)] shrink-0">{e.n}</span>
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
+        <section className="card flex flex-col gap-2" aria-label="Equipo de agentes">
+          <div className="flex items-center justify-between gap-2"><h2 className="m-0 text-base">Equipo de agentes</h2><Link href="/agentes" className="btn-s py-1 px-3 text-xs">Ver equipo</Link></div>
+          <p className="m-0 text-sm text-[var(--gris)]">Administrativo, Finanzas, Ventas, Comercial, Contenido y Control diario trabajan todos los días y dejan su parte en la Bitácora.</p>
         </section>
         {fin && (
           <section className="card flex flex-col gap-3" aria-label="Correo sin leer">

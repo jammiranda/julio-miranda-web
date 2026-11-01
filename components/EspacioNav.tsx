@@ -82,7 +82,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
     : [
         { t: "Dirección", items: [
           { href: "/gestion", t: "Tablero de dirección", i: "brujula" },
-          { href: "/modulos", t: "Módulos", i: "grilla" },
+          { href: "/agentes", t: "Equipo de agentes", i: "bot" },
         ] },
         { t: "Ventas", items: [
           { href: "/", t: "Resumen comercial", i: "tablero" },

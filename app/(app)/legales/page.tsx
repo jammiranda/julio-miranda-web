@@ -33,8 +33,9 @@ export default async function Legales({ searchParams: sp }: { searchParams: SP }
       <header className="pag-cab">
         <div><div className="eyebrow">Gestión</div><h1 className="m-0">Legales</h1><p>Contratos con clientes, proveedores y equipo, y los vencimientos que no se pueden pasar: impuestos, dominios, seguros y registros.</p></div>
         <div className="pag-acc">
+          <Link href="/legales/plantillas" className="btn-p">Modelos para enviar</Link>
           <Link href="/legales?ver=vencimientos&nuevo=1" className="btn-s">+ Vencimiento</Link>
-          <Link href="/legales?ver=contratos&nuevo=1" className="btn-p">+ Contrato</Link>
+          <Link href="/legales?ver=contratos&nuevo=1" className="btn-s">+ Contrato</Link>
         </div>
       </header>
       <Aviso ok={sp.ok} error={sp.error} />

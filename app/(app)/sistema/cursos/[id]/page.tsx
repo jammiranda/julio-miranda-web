@@ -6,6 +6,8 @@ import { s } from "@/lib/util"
 import { slugDe, URL_ACADEMIA } from "@/lib/academia"
 import { MODALIDADES, TIPOS_LECCION, ESTADOS_EDICION, tipoLeccion, quizDe, arsDesdeUsd, TC_REFERENCIA, textoCuotas } from "@/lib/cursos"
 import { fecha } from "@/lib/util"
+import AyudaIA from "@/components/AyudaIA"
+import SubirArchivo from "@/components/SubirArchivo"
 
 export const dynamic = "force-dynamic"
 
@@ -127,6 +129,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <p className="m-0 md:col-span-4 text-xs text-[#4A515C]">{c.precio && Number(c.gratis_modulos) > 0 ? `Primer módulo gratis: con ${c.gratis_modulos} ${Number(c.gratis_modulos) === 1 ? "módulo" : "módulos"}, el alumno se inscribe gratis y cursa ${Number(c.gratis_modulos) === 1 ? "el primero" : `los primeros ${c.gratis_modulos}`}; para seguir, descargar PDF y plantillas, pedir la videollamada y certificar tiene que comprar. ` : ""}Referencia: USD 1 = $ {TC_REFERENCIA.toLocaleString("es-AR")}{c.precio_usd ? ` → USD ${Number(c.precio_usd)} ≈ $ ${arsDesdeUsd(Number(c.precio_usd)).toLocaleString("es-AR")}` : ""}. {textoCuotas(c.precio, c.cuotas)}</p>
         <Campo l="Nota interna (no se publica: revisiones pendientes, a quién consultar…)" className="md:col-span-4"><textarea name="nota_interna" rows={2} defaultValue={c.nota_interna ?? ""} className="inp text-sm" /></Campo>
         <Campo l="Descripción (texto simple: ## títulos, - listas, **negrita**)" className="md:col-span-4"><textarea name="descripcion" rows={8} defaultValue={c.descripcion} className="inp font-mono text-sm" /></Campo>
+        <div className="md:col-span-4"><AyudaIA campo="descripcion" contexto={`Descripción del curso «${c.titulo}»`} /></div>
         {puede && <div className="md:col-span-4"><button className="btn-p">Guardar curso</button></div>}
       </form>
 
@@ -183,8 +186,10 @@ export default async function Curso({ params, searchParams }: { params: { id: st
           <Campo l="Tipo"><select name="tipo" defaultValue={ed?.tipo ?? "video"} className="inp">{TIPOS_LECCION.map((t) => <option key={t.v} value={t.v}>{t.n}</option>)}</select></Campo>
           <Campo l="Video (YouTube, Vimeo, Loom o Drive)" className="md:col-span-2"><input name="video_url" type="url" defaultValue={ed?.video_url ?? ""} className="inp" /></Campo>
           <Campo l="Material para descargar (link, enc:private/cursos/… o enc:db:cursos/…)"><input name="archivo_url" defaultValue={ed?.archivo_url ?? ""} className="inp" placeholder="Drive, Dropbox…" /></Campo>
+          <div className="md:col-span-4"><SubirArchivo slug={c.slug} campo="archivo_url" /></div>
           <Campo l="Duración (min)"><input name="duracion_min" type="number" min={0} defaultValue={ed?.duracion_min ?? ""} className="inp" /></Campo>
-          <Campo l="Contenido (texto simple)" className="md:col-span-4"><textarea name="contenido" rows={6} defaultValue={ed?.contenido ?? ""} className="inp font-mono text-sm" /></Campo>
+          <Campo l="Contenido (texto simple)" className="md:col-span-4"><textarea name="contenido" rows={8} defaultValue={ed?.contenido ?? ""} className="inp font-mono text-sm" /></Campo>
+          <div className="md:col-span-4"><AyudaIA campo="contenido" quiz="quiz" contexto={`Lección del curso «${c.titulo}»`} /></div>
           <Campo l={`Quiz corto (opcional, JSON: [{"p":"Pregunta","o":["A","B","C"],"c":0,"e":"Por qué"}] · c = número de la opción correcta, desde 0)`} className="md:col-span-4"><textarea name="quiz" rows={3} defaultValue={ed?.quiz ? JSON.stringify(ed.quiz) : ""} className="inp font-mono text-xs" /></Campo>
           <label className="flex gap-2 items-center text-sm"><input type="checkbox" name="publicada" value="1" defaultChecked={ed ? ed.publicada : true} /> Visible para alumnos</label>
           <div className="md:col-span-3 flex gap-2 justify-end">{ed && <Link href={`/sistema/cursos/${c.id}#lecciones`} className="btn-s">Cancelar</Link>}<button name="op" value="guardar" className="btn-p">{ed ? "Guardar cambios" : "Agregar lección"}</button></div>

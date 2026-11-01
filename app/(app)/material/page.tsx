@@ -6,6 +6,7 @@ import { s } from "@/lib/util"
 import { GRUPOS, VIDEOS, itemMaterial, type ItemMaterial } from "@/lib/material"
 import { enviarBrevo, plantilla } from "@/lib/email"
 import Copiar from "@/components/Copiar"
+import { ultimosVideos, linkVideo, miniatura, YT_URL, YT_SUSCRIBIR } from "@/lib/youtube"
 
 export const dynamic = "force-dynamic"
 
@@ -33,7 +34,9 @@ async function mandar(fd: FormData) {
   const ks = fd.getAll("k").map(String)
   const videos = await q<{ k: string; url: string }>("select k, url from material_links")
   const lista: { titulo: string; url: string }[] = []
+  const canal = ks.some((k) => k.startsWith("yt:")) ? await ultimosVideos(30) : []
   for (const k of ks) {
+    if (k.startsWith("yt:")) { const yv = canal.find((x) => x.id === k.slice(3)); if (yv) lista.push({ titulo: `${yv.titulo} (video)`, url: linkVideo(yv) }); continue }
     const it = itemMaterial(k)
     if (it) lista.push({ titulo: it.titulo + (it.tipo === "pdf" ? " (PDF)" : it.tipo === "zip" ? " (ZIP)" : ""), url: it.url })
     const v = VIDEOS.find((x) => x.k === k), vu = videos.find((x) => x.k === k)
@@ -57,11 +60,12 @@ export default async function Material({ searchParams }: { searchParams: { ok?: 
   await requerir(["gerente", "coordinacion"])
   const videos = await q<{ k: string; url: string }>("select k, url from material_links").catch(() => [])
   const urlVideo = (k: string) => videos.find((v) => v.k === k)?.url ?? ""
+  const canal = await ultimosVideos(12)
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="m-0">Material de venta</h1>
-        <p className="m-0 text-sm text-[#4A515C]">Todo para mandar a un cliente en un clic: folletos, el PDF del Panel, piezas para redes y los videos ocultos. Copiá el link, copiá el mensaje para WhatsApp o mandalo por email desde abajo. Las demos interactivas se mandan desde <a href="/demos-admin" className="underline">Demos</a>, y el manual y la presentación institucional desde <a href="/biblioteca" className="underline">Documentos de la empresa</a>.</p>
+        <p className="m-0 text-sm text-[#4A515C]">Todo para mandar a un cliente en un clic: folletos, el PDF del Panel, piezas para redes y los videos del canal y los demos ocultos. Copiá el link, copiá el mensaje para WhatsApp o mandalo por email desde abajo. Las demos interactivas se mandan desde <a href="/demos-admin" className="underline">Demos</a>, y el manual y la presentación institucional desde <a href="/biblioteca" className="underline">Documentos de la empresa</a>.</p>
       </div>
       {searchParams.ok && <p className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
       {searchParams.err && <p className="m-0 text-sm text-rojo">{searchParams.err}</p>}
@@ -90,6 +94,28 @@ export default async function Material({ searchParams }: { searchParams: { ok?: 
           </ul>
         </section>
       ))}
+
+      <section className="flex flex-col gap-3" aria-labelledby="g-canal">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div><h2 id="g-canal" className="m-0 text-lg">Videos y shorts del canal de YouTube</h2><p className="m-0 text-sm text-[#4A515C]">Se actualizan solos desde el canal público: cada video nuevo aparece acá sin cargar nada.</p></div>
+          <span className="flex gap-2"><a href={YT_URL} target="_blank" rel="noopener noreferrer" className="btn-s !py-1 !px-3 !text-xs">Abrir el canal</a><Copiar texto={YT_SUSCRIBIR} etiqueta="Copiar link para suscribirse" /></span>
+        </div>
+        <ul className="m-0 p-0 list-none grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {canal.map((v) => (
+            <li key={v.id} className="card !p-3 flex flex-col gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={miniatura(v)} alt="" loading="lazy" className="w-full aspect-video object-cover rounded-lg border border-[#E2E5EA] bg-[#0E1116]" />
+              <strong className="text-sm leading-snug">{v.titulo}</strong>
+              <span className="text-xs text-[#4A515C]">{v.corto ? "Short" : "Video"} · {v.fecha.slice(0, 10).split("-").reverse().join("/")}</span>
+              <div className="mt-auto flex flex-wrap gap-1.5">
+                <a href={linkVideo(v)} target="_blank" rel="noopener noreferrer" className="btn-s !py-1 !px-3 !text-xs">Abrir</a>
+                <Copiar texto={linkVideo(v)} etiqueta="Copiar link" />
+                <Copiar texto={msgWA(`el video "${v.titulo}"`, linkVideo(v))} etiqueta="Mensaje WhatsApp" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="flex flex-col gap-3" aria-labelledby="g-videos">
         <div><h2 id="g-videos" className="m-0 text-lg">Videos de demos (YouTube ocultos)</h2><p className="m-0 text-sm text-[#4A515C]">Pegá el link de cada video cuando lo subas a YouTube como oculto. Solo lo ve quien tiene el link.</p></div>
@@ -123,6 +149,9 @@ export default async function Material({ searchParams }: { searchParams: { ok?: 
           <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
             {GRUPOS.flatMap((g) => g.items.filter((it) => it.tipo !== "png")).map((it) => (
               <label key={it.k} className="flex items-center gap-2 rounded-lg border border-[#E2E5EA] px-3 py-2 text-sm"><input type="checkbox" name="k" value={it.k} />{it.titulo}{it.marca === "blanca" ? " · marca blanca" : ""}</label>
+            ))}
+            {canal.map((v) => (
+              <label key={v.id} className="flex items-center gap-2 rounded-lg border border-[#E2E5EA] px-3 py-2 text-sm"><input type="checkbox" name="k" value={`yt:${v.id}`} />▶ {v.titulo}</label>
             ))}
             {VIDEOS.filter((v) => urlVideo(v.k)).map((v) => (
               <label key={v.k} className="flex items-center gap-2 rounded-lg border border-[#E2E5EA] px-3 py-2 text-sm"><input type="checkbox" name="k" value={v.k} />▶ {v.titulo}</label>
