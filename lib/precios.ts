@@ -70,6 +70,20 @@ export const ALTAS_ASESORIA: Inicial[] = [
   { linea: LA, producto: "Gestión de licencias de terceros", precio: null, abono: null, condicion: "Costo de la licencia + 15% · mínimo $15.000 por mes", incluye: "Altas, usuarios, pagos y renovaciones de Google Workspace, herramientas de IA, dominios y similares", mercado_desde: null, mercado_hasta: null, fuente: null, argumento: "Una sola factura y nadie del equipo pendiente de vencimientos.", link: ASE },
 ]
 
+/** Líneas de uso interno: se ven en Sistema → Precios, pero no salen en la lista pública, el portal ni el bot hasta que Dirección decida publicarlas. */
+export const LINEAS_INTERNAS = ["Kits DEVISEBIT"]
+
+const LK = "Kits DEVISEBIT"
+const REF = "Develop Argentina (jun. 2026) y Diego Ceredi (act. oct. 2026), convertido a USD 1 = $1.540"
+
+/** Kits propios (precios fijos, por debajo del mercado). Internos: no se publican en la web. */
+export const ALTAS_KITS: Inicial[] = [
+  { linea: LK, producto: "Kit Canal Digital", precio: 990000, abono: 29000, condicion: "Precio fijo · cerrado por escrito · abono Esencial desde $29.000, mínimo 6 meses", incluye: "Sitio web o tienda conectada, formulario de pedidos o turnos, WhatsApp Business integrado, medios de pago y avisos, panel de gestión, manual y capacitación", mercado_desde: 1500000, mercado_hasta: 4600000, fuente: REF, argumento: "Un sitio conectado con panel y pagos se cobra entre USD 1.000 y 3.000 (WooCommerce alto a medida básico). Entramos por debajo del piso.", link: "https://www.devisebit.com/kit-digital" },
+  { linea: LK, producto: "Kit CRM y Automatización", precio: 1190000, abono: 99000, condicion: "Precio fijo · cerrado por escrito · abono desde $99.000, mínimo 6 meses", incluye: "CRM con embudos, importación de contactos, automatizaciones, conexión con WhatsApp, correo y formularios, tablero comercial, capacitación", mercado_desde: 1460000, mercado_hasta: 4900000, fuente: REF, argumento: "Implementación + migración + capacitación + integraciones suman USD 950 a 3.200 sin contar licencias por usuario (USD 14 a 99 por mes cada una). Acá no hay licencia por usuario.", link: "https://www.devisebit.com/kit-digital" },
+  { linea: LK, producto: "Kit IA Comercial", precio: 1490000, abono: 149000, condicion: "Precio fijo · cerrado por escrito · abono desde $149.000, mínimo 6 meses", incluye: "Asistente de WhatsApp con IA entrenado con tu información, derivación a personas, resúmenes y reportes, tablero de consultas y ventas, reglas de seguridad y supervisión humana", mercado_desde: 3080000, mercado_hasta: 7700000, fuente: REF, argumento: "La implementación de IA en un área se cobra USD 2.000 a 5.000 (y un agente a medida USD 3.000 a 15.000). Quedamos a menos de la mitad del piso.", link: "https://www.devisebit.com/kit-digital" },
+  { linea: LK, producto: "Kit Gestión Documental y Firma", precio: 990000, abono: 99000, condicion: "Precio fijo · cerrado por escrito · abono desde $99.000, mínimo 6 meses", incluye: "Gestor documental con carpetas, permisos y versiones, firma digital, circuitos de aprobación, búsqueda y trazabilidad, migración inicial del archivo, capacitación", mercado_desde: 1000000, mercado_hasta: 3000000, fuente: AD, argumento: "Sin referencia propia de gestor documental: se compara con un sistema a medida ($1.000.000 a $3.000.000). Quedamos justo debajo del piso.", link: "https://www.devisebit.com/kit-digital" },
+]
+
 export const PAGO = {
   alias: process.env.DB_ALIAS_PAGO ?? "devisebitsrl",
   titular: "DEVISEBIT SRL",
@@ -127,6 +141,14 @@ async function asegurar() {
       [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, 2000 + i * 10])
     await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ($1,'alta',$2,'Asesoría y consultoría (valores al 1/11/2026)','Sistema')", [p.producto, String(p.precio ?? p.abono ?? "")])
   }
+  // 1/11/2026: kits propios, línea interna con precios fijos (se agregan una sola vez por nombre)
+  for (const [i, p] of ALTAS_KITS.entries()) {
+    const ya = await one("select 1 from db_precios where producto=$1", [p.producto])
+    if (ya) continue
+    await q("insert into db_precios(linea,producto,precio,abono,condicion,incluye,mercado_desde,mercado_hasta,fuente,argumento,link,orden) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+      [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, 3000 + i * 10])
+    await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ($1,'alta',$2,'Kits DEVISEBIT: precio fijo interno, por debajo del mercado (no publicado)','Sistema')", [p.producto, String(p.precio ?? "")])
+  }
   // 31/10/2026: la primera reunión es gratuita (con autodiagnóstico previo). Se retira del listado de precios.
   await q("update db_precios set activo=false where producto='Primera reunión estratégica'")
   listo = true
@@ -134,7 +156,7 @@ async function asegurar() {
 
 export async function precios(soloActivos = true): Promise<Precio[]> {
   await asegurar()
-  const r = await q<any>(`select * from db_precios ${soloActivos ? "where activo" : ""} order by orden, id`)
+  const r = await q<any>(`select * from db_precios ${soloActivos ? "where activo and not (linea = any($1))" : ""} order by orden, id`, soloActivos ? [LINEAS_INTERNAS] : [])
   return r.map((x) => ({ ...x, actualizado: new Date(x.actualizado).toISOString(), precio: x.precio == null ? null : Number(x.precio), abono: x.abono == null ? null : Number(x.abono), mercado_desde: x.mercado_desde == null ? null : Number(x.mercado_desde), mercado_hasta: x.mercado_hasta == null ? null : Number(x.mercado_hasta) }))
 }
 
