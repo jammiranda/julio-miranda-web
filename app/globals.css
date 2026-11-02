@@ -218,4 +218,3 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .cinta-pista { width: max-content; animation: cinta-corre 42s linear infinite; }
 .cinta:hover .cinta-pista { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) { .cinta-pista { animation: none; } }
-@keyframes camino-in { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
