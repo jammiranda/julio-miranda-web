@@ -130,6 +130,32 @@ export async function asegurarPerfil(forzar = false) {
   return { ok: out.perfil === "ok", ...out }
 }
 
+/**
+ * Estado real de las plantillas, consultado en Meta en el momento (solo lectura).
+ * Antes se informaba el estado guardado al crearlas, que quedaba en "pending" para siempre.
+ * Si cambió, actualiza el resultado guardado para que la pantalla de WhatsApp Business lo muestre.
+ */
+export async function plantillasEnMeta(): Promise<Record<string, string> | null> {
+  const { token } = cuenta()
+  if (!token) return null
+  const { waba } = await ids(token)
+  if (!waba) return null
+  const ex = await gj(`${G}/${waba}/message_templates?fields=name,status,rejected_reason&limit=200&access_token=${token}`)
+  if (!ex.ok) return null
+  const out: Record<string, string> = {}
+  for (const t of PLANTILLAS) {
+    const x = (ex.j?.data ?? []).find((d: any) => d.name === t.name)
+    if (!x) { out[t.name] = "no existe en Meta"; continue }
+    const st = String(x.status ?? "").toLowerCase()
+    out[t.name] = st === "rejected" && x.rejected_reason && x.rejected_reason !== "NONE" ? `rejected: ${x.rejected_reason}` : st
+  }
+  const prev = await estadoPerfil().catch(() => null)
+  if (prev && JSON.stringify(prev.plantillas) !== JSON.stringify(out)) {
+    await q("update config set valor=$1 where clave='wa_perfil_resultado'", [JSON.stringify({ ...prev, plantillas: out })]).catch(() => {})
+  }
+  return out
+}
+
 export async function estadoPerfil() {
   const r = await one<{ valor: string }>("select valor from config where clave='wa_perfil_resultado'").catch(() => null)
   try { return r ? JSON.parse(r.valor) : null } catch { return null }

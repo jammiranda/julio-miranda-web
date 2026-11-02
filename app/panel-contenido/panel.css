@@ -3,7 +3,7 @@
   --bg: #0b0b0d; --panel: #131317; --panel2: #1a1a20; --line: #26262e; --line2: #34343e; --fg: #ececf0; --muted: #9a9aa6;
   --red: #e11d2e; --red2: #C8231F; --red-soft: rgba(225, 29, 46, .14);
   --ok: #22c38e; --warn: #f2b233; --info: #4c8dff; --violet: #9b7bff;
-  --ig: #e1306c; --yt: #ff3b3b; --li: #2f8cff;
+  --ig: #e1306c; --yt: #ff3b3b; --li: #2f8cff; --fb: #1877f2;
   --display: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
   --body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -51,6 +51,7 @@ html:has(.pc), body:has(.pc) { background: #0b0b0d; }
 .pc-g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .pc-g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .pc-g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pc-g5 { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
 .pc-kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 .pc-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
 .pc-ch { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -158,6 +159,7 @@ a.pc-item:hover { border-color: #44444f; }
   .pc-main { padding-top: 18px; }
 }
 @media (max-width: 420px) {
+  .pc-g5 { grid-template-columns: minmax(0, 1fr); }
   .pc-g4 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .pc-kpis { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
   .pc-big { font-size: 21px; }

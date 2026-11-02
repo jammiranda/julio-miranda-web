@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache"
 import { YT_URL } from "@/lib/youtube"
+import { q, one } from "@/lib/db"
+import { guardarPublicaciones, fechaDesdeHace } from "@/lib/publicaciones"
 
 /**
  * Publicaciones de la pestaña "Publicaciones" del canal de YouTube de DEVISEBIT.
@@ -69,12 +71,24 @@ export async function publicacionesYouTube() {
     }
     walk(data)
   }
+  // Si YouTube no devolvió la página a este servidor, se usa el último dato guardado
+  let leido = !!crudo && posts.length > 0
+  let respaldo: string | null = null
+  if (leido) await guardarRespaldoPosts(posts).catch(() => {})
+  else {
+    const r = await one<{ valor: string }>("select valor from config where clave='yt_posts_respaldo'").catch(() => null)
+    try {
+      const j = r ? JSON.parse(r.valor) : null
+      if (j?.posts?.length) { posts.push(...j.posts); respaldo = j.guardado ?? null; leido = true }
+    } catch {}
+  }
   const ahora = Date.now()
   const proximas = PROGRAMADAS.filter((x) => new Date(x.fecha).getTime() > ahora)
   const suma = (k: "meGusta" | "comentarios" | "votos") => posts.reduce((s, x) => s + (x[k] ?? 0), 0)
   return {
     url: `${YT_URL}/posts`,
-    leido: !!crudo,
+    leido,
+    respaldo,
     publicadas: posts,
     totalPublicadas: posts.length,
     meGusta: suma("meGusta"),
@@ -86,5 +100,13 @@ export async function publicacionesYouTube() {
   }
 }
 
+export async function guardarRespaldoPosts(posts: Partial<PostPublicado>[]) {
+  const limpio = posts.filter((p) => p?.id).slice(0, 50).map((p) => ({ id: String(p.id), texto: String(p.texto ?? "").slice(0, 280), hace: String(p.hace ?? ""), meGusta: p.meGusta ?? 0, comentarios: p.comentarios ?? null, votos: p.votos ?? null, tipo: String(p.tipo ?? "Texto"), url: p.url || `https://www.youtube.com/post/${p.id}` }))
+  if (!limpio.length) return 0
+  await q("insert into config(clave,valor) values ('yt_posts_respaldo',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify({ posts: limpio, guardado: new Date().toISOString() })])
+  await guardarPublicaciones(limpio.map((p) => ({ red: "youtube_post", id: p.id, fecha: fechaDesdeHace(p.hace), texto: p.texto, tipo: p.tipo, url: p.url, me_gusta: p.meGusta, comentarios: p.comentarios, votos: p.votos })), "YouTube").catch(() => {})
+  return limpio.length
+}
+
 /** Con caché de 15 minutos (para el panel). */
-export const publicacionesYouTubeCache = unstable_cache(() => publicacionesYouTube(), ["pc-yt-publicaciones"], { revalidate: 900 })
+export const publicacionesYouTubeCache = unstable_cache(() => publicacionesYouTube(), ["pc-yt-publicaciones-v2"], { revalidate: 900 })

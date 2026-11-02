@@ -4,6 +4,7 @@ import { panelMetricas, youtubeCache, safe } from "@/lib/panel"
 import { publicacionesYouTubeCache } from "@/lib/youtube-publicaciones"
 import { resumenAds } from "@/lib/ads"
 import { linkedinExport } from "@/lib/linkedin-export"
+import { facebook, FB_URL } from "@/lib/facebook"
 import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, fmt, plata, fechaCorta, fechaHora } from "./_ui"
 
 export const dynamic = "force-dynamic"
@@ -14,7 +15,7 @@ export default async function Inicio() {
   if (!(await acceso())) return null
   const b = base()
   const [ig, hist, m, yt, ads, li, ytp] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
-  const lix = await safe(linkedinExport())
+  const [lix, fb] = await Promise.all([safe(linkedinExport()), facebook()])
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
   const p30 = posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5)
@@ -39,12 +40,13 @@ export default async function Inicio() {
         <Kpi k="Consultas (30 días)" v={c?.d30 != null ? fmt(c.d30) : null} delta={<Delta v={c?.d30 != null && c?.p30 != null ? c.d30 - c.p30 : null} />} ft={c?.d7 != null ? `${fmt(c.d7)} en los últimos 7 días` : ""} />
         <Kpi k="Visitas web (30 días)" v={vis30 != null ? fmt(vis30) : null} serie={visDias} color="var(--info)" ft={visDias.length ? `${visDias.length} días con registro` : "Sin visitas registradas"} />
         <Kpi k="Suscriptores Academia" v={m?.academia.suscriptores?.act != null ? fmt(m.academia.suscriptores.act) : null} color="var(--ok)" delta={<Delta v={m?.academia.suscriptores?.d30 ?? null} />} ft="activos · altas en 30 días" />
+        <Kpi k="Seguidores Facebook" v={fb.ok && fb.seguidores != null ? fmt(fb.seguidores) : null} color="var(--fb)" serie={fb.ok ? fb.serieSeguidores : undefined} delta={<Delta v={fb.ok ? fb.crecimiento30 : null} />} ft={fb.ok ? `desde ${fechaCorta(fb.desde)} · ${fmt(fb.vistasContenido30)} visualizaciones` : "Facebook sin datos todavía"} />
         <Kpi k="Vistas YouTube" v={yt?.vistas != null ? fmt(yt.vistas) : null} color="var(--yt)" serie={yt?.lista.slice().reverse().map((v) => v.vistas ?? 0)} ft={yt ? `últimos ${yt.videos} videos del canal` : "Sin conexión con YouTube"} />
         <Kpi k="Inversión en anuncios" v={gasto.length ? gasto.map((p) => plata(p.gasto, p.moneda)).join(" + ") : null} ft={gasto.length ? gasto.map((p) => p.nombre).join(" y ") + " · 30 días" : "No hay datos de anuncios cargados"} />
       </div>
 
       <Sec t="Redes" />
-      <div className="pc-grid pc-g4">
+      <div className="pc-grid pc-g5">
         <a className="pc-card pc-red" href="https://www.instagram.com/devisebit" target="_blank" rel="noreferrer">
           <div className="hd"><span className="ic" style={{ background: "rgba(225,48,108,.15)", color: "var(--ig)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" /></svg></span><div><h3>Instagram</h3><span className="pc-muted" style={{ fontSize: 12 }}>@devisebit</span></div></div>
           {ig.ok ? <div className="pc-mono" style={{ fontSize: 13 }}>{fmt(ig.perfil.seguidores)} seguidores · {fmt(ig.perfil.publicaciones)} publicaciones · sigue a {fmt(ig.perfil.siguiendo)}</div> : <span className="pc-muted" style={{ fontSize: 12.5 }}>{ig.error}</span>}
@@ -53,6 +55,15 @@ export default async function Inicio() {
           <div className="hd"><span className="ic" style={{ background: "rgba(255,59,59,.15)", color: "var(--yt)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="M10 9l5 3-5 3z" /></svg></span><div><h3>YouTube</h3><span className="pc-muted" style={{ fontSize: 12 }}>ACADEMIA DEVISEBIT</span></div></div>
           <div className="pc-mono" style={{ fontSize: 13 }}>{yt ? <>{yt.suscriptores != null ? `${fmt(yt.suscriptores)} suscriptores · ` : ""}{fmt(yt.videos)} videos · {fmt(yt.publicados30)} en 30 días</> : "Sin datos del canal"}</div>
           {ytp && <div className="pc-mono pc-muted" style={{ fontSize: 12, marginTop: 4 }}>Publicaciones: {fmt(ytp.totalPublicadas)} publicadas · {fmt(ytp.proximas.length)} programadas{ytp.proximas[0] ? ` · próxima ${new Date(ytp.proximas[0].fecha).toLocaleDateString("es-AR", { day: "numeric", month: "numeric", timeZone: "America/Argentina/Buenos_Aires" })}` : ""}{ytp.totalPublicadas ? ` · ${fmt(ytp.meGusta)} me gusta` : ""}</div>}
+        </a>
+        <a className="pc-card pc-red" href={FB_URL} target="_blank" rel="noreferrer">
+          <div className="hd"><span className="ic" style={{ background: "rgba(24,119,242,.15)", color: "var(--fb)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M15 8h-1.5A2.5 2.5 0 0011 10.5V21M8.5 13H15" /></svg></span><div><h3>Facebook</h3><span className="pc-muted" style={{ fontSize: 12 }}>Página DEVISEBIT</span></div></div>
+          {fb.ok ? (
+            <>
+              <div className="pc-mono" style={{ fontSize: 13 }}>{fmt(fb.seguidores)} seguidores · +{fmt(fb.nuevos30)} / −{fmt(fb.perdidos30)} en 30 días · {fmt(fb.publicaciones30)} publicaciones · {fmt(fb.interacciones30)} interacciones</div>
+              <div className="pc-mono pc-muted" style={{ fontSize: 12, marginTop: 4 }}>{fmt(fb.vistasPagina30)} vistas de la página · {fmt(fb.vistasContenido30)} visualizaciones de contenido (Metricool, {fechaHora(fb.actualizado)})</div>
+            </>
+          ) : <span className="pc-muted" style={{ fontSize: 12.5 }}>{fb.error}</span>}
         </a>
         <a className="pc-card pc-red" href={`${b}/linkedin`}>
           <div className="hd"><span className="ic" style={{ background: "rgba(47,140,255,.15)", color: "var(--li)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7" /></svg></span><div><h3>LinkedIn</h3><span className="pc-muted" style={{ fontSize: 12 }}>DEVISEBIT</span></div></div>

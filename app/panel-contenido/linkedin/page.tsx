@@ -3,14 +3,17 @@ import { linkedinExport } from "@/lib/linkedin-export"
 import { safe } from "@/lib/panel"
 import { acceso, base, Head, Sec, Kpi, Delta, Columnas, SinDatos, fmt, fechaCorta, fechaHora } from "../_ui"
 import SubirLinkedin from "./_subir"
+import SubirPerfil from "./_subir-perfil"
+import { historial, redDiario, interacciones } from "@/lib/publicaciones"
 
 export const dynamic = "force-dynamic"
 
 const nombreMes = (m: string) => new Date(`${m}-15T12:00:00-03:00`).toLocaleDateString("es-AR", { month: "long", year: "numeric", timeZone: "America/Argentina/Buenos_Aires" })
 
-export default async function LinkedIn({ searchParams }: { searchParams: { mes?: string } }) {
+export default async function LinkedIn({ searchParams }: { searchParams: { mes?: string; cuenta?: string } }) {
   if (!(await acceso())) return null
   const b = base()
+  if (searchParams.cuenta === "julio") return <PerfilJulio b={b} />
   const [ex, li] = await Promise.all([safe(linkedinExport(searchParams.mes)), linkedin()])
   const hayExport = !!ex && (ex.periodo.dias > 0 || ex.posts.length > 0 || ex.seguidores.total != null)
   const c = ex?.contenido
@@ -24,6 +27,7 @@ export default async function LinkedIn({ searchParams }: { searchParams: { mes?:
       >
         <a className="pc-btn" href="https://www.linkedin.com/company/devisebit" target="_blank" rel="noreferrer">Abrir LinkedIn</a>
       </Head>
+      <Cuentas b={b} actual="pagina" />
 
       {ex && ex.meses.length > 1 && (
         <div className="pc-seg" role="group" aria-label="Mes">
@@ -77,6 +81,57 @@ export default async function LinkedIn({ searchParams }: { searchParams: { mes?:
           <div className="pc-ch"><h2>Últimos 30 días según Buffer</h2><span className="pc-tag"><span className="pc-dot" style={{ background: "var(--muted)" }} />Origen: Buffer · solo lo publicado desde Buffer</span></div>
           <div className="pc-mono" style={{ fontSize: 13 }}>{fmt(li.actual.posts)} publicaciones · alcance {fmt(li.actual.alcance)} · impresiones {fmt(li.actual.impresiones)} · {fmt(li.actual.reacciones)} reacciones{li.actual.engagement != null ? ` · engagement ${fmt(li.actual.engagement, 1)}%` : ""}</div>
         </div>
+      ) : <SinDatos><b>Buffer sin datos.</b> {li.error === "sin_clave" ? "Falta la clave de Buffer (BUFFER_API_KEY)." : li.error}</SinDatos>}
+    </>
+  )
+}
+
+function Cuentas({ b, actual }: { b: string; actual: "pagina" | "julio" }) {
+  return (
+    <div className="pc-seg" role="group" aria-label="Cuenta">
+      <a href={`${b}/linkedin`} aria-current={actual === "pagina" ? "true" : undefined}>Página DEVISEBIT</a>
+      <a href={`${b}/linkedin?cuenta=julio`} aria-current={actual === "julio" ? "true" : undefined}>Perfil de Julio</a>
+    </div>
+  )
+}
+
+/** Perfil personal de Julio: exportación de Analytics del perfil + publicaciones enviadas por Buffer. */
+async function PerfilJulio({ b }: { b: string }) {
+  const [dias, li, pubs] = await Promise.all([redDiario("linkedin_julio", 120).catch(() => []), linkedin("julio"), historial(365).catch(() => [])])
+  const posts = pubs.filter((p) => p.red === "linkedin_julio")
+  const ult30 = dias.filter((d) => Date.now() - new Date(d.dia + "T12:00:00-03:00").getTime() <= 30 * 864e5)
+  const seg = [...dias].reverse().find((d) => d.seguidores != null)
+  const suma = (k: "impresiones" | "interacciones" | "nuevos") => (ult30.some((d) => d[k] != null) ? ult30.reduce((a, d) => a + (d[k] ?? 0), 0) : null)
+  const imp = suma("impresiones"), inter = suma("interacciones")
+  return (
+    <>
+      <Head t="LinkedIn" sub={<>Perfil personal de Julio Miranda · parte del ecosistema DEVISEBIT{dias.length ? <> · datos hasta {fechaCorta(dias[dias.length - 1].dia)}</> : null}</>}>
+        <a className="pc-btn" href="https://www.linkedin.com/in/me/" target="_blank" rel="noreferrer">Abrir el perfil</a>
+      </Head>
+      <Cuentas b={b} actual="julio" />
+      <div className="pc-kpis">
+        <Kpi k="Seguidores" v={seg?.seguidores != null ? fmt(seg.seguidores) : null} color="var(--li)" delta={<Delta v={suma("nuevos")} />} ft={seg ? `al ${fechaCorta(seg.dia)} · nuevos en 30 días` : "Subí la exportación del perfil"} serie={dias.filter((d) => d.seguidores != null).map((d) => d.seguidores!)} />
+        <Kpi k="Impresiones (30 días)" v={imp != null ? fmt(imp) : null} color="var(--violet)" serie={ult30.map((d) => d.impresiones ?? 0)} ft="de tus publicaciones" />
+        <Kpi k="Interacciones (30 días)" v={inter != null ? fmt(inter) : null} color="var(--ok)" ft={imp && inter != null ? `tasa ${fmt((inter / imp) * 100, 2)}%` : ""} />
+        <Kpi k="Publicaciones en el historial" v={fmt(posts.length)} ft={`${fmt(posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5).length)} en 30 días`} color="var(--li)" />
+      </div>
+      {ult30.some((d) => d.impresiones) && <div className="pc-card"><div className="pc-ch"><h2>Impresiones por día</h2></div><Columnas filas={ult30.map((d) => ({ k: d.dia, v: d.impresiones ?? 0 }))} color="var(--li)" titulo="Impresiones por día" /></div>}
+      <div className="pc-card">
+        <div className="pc-ch"><h2>Tus publicaciones</h2><a className="pc-btn" href={`${b}/publicaciones?red=linkedin_julio&periodo=365`}>Ver en el historial</a></div>
+        {posts.length ? (
+          <div className="pc-tw"><table>
+            <thead><tr><th>Fecha</th><th>Publicación</th><th className="n">Impresiones</th><th className="n">Reacciones</th><th className="n">Coment.</th><th className="n">Interacciones</th><th>Origen</th></tr></thead>
+            <tbody>{posts.slice(0, 60).map((p) => (
+              <tr key={p.id}><td>{p.fecha ? fechaCorta(p.fecha) : "—"}</td><td style={{ maxWidth: 420 }}>{p.url ? <a href={p.url} target="_blank" rel="noreferrer">{(p.texto || "(ver publicación)").slice(0, 130)}</a> : (p.texto || "(sin texto)").slice(0, 130)}</td>
+                <td className="n">{fmt(p.impresiones)}</td><td className="n">{fmt(p.me_gusta)}</td><td className="n">{fmt(p.comentarios)}</td><td className="n">{fmt(interacciones(p))}</td><td className="pc-muted" style={{ fontSize: 12 }}>{p.origen ?? ""}</td></tr>
+            ))}</tbody>
+          </table></div>
+        ) : <div className="pc-empty">Todavía no hay publicaciones del perfil. Se suman las que salen por Buffer y las de la exportación.</div>}
+      </div>
+      <SubirPerfil />
+      <Sec t="Buffer (perfil de Julio)" />
+      {li.ok ? (
+        <div className="pc-card"><div className="pc-mono" style={{ fontSize: 13 }}>{fmt(li.actual.posts)} publicaciones en 30 días · alcance {fmt(li.actual.alcance)} · impresiones {fmt(li.actual.impresiones)} · {fmt(li.actual.reacciones)} reacciones{li.actual.engagement != null ? ` · engagement ${fmt(li.actual.engagement, 1)}%` : ""}</div></div>
       ) : <SinDatos><b>Buffer sin datos.</b> {li.error === "sin_clave" ? "Falta la clave de Buffer (BUFFER_API_KEY)." : li.error}</SinDatos>}
     </>
   )
