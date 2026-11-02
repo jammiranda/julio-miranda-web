@@ -15,6 +15,8 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Los dominios técnicos de Vercel no deben mostrarse ni indexarse: todo va al sitio oficial
+      ...["devisebit.vercel.app", "devisebit1.vercel.app", "v0-fork-of-devisebit-clone.vercel.app"].map((h) => ({ source: "/:path*", has: [{ type: "host", value: h }], destination: "https://www.devisebit.com/:path*", permanent: true })),
       { source: "/precios", destination: "https://sistema.devisebit.com/lista-precios", permanent: false },
       { source: "/lista-precios", destination: "https://sistema.devisebit.com/lista-precios", permanent: false },
       // El autodiagnóstico estático pasó a /diagnostico (3 niveles): los links publicados (YouTube, LinkedIn, emails, bot) siguen andando
