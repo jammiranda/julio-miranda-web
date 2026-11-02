@@ -4,11 +4,11 @@ import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
 import Integracion from "@/components/integracion"
-import EscaleraMadurez from "@/components/escalera-madurez"
 import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
 import CintaProyectos from "@/components/cinta-proyectos"
 import FraseGrande from "@/components/frase-grande"
+import CaminoConsultoria from "@/components/camino-consultoria"
 
 const STATS = [
   { n: "17", c: 17, pre: "", l: "años de proyectos en producción" },
@@ -86,40 +86,7 @@ export default function HomePage() {
 
         <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Academia", "GCBA · BA Emprende"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
         <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
-        {/* Transformación digital (destacado, claro para cortar el ritmo oscuro) */}
-        <section id="transformacion" className="relative overflow-hidden bg-[#FFF4F2]">
-          <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
-          <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
-            <div className="flex flex-col gap-5">
-              <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Consultoría de Transformación Digital</p>
-              <h2 className="m-0 font-tight text-[36px] md:text-[54px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#0B0D12]">Tu organización, <span className="text-[#C8231F]">un nivel más arriba.</span></h2>
-              <p className="m-0 text-lg leading-relaxed text-[#3B424D] max-w-[600px]">Medimos en qué nivel de madurez digital está tu organización, armamos la hoja de ruta por etapas y la ponemos en marcha con tu equipo, con capacitación y certificado. Y te ayudamos a conseguir financiamiento para hacerlo.</p>
-              <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
-                {["Diagnóstico en 4 ejes", "Hoja de ruta con indicadores", "Pilotos en semanas", "Capacitación con certificado", "Gestión de financiamiento"].map((x) => (
-                  <li key={x} className="rounded-full border border-[#C8231F]/25 bg-white px-3.5 py-1.5 text-[14px] font-semibold text-[#7E1512]">{x}</li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Link href="/transformacion-digital" className="rounded-xl bg-[#0B0D12] hover:bg-[#1B2029] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
-                <Link href="/kit-digital" className="rounded-xl border-2 border-[#0B0D12] hover:bg-[#0B0D12] hover:text-white px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Kits DEVISEBIT + financiamiento</Link>
-              </div>
-              <p className="m-0 text-[16px] text-[#3B424D]">¿Preferís un equipo de tecnología por horas o por mes? <Link href="/asesoria" className="font-bold text-[#C8231F] underline underline-offset-4">Asesoría en tecnología e IA →</Link></p>
-            </div>
-            <div className="rounded-[28px] bg-white border border-[#F0C9C6] shadow-[0_30px_80px_-30px_rgba(200,35,31,.35)] p-6 md:p-8 flex flex-col gap-5">
-              <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#C8231F]">Escalera de madurez digital</p>
-              <EscaleraMadurez niveles={[["1", "Inicial", "28%"], ["2", "En orden", "52%"], ["3", "Integrado", "76%"], ["4", "Optimizado", "100%"]]} />
-              <ol className="m-0 p-0 list-none grid grid-cols-2 gap-2.5">
-                {[["Diagnóstico", "Dónde estás hoy"], ["Hoja de ruta", "Qué hacer y en qué orden"], ["Pilotos", "Resultados antes de invertir fuerte"], ["Capacitación", "Tu equipo adopta lo nuevo"]].map(([t, d], i) => (
-                  <li key={t} className="rounded-xl bg-[#F5F6F8] p-3.5 flex flex-col gap-0.5">
-                    <span className="text-[13px] font-extrabold text-[#C8231F]">{String(i + 1).padStart(2, "0")}</span>
-                    <strong className="text-[15px] text-[#0B0D12]">{t}</strong>
-                    <span className="text-[13.5px] text-[#4A515C] leading-snug">{d}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        </section>
+        <CaminoConsultoria />
 
         {/* Integración (la clave de la venta) */}
         <Integracion lang="es" />
