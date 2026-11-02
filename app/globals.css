@@ -211,3 +211,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 @keyframes kitpanel { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
 @keyframes kitchip { from { opacity: 0; transform: translateY(10px) scale(.96) } to { opacity: 1; transform: none } }
 @media (prefers-reduced-motion: reduce) { .kit-panel, .kit-chip { animation: none } }
+
+/* ===== Estilo preview: cinta de proyectos y menú píldora ===== */
+@keyframes cinta-corre { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+.cinta-carril { flex: 1; min-width: 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.cinta-pista { width: max-content; animation: cinta-corre 42s linear infinite; }
+.cinta:hover .cinta-pista { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .cinta-pista { animation: none; } }

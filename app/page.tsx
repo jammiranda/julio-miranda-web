@@ -7,6 +7,8 @@ import Integracion from "@/components/integracion"
 import EscaleraMadurez from "@/components/escalera-madurez"
 import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
 import YoutubeUltimos from "@/components/youtube-ultimos"
+import CintaProyectos from "@/components/cinta-proyectos"
+import FraseGrande from "@/components/frase-grande"
 
 const STATS = [
   { n: "17", c: 17, pre: "", l: "años de proyectos en producción" },
@@ -82,6 +84,8 @@ export default function HomePage() {
           <div className="db-scan"><i /></div>
         </section>
 
+        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Academia", "GCBA · BA Emprende"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
+        <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
         {/* Transformación digital (destacado, claro para cortar el ritmo oscuro) */}
         <section id="transformacion" className="relative overflow-hidden bg-[#FFF4F2]">
           <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
