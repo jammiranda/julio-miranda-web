@@ -12,7 +12,7 @@ export default function EscaleraMadurez({ niveles }: { niveles: [string, string,
     if (!el) return
     const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (quieto || !("IntersectionObserver" in window)) { setVisto(true); setActivo(niveles.length - 1); return }
-    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { setVisto(true); io.disconnect() } }, { threshold: 0.35 })
+    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { setVisto(true); io.disconnect() } }, { threshold: 0.05, rootMargin: "0px 0px -8% 0px" })
     io.observe(el)
     return () => io.disconnect()
   }, [niveles.length])
