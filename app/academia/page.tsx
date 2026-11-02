@@ -11,6 +11,7 @@ import Revelar from "./_ui/Revelar"
 import Cinta from "./_ui/Cinta"
 import Frase from "./_ui/Frase"
 import Flotantes from "./_ui/Flotantes"
+import RutaFlotante from "./_ui/RutaFlotante"
 
 export const dynamic = "force-dynamic"
 
@@ -50,6 +51,7 @@ export default async function Academia() {
   return (
     <main>
       <Revelar />
+      <RutaFlotante />
       {/* ── Hero ───────────────────────────────────────────── */}
       <section className="ficha-head bg-[#0E1116] text-white relative overflow-hidden">
         <Cinta etiqueta="Ahora en la Academia" items={[...cursos.slice(0, 5).map((c: any): [string, string] => ["Curso", c.titulo]), ...guias.slice(0, 5).map((g: any): [string, string] => ["Guía", g.titulo])]} />
