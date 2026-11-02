@@ -61,7 +61,8 @@ function numVistas(t: string): number | null {
 async function vistasDelCanal() {
   const pedir = (tab: string) => fetch(`${YT_URL}/${tab}`, { cache: "no-store", signal: AbortSignal.timeout(9000), headers: { "accept-language": "es-AR,es;q=0.9", "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130" } }).then((r) => (r.ok ? r.text() : "")).catch(() => "")
   const [vid, sho] = await Promise.all([pedir("videos"), pedir("shorts")])
-  const out = new Map<string, { titulo: string; vistas: number | null; corto: boolean }>()
+  const out = new Map<string, { titulo: string; vistas: number | null; corto: boolean }>() as Map<string, { titulo: string; vistas: number | null; corto: boolean }> & { suscriptores?: number | null }
+  out.suscriptores = numSubs(vid) ?? numSubs(sho)
   const des = (t: string) => t.replace(/\\u0026/g, "&").replace(/\\"/g, '"')
   for (const html of [vid, sho]) {
     for (const m of html.matchAll(/"entityId":"shorts-shelf-item-([\w-]{11})","accessibilityText":"((?:[^"\\]|\\.)*)"/g)) {
@@ -74,6 +75,36 @@ async function vistasDelCanal() {
     }
   }
   return out
+}
+
+type VideoYT = { id: string; titulo: string; fecha: string; corto: boolean; url: string; vistas: number | null; meGusta: number | null }
+type RespaldoYT = { suscriptores: number | null; videos: VideoYT[]; guardado: string }
+
+/** Último dato bueno del canal (lo guarda el panel cuando el feed responde, o la tarea diaria por /api/panel/redes). */
+async function leerRespaldoYouTube(): Promise<RespaldoYT | null> {
+  const r = await safe(one<{ valor: string }>("select valor from config where clave='yt_respaldo'"))
+  try { return r ? (JSON.parse(r.valor) as RespaldoYT) : null } catch { return null }
+}
+export async function guardarRespaldoYouTube(d: { suscriptores: number | null; videos: Partial<VideoYT>[] }) {
+  const videos: VideoYT[] = d.videos.filter((v) => v?.id).slice(0, 50).map((v) => {
+    const corto = !!v.corto
+    return { id: String(v.id), titulo: String(v.titulo ?? ""), fecha: String(v.fecha ?? ""), corto, url: v.url || (corto ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`), vistas: n(v.vistas), meGusta: n(v.meGusta) }
+  })
+  if (!videos.length) return 0
+  const previo = await leerRespaldoYouTube()
+  const valor: RespaldoYT = { suscriptores: n(d.suscriptores) ?? previo?.suscriptores ?? null, videos, guardado: new Date().toISOString() }
+  await q("insert into config(clave,valor) values ('yt_respaldo',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify(valor)])
+  return videos.length
+}
+
+/** "1 suscriptor" / "1,2 mil suscriptores" / "3 K subscribers" → número. */
+function numSubs(html: string): number | null {
+  const t = html.match(/"([\d.,]+\s*(?:mil|k|m)?)\s*(?:suscriptor(?:es)?|subscribers?)"/i)?.[1]
+  if (!t) return null
+  const s = t.toLowerCase().replace(/\s/g, "")
+  const base = parseFloat(s.replace(/mil|k|m/g, "").replace(/\./g, "").replace(",", "."))
+  if (!Number.isFinite(base)) return null
+  return Math.round(/mil|k/.test(s) ? base * 1e3 : /m/.test(s) ? base * 1e6 : base)
 }
 
 /** YouTube por el feed público (sin claves): últimos videos con vistas y me gusta; suscriptores si la página los muestra. */
@@ -96,13 +127,23 @@ export async function youtube() {
       meGusta: n(e.match(/<media:starRating count="(\d+)"/)?.[1]),
     }
   }).filter((v) => v.id)
-  // Vistas desde las páginas públicas del canal (el feed RSS de YouTube a veces responde 404 y no trae vistas)
-  const pag = await vistasDelCanal().catch(() => new Map<string, { titulo: string; vistas: number | null; corto: boolean }>())
-  if (!videos.length && pag.size) videos = [...pag.entries()].map(([id, v]) => ({ id, titulo: v.titulo, fecha: "", corto: v.corto, url: v.corto ? `https://www.youtube.com/shorts/${id}` : `https://www.youtube.com/watch?v=${id}`, vistas: v.vistas, meGusta: null }))
+  const desdeFeed = videos.length > 0
+  // Vistas desde las páginas públicas del canal (el feed RSS de YouTube a menudo no responde a los servidores de Vercel)
+  const pag = await vistasDelCanal().catch(() => null)
+  const respaldo = desdeFeed ? null : await leerRespaldoYouTube()
+  if (!videos.length && respaldo?.videos.length) videos = respaldo.videos.map((v) => ({ ...v }))
+  // Videos que muestra la página pública y no están en la lista (más nuevos que el respaldo)
+  if (pag?.size) for (const [id, v] of pag.entries()) if (!videos.some((x) => x.id === id)) videos.push({ id, titulo: v.titulo, fecha: "", corto: v.corto, url: v.corto ? `https://www.youtube.com/shorts/${id}` : `https://www.youtube.com/watch?v=${id}`, vistas: v.vistas, meGusta: null })
   if (!videos.length) videos = VIDEOS_BASE.map((v) => ({ ...v, url: v.corto ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`, vistas: null, meGusta: null }))
-  videos = videos.map((v) => (v.vistas == null && pag.get(v.id) ? { ...v, vistas: pag.get(v.id)!.vistas } : v))
-  const subTxt = canal.match(/"([\d.,]+\s*(?:mil\s*)?(?:K\s*)?)\s*(?:suscriptores|subscribers)"/i)?.[1] ?? null
-  const subs = subTxt ? (() => { const s = subTxt.toLowerCase().replace(/\s/g, ""); const base = parseFloat(s.replace(/mil|k/g, "").replace(/\./g, "").replace(",", ".")); return Number.isFinite(base) ? Math.round(/mil|k/.test(s) ? base * 1000 : base) : null })() : null
+  // Fechas que falten: del respaldo o de la lista base
+  const fechaDe = (id: string) => respaldo?.videos.find((x) => x.id === id)?.fecha || VIDEOS_BASE.find((x) => x.id === id)?.fecha || ""
+  videos = videos.map((v) => {
+    const pv = pag?.get(v.id)
+    return { ...v, fecha: v.fecha || fechaDe(v.id), vistas: pv?.vistas != null && (v.vistas == null || pv.vistas > v.vistas) ? pv.vistas : v.vistas }
+  })
+  videos.sort((a, b) => (b.fecha || "9").localeCompare(a.fecha || "9"))
+  const subs = numSubs(canal) ?? pag?.suscriptores ?? respaldo?.suscriptores ?? null
+  if (desdeFeed) await guardarRespaldoYouTube({ suscriptores: subs, videos }).catch(() => {})
   const d30 = videos.filter((v) => v.fecha && Date.now() - new Date(v.fecha).getTime() < 30 * 864e5)
   const suma = (a: typeof videos, k: "vistas" | "meGusta") => (a.some((v) => v[k] != null) ? a.reduce((s, v) => s + (v[k] ?? 0), 0) : null)
   return {
@@ -116,7 +157,7 @@ export async function youtube() {
     meGusta: suma(videos, "meGusta"),
     ultimo: videos[0]?.fecha ?? null,
     lista: videos.slice(0, 10),
-    nota: "Datos del feed público de YouTube (últimos 15 videos). Vistas y me gusta por video; suscriptores si YouTube los muestra.",
+    nota: desdeFeed ? "Datos del feed público de YouTube (últimos 15 videos). Vistas y me gusta por video; suscriptores según la página del canal." : `YouTube no respondió el feed a este servidor: se muestran las vistas de la página del canal y el último dato guardado${respaldo?.guardado ? ` (${new Date(respaldo.guardado).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })})` : ""}.`,
   }
 }
 

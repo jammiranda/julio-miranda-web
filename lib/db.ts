@@ -273,6 +273,9 @@ create table if not exists ads_diario (
   impresiones int not null default 0, clics int not null default 0, conversiones numeric not null default 0, actualizado timestamptz not null default now(),
   primary key (plataforma, fecha, campania_id, campania)
 );
+create table if not exists pc_fb_diario (
+  dia date primary key, seguidores int, nuevos int, perdidos int, vistas_pagina int, vistas_contenido int, publicaciones int, interacciones int, actualizado timestamptz not null default now()
+);
 create table if not exists demo_diagnosticos (
   id serial primary key, email text not null, nombre text, organizacion text, telefono text, puntaje int, nivel text,
   dimensiones jsonb, prioridades jsonb, respuestas jsonb, marca text, origen text, contacto_id int references db_contactos(id) on delete set null,
