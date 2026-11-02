@@ -19,12 +19,12 @@ export const Barra = ({ pct, label }: { pct: number; label: string }) => (
   </div>
 )
 
-const Candado = ({ className = "w-4 h-4" }: { className?: string }) => (
+export const Candado = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" /><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" /></svg>
 )
 
 /** Dónde se compra el curso completo (desde el portal va a la Academia). */
-const urlCompra = (base: BaseAula, slug: string) => `${base === "/mi-cuenta/cursos" ? "" : URL_ACADEMIA}/cursos/${slug}#inscripcion`
+export const urlCompra = (base: BaseAula, slug: string) => `${base === "/mi-cuenta/cursos" ? "" : URL_ACADEMIA}/cursos/${slug}#inscripcion`
 
 /**
  * Llamado para pasar del módulo gratis al curso completo: precio en pesos y dólares, cuotas y qué se desbloquea.
