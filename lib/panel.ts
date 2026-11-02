@@ -170,7 +170,7 @@ export async function panelWeb() {
 }
 
 /** YouTube con caché de 15 minutos (para el panel). */
-export const youtubeCache = unstable_cache(() => youtube(), ["pc-youtube"], { revalidate: 900 })
+export const youtubeCache = unstable_cache(() => youtube(), ["pc-youtube-v2"], { revalidate: 900 })
 
 /** Cifras de la base: visitas, CRM, usuarios y Academia. */
 export async function panelMetricas() {

@@ -107,4 +107,4 @@ export async function guardarRespaldoPosts(posts: Partial<PostPublicado>[]) {
 }
 
 /** Con caché de 15 minutos (para el panel). */
-export const publicacionesYouTubeCache = unstable_cache(() => publicacionesYouTube(), ["pc-yt-publicaciones"], { revalidate: 900 })
+export const publicacionesYouTubeCache = unstable_cache(() => publicacionesYouTube(), ["pc-yt-publicaciones-v2"], { revalidate: 900 })
