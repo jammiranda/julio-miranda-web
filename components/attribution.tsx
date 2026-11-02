@@ -32,6 +32,8 @@ export default function Attribution() {
     const alClic = (e: MouseEvent) => {
       const a = (e.target as HTMLElement | null)?.closest?.("a[href*='wa.me'], a[href*='api.whatsapp.com']") as HTMLAnchorElement | null
       if (!a) return
+      // Medición: todo clic a WhatsApp cuenta como conversión de Google Ads (y como Contacto en Meta si hay pixel)
+      try { const w = window as any; w.gtag?.("event", "conversion", { send_to: "AW-10953063902/pk_YCMaLpaodEN776eYo" }); w.gtag?.("event", "contacto_whatsapp"); w.fbq?.("track", "Contact") } catch {}
       const c = codigo(leerOrigen())
       if (!c) return
       try {
