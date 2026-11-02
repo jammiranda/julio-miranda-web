@@ -46,7 +46,7 @@ export const FICHAS: Ficha[] = [
     incluye: ["Diseño UX/UI y prototipo navegable antes de programar", "App iOS y Android publicada en las tiendas", "Notificaciones push y credencial digital", "Panel web de administración", "Métricas de uso"],
     plus: "Antes de programar ves y probás un prototipo navegable: decidís sobre algo concreto, no sobre una idea.",
     etapas: [{ n: "Primera versión", d: "Lo esencial publicado en las tiendas" }, { n: "Evolución", d: "Nuevas funciones según el uso real" }],
-    caso: { t: "App Soy Tigre · Municipio de Tigre", d: "Desarrollo y soporte, registro de comercios adheridos y alta de usuarios de las tarjetas Soy Tigre y Soy Tigre Joven." },
+    caso: { t: "App Soy Tigre · Municipio de Tigre", d: "Más de 80.000 vecinos suscriptos. Desarrollo y soporte, registro de comercios adheridos y alta de usuarios de las tarjetas Soy Tigre y Soy Tigre Joven." },
     ideal: "Municipios, gremios, mutuales y empresas con una comunidad grande de usuarios.",
   },
   {
@@ -100,7 +100,7 @@ export const FICHAS: Ficha[] = [
     incluye: ["Credencial digital con QR", "Beneficios y comercios adheridos", "Novedades y avisos push", "iOS y Android", "Panel de administración"],
     plus: "El QR de la credencial sirve también para control de acceso en eventos y sedes.",
     etapas: [{ n: "Credencial", d: "App publicada con credencial y beneficios" }, { n: "Comunidad", d: "Eventos, encuestas y acceso con QR" }],
-    caso: { t: "App Soy Tigre", d: "Tarjetas digitales Soy Tigre y Soy Tigre Joven con comercios adheridos." },
+    caso: { t: "App Soy Tigre", d: "Más de 80.000 vecinos suscriptos: tarjetas digitales Soy Tigre y Soy Tigre Joven con más de 500 comercios adheridos." },
     ideal: "Gremios, clubes, mutuales, municipios y empresas con programas de beneficios.",
   },
   {
