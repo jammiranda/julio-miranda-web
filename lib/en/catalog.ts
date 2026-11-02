@@ -27,7 +27,7 @@ export const SERVICES = [
     title: "Custom software development",
     text: "Software, apps and websites designed around your real processes, with fixed scope, date and price.",
     items: ["Web-based management systems", "iOS and Android apps", "Websites connected to your systems", "Integrations with the tools you already use"],
-    caso: "Soy Tigre app for the Municipality of Tigre (Buenos Aires province)",
+    caso: "Soy Tigre app for the Municipality of Tigre, Buenos Aires province (80,000+ subscribed residents)",
   },
   {
     id: "ia",

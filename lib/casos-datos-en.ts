@@ -9,6 +9,19 @@ export const SECTORES_EN = [
 
 export const CASOS_EN = [
   {
+    id: 5,
+    sector: "gobierno",
+    category: "Technology Development and IT Project Management",
+    title: "Municipality of Tigre · Soy Tigre app",
+    client: "Municipality of Tigre (Argentina)",
+    industry: "Municipal Government",
+    challenge: "Development and support of the municipality's mobile app, including registration of participating shops and enrollment of users for the “Soy Tigre” and “Soy Tigre Joven” (youth) cards.",
+    service: "Software development, testing and debugging, updates and maintenance, technical support, monitoring and analysis. Git, Firebase Console, ESLint, Prettier. Cybersecurity. UX/UI. Agile Scrum.",
+    achievements: "Over 80,000 residents subscribed to the app. More than 500 participating shops across the district. Soy Tigre and Soy Tigre Joven cards issued digitally.",
+    image: "/images/case-tigre-new.webp",
+    technologies: ["React Native", "Firebase", "Git", "UX/UI", "Cybersecurity"],
+  },
+  {
     id: 1,
     sector: "gobierno",
     category: "IT Project Management and Data Analytics",
@@ -59,19 +72,6 @@ export const CASOS_EN = [
     achievements: "Modernized tooling. Faster delivery. Better organization. Timely, up-to-date information.",
     image: "/images/case-tsgroup-new.webp",
     technologies: ["Microsoft Power BI", "UX/UI", "Agile Scrum", "Data Analysis"],
-  },
-  {
-    id: 5,
-    sector: "gobierno",
-    category: "Technology Development and IT Project Management",
-    title: "Municipality of Tigre · Soy Tigre app",
-    client: "Municipality of Tigre (Argentina)",
-    industry: "Municipal Government",
-    challenge: "Development and support of the municipality's mobile app, including registration of participating shops and enrollment of users for the “Soy Tigre” and “Soy Tigre Joven” (youth) cards.",
-    service: "Software development, testing and debugging, updates and maintenance, technical support, monitoring and analysis. Git, Firebase Console, ESLint, Prettier. Cybersecurity. UX/UI. Agile Scrum.",
-    achievements: "Innovation and modernized tooling. Faster delivery. Better organization. Timely, up-to-date information.",
-    image: "/images/case-tigre-new.webp",
-    technologies: ["React Native", "Firebase", "Git", "UX/UI", "Cybersecurity"],
   },
   {
     id: 6,

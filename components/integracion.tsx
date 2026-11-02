@@ -26,7 +26,7 @@ const T = {
       ["17", "años integrando sistemas"],
       ["1", "responsable por proyecto"],
     ],
-    caso: "Academia BA Emprende (Gobierno de la Ciudad): WordPress, Moodle y CRM unificados con un solo ingreso. Municipio de Tigre: app, comercios y tarjetas conectados en una sola gestión.",
+    caso: "Academia BA Emprende (Gobierno de la Ciudad): WordPress, Moodle y CRM unificados con un solo ingreso. Municipio de Tigre: app, comercios y tarjetas conectados en una sola gestión, para más de 80.000 vecinos.",
     garT: "Nuestro método de integración",
     gar: [
       ["Mapa", "Antes de tocar nada, relevamos qué sistemas, datos y personas intervienen y qué se conecta con qué."],
@@ -62,7 +62,7 @@ const T = {
       ["17", "years integrating systems"],
       ["1", "accountable lead per project"],
     ],
-    caso: "Academia BA Emprende (City of Buenos Aires): WordPress, Moodle and CRM unified behind a single sign-on. Municipality of Tigre: app, merchants and cards connected in one operation.",
+    caso: "Academia BA Emprende (City of Buenos Aires): WordPress, Moodle and CRM unified behind a single sign-on. Municipality of Tigre: app, merchants and cards connected in one operation, for 80,000+ residents.",
     garT: "Our integration method",
     gar: [
       ["Map", "Before touching anything, we map the systems, data and people involved and what connects to what."],

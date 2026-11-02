@@ -30,7 +30,7 @@ export const GALAXIAS: Galaxia[] = [
     color: "#FF6A63",
     pos: [-14, 3, -4],
     nodos: [
-      { id: "tigre", t: "Municipio de Tigre · app Soy Tigre", d: "Desarrollo y soporte de la app municipal: registro de comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven.", cliente: "Municipio de Tigre", tags: ["React Native", "Firebase", "Ciberseguridad"], destacado: true },
+      { id: "tigre", t: "Municipio de Tigre · app Soy Tigre", d: "Desarrollo y soporte de la app municipal, con más de 80.000 vecinos suscriptos: registro de comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven.", cliente: "Municipio de Tigre", tags: ["React Native", "Firebase", "Ciberseguridad"], destacado: true },
       { id: "ba-emprende", t: "GCBA · Academia BA Emprende", d: "Oferta académica online para emprendedores, con WordPress y Moodle unificados por SSO y conexión a CRM.", cliente: "Gobierno de la Ciudad de Buenos Aires", tags: ["WordPress", "Moodle", "SSO", "CRM"], destacado: true },
       { id: "cmd", t: "GCBA · CMD y BA Laboratorio Tecnológico", d: "Gestión operativa y tecnológica del Centro Metropolitano de Diseño (14.000 m²) y del laboratorio tecnológico de la Ciudad.", cliente: "Gobierno de la Ciudad de Buenos Aires", destacado: true },
       { id: "ambiente", t: "Ministerio de Ambiente de la Nación", d: "Red Federal de Monitoreo Ambiental y sistemas de trazabilidad de residuos, con coordinación tecnológica nacional.", cliente: "Ministerio de Ambiente de la Nación", hecho: "Implementadas en todas las provincias", destacado: true },

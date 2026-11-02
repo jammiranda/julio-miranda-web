@@ -34,8 +34,8 @@ const PRODUCTS = [
 ]
 
 const CASES = [
+  { img: "/images/case-tigre-new.webp", tag: "Municipal government", title: "Municipality of Tigre · Soy Tigre app", text: "Over 80,000 residents subscribed. Development and support of the municipal app: 500+ participating businesses and issuance of the Soy Tigre and Soy Tigre Joven citizen cards." },
   { img: "https://julio.devisebit.com/media/trabajos/plataforma-academia.jpg", tag: "Community and academy", title: "USL Community · Academy", text: "An online community and academy: courses, enrollment, benefits and member registry in one panel. Over 1,000 people enrolled in a year." },
-  { img: "/images/case-tigre-new.webp", tag: "Municipal government", title: "Municipality of Tigre · Soy Tigre app", text: "App development and support: participating businesses and issuance of the Soy Tigre and Soy Tigre Joven citizen cards." },
   { img: "/images/case-academia-new.webp", tag: "Government and education", title: "City of Buenos Aires · BA Emprende Academy", text: "Online course catalog for the city's entrepreneurs: WordPress and Moodle unified under a single login and connected to the CRM." },
 ]
 
