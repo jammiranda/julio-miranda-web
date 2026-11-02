@@ -2,6 +2,46 @@ export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: st
 
 export const posts: Post[] = [
   {
+    "slug": "ciberseguridad-2026-identidad-cuentas-pymes",
+    "seoTitle": "Ciberseguridad 2026: la puerta es la cuenta",
+    "seoDesc": "Argentina es sexta en las Américas por impacto de actividad cibernética, según Microsoft. Por qué proteger cuentas e identidades es la prioridad.",
+    "date": "2026-11-02",
+    "dateTxt": "2 de noviembre de 2026",
+    "kicker": "Ciberseguridad",
+    "title": "Ciberseguridad en 2026: los atacantes ya no rompen la puerta, entran con tu contraseña",
+    "desc": "El informe anual de defensa digital de Microsoft ubica a la Argentina sexta en las Américas por impacto de actividad cibernética. La prioridad para empresas y organismos: proteger las cuentas.",
+    "body": [
+      "Microsoft publicó en octubre la séptima edición de su Digital Defense Report, que analiza las amenazas detectadas entre el 1 de julio de 2025 y el 30 de junio de 2026 a partir de más de 165 billones de señales de seguridad que la compañía procesa cada día. La Argentina aparece en el puesto 40 a nivel mundial y sexta en las Américas entre los países cuyos clientes fueron afectados con mayor frecuencia por actividad cibernética.",
+      "El ranking no mide cuántos ataques recibe el país ni qué tan segura es su infraestructura, pero confirma una tendencia que se repite en otros relevamientos. Según Check Point Research, en marzo de 2026 cada organización argentina recibió en promedio 2.470 intentos de ataque por semana, un 2% más que un año antes, mientras que América Latina fue la región con mayor volumen del mundo.",
+      "El dato más útil del informe de Microsoft no es el ranking, sino cómo entran los atacantes. El phishing, es decir los mensajes falsos que buscan que alguien haga clic o entregue sus datos, explicó el 23% de las intrusiones observadas a nivel global. Y en más de la mitad de los casos en que se comprometió una cuenta, los atacantes la usaron para robar más credenciales. Una sola contraseña filtrada alcanza para abrir el correo, el sistema de gestión, la nube y, desde ahí, llegar a clientes y proveedores.",
+      "La inteligencia artificial acelera ese proceso. Los mensajes de phishing ya no llegan con errores de ortografía: están bien redactados y mencionan bancos, trámites o proveedores reales. Además, el informe advierte que el tiempo entre que se descubre una vulnerabilidad y se la explota puede ser inferior a 24 horas, lo que deja poco margen para actualizar los sistemas.",
+      "Hay un frente nuevo que las empresas suelen pasar por alto: el uso cotidiano de herramientas de IA generativa. Check Point detectó que 1 de cada 28 consultas enviadas desde entornos corporativos implicaba un riesgo alto de fuga de información confidencial, y que cada organización usa en promedio nueve herramientas distintas.",
+      "Las recomendaciones de Microsoft se ordenan en tres prioridades: proteger las identidades, responder más rápido y estar preparados para recuperarse. En la práctica, eso significa activar la verificación en dos pasos en todas las cuentas, reducir la dependencia de las contraseñas, cuidar especialmente a los usuarios con más permisos, mantener los sistemas actualizados y probar de vez en cuando el plan de respaldo.",
+      "Qué significa para tu empresa: la ciberseguridad no empieza por comprar un antivirus más caro, sino por saber quién entra a cada sistema y con qué permisos. Para una pyme, una clínica o un organismo, el primer paso es inventariar las cuentas, cerrar las que nadie usa, exigir doble factor y definir qué información puede cargarse en herramientas de IA. En DEVISEBIT desarrollamos sistemas con accesos por rol, registro de actividad y respaldos desde el diseño, para que la seguridad no dependa de la memoria de nadie. Conocé cómo trabajamos en www.devisebit.com/sistemas."
+    ],
+    "box": [
+      "¿Todas las cuentas de tu empresa tienen verificación en dos pasos?",
+      "¿Sabés quién tiene acceso a cada sistema y con qué permisos?",
+      "¿Cerrás las cuentas cuando alguien deja la empresa?",
+      "¿Tu equipo sabe qué datos no debe cargar en herramientas de IA?",
+      "¿Probaste alguna vez recuperar tu información desde un respaldo?"
+    ],
+    "sources": [
+      {
+        "t": "Infobae: Argentina se ubica sexta en las Américas por impacto de actividad cibernética (09/10/2026)",
+        "u": "https://www.infobae.com/tecno/2026/10/09/argentina-se-ubica-sexta-en-las-americas-por-impacto-de-actividad-cibernetica-nuevas-dinamicas-de-amenazas-digitales/"
+      },
+      {
+        "t": "Infosertecla: Microsoft Digital Defense Report 2026, Argentina sexta en las Américas (10/10/2026)",
+        "u": "https://infosertecla.com/2026/10/10/microsoft-digital-defense-report-2026-argentina/"
+      },
+      {
+        "t": "ITSitio: ciberataques en Argentina crecen un 2% y superan los 2.400 intentos semanales por organización (13/04/2026)",
+        "u": "https://www.itsitio.com/ar/seguridad/ciberataques-en-argentina-crecen-un-2-y-superan-los-2400-intentos-semanales-por-organizacion/"
+      }
+    ]
+  },
+  {
     slug: "salud-digital-2026-interoperabilidad",
     seoTitle: "Salud digital 2026: sistemas que se hablan",
     date: "2026-10-21",
