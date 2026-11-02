@@ -6,8 +6,6 @@ import { salirCuenta } from "@/lib/ingreso"
 
 type Yo = { cuenta: { nombre: string; email: string } | null; sistema: boolean; autor?: boolean }
 
-const PORTAL = "https://portal.devisebit.com"
-
 /** Quién mira la Academia (alumno y/o equipo). Se pide desde el navegador para que las páginas públicas sigan siendo cacheables. */
 function useYo() {
   const [yo, setYo] = useState<Yo | null>(null)
@@ -45,7 +43,6 @@ function opciones(yo: Yo) {
     ] : []),
     ...(yo.cuenta && yo.autor ? [{ href: "/autor", t: "Panel de autor", d: "Tus cursos como docente" }] : []),
     ...(yo.sistema ? [{ href: "/sistema", t: "Sistema Academia", d: "Gestión interna (equipo)", equipo: true }] : []),
-    ...(yo.cuenta ? [{ href: PORTAL, t: "DEVISEBIT Mi cuenta ↗", d: "Proyectos, pagos y facturas", secundario: true }] : []),
   ] as { href: string; t: string; d: string; equipo?: boolean; secundario?: boolean }[]
 }
 

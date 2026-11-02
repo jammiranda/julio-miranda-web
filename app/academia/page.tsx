@@ -111,9 +111,10 @@ export default async function Academia() {
             </div>
             <Link href="/cursos" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[#B91F1B] hover:underline">Ver los {n.cursos} cursos <Flecha /></Link>
           </div>
-          <ul className="acad-riel -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:pb-0 m-0 mt-7 p-0 list-none sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" aria-label="Cursos">
-            {cursos.map((c, i) => <li key={c.slug} className="w-[84%] sm:w-auto"><TarjetaCurso c={c} i={i} /></li>)}
+          <ul className="m-0 mt-7 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" aria-label="Cursos">
+            {cursos.map((c, i) => <li key={c.slug} className={i > 2 ? "hidden sm:block" : ""}><TarjetaCurso c={c} i={i} /></li>)}
           </ul>
+          {cursos.length > 3 && <Link href="/cursos" className="sm:hidden mt-5 flex items-center justify-center gap-2 min-h-[52px] rounded-xl bg-[#C8231F] text-white font-bold no-underline">Ver los {n.cursos} cursos <Flecha /></Link>}
         </section>
       )}
 

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { q } from "@/lib/db"
-import { requerirAlumno, urlPortal } from "@/lib/portal"
+import { requerirAlumno } from "@/lib/portal"
 import { misInscripciones, proximasClasesDe, comprasDe, modalidad } from "@/lib/cursos"
 import { salirCuenta } from "@/lib/ingreso"
 import { TarjetasCursos, Certificados, fh } from "@/components/aula/Aula"
@@ -88,10 +88,6 @@ export default async function MiCuentaAcademia() {
           </div>
         </section>
       )}
-
-      <p className="m-0 text-sm text-[#4A515C] border-t border-[#E2E5EA] pt-4">
-        ¿Trabajás con DEVISEBIT en un proyecto? <a href={urlPortal()} className="underline">DEVISEBIT Mi cuenta (proyectos, pagos y facturas) ↗</a> · Es la misma cuenta, no tenés que volver a ingresar.
-      </p>
     </div>
   )
 }
