@@ -336,3 +336,15 @@ html:has(.acad) { scroll-padding-top: 5rem; }
 .drop.sobre { border-color: var(--ac); background: var(--ac-suave); }
 .drop .barra { height: 6px; border-radius: 99px; background: var(--borde); overflow: hidden; flex: 1 1 160px; }
 .drop .barra i { display: block; height: 100%; background: var(--ac); transition: width .2s; }
+
+/* ===== Academia: estilo preview (cinta, objetos flotantes, píldora) ===== */
+@keyframes acad-corre { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@keyframes acad-flota { 0%, 100% { transform: translateY(0) rotate(-4deg) } 50% { transform: translateY(-14px) rotate(4deg) } }
+.acad .acad-carril { -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.acad .acad-pista { width: max-content; animation: acad-corre 46s linear infinite; }
+.acad .acad-cinta:hover .acad-pista { animation-play-state: paused; }
+.acad .acad-flota { animation: acad-flota 7s ease-in-out infinite; filter: drop-shadow(0 18px 22px rgba(0,0,0,.35)); }
+@media (prefers-reduced-motion: reduce) { .acad .acad-pista, .acad .acad-flota { animation: none; } }
+@media (min-width: 1024px) {
+  .acad .pildora { width: fit-content; max-width: calc(100vw - 24px); height: 58px; margin-top: 10px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.15); background: rgba(14,17,22,.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 14px 40px rgba(0,0,0,.35); padding-left: 20px !important; padding-right: 10px !important; pointer-events: auto; }
+}

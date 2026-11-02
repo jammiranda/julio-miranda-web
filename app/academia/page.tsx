@@ -8,6 +8,9 @@ import { PROGRAMAS } from "@/lib/programas"
 import { portada } from "@/lib/portadas"
 import TarjetaCurso from "./_ui/TarjetaCurso"
 import Revelar from "./_ui/Revelar"
+import Cinta from "./_ui/Cinta"
+import Frase from "./_ui/Frase"
+import Flotantes from "./_ui/Flotantes"
 
 export const dynamic = "force-dynamic"
 
@@ -49,6 +52,8 @@ export default async function Academia() {
       <Revelar />
       {/* ── Hero ───────────────────────────────────────────── */}
       <section className="ficha-head bg-[#0E1116] text-white relative overflow-hidden">
+        <Cinta etiqueta="Ahora en la Academia" items={[...cursos.slice(0, 5).map((c: any): [string, string] => ["Curso", c.titulo]), ...guias.slice(0, 5).map((g: any): [string, string] => ["Guía", g.titulo])]} />
+        <Flotantes />
         <svg aria-hidden="true" className="absolute inset-0 w-full h-full opacity-[.35]" preserveAspectRatio="none"><defs><pattern id="trama" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="rgba(255,255,255,.18)" /></pattern></defs><rect width="100%" height="100%" fill="url(#trama)" /></svg>
         <div aria-hidden="true" className="absolute -right-48 -top-48 w-[640px] h-[640px] rounded-full" style={{ background: "radial-gradient(circle, rgba(200,35,31,.5), transparent 62%)" }} />
         <div className="relative max-w-6xl mx-auto px-4 pt-10 pb-28 sm:pt-16 sm:pb-36 lg:pt-20 lg:pb-40 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-6 items-center">
@@ -90,6 +95,8 @@ export default async function Academia() {
           ))}
         </ul>
       </nav>
+
+      <Frase fondo="#F5F6F8" kicker="Aprender a tu ritmo" texto="Aprender IA no tiene que ser [complicado]. Cursos, guías y programas hechos por el equipo que la implementa todos los días en empresas, gremios y gobiernos. Vos ponés el ritmo." />
 
       {/* ── Cursos (rojo) ─────────────────────────────────── */}
       {cursos.length > 0 && (
