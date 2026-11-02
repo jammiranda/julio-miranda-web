@@ -5,7 +5,7 @@ import { q } from "./db"
  * El sistema no tiene acceso directo a la API de páginas de Meta: los datos llegan desde Metricool
  * (marca devisebit, red Facebook) por la ingesta POST /api/panel/redes, que corre una tarea programada cada día.
  */
-export const FB_PAGINA_ID = "791385181251883"
+export const FB_PAGINA_ID = "1870138854629676"
 export const FB_URL = `https://www.facebook.com/${FB_PAGINA_ID}`
 
 export type FilaFB = { dia: string; seguidores?: number | null; nuevos?: number | null; perdidos?: number | null; vistas_pagina?: number | null; vistas_contenido?: number | null; publicaciones?: number | null; interacciones?: number | null }

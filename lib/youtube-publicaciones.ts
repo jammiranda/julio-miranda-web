@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache"
 import { YT_URL } from "@/lib/youtube"
 import { q, one } from "@/lib/db"
+import { guardarPublicaciones, fechaDesdeHace } from "@/lib/publicaciones"
 
 /**
  * Publicaciones de la pestaña "Publicaciones" del canal de YouTube de DEVISEBIT.
@@ -103,6 +104,7 @@ export async function guardarRespaldoPosts(posts: Partial<PostPublicado>[]) {
   const limpio = posts.filter((p) => p?.id).slice(0, 50).map((p) => ({ id: String(p.id), texto: String(p.texto ?? "").slice(0, 280), hace: String(p.hace ?? ""), meGusta: p.meGusta ?? 0, comentarios: p.comentarios ?? null, votos: p.votos ?? null, tipo: String(p.tipo ?? "Texto"), url: p.url || `https://www.youtube.com/post/${p.id}` }))
   if (!limpio.length) return 0
   await q("insert into config(clave,valor) values ('yt_posts_respaldo',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify({ posts: limpio, guardado: new Date().toISOString() })])
+  await guardarPublicaciones(limpio.map((p) => ({ red: "youtube_post", id: p.id, fecha: fechaDesdeHace(p.hace), texto: p.texto, tipo: p.tipo, url: p.url, me_gusta: p.meGusta, comentarios: p.comentarios, votos: p.votos })), "YouTube").catch(() => {})
   return limpio.length
 }
 

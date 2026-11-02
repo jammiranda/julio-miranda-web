@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache"
 import { q } from "./db"
 import { cuentaIG } from "./whatsapp"
+import { guardarPublicaciones } from "./publicaciones"
 
 /**
  * Instagram de DEVISEBIT para el Panel de Contenido (API de Instagram con inicio de sesión de Instagram).
@@ -56,6 +57,20 @@ export async function instagram(): Promise<DatosIG> {
   }
 }
 
+/** Guarda en el historial todas las publicaciones que devuelve la API (pagina hasta `max`). */
+export async function sincronizarPublicacionesIG(max = 300) {
+  const campos = "id,caption,media_type,timestamp,like_count,comments_count,permalink"
+  let ruta: string | null = `me/media?fields=${campos}&limit=100`
+  const todas: any[] = []
+  while (ruta && todas.length < max) {
+    const j: any = await pedir(ruta)
+    todas.push(...(j.data ?? []))
+    const sig: string | undefined = j.paging?.next
+    ruta = sig ? sig.replace(/^https:\/\/graph\.instagram\.com\/[^/]+\//, "").replace(/([?&])access_token=[^&]*&?/, "$1").replace(/[?&]$/, "") : null
+  }
+  return guardarPublicaciones(todas.map((x) => ({ red: "instagram", id: String(x.id), fecha: x.timestamp ?? null, texto: String(x.caption ?? ""), tipo: x.media_type ?? null, url: x.permalink ?? null, me_gusta: x.like_count, comentarios: x.comments_count })), "API de Instagram")
+}
+
 /** Engagement aproximado de una publicación, en %. */
 export const engagement = (p: PostIG, seguidores: number) => (seguidores > 0 && (p.meGusta != null || p.comentarios != null) ? (((p.meGusta ?? 0) + (p.comentarios ?? 0)) / seguidores) * 100 : null)
 
@@ -73,7 +88,8 @@ export async function registrarSeguidores(perfil?: PerfilIG) {
      where pc_ig_seguidores.seguidores is distinct from excluded.seguidores or pc_ig_seguidores.publicaciones is distinct from excluded.publicaciones`,
     [p.seguidores, p.siguiendo, p.publicaciones],
   )
-  return `instagram: ${p.seguidores} seguidores`
+  const pubs = await sincronizarPublicacionesIG().catch((e) => `error ${String(e?.message ?? e).slice(0, 80)}`)
+  return `instagram: ${p.seguidores} seguidores · ${pubs} publicaciones en el historial`
 }
 
 /** Evolución de seguidores (fotos diarias guardadas). */

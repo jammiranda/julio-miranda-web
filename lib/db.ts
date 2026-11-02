@@ -276,6 +276,17 @@ create table if not exists ads_diario (
 create table if not exists pc_fb_diario (
   dia date primary key, seguidores int, nuevos int, perdidos int, vistas_pagina int, vistas_contenido int, publicaciones int, interacciones int, actualizado timestamptz not null default now()
 );
+create table if not exists pc_publicaciones (
+  red text not null, id text not null, fecha timestamptz, texto text not null default '', tipo text, url text,
+  me_gusta int, comentarios int, compartidos int, alcance int, impresiones int, vistas int, clics int, votos int, interacciones int,
+  origen text, primera_vez timestamptz not null default now(), actualizado timestamptz not null default now(),
+  primary key (red, id)
+);
+create index if not exists pc_publicaciones_fecha on pc_publicaciones(fecha desc);
+create table if not exists pc_red_diario (
+  red text not null, dia date not null, seguidores int, nuevos int, impresiones int, alcance int, interacciones int, publicaciones int,
+  actualizado timestamptz not null default now(), primary key (red, dia)
+);
 create table if not exists demo_diagnosticos (
   id serial primary key, email text not null, nombre text, organizacion text, telefono text, puntaje int, nivel text,
   dimensiones jsonb, prioridades jsonb, respuestas jsonb, marca text, origen text, contacto_id int references db_contactos(id) on delete set null,

@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache"
 import { q, one } from "@/lib/db"
 import { YT_CANAL_ID, YT_URL, VIDEOS_BASE } from "@/lib/youtube"
+import { guardarPublicaciones } from "@/lib/publicaciones"
 
 /**
  * Datos del Panel de Contenido DEVISEBIT (solo cifras agregadas, sin nombres, emails ni teléfonos).
@@ -94,6 +95,7 @@ export async function guardarRespaldoYouTube(d: { suscriptores: number | null; v
   const previo = await leerRespaldoYouTube()
   const valor: RespaldoYT = { suscriptores: n(d.suscriptores) ?? previo?.suscriptores ?? null, videos, guardado: new Date().toISOString() }
   await q("insert into config(clave,valor) values ('yt_respaldo',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify(valor)])
+  await guardarPublicaciones(videos.map((v) => ({ red: "youtube", id: v.id, fecha: v.fecha || null, texto: v.titulo, tipo: v.corto ? "Short" : "Video", url: v.url, vistas: v.vistas, me_gusta: v.meGusta })), "YouTube").catch(() => {})
   return videos.length
 }
 
