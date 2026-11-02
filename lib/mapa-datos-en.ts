@@ -12,7 +12,7 @@ export const GALAXIAS_EN: Galaxia[] = [
     color: "#FF6A63",
     pos: [-14, 3, -4],
     nodos: [
-      { id: "tigre", t: "Municipality of Tigre · Soy Tigre app", d: "Development and support of the municipal app: registration of participating shops and enrollment for the Soy Tigre and Soy Tigre Joven (youth) cards.", cliente: "Municipality of Tigre", tags: ["React Native", "Firebase", "Cybersecurity"], destacado: true },
+      { id: "tigre", t: "Municipality of Tigre · Soy Tigre app", d: "Development and support of the municipal app, with over 80,000 subscribed residents: registration of participating shops and enrollment for the Soy Tigre and Soy Tigre Joven (youth) cards.", cliente: "Municipality of Tigre", tags: ["React Native", "Firebase", "Cybersecurity"], destacado: true },
       { id: "ba-emprende", t: "City of Buenos Aires · BA Emprende Academy", d: "Online learning for entrepreneurs, with WordPress and Moodle joined by single sign-on and connected to a CRM.", cliente: "Government of the City of Buenos Aires", tags: ["WordPress", "Moodle", "SSO", "CRM"], destacado: true },
       { id: "cmd", t: "City of Buenos Aires · Design Center and Tech Lab", d: "Operational and technology management of the city's Metropolitan Design Center (14,000 sq m, about 150,000 sq ft) and its technology lab.", cliente: "Government of the City of Buenos Aires", destacado: true },
       { id: "ambiente", t: "National Ministry of Environment", d: "Federal Environmental Monitoring Network and waste traceability systems, with nationwide technology coordination.", cliente: "National Ministry of Environment (Argentina)", hecho: "Rolled out in every province", destacado: true },

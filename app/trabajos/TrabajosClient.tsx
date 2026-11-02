@@ -9,7 +9,7 @@ type Item = { t: string; d: string; c: string; img?: string }
 const ITEMS: Item[] = [
   { c: "Destacados", t: "Comunidad USL · Academia", d: "Comunidad y academia online de un gremio de San Luis: webs, app de afiliados, boletín y cursos, con más de 1.000 inscriptos en un año.", img: "plataforma-academia.jpg" },
   { c: "Destacados", t: "Obra social sindical · gestión digital", d: "Sistema web administrativo de padrón, aportes y prestaciones para una obra social de San Luis, más marketing digital en redes." },
-  { c: "Destacados", t: "Municipio de Tigre · app Soy Tigre", d: "Desarrollo y soporte de la app municipal: registro de comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
+  { c: "Destacados", t: "Municipio de Tigre · app Soy Tigre", d: "Desarrollo y soporte de la app municipal, con más de 80.000 vecinos suscriptos: registro de comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
   { c: "Destacados", t: "UBA · Modernización y Transformación Digital", d: "Seguimiento de proyectos, tableros en Power BI, expediente electrónico y documentación para la Subsecretaría." },
   { c: "Destacados", t: "UBA · votación electrónica del Consejo Superior", d: "Sistema de votación implementado para las sesiones del Consejo Superior." },
   { c: "Destacados", t: "GCBA · Academia BA Emprende", d: "Oferta académica online para emprendedores, con WordPress y Moodle unificados por SSO y conexión a CRM." },

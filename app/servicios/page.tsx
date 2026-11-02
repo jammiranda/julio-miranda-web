@@ -20,7 +20,7 @@ const SERVICES = [
     title: "Desarrollo a medida",
     text: "Software, apps y webs diseñados sobre tus procesos reales, con alcance, fecha y precio fijo.",
     items: ["Sistemas web de gestión", "Apps para iOS y Android", "Webs conectadas a tus sistemas", "Integraciones con lo que ya usás"],
-    caso: "App Soy Tigre del Municipio de Tigre",
+    caso: "App Soy Tigre del Municipio de Tigre (más de 80.000 vecinos suscriptos)",
   },
   {
     id: "ia",

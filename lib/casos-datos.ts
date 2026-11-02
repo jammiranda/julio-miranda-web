@@ -9,6 +9,22 @@ export const SECTORES = [
 
 export const CASOS = [
   {
+    id: 5,
+    sector: "gobierno",
+    category: "Desarrollo Tecnológico y Gestión de Proyecto IT",
+    title: "Municipio de Tigre · app Soy Tigre",
+    client: "Municipio de Tigre (Argentina)",
+    industry: "Gobierno Municipal",
+    challenge:
+      "Servicio de desarrollo y soporte de la aplicación móvil del municipio, con funcionalidades específicas como el registro de comercios adheridos y el alta de usuarios de las tarjetas «Soy Tigre» y «Soy Tigre Joven».",
+    service:
+      "Desarrollo de software, pruebas y depuración, actualizaciones y mantenimiento, soporte técnico, monitoreo y análisis. Git, Firebase Console, ESLint, Prettier. Ciberseguridad. UX/UI. Scrum Agile.",
+    achievements:
+      "Más de 80.000 vecinos suscriptos a la app. Más de 500 comercios adheridos en todo el partido. Tarjetas Soy Tigre y Soy Tigre Joven con alta digital.",
+    image: "/images/case-tigre-new.webp",
+    technologies: ["React Native", "Firebase", "Git", "UX/UI", "Ciberseguridad"],
+  },
+  {
     id: 1,
     sector: "gobierno",
     category: "Gestión de Proyectos IT y Analítica de Datos",
@@ -69,22 +85,6 @@ export const CASOS = [
     achievements: "Actualización tecnológica. Agilidad. Organización. Información oportuna y actualizada.",
     image: "/images/case-tsgroup-new.webp",
     technologies: ["Microsoft Power BI", "UX/UI", "Scrum Agile", "Análisis de Datos"],
-  },
-  {
-    id: 5,
-    sector: "gobierno",
-    category: "Desarrollo Tecnológico y Gestión de Proyecto IT",
-    title: "Municipio de Tigre · app Soy Tigre",
-    client: "Municipio de Tigre (Argentina)",
-    industry: "Gobierno Municipal",
-    challenge:
-      "Servicio de desarrollo y soporte de la aplicación móvil del municipio, con funcionalidades específicas como el registro de comercios adheridos y el alta de usuarios de las tarjetas «Soy Tigre» y «Soy Tigre Joven».",
-    service:
-      "Desarrollo de software, pruebas y depuración, actualizaciones y mantenimiento, soporte técnico, monitoreo y análisis. Git, Firebase Console, ESLint, Prettier. Ciberseguridad. UX/UI. Scrum Agile.",
-    achievements:
-      "Innovación y actualización tecnológica. Agilidad. Organización. Información oportuna y actualizada.",
-    image: "/images/case-tigre-new.webp",
-    technologies: ["React Native", "Firebase", "Git", "UX/UI", "Ciberseguridad"],
   },
   {
     id: 6,
