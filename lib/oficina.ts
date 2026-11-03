@@ -109,17 +109,30 @@ const REGLAS = `PERMISOS (obligatorios; el jefe de oficina propone, Julio da el 
 - Nada de datos de salud ni finanzas familiares en documentos compartidos. Nunca claves ni secretos en la Oficina.
 - Cada agente hace solo lo que figura en su rol y respeta su límite ("no hace"). Si el pedido excede a todos los agentes, decilo y proponé qué persona del equipo debería hacerlo.`
 
+let ultimoErrorIA = ""
 async function claude(system: string, user: string, max = 1500): Promise<string | null> {
+  ultimoErrorIA = ""
   const key = process.env.ANTHROPIC_API_KEY
-  if (!key) return null
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: process.env.CLAUDE_MODEL_JEFE ?? process.env.CLAUDE_MODEL ?? "claude-sonnet-5-5", max_tokens: max, temperature: 0.2, system, messages: [{ role: "user", content: user }] }),
-  })
-  if (!r.ok) return null
-  const j = await r.json()
-  return (j.content ?? []).map((c: any) => c.text ?? "").join("")
+  if (!key) { ultimoErrorIA = "Falta la clave de Claude en el servidor"; return null }
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({ model: process.env.CLAUDE_MODEL_JEFE ?? process.env.CLAUDE_MODEL ?? "claude-sonnet-5-5", max_tokens: max, system, messages: [{ role: "user", content: user }] }),
+    })
+    if (!r.ok) {
+      const t = await r.text().catch(() => "")
+      let m = t.slice(0, 160)
+      try { m = JSON.parse(t)?.error?.message ?? m } catch {}
+      ultimoErrorIA = `Claude respondió ${r.status}: ${String(m).slice(0, 160)}`
+      return null
+    }
+    const j = await r.json()
+    return (j.content ?? []).map((c: any) => c.text ?? "").join("")
+  } catch (e: any) {
+    ultimoErrorIA = `No se pudo llamar a Claude: ${String(e?.message ?? e).slice(0, 120)}`
+    return null
+  }
 }
 
 async function plantel() {
@@ -148,7 +161,7 @@ export async function procesarOrden(id: string): Promise<{ ok: boolean; estado?:
   const system = `Sos el jefe de oficina (una IA) de Julio Miranda (DEVISEBIT SRL y su perfil personal). La jefa de gabinete es Bárbara (persona). La oficina se divide en áreas, cada una con un responsable. Recibís las órdenes de Julio una sola vez, las repartís entre los agentes y personas de cada área, y le pedís el OK. Cuando una tarea de un agente necesita seguimiento o revisión humana, sumá una tarea corta para el responsable del área; si cruza varias áreas, sumá a Bárbara como coordinadora. Si un área no tiene responsable, avisalo en el campo aviso. Hablás en español rioplatense, con voseo, breve.\n\n${REGLAS}\n\nEQUIPO DISPONIBLE:\n${roster}\n\nRespondé SOLO un JSON: {"tipo":"orden"|"consulta","resumen":"1 o 2 oraciones en voseo con qué entendiste y cómo lo repartís (o la respuesta, si es una consulta)","reparto":[{"agente":"<id exacto>","tarea":"instrucción concreta, 1 o 2 oraciones"}],"aviso":"opcional: riesgo o dato que Julio debe saber"}. Si es una consulta de seguimiento (ej. "¿qué pasó con…?"), respondé con el estado real usando los datos y dejá reparto vacío. Usá solo ids de la lista. Un agente programado ejecuta sus tareas aprobadas en su próxima corrida; no prometas horarios que no figuren.`
   const txt = await claude(system, `ORDEN DE JULIO:\n${String(o.data.texto).slice(0, 1500)}\n\n${await fotoDelDia()}`)
   const m = txt?.match(/\{[\s\S]*\}/)
-  if (!m) { await actualizar("ordenes", id, { procesando: false, error: "El jefe no pudo analizar la orden; probá de nuevo." }); return { ok: false, error: "sin respuesta de IA" } }
+  if (!m) { await actualizar("ordenes", id, { procesando: false, error: `El jefe no pudo analizar la orden. ${ultimoErrorIA}`.trim() }); return { ok: false, error: ultimoErrorIA || "sin respuesta de IA" } }
   let p: any
   try { p = JSON.parse(m[0]) } catch { await actualizar("ordenes", id, { procesando: false, error: "Respuesta ilegible del jefe." }); return { ok: false, error: "json" } }
   const validos = new Set(ags.map((a) => a.id))
@@ -157,6 +170,12 @@ export async function procesarOrden(id: string): Promise<{ ok: boolean; estado?:
   if (!reparto.length) { await actualizar("ordenes", id, { procesando: false, estado: "hecha", resumen, reparto: [], decidida: new Date().toISOString() }); return { ok: true, estado: "hecha" } }
   await actualizar("ordenes", id, { procesando: false, estado: "propuesta", resumen, reparto, error: null })
   return { ok: true, estado: "propuesta" }
+}
+
+/** Reintento manual: deja la orden como nueva (sin trabar) y la vuelve a procesar. */
+export async function reintentarOrden(id: string) {
+  await q("update of_docs set data = (data - 'error') || '{\"estado\":\"nueva\",\"procesando\":false}'::jsonb, actualizado=now() where col='ordenes' and id=$1 and data->>'estado' in ('nueva')", [id])
+  return procesarOrden(id)
 }
 
 /** Al aprobar una propuesta, cada ítem se convierte en una tarea para su agente. */
