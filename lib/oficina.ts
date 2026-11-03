@@ -18,16 +18,16 @@ export function preparar() {
       await q("create index if not exists of_docs_col_idx on of_docs (col, actualizado desc)")
       const n = await one<{ c: number }>("select count(*)::int c from of_docs where col='agentes'")
       if (!n || n.c === 0) for (const s of SEMILLA) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(s.data)])
-      // Migración v4: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
+      // Migración v5: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
       const v = await one<{ v: number }>("select (data->>'v')::int v from of_docs where col='_meta' and id='seed'")
-      if (!v || v.v < 4) {
+      if (!v || v.v < 5) {
         for (const s of SEMILLA) {
           const d = s.data as Record<string, any>
           const patch = s.id === "jefe-gabinete" || d.tipo === "persona" ? { nombre: d.nombre, piso: d.piso, equipo: d.equipo, rol: d.rol, orden: d.orden } : { piso: d.piso, equipo: d.equipo }
           const r = await q("update of_docs set data = data || $2::jsonb, actualizado=now() where col='agentes' and id=$1 returning id", [s.id, JSON.stringify(patch)])
           if (!r.length) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(d)])
         }
-        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":4}'::jsonb) on conflict (col,id) do update set data='{\"v\":4}'::jsonb")
+        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":5}'::jsonb) on conflict (col,id) do update set data='{\"v\":5}'::jsonb")
       }
     })().catch((e) => { listo = null; throw e })
   }
@@ -107,6 +107,7 @@ const REGLAS = `PERMISOS (obligatorios; el jefe de oficina propone, Julio da el 
 - Nunca precios en piezas públicas. Nunca nombrar públicamente UTHGRA, OSDEPYM, MC SALUD ni "Grupo San Gabriel". Nunca usar el título "CIO" para Julio.
 - San Patricio SRL está congelada: no se le asigna contenido ni cambios; solo puede nombrarse como proyecto de DEVISEBIT.
 - Nada de datos de salud ni finanzas familiares en documentos compartidos. Nunca claves ni secretos en la Oficina.
+- Claude (desarrollo, id "claude-dev") es compañero de TODAS las áreas: toda tarea que requiera código, desarrollo web, cambios en el panel, la Academia, integraciones o configuración técnica se le asigna a él, y el responsable del área (por ejemplo Jonathan en Sistemas) la pide y valida el resultado. Cuando el reparto incluya a claude-dev, nombrá también al responsable del área que valida. Cambios que afecten producción, cobros o clientes siempre necesitan el OK final de Julio.
 - Cada agente hace solo lo que figura en su rol y respeta su límite ("no hace"). Si el pedido excede a todos los agentes, decilo y proponé qué persona del equipo debería hacerlo.`
 
 let ultimoErrorIA = ""

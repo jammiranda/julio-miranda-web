@@ -40,7 +40,9 @@ async function comprar(fd: FormData) {
 export default async function Producto({ params, searchParams }: { params: { slug: string }; searchParams: { e?: string } }) {
   const p = await one<any>("select * from am_productos where slug=$1 and estado<>'oculto'", [params.slug])
   if (!p) notFound()
-  const venta = p.estado === "venta" && p.precio && mpConfigurado() && archivoListo(p)
+  const conMP = !!p.precio && mpConfigurado()
+  const soloUSD = !p.precio && !!p.precio_usd && paypalConfigurado()
+  const venta = p.estado === "venta" && (conMP || soloUSD) && archivoListo(p)
   const precio = p.precio ? `${p.moneda === "ARS" ? "$" : p.moneda + " "}${Number(p.precio).toLocaleString("es-AR")}` : ""
   const usd = p.precio_usd ? `USD ${Number(p.precio_usd).toLocaleString("es-AR")}` : ""
   const conPayPal = !!usd && paypalConfigurado() && archivoListo(p)
@@ -52,7 +54,7 @@ export default async function Producto({ params, searchParams }: { params: { slu
         <p className="acad-lead m-0 mt-4 text-white/80 max-w-2xl">{p.bajada}</p>
         {venta && (
           <div id="cta-arriba" className="md:hidden mt-6 flex items-center gap-4">
-            <span className="flex flex-col"><span className="text-3xl font-extrabold text-white leading-none">{precio}</span>{usd && <span className="text-sm text-white/70 mt-1">o {usd} desde el exterior</span>}</span>
+            <span className="flex flex-col"><span className="text-3xl font-extrabold text-white leading-none">{conMP ? precio : usd}</span>{conMP && usd && <span className="text-sm text-white/70 mt-1">o {usd} desde el exterior</span>}</span>
             <a href="#comprar" className="btn-p min-h-[48px] text-base flex-1">{p.servicio ? "Contratar" : "Comprar"}</a>
           </div>
         )}
@@ -63,14 +65,16 @@ export default async function Producto({ params, searchParams }: { params: { slu
           {venta ? (
             <form action={comprar} className="flex flex-col gap-3">
               <div className="flex items-end justify-between gap-3 flex-wrap">
-                <p className="m-0 text-3xl font-extrabold leading-none">{precio} <span className="text-sm font-semibold text-[#4A515C]">ARS</span></p>
-                {usd && <p className="m-0 text-lg font-bold text-[#262C37] leading-none">{usd} <span className="text-sm font-semibold text-[#4A515C]">desde el exterior</span></p>}
+                {conMP ? <p className="m-0 text-3xl font-extrabold leading-none">{precio} <span className="text-sm font-semibold text-[#4A515C]">ARS</span></p> : <p className="m-0 text-3xl font-extrabold leading-none">{usd}</p>}
+                {conMP && usd && <p className="m-0 text-lg font-bold text-[#262C37] leading-none">{usd} <span className="text-sm font-semibold text-[#4A515C]">desde el exterior</span></p>}
               </div>
               <input type="hidden" name="slug" value={p.slug} />
               <label className="lbl">Nombre<input name="nombre" autoComplete="name" autoCapitalize="words" enterKeyHint="next" className="inp" /></label>
               <label className="lbl">{p.servicio ? "Email (te escribimos para coordinar)" : "Email (te llega la descarga)"}<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" required className="inp" /></label>
+              {conMP && <>
               <BotonEnviar cargando="Abriendo Mercado Pago…">Pagar {precio} con Mercado Pago</BotonEnviar>
               <p className="m-0 text-sm text-[#4A515C]">Desde Argentina: tarjeta, débito o dinero en cuenta. {p.servicio ? "Después del pago coordinamos la fecha con vos. ¿Preferís transferencia o factura A? Escribinos por WhatsApp." : "Descarga inmediata."}</p>
+              </>}
               {usd && (conPayPal ? (
                 <div className="flex flex-col gap-2 border-t border-[#E2E5EA] pt-3">
                   <button type="submit" name="pasarela" value="paypal" className="btn min-h-[48px] w-full bg-[#FFC439] text-[#0E1116] hover:bg-[#F2BA36] font-bold">Pagar {usd} con PayPal o tarjeta internacional</button>
@@ -90,7 +94,7 @@ export default async function Producto({ params, searchParams }: { params: { slu
           )}
         </aside>
       </div>
-      <BarraAccion desde="md" destino="comprar" tambien="cta-arriba" precio={venta ? precio : "Próximamente"} detalle={venta ? (p.servicio ? "Pago seguro · Mercado Pago" : "Descarga inmediata") : "Lista de espera con descuento"} etiqueta={venta ? (p.servicio ? "Contratar" : "Comprar") : "Anotarme"} />
+      <BarraAccion desde="md" destino="comprar" tambien="cta-arriba" precio={venta ? (conMP ? precio : usd) : "Próximamente"} detalle={venta ? (p.servicio ? (conMP ? "Pago seguro · Mercado Pago" : "Pago con PayPal o tarjeta") : "Descarga inmediata") : "Lista de espera con descuento"} etiqueta={venta ? (p.servicio ? "Contratar" : "Comprar") : "Anotarme"} />
     </main>
   )
 }
