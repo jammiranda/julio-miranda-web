@@ -18,16 +18,16 @@ export function preparar() {
       await q("create index if not exists of_docs_col_idx on of_docs (col, actualizado desc)")
       const n = await one<{ c: number }>("select count(*)::int c from of_docs where col='agentes'")
       if (!n || n.c === 0) for (const s of SEMILLA) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(s.data)])
-      // Migración v5: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
+      // Migración v6: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
       const v = await one<{ v: number }>("select (data->>'v')::int v from of_docs where col='_meta' and id='seed'")
-      if (!v || v.v < 5) {
+      if (!v || v.v < 6) {
         for (const s of SEMILLA) {
           const d = s.data as Record<string, any>
-          const patch = s.id === "jefe-gabinete" || d.tipo === "persona" ? { nombre: d.nombre, piso: d.piso, equipo: d.equipo, rol: d.rol, orden: d.orden } : { piso: d.piso, equipo: d.equipo }
+          const patch = s.id === "claude-dev" ? { nombre: d.nombre, piso: d.piso, equipo: d.equipo, rol: d.rol, orden: d.orden, horario: d.horario, trigger: d.trigger, nohace: d.nohace } : s.id === "jefe-gabinete" || d.tipo === "persona" ? { nombre: d.nombre, piso: d.piso, equipo: d.equipo, rol: d.rol, orden: d.orden } : { piso: d.piso, equipo: d.equipo }
           const r = await q("update of_docs set data = data || $2::jsonb, actualizado=now() where col='agentes' and id=$1 returning id", [s.id, JSON.stringify(patch)])
           if (!r.length) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(d)])
         }
-        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":5}'::jsonb) on conflict (col,id) do update set data='{\"v\":5}'::jsonb")
+        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":6}'::jsonb) on conflict (col,id) do update set data='{\"v\":6}'::jsonb")
       }
     })().catch((e) => { listo = null; throw e })
   }
