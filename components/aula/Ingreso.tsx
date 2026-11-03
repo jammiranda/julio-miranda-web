@@ -44,7 +44,7 @@ export function PantallaIngreso({ sitio, a, sp }: { sitio: Sitio; a: string; sp:
   const ocultos = <><input type="hidden" name="sitio" value={sitio} /><input type="hidden" name="a" value={a} /></>
 
   return (
-    <div className="card w-full max-w-md flex flex-col gap-4">
+    <div className="card w-full max-w-md flex flex-col gap-4 !p-7 sm:!p-9 shadow-[0_24px_60px_-30px_rgba(14,17,22,.3)]">
       <div>
         <h1 className="m-0">{enviado ? "Revisá tu correo" : sitio === "academia" ? "Entrá a tu Academia" : "Ingresá con tu email"}</h1>
         <p className="m-0 mt-1 text-sm text-[#4A515C]">

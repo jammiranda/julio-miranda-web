@@ -10,7 +10,7 @@ export default async function EntrarAcademia({ searchParams }: { searchParams: S
   if (await clienteActual()) redirect(a || "/mi-cuenta")
   return (
     <div className="min-h-[55vh] flex flex-col items-center justify-center gap-4">
-      <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[#C8231F]">ACADEMIA DEVISEBIT · Mi cuenta</p>
+      <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[var(--ac-texto)]">ACADEMIA DEVISEBIT · Mi cuenta</p>
       <PantallaIngreso sitio="academia" a={a} sp={searchParams} />
     </div>
   )

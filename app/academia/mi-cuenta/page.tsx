@@ -21,21 +21,28 @@ export default async function MiCuentaAcademia() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[#C8231F]">ACADEMIA DEVISEBIT · Mi cuenta</p>
-          <h1 className="acad-h1-m m-0 mt-2 font-extrabold">Hola, {c.nombre.split(" ")[0]}</h1>
-          <p className="acad-lead m-0 mt-2 text-[#4A515C]">{ins.length ? `Tus cursos, clases en vivo y certificados. ${enCurso.length ? `Tenés ${enCurso.length} ${enCurso.length === 1 ? "curso" : "cursos"} en marcha.` : ""}` : "Acá vas a seguir tus cursos, clases y certificados. Elegí uno para empezar."}</p>
+      <section className="aula-hero" aria-labelledby="t-hola">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-col gap-2 min-w-[14rem] flex-1">
+            <p className="m-0 aula-eyebrow">ACADEMIA DEVISEBIT · Mi cuenta</p>
+            <h1 id="t-hola" className="m-0">Hola, {c.nombre.split(" ")[0]}</h1>
+            <p className="m-0 text-white/85 text-[15px] max-w-xl">{ins.length ? `Tus cursos, clases en vivo y certificados en un solo lugar.${enCurso.length ? ` Tenés ${enCurso.length} ${enCurso.length === 1 ? "curso" : "cursos"} en marcha.` : ""}` : "Acá vas a seguir tus cursos, clases y certificados. Elegí uno para empezar."}</p>
+            {siguiente && (
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link href={`/mi-cuenta/cursos/${siguiente.id}`} className="aula-cta">{siguiente.av.hechas ? "Continuar" : "Empezar"}: {siguiente.titulo.length > 34 ? siguiente.titulo.slice(0, 32) + "…" : siguiente.titulo} →</Link>
+              </div>
+            )}
+          </div>
+          <form action={salirCuenta}><input type="hidden" name="sitio" value="academia" /><button className="rounded-full border border-white/40 bg-white/10 text-white text-sm font-semibold px-4 min-h-[40px] cursor-pointer hover:bg-white/20">Salir</button></form>
         </div>
-        <form action={salirCuenta}><input type="hidden" name="sitio" value="academia" /><button className="btn-s">Salir</button></form>
-      </div>
-
-      {siguiente && (
-        <div className="card flex flex-wrap items-center justify-between gap-3 !border-[#C8231F]">
-          <span><span className="block text-xs font-bold uppercase tracking-wider text-[#4A515C]">Seguí donde dejaste</span><strong className="text-lg">{siguiente.titulo}</strong></span>
-          <Link href={`/mi-cuenta/cursos/${siguiente.id}`} className="btn-p">{siguiente.av.hechas ? "Continuar" : "Empezar"}</Link>
-        </div>
-      )}
+        {ins.length > 0 && (
+          <dl className="m-0 mt-6 grid grid-cols-3 gap-3 max-w-lg">
+            {[[enCurso.length, "en curso"], [ins.filter((x) => x.certificado).length, "certificados"], [clases.length, "clases próximas"]].map(([n, t]) => (
+              <div key={t as string} className="rounded-2xl bg-white/12 px-3 py-2.5"><dd className="m-0 text-2xl font-bold leading-none" style={{ fontFamily: "var(--fuente-titulos)" }}>{n}</dd><dt className="text-xs text-white/80 mt-1">{t}</dt></div>
+            ))}
+          </dl>
+        )}
+      </section>
 
       <section id="mis-cursos" aria-labelledby="t-cursos" className="flex flex-col gap-3 scroll-mt-24">
         <h2 id="t-cursos" className="m-0 text-2xl font-extrabold">Mis cursos</h2>
@@ -79,7 +86,7 @@ export default async function MiCuentaAcademia() {
           <h2 id="t-mas" className="m-0 text-2xl font-extrabold">Seguí aprendiendo</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {otros.map((o) => (
-              <Link key={o.slug} href={`/cursos/${o.slug}`} className="card flex flex-col gap-1 no-underline text-[#0E1116] hover:border-[#C8231F]">
+              <Link key={o.slug} href={`/cursos/${o.slug}`} className="card flex flex-col gap-1 no-underline text-[#0E1116] hover:border-[color:var(--ac)]">
                 <strong>{o.titulo}</strong>
                 {o.bajada && <span className="text-sm text-[#4A515C]">{o.bajada}</span>}
                 <span className="text-xs text-[#4A515C] mt-auto pt-2">{modalidad(o.modalidad)}{o.horas ? ` · ${Number(o.horas)} h` : ""} · {o.precio ? "Pago" : "Gratis"}</span>

@@ -348,3 +348,15 @@ html:has(.acad) { scroll-padding-top: 5rem; }
 @media (min-width: 1024px) {
   .acad .pildora { width: fit-content; max-width: calc(100vw - 24px); height: 58px; margin-top: 10px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.15); background: rgba(14,17,22,.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 14px 40px rgba(0,0,0,.35); padding-left: 20px !important; padding-right: 10px !important; pointer-events: auto; }
 }
+
+/* Aula del alumno (Academia y portal): hero, módulos plegables, barra de acción */
+.aula-hero { border-radius: 28px; padding: clamp(22px, 4vw, 40px); color: #fff; background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--ac) 70%, #fff 30%) 0%, var(--ac) 38%, var(--ac-hover) 100%); box-shadow: 0 22px 50px -26px color-mix(in srgb, var(--ac) 80%, #000); }
+.aula-hero h1 { color: #fff; font-size: clamp(26px, 4.4vw, 40px); line-height: 1.12; letter-spacing: -.01em; font-family: var(--fuente-titulos); }
+.aula-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.78); }
+.aula-cta { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #fff; color: var(--ac-texto); font-weight: 700; font-size: 15px; text-decoration: none; box-shadow: 0 8px 20px -10px rgba(0,0,0,.45); }
+.aula-cta:hover { transform: translateY(-1px); }
+.aula-modulo > summary::-webkit-details-marker { display: none; }
+.aula-modulo[open] .aula-flecha { transform: rotate(180deg); }
+.aula-flecha { transition: transform .2s; font-size: 18px; }
+.aula-barra { position: sticky; bottom: 0; z-index: 5; padding: 12px 0; background: linear-gradient(to top, var(--fondo) 70%, transparent); }
+@media (prefers-reduced-motion: reduce) { .aula-cta, .aula-flecha { transition: none; } }
