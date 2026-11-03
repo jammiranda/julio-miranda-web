@@ -6,6 +6,12 @@ import { fecha } from "@/lib/util"
 export const dynamic = "force-dynamic"
 
 const ESTADO: Record<string, string> = { inscripto: "Inscripto", cursando: "Cursando", aprobado: "Aprobado", desaprobado: "Desaprobado", baja: "Baja" }
+const COLOR_ESTADO: Record<string, string> = { inscripto: "bg-sky-50 text-sky-700", cursando: "bg-[var(--ac-suave)] text-[var(--ac-texto)]", aprobado: "bg-emerald-50 text-emerald-700", desaprobado: "bg-amber-50 text-amber-700", baja: "bg-slate-100 text-slate-500" }
+const iniciales = (n?: string | null) => (n ?? "?").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((x) => x[0]?.toUpperCase()).join("") || "?"
+const Avatar = ({ n }: { n?: string | null }) => <span aria-hidden="true" className="w-9 h-9 shrink-0 rounded-full bg-[var(--ac-suave)] text-[var(--ac-texto)] text-xs font-bold flex items-center justify-center">{iniciales(n)}</span>
+const Persona = ({ nombre, email, href }: { nombre?: string | null; email?: string | null; href?: string }) => (
+  <div className="flex items-center gap-3"><Avatar n={nombre ?? email} /><div className="min-w-0">{href ? <Link href={href} className="font-semibold hover:underline">{nombre ?? email}</Link> : <strong>{nombre ?? email}</strong>}<div className="text-xs text-[#4A515C] truncate">{email}</div></div></div>
+)
 
 /** Sistema Academia: quién estudia, quién compró y quién está suscripto. */
 export default async function Alumnos({ searchParams }: { searchParams: { v?: string; b?: string } }) {
@@ -40,14 +46,14 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
     { t: "Suscriptos", v: k?.suscriptos, d: `${k?.nuevos ?? 0} nuevos en 30 días` },
   ]
   const tab = (v: string, t: string) => (
-    <Link href={`/sistema/alumnos?v=${v}${b ? `&b=${encodeURIComponent(b)}` : ""}`} aria-current={vista === v ? "page" : undefined} className={`px-4 py-2 rounded-lg text-sm font-semibold ${vista === v ? "bg-[#0F766E] text-white" : "bg-white border border-[#E2E5EA] text-[#262C37]"}`}>{t}</Link>
+    <Link href={`/sistema/alumnos?v=${v}${b ? `&b=${encodeURIComponent(b)}` : ""}`} aria-current={vista === v ? "page" : undefined} className={`px-4 py-2 rounded-full text-sm font-semibold no-underline ${vista === v ? "bg-[var(--ac)] text-white shadow-sm" : "bg-white border border-[var(--borde)] text-[#262C37] hover:border-[var(--borde-fuerte)]"}`}>{t}</Link>
   )
   return (
     <div className="flex flex-col gap-5">
-      <div><h1 className="m-0">Alumnos y suscriptos</h1><p className="m-0 text-sm text-[#4A515C]">Todo lo de la Academia en un solo lugar: quién cursa, quién compró y quién recibe el newsletter.</p></div>
+      <header className="pag-cab"><div><div className="eyebrow">Academia</div><h1 className="m-0">Alumnos y suscriptos</h1><p>Todo en un solo lugar: quién cursa, quién compró y quién recibe el newsletter.</p></div></header>
       <ul className="m-0 p-0 list-none grid grid-cols-2 lg:grid-cols-4 gap-3">
         {tiles.map((x) => (
-          <li key={x.t} className="card py-4"><div className="text-sm text-[#4A515C]">{x.t}</div><div className="text-3xl font-extrabold text-[#0F766E]">{x.v ?? "—"}</div><div className="text-xs text-[#4A515C]">{x.d}</div></li>
+          <li key={x.t} className="card py-4 flex flex-col gap-0.5"><div className="text-xs font-bold uppercase tracking-wider text-[#4A515C]">{x.t}</div><div className="text-4xl font-semibold leading-tight text-[var(--ac-texto)]" style={{ fontFamily: "var(--fuente-titulos)" }}>{x.v ?? "—"}</div><div className="text-xs text-[#4A515C]">{x.d}</div></li>
         ))}
       </ul>
       <div className="flex flex-wrap items-center gap-2">
@@ -60,7 +66,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
             <thead><tr><th>Alumno</th><th>Curso</th><th>Estado</th><th>Lecciones vistas</th><th>Última actividad</th><th>Inscripción</th></tr></thead>
             <tbody>
               {(alumnos as any[]).map((r) => (
-                <tr key={r.id}><td>{ficha ? <Link href={`https://sistema.devisebit.com/contactos/${r.cid}`} className="font-semibold underline">{r.nombre ?? r.email}</Link> : <strong>{r.nombre ?? r.email}</strong>}<div className="text-xs text-[#4A515C]">{r.email}</div></td><td>{r.curso}<div className="text-xs text-[#4A515C]">{r.edicion}</div></td><td>{ESTADO[r.estado] ?? r.estado}</td><td>{r.lecciones}</td><td>{r.ultima_actividad ? fecha(r.ultima_actividad) : "—"}</td><td>{fecha(r.creado)}</td></tr>
+                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} href={ficha ? `https://sistema.devisebit.com/contactos/${r.cid}` : undefined} /></td><td>{r.curso}<div className="text-xs text-[#4A515C]">{r.edicion}</div></td><td><span className={`chip ${COLOR_ESTADO[r.estado] ?? "bg-slate-100 text-slate-600"}`}>{ESTADO[r.estado] ?? r.estado}</span></td><td>{r.lecciones}</td><td>{r.ultima_actividad ? fecha(r.ultima_actividad) : "—"}</td><td>{fecha(r.creado)}</td></tr>
               ))}
               {!(alumnos as any[]).length && <tr><td colSpan={6} className="text-center text-[#4A515C] py-6">Todavía no hay alumnos{b ? " con esa búsqueda" : ""}. Se suman al inscribirse en un curso.</td></tr>}
             </tbody>
@@ -71,7 +77,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
             <thead><tr><th>Comprador</th><th>Producto</th><th>Importe</th><th>Pagado</th></tr></thead>
             <tbody>
               {(compradores as any[]).map((r) => (
-                <tr key={r.id}><td className="font-semibold">{r.nombre ?? "—"}<div className="text-xs text-[#4A515C] font-normal">{r.email}</div></td><td>{r.titulo}</td><td>{r.monto != null ? `${r.moneda ?? "ARS"} ${Number(r.monto).toLocaleString("es-AR")}` : "—"}</td><td>{r.pagada_en ? fecha(r.pagada_en) : "—"}</td></tr>
+                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} /></td><td>{r.titulo}</td><td>{r.monto != null ? `${r.moneda ?? "ARS"} ${Number(r.monto).toLocaleString("es-AR")}` : "—"}</td><td>{r.pagada_en ? fecha(r.pagada_en) : "—"}</td></tr>
               ))}
               {!(compradores as any[]).length && <tr><td colSpan={4} className="text-center text-[#4A515C] py-6">Todavía no hay compras pagadas{b ? " con esa búsqueda" : ""}.</td></tr>}
             </tbody>
@@ -82,7 +88,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
             <thead><tr><th>Suscripto</th><th>Intereses</th><th>Desde</th></tr></thead>
             <tbody>
               {(suscriptos as any[]).map((r) => (
-                <tr key={r.id}><td>{ficha ? <Link href={`https://sistema.devisebit.com/contactos/${r.id}`} className="font-semibold underline">{r.nombre ?? r.email}</Link> : <strong>{r.nombre ?? r.email}</strong>}<div className="text-xs text-[#4A515C]">{r.email}</div></td><td className="text-xs">{(r.tags ?? []).slice(0, 4).join(" · ") || "—"}</td><td>{fecha(r.suscrito_en)}</td></tr>
+                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} href={ficha ? `https://sistema.devisebit.com/contactos/${r.id}` : undefined} /></td><td className="text-xs"><div className="flex flex-wrap gap-1">{(r.tags ?? []).slice(0, 4).map((t: string) => <span key={t} className="chip bg-[var(--ac-suave)] text-[var(--ac-texto)]">{t}</span>)}{!(r.tags ?? []).length && "—"}</div></td><td>{fecha(r.suscrito_en)}</td></tr>
               ))}
               {!(suscriptos as any[]).length && <tr><td colSpan={3} className="text-center text-[#4A515C] py-6">Todavía no hay suscriptos{b ? " con esa búsqueda" : ""}.</td></tr>}
             </tbody>

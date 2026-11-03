@@ -68,6 +68,11 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
         <div><div className="eyebrow">Academia</div><h1 className="m-0">Sistema Academia</h1><p>Guías gratis, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline font-semibold text-[var(--ac-texto)]">academia.devisebit.com</a>.</p></div>
         <div className="pag-acc"><span className="stat"><b>{subs?.activos ?? 0}</b><span>suscriptos</span></span><span className="stat"><b>{subs?.semana ?? 0}</b><span>nuevos esta semana</span></span></div>
       </header>
+      <nav aria-label="Secciones de la Academia" className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
+        {[["/sistema/cursos", "Cursos", "Lecciones y ediciones"], ["/sistema/alumnos", "Alumnos", "Quién cursa y compró"], ["#guias", "Guías", `${guias.filter((g) => g.publicada).length} publicadas`], ["#productos", "Productos", `${productos.length} cargados`], ["#programas", "Programas", "Listas de espera"], ["/sistema/autores", "Autores", "Docentes"], ["/sistema/recursos", "Recursos", "Material"]].map(([h, t, d]) => (
+          <a key={h} href={h} className="card !p-4 no-underline text-[#0E1116] flex flex-col gap-0.5 hover:border-[color:var(--ac)] transition-colors"><strong className="text-[15px]" style={{ fontFamily: "var(--fuente-titulos)" }}>{t}</strong><span className="text-xs text-[#4A515C]">{d}</span></a>
+        ))}
+      </nav>
       {searchParams.ok && <p role="status" className="m-0 text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">{searchParams.ok}</p>}
       {searchParams.err && <p role="alert" className="m-0 text-sm font-semibold text-red-800 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{searchParams.err}</p>}
 

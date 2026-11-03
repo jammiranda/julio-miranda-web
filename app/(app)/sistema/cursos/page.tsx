@@ -35,13 +35,13 @@ export default async function CursosAdmin({ searchParams }: { searchParams: { er
   ])
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div><h1 className="m-0">Academia · Cursos</h1><p className="m-0 text-sm text-[#4A515C]">Cursos, ediciones, alumnos, asistencia y certificados. Se publican en <a href={`${URL_ACADEMIA}/cursos`} target="_blank" rel="noopener noreferrer" className="underline">academia.devisebit.com/cursos</a>.</p></div>
-        <Link href="/sistema" className="text-sm underline text-[#4A515C]">Guías y productos →</Link>
-      </div>
+      <header className="pag-cab">
+        <div><div className="eyebrow">Academia</div><h1 className="m-0">Cursos</h1><p>Cursos, ediciones, alumnos, asistencia y certificados. Se publican en <a href={`${URL_ACADEMIA}/cursos`} target="_blank" rel="noopener noreferrer" className="underline font-semibold text-[var(--ac-texto)]">academia.devisebit.com/cursos</a>.</p></div>
+        <div className="pag-acc"><Link href="/sistema" className="btn-s">Guías y productos</Link><Link href="/sistema/alumnos" className="btn-s">Alumnos</Link></div>
+      </header>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[["Alumnos", kpi?.alumnos], ["Certificados emitidos", kpi?.certificados], ["Activos últimos 30 días", kpi?.activos], ["Descargas últimos 30 días", kpi?.descargas]].map(([t, v]) => (
-          <div key={t as string} className="card"><span className="text-xs text-[#4A515C]">{t}</span><strong className="block text-2xl">{v ?? 0}</strong></div>
+          <div key={t as string} className="card flex flex-col gap-0.5"><span className="text-xs font-bold uppercase tracking-wider text-[#4A515C]">{t}</span><strong className="text-4xl font-semibold leading-tight text-[var(--ac-texto)]" style={{ fontFamily: "var(--fuente-titulos)" }}>{v ?? 0}</strong></div>
         ))}
       </div>
       <form action={crear} className="card flex flex-wrap items-end gap-3">
@@ -50,21 +50,29 @@ export default async function CursosAdmin({ searchParams }: { searchParams: { er
         <button className="btn-p">Crear</button>
         {searchParams.err && <p role="alert" className="m-0 w-full text-sm text-rojo">Poné un título.</p>}
       </form>
-      <div className="card overflow-x-auto">
-        <table className="tbl">
-          <thead><tr><th>Curso</th><th>Modalidad</th><th>Lecciones</th><th>Alumnos</th><th>Aprobados</th><th>Estado</th></tr></thead>
-          <tbody>
-            {cursos.map((c) => (
-              <tr key={c.id}>
-                <td><Link href={`/sistema/cursos/${c.id}`} className="font-semibold hover:underline">{c.titulo}</Link>{c.destacado && <span className="ml-2 chip bg-[#FDECEB] text-[#9E1A17]">Destacado</span>}</td>
-                <td>{modalidad(c.modalidad)}</td><td>{c.lecciones}</td><td>{c.alumnos}</td><td>{c.aprobados}</td>
-                <td><span className={`chip ${c.estado === "publicado" ? "bg-emerald-50 text-emerald-700" : c.estado === "borrador" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}>{c.estado === "publicado" ? "Publicado" : c.estado === "borrador" ? "Borrador" : "Archivado"}</span></td>
-              </tr>
-            ))}
-            {!cursos.length && <tr><td colSpan={6} className="text-[#4A515C]">Todavía no hay cursos. Creá el primero arriba.</td></tr>}
-          </tbody>
-        </table>
-      </div>
+      {!cursos.length && <p className="card m-0 text-[#4A515C]">Todavía no hay cursos. Creá el primero arriba.</p>}
+      <ul className="m-0 p-0 list-none grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {cursos.map((c) => {
+          const pct = c.alumnos ? Math.round((c.aprobados / c.alumnos) * 100) : 0
+          return (
+            <li key={c.id}>
+              <Link href={`/sistema/cursos/${c.id}`} className="card h-full flex flex-col gap-3 no-underline text-[#0E1116] hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between gap-2">
+                  <span className={`chip ${c.estado === "publicado" ? "bg-emerald-50 text-emerald-700" : c.estado === "borrador" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}>{c.estado === "publicado" ? "Publicado" : c.estado === "borrador" ? "Borrador" : "Archivado"}</span>
+                  {c.destacado && <span className="chip bg-[var(--ac-suave)] text-[var(--ac-texto)]">Destacado</span>}
+                </div>
+                <strong className="text-[17px] leading-snug" style={{ fontFamily: "var(--fuente-titulos)" }}>{c.titulo}</strong>
+                <span className="text-sm text-[#4A515C]">{modalidad(c.modalidad)} · {c.lecciones} {c.lecciones === 1 ? "lección" : "lecciones"}</span>
+                <div className="mt-auto pt-2 grid grid-cols-2 gap-2 text-sm">
+                  <span><b className="text-xl" style={{ fontFamily: "var(--fuente-titulos)" }}>{c.alumnos}</b> <span className="text-xs text-[#4A515C]">alumnos</span></span>
+                  <span><b className="text-xl" style={{ fontFamily: "var(--fuente-titulos)" }}>{c.aprobados}</b> <span className="text-xs text-[#4A515C]">aprobados</span></span>
+                </div>
+                {c.alumnos > 0 && <div className="h-1.5 rounded-full bg-[#E9E5DA] overflow-hidden" role="progressbar" aria-label="Aprobados" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-[var(--ac)]" style={{ width: `${pct}%` }} /></div>}
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }
