@@ -1,0 +1,35 @@
+/** Agentes y equipo de la Oficina (se cargan una sola vez, la primera vez que se abre). */
+type S = [id: string, nombre: string, piso: number, equipo: string, tipo: "tarea" | "persona", rol: string, horario: string, forma: string, color: string, acc: string, orden: number, trigger?: string, nohace?: string]
+const L: S[] = [
+  ["jefe-gabinete", "Jefe de gabinete", 5, "Gabinete", "tarea", "Recibe tus órdenes, las reparte y te pide el OK", "Siempre disponible (web, WhatsApp y audios)", "star", "#F59312", "antenna", 1, undefined, "No envía, publica ni paga nada sin tu OK."],
+  ["control-diario", "Control diario", 5, "Gabinete", "tarea", "Calidad y semáforo del día, llega a las 8:00", "Todos los días · 07:50", "hexagon", "#8F59F9", "glasses", 2, "trig_012dMwGNtPf8mR5dVRuQbpDZ", "Solo lee y avisa. No publica, no envía, no borra."],
+  ["revision-ecosistema", "Revisión del ecosistema", 5, "Gabinete", "tarea", "Webs, sistemas, Vercel, Gmail y redes", "Lunes · 07:53", "sphere", "#13B7A2", "glasses", 3, "trig_018EeAg6d7qUGw16TJSLoKij", "Solo revisa; nunca carga claves ni borra."],
+  ["ventas", "Ventas", 4, "Comercial", "tarea", "Seguimientos, borradores de Gmail y pipeline", "Lunes a viernes · 06:47", "rsquare", "#1E86FC", "none", 1, "trig_01HN6qcUu4FLUahsghpHjmi4", "Solo borradores. Sin precios. No entra a LinkedIn."],
+  ["comercial", "Comercial · licitaciones", 4, "Comercial", "tarea", "Propuestas en borrador desde el Radar", "Martes y jueves · 07:13", "triangle", "#E5484D", "bow", 2, "trig_01EmEGZKzTFgKMbxF9xAssoo", "No presenta nada ni inventa experiencia; los montos los define Julio."],
+  ["radar", "Radar de licitaciones", 4, "Comercial", "tarea", "Busca compras públicas de software y comunicación", "Lunes a viernes · 07:04", "cloud", "#14C16F", "antenna", 3, "trig_011Tm3brmtuUpAjZoYQML34R", "No inventa filas: cada una sale de una fuente con su link."],
+  ["prospeccion", "Prospección semanal", 4, "Comercial", "tarea", "Borradores de mail y notas de LinkedIn para nuevos contactos", "Lunes · 08:23", "flower", "#F93498", "none", 4, "trig_0168xitoP1Hg4jtqn9Sy747X", "Nunca envía mails ni invitaciones; solo prepara."],
+  ["busqueda-laboral", "Búsqueda laboral", 4, "Comercial", "tarea", "Contactos de empresas objetivo en la Bandeja LinkedIn", "Lunes a viernes · 10:17", "drop", "#A06B39", "glasses", 5, "trig_017EFHg5ddm8r4sQLrX5XVwh", "No entra a LinkedIn ni envía nada."],
+  ["invitaciones-linkedin", "Invitaciones LinkedIn", 4, "Comercial", "tarea", "Lista mensual para invitar a seguir la página", "Día 1 de cada mes · 09:19", "pill", "#959595", "stem", 6, "trig_01HDb6PkjaXnu1AEsCKEBwtD", "No invita: la lista la usa Julio a mano."],
+  ["redes", "Redes diario", 3, "Contenido", "tarea", "Publica en LinkedIn, Facebook e Instagram", "Lunes a viernes · 08:41", "sphere", "#1E86FC", "bow", 1, "trig_01Sonkji2Rg63UCMokSQFGns", "Sin precios; no nombra OSDEPYM, UTHGRA ni Grupo San Gabriel."],
+  ["contenido", "Plan de contenido", 3, "Contenido", "tarea", "Plan semanal con las piezas para Jime", "Viernes · 07:36", "rsquare", "#F59312", "glasses", 2, "trig_019VLjss1fnbfteU8vx4m2QS", "No publica ni programa."],
+  ["youtube", "YouTube semanal", 3, "Contenido", "tarea", "Programa las publicaciones del canal", "Viernes · 14:47", "triangle", "#E5484D", "none", 3, "trig_0137NRknChMWMCLDzDuQUrMD"],
+  ["comentarios", "Comentarios en redes", 3, "Contenido", "tarea", "Participa en conversaciones grandes para dar visibilidad", "Todos los días · 10:07", "cloud", "#8F59F9", "antenna", 4, "trig_013RNXrskAoZ8k2tdEt4AY2d"],
+  ["noticias", "Noticias del panel", 3, "Contenido", "tarea", "Carga noticias de IT e IA", "Todos los días · 07:17, 13:17 y 19:17", "flower", "#14C16F", "none", 5, "trig_016UFviHMoPAXyLvdrfpatcr", "Solo notas reales, con su fuente."],
+  ["meta-ads", "Meta Ads", 3, "Contenido", "tarea", "Seguimiento de la campaña de seguidores", "Lunes, miércoles y viernes · 11:43", "hexagon", "#FD690F", "glasses", 6, "trig_01RfVBce4va1Yxos4EBMeoeP"],
+  ["panel-fb-yt", "Panel Facebook y YouTube", 3, "Contenido", "tarea", "Actualiza las métricas del panel de contenido", "Todos los días · 07:17", "pill", "#13B7A2", "none", 7, "trig_01J4aiVa92NZuH6CMx7T78j6"],
+  ["linkedin-panel", "LinkedIn al panel", 3, "Contenido", "tarea", "Exporta las estadísticas del mes", "Día 2 de cada mes · 09:13", "drop", "#1E86FC", "stem", 8, "trig_0197NZC9pXjJbQqdqU5HrQ2G"],
+  ["blog", "Nota semanal del blog", 3, "Contenido", "tarea", "Escribe y publica la nota de novedades", "Lunes · 08:48", "star", "#F93498", "bow", 9, "trig_011pjbariW7jtFmbT6GTE7Jd", "Nada de San Patricio; sin precios ni clientes."],
+  ["administrativo", "Administrativo", 2, "Administración", "tarea", "Agenda, fichas de reunión, mails y vencimientos", "Lunes a viernes · 06:21", "rsquare", "#13B7A2", "glasses", 1, "trig_017fBzeDuFDBAhaByDYw77tC", "Solo borradores en Gmail. Nunca envía ni borra."],
+  ["finanzas", "Finanzas", 2, "Administración", "tarea", "Control de pagos, cobros y alertas", "Lunes a viernes · 06:34", "hexagon", "#14C16F", "none", 2, "trig_01HVxtJ5KE9mZ93Brdt52yNR", "No mueve plata ni modifica planillas."],
+  ["documentos", "Documentos mensuales", 2, "Administración", "tarea", "Manual y presentación de la empresa en borrador", "Día 2 de cada mes · 09:41", "cloud", "#959595", "stem", 3, "trig_014Xa61cmHnGvokS8wMi9w2k"],
+  ["bot-bit", "Prueba del bot Bit", 1, "Sistemas", "tarea", "Simula clientes exigentes y corrige el prompt", "Viernes · 08:36", "triangle", "#8F59F9", "antenna", 1, "trig_01H6HugNSnyHxJqsRcGyoS8v", "Nunca sube cambios a la rama de producción: abre un pull request."],
+  ["integraciones", "Integraciones del panel", 1, "Sistemas", "tarea", "Revisa si ya hay datos nuevos para sumar", "Lunes · 09:13", "sphere", "#F59312", "none", 2, "trig_012NhwdKVfF4s6yWVLtjrtDG", "Solo revisa y avisa."],
+  ["barbara", "Bárbara", 0, "Equipo", "persona", "Proyectos, demos y testing", "", "flower", "#F93498", "bow", 1],
+  ["jime", "Jime", 0, "Equipo", "persona", "Diseño y marketing", "", "star", "#FD690F", "none", 2],
+  ["jonathan", "Jonathan", 0, "Equipo", "persona", "Desarrollo", "", "hexagon", "#1E86FC", "glasses", 3],
+  ["debora", "Débora", 0, "Equipo", "persona", "Ventas y call center", "", "drop", "#14C16F", "antenna", 4],
+]
+export const SEMILLA = L.map(([id, nombre, piso, equipo, tipo, rol, horario, forma, color, acc, orden, trigger, nohace]) => ({
+  id,
+  data: { nombre, piso, equipo, tipo, rol, horario, orden, look: { forma, color, acc }, ...(trigger ? { trigger } : {}), ...(nohace ? { nohace } : {}) },
+}))

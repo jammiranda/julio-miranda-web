@@ -4,6 +4,7 @@ import { empresaPorPhoneId, empresaPorIG, firmaValida, marcarLeido, perfilIG } f
 import { procesar } from "@/lib/bot"
 import { q } from "@/lib/db"
 import { desdeReferral } from "@/lib/origen"
+import { esJulio, jefePorWhatsApp } from "@/lib/oficina-wa"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -54,6 +55,8 @@ export async function POST(req: NextRequest) {
     for (const m of v.messages ?? []) {
       const texto = m.type === "text" ? m.text?.body : m.type === "button" ? m.button?.text : m.type === "interactive" ? (m.interactive?.button_reply?.title ?? m.interactive?.list_reply?.title) : (m[m.type]?.caption ?? null)
       tareas.push(marcarLeido(e, m.id))
+      // Julio (OFICINA_WA_NUMERO) le habla al jefe de gabinete: ordenes, audios y OK/NO a las propuestas. El resto sigue con Bit.
+      if (esJulio(String(m.from ?? ""))) { tareas.push(jefePorWhatsApp(e, m).catch((err) => console.error("jefe wa", err))); continue }
       tareas.push(procesar(e, m.from, perfiles[m.from] ?? null, texto ?? null, m.type === "interactive" || m.type === "button" ? "text" : m.type, m.id, "whatsapp", desdeReferral(m.referral, "whatsapp")).catch((err) => console.error("bot", err)))
     }
   }

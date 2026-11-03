@@ -44,6 +44,15 @@ export function middleware(req: NextRequest) {
     u.pathname = "/panel-contenido" + (p === "/" ? "" : p)
     return NextResponse.rewrite(u)
   }
+  // oficina.devisebit.com: Oficina de agentes (vive en /oficina). Solo entra Julio (rol gerente); la ruta lo vuelve a verificar
+  if (host.startsWith("oficina.")) {
+    if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
+    if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
+    if (p === "/oficina") return NextResponse.next()
+    const u = req.nextUrl.clone()
+    u.pathname = "/oficina"
+    return NextResponse.rewrite(u)
+  }
   // sistema.devisebit.com: la Academia tiene su propio sistema en academia.devisebit.com/sistema
   if (host.startsWith("sistema.")) {
     const viejo = p.match(/^\/(academia-admin|cursos)(\/.*)?$/)
