@@ -2,6 +2,7 @@ import { timingSafeEqual } from "crypto"
 import { q, one } from "./db"
 import { usuarioActual, type Usuario } from "./auth"
 import { SEMILLA, AREAS } from "./oficina-seed"
+import { politicaTexto } from "./oficina-politica"
 
 /** Base de la Oficina: documentos por colección (agentes, eventos, ordenes, tareas), con la misma forma que usa el panel. */
 export const COLECCIONES = ["agentes", "eventos", "ordenes", "tareas"] as const
@@ -17,16 +18,16 @@ export function preparar() {
       await q("create index if not exists of_docs_col_idx on of_docs (col, actualizado desc)")
       const n = await one<{ c: number }>("select count(*)::int c from of_docs where col='agentes'")
       if (!n || n.c === 0) for (const s of SEMILLA) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(s.data)])
-      // Migración v2: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
+      // Migración v3: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
       const v = await one<{ v: number }>("select (data->>'v')::int v from of_docs where col='_meta' and id='seed'")
-      if (!v || v.v < 2) {
+      if (!v || v.v < 3) {
         for (const s of SEMILLA) {
           const d = s.data as Record<string, any>
           const patch = s.id === "jefe-gabinete" || d.tipo === "persona" ? { nombre: d.nombre, piso: d.piso, equipo: d.equipo, rol: d.rol, orden: d.orden } : { piso: d.piso, equipo: d.equipo }
           const r = await q("update of_docs set data = data || $2::jsonb, actualizado=now() where col='agentes' and id=$1 returning id", [s.id, JSON.stringify(patch)])
           if (!r.length) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(d)])
         }
-        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":2}'::jsonb) on conflict (col,id) do update set data='{\"v\":2}'::jsonb")
+        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":3}'::jsonb) on conflict (col,id) do update set data='{\"v\":3}'::jsonb")
       }
     })().catch((e) => { listo = null; throw e })
   }
@@ -101,7 +102,7 @@ export async function cerrarTarea(id: string, nota: string) {
 
 /* ---------------- Jefe de gabinete ---------------- */
 
-const REGLAS = `REGLAS DEL EQUIPO (obligatorias):
+const REGLAS = `PERMISOS (obligatorios; el jefe de oficina propone, Julio da el OK final en los temas importantes):\n${politicaTexto()}\n\nREGLAS DEL EQUIPO (obligatorias):
 - Nada sale ni se publica sin el OK de Julio donde sea sensible: los agentes solo dejan borradores (Gmail) y listas; las invitaciones o mensajes de LinkedIn los envía Julio a mano. Ningún agente entra a LinkedIn con el navegador.
 - Nunca precios en piezas públicas. Nunca nombrar públicamente UTHGRA, OSDEPYM, MC SALUD ni "Grupo San Gabriel". Nunca usar el título "CIO" para Julio.
 - San Patricio SRL está congelada: no se le asigna contenido ni cambios; solo puede nombrarse como proyecto de DEVISEBIT.

@@ -27,6 +27,8 @@ const L: S[] = [
   ["barbara", "Bárbara", 5, "Gabinete", "persona", "Jefa de gabinete: coordina la operación, proyectos, demos y testing", "", "flower", "#F93498", "bow", 0],
   ["jime", "Jime", 3, "Contenido", "persona", "Responsable de Contenido y redes: diseño y marketing", "", "star", "#FD690F", "none", 0],
   ["jonathan", "Jonathan", 1, "Sistemas", "persona", "Responsable de Sistemas y desarrollo", "", "hexagon", "#1E86FC", "glasses", 0],
+  ["julio", "Julio Miranda", 2, "Administración", "persona", "Dirección general. Responsable único de Administración y finanzas y quien da el OK final", "", "star", "#C8231F", "glasses", 0],
+  ["georgina", "Georgina", 6, "Academia", "persona", "Responsable de Academia Educativa", "", "flower", "#8F59F9", "bow", 0],
   ["debora", "Débora", 4, "Comercial", "persona", "Responsable de Comercial: ventas y call center", "", "drop", "#14C16F", "antenna", 0],
 ]
 export const SEMILLA = L.map(([id, nombre, piso, equipo, tipo, rol, horario, forma, color, acc, orden, trigger, nohace]) => ({
@@ -39,6 +41,7 @@ export const AREAS: Record<number, { titulo: string; responsable?: string; cargo
   5: { titulo: "Dirección y gabinete", responsable: "barbara", cargo: "Jefa de gabinete" },
   4: { titulo: "Comercial y licitaciones", responsable: "debora", cargo: "Responsable de Comercial" },
   3: { titulo: "Contenido y redes", responsable: "jime", cargo: "Responsable de Contenido" },
-  2: { titulo: "Administración y finanzas" },
+  2: { titulo: "Administración y finanzas", responsable: "julio", cargo: "Responsable (solo Julio)" },
+  6: { titulo: "Academia Educativa", responsable: "georgina", cargo: "Responsable de Academia" },
   1: { titulo: "Sistemas y desarrollo", responsable: "jonathan", cargo: "Responsable de Sistemas" },
 }

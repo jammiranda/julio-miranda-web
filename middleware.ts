@@ -48,7 +48,8 @@ export function middleware(req: NextRequest) {
   if (host.startsWith("oficina.")) {
     if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
     if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
-    if (p === "/oficina") return NextResponse.next()
+    if (p === "/oficina" || p === "/oficina/organigrama") return NextResponse.next()
+    if (p === "/organigrama") { const o = req.nextUrl.clone(); o.pathname = "/oficina/organigrama"; return NextResponse.rewrite(o) }
     const u = req.nextUrl.clone()
     u.pathname = "/oficina"
     return NextResponse.rewrite(u)
