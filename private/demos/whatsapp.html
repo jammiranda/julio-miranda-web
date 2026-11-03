@@ -400,6 +400,18 @@ html[data-lk-white]{--lk-accent:#1D4E89}
 @media (max-width:860px){.wa-lk{padding:8px 14px 0}.wa-lk .lk-strip{font-size:12.5px;padding:6px 10px}}
 .dv-final .lk-tour-note{font-size:14px;color:#4A515C;background:#F4F5F7;border-radius:10px;padding:8px 12px;margin:-6px auto 18px;display:inline-block}
 
+
+#contratar{margin-top:18px}
+#contratar .ct-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:12px}
+#contratar .ct-card{border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;background:#fff}
+#contratar .ct-card h4{margin:0;font-size:17px}
+#contratar .ct-card p{margin:0;color:var(--gray);font-size:14px}
+#contratar .ct-price{font-size:26px;font-weight:800;line-height:1}
+#contratar .ct-price small{font-size:13px;font-weight:600;color:var(--gray)}
+#contratar .ct-pp{margin-top:auto;display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:10px;background:#FFC439;color:#0B0D12;font-weight:700;text-decoration:none;text-align:center;padding:8px 12px}
+#contratar .ct-pp:hover{background:#F2BA36}
+#contratar .ct-note{font-size:13.5px;color:var(--gray);margin-top:10px}
+html[data-brand="blanca"] #contratar{display:none}
 </style>
 <script>window.LOCK_CFG={"product": "Asistente de WhatsApp", "modules": [["Campañas y envíos masivos", "Mandá recordatorios, novedades y promociones a listas segmentadas, con plantillas aprobadas por WhatsApp y control de bajas."], ["Integración con tu sistema de turnos", "El asistente consulta tu agenda real y confirma, reprograma o cancela turnos sin que nadie cargue nada a mano."], ["Varios números y sucursales", "Cada sede con su número, sus horarios y su equipo, y un tablero que reúne a todas."], ["Pagos por link", "Envía un link de pago dentro de la conversación y avisa al equipo cuando se acredita."], ["Encuestas de satisfacción", "Al cerrar cada conversación pregunta cómo fue la atención y suma las respuestas al tablero."], ["Informes mensuales", "Un resumen por mes con consultas, temas, tiempos de respuesta y derivaciones, listo para compartir."]]};</script>
 <script id="lk-js">
@@ -575,6 +587,7 @@ window.LOCK=(function(){
       <div class="card panel"><h3>Últimas conversaciones</h3><ul class="feed" id="feed"></ul></div>
     </div>
     <section class="card panel lk-card" aria-labelledby="lk-h"><h3 id="lk-h"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>En el sistema completo</h3><p class="lk-cap">Módulos que se suman en la versión completa. Tocá uno para ver de qué se trata.</p><div data-lk-section data-lk-variant="tiles" data-lk-heading="lk-h"></div></section>
+    <section class="card panel" id="contratar" aria-labelledby="ct-h"><h3 id="ct-h">Contratá tu agente de WhatsApp</h3><p style="margin:4px 0 0;color:var(--gray)">Elegí el agente y reservalo con la seña. Pagás con PayPal o tarjeta internacional.</p><div class="ct-grid"><div class="ct-card"><h4>Agente Respuestas</h4><p>Responde preguntas frecuentes, horarios y precios, deriva a una persona, informe mensual.</p><p>Listo en 5 días hábiles · abono mínimo 6 meses</p><div class="ct-price">USD 95 <small>de seña</small></div><a class="ct-pp" href="https://academia.devisebit.com/productos/sena-agente-respuestas" target="_blank" rel="noopener">Reservar con PayPal · USD 95</a></div><div class="ct-card"><h4>Agente Ventas</h4><p>Respuestas más presentación de productos, calificación del cliente, link de pago y registro en planilla o CRM.</p><p>Listo en 7 días hábiles · abono mínimo 6 meses</p><div class="ct-price">USD 160 <small>de seña</small></div><a class="ct-pp" href="https://academia.devisebit.com/productos/sena-agente-ventas" target="_blank" rel="noopener">Reservar con PayPal · USD 160</a></div><div class="ct-card"><h4>Agente Turnos</h4><p>Respuestas más turnos en Google Calendar, recordatorios y reprogramación.</p><p>Listo en 10 días hábiles · abono mínimo 6 meses</p><div class="ct-price">USD 190 <small>de seña</small></div><a class="ct-pp" href="https://academia.devisebit.com/productos/sena-agente-turnos" target="_blank" rel="noopener">Reservar con PayPal · USD 190</a></div></div><p class="ct-note">La seña es el adelanto del servicio: no se descuenta ni se cobra aparte. Después del pago te escribimos para coordinar el alcance y la fecha.</p></section>
     <p class="note-box">Esto es una simulación con respuestas guionadas por palabras clave, para que veas cómo funciona. En la versión real, el asistente usa IA entrenada con la información de tu organización, se conecta a tu número de WhatsApp y a tu agenda.</p>
   </section>
 </main>
