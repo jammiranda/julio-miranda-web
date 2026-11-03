@@ -15,16 +15,18 @@ const I: Record<string, React.ReactNode> = {
   anuncios: <path d="M3 11v2a1 1 0 001 1h2l5 4V6L6 10H4a1 1 0 00-1 1zM15 9a4 4 0 010 6M18 6a8 8 0 010 12" />,
   email: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></>,
   linkedin: <><rect x="3" y="3" width="18" height="18" rx="3" /><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7" /></>,
+  oficina: <><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h2M14 7h2M8 11h2M14 11h2M10 21v-4h4v4" /></>,
   competencia: <><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4.5" /></>,
 }
 const GRUPOS: { g?: string; items: [string, string][] }[] = [
   { items: [["", "Inicio"]] },
+  { g: "Gestión", items: [["oficina", "Oficina"]] },
   { g: "Contenido", items: [["publicaciones", "Publicaciones"]] },
   { g: "Negocio", items: [["crm", "CRM y ventas"], ["academia", "Academia"], ["web", "Web"], ["usuarios", "Usuarios"]] },
   { g: "Medir", items: [["analisis", "Análisis"], ["email", "Email"], ["youtube", "YouTube"], ["linkedin", "LinkedIn"], ["anuncios", "Anuncios"], ["competencia", "Competencia"]] },
 ]
 
-export default function Nav({ base }: { base: string }) {
+export default function Nav({ base, oficina = false }: { base: string; oficina?: boolean }) {
   const p = usePathname() ?? "/"
   const rel = (base && p.startsWith(base) ? p.slice(base.length) : p).replace(/^\/+/, "").split("/")[0]
   const ref = useRef<HTMLElement>(null)
@@ -34,7 +36,7 @@ export default function Nav({ base }: { base: string }) {
   }, [rel])
   return (
     <nav ref={ref} className="pc-nav" aria-label="Secciones del panel">
-      {GRUPOS.map((g, gi) => (
+      {GRUPOS.filter((g) => oficina || g.g !== "Gestión").map((g, gi) => (
         <div key={gi} style={{ display: "contents" }}>
           {g.g && <div className="grp">{g.g}</div>}
           {g.items.map(([s, t]) => (

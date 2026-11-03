@@ -42,7 +42,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
               <div className="l">{ig?.ok ? `@${ig.perfil.username} · ${hist.length > 1 ? `evolución de ${hist.length} días` : "la evolución se arma día a día"}` : "Instagram sin conexión"}</div>
             </div>
           )}
-          {u && <Nav base={b} />}
+          {u && <Nav base={b} oficina={u.rol === "gerente"} />}
           <div className="pc-foot">
             {u && <span>{u.nombre} · {ROL_NOMBRE[u.rol]}</span>}
             <span>DEVISEBIT SRL · datos propios, sin cifras inventadas</span>

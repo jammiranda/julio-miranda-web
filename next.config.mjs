@@ -5,7 +5,9 @@ const nextConfig = {
   experimental: { serverActions: { bodySizeLimit: "5mb", allowedOrigins: ["panel.devisebit.com"] }, outputFileTracingIncludes: { "/academia/descarga/[token]": ["./private/**"], "/academia/mi-cuenta/descargar/[iid]/[lid]": ["./private/cursos/**"], "/portal/descargar/[iid]/[lid]": ["./private/cursos/**"], "/demo/[token]/[slug]": ["./private/demos/**"] } },
   async headers() {
     return [
-      { source: "/:path*", headers: [
+      // La Oficina se muestra embebida en el panel (mismo origen)
+      { source: "/api/oficina/vista", headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }] },
+      { source: "/:path((?!api/oficina/vista$).*)", headers: [
         { key: "X-Frame-Options", value: "DENY" },
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
