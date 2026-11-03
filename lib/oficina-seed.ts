@@ -1,7 +1,7 @@
 /** Agentes y equipo de la Oficina (se cargan una sola vez, la primera vez que se abre). */
 type S = [id: string, nombre: string, piso: number, equipo: string, tipo: "tarea" | "persona", rol: string, horario: string, forma: string, color: string, acc: string, orden: number, trigger?: string, nohace?: string]
 const L: S[] = [
-  ["jefe-gabinete", "Jefe de gabinete", 5, "Gabinete", "tarea", "Recibe tus órdenes, las reparte y te pide el OK", "Siempre disponible (web, WhatsApp y audios)", "star", "#F59312", "antenna", 1, undefined, "No envía, publica ni paga nada sin tu OK."],
+  ["jefe-gabinete", "Jefe de oficina (IA)", 5, "Gabinete", "tarea", "Recibe tus órdenes, las reparte entre las áreas y te pide el OK; coordina con la jefa de gabinete", "Siempre disponible (web, WhatsApp y audios)", "star", "#F59312", "antenna", 1, undefined, "No envía, publica ni paga nada sin tu OK."],
   ["control-diario", "Control diario", 5, "Gabinete", "tarea", "Calidad y semáforo del día, llega a las 8:00", "Todos los días · 07:50", "hexagon", "#8F59F9", "glasses", 2, "trig_012dMwGNtPf8mR5dVRuQbpDZ", "Solo lee y avisa. No publica, no envía, no borra."],
   ["revision-ecosistema", "Revisión del ecosistema", 5, "Gabinete", "tarea", "Webs, sistemas, Vercel, Gmail y redes", "Lunes · 07:53", "sphere", "#13B7A2", "glasses", 3, "trig_018EeAg6d7qUGw16TJSLoKij", "Solo revisa; nunca carga claves ni borra."],
   ["ventas", "Ventas", 4, "Comercial", "tarea", "Seguimientos, borradores de Gmail y pipeline", "Lunes a viernes · 06:47", "rsquare", "#1E86FC", "none", 1, "trig_01HN6qcUu4FLUahsghpHjmi4", "Solo borradores. Sin precios. No entra a LinkedIn."],
@@ -24,12 +24,21 @@ const L: S[] = [
   ["documentos", "Documentos mensuales", 2, "Administración", "tarea", "Manual y presentación de la empresa en borrador", "Día 2 de cada mes · 09:41", "cloud", "#959595", "stem", 3, "trig_014Xa61cmHnGvokS8wMi9w2k"],
   ["bot-bit", "Prueba del bot Bit", 1, "Sistemas", "tarea", "Simula clientes exigentes y corrige el prompt", "Viernes · 08:36", "triangle", "#8F59F9", "antenna", 1, "trig_01H6HugNSnyHxJqsRcGyoS8v", "Nunca sube cambios a la rama de producción: abre un pull request."],
   ["integraciones", "Integraciones del panel", 1, "Sistemas", "tarea", "Revisa si ya hay datos nuevos para sumar", "Lunes · 09:13", "sphere", "#F59312", "none", 2, "trig_012NhwdKVfF4s6yWVLtjrtDG", "Solo revisa y avisa."],
-  ["barbara", "Bárbara", 0, "Equipo", "persona", "Proyectos, demos y testing", "", "flower", "#F93498", "bow", 1],
-  ["jime", "Jime", 0, "Equipo", "persona", "Diseño y marketing", "", "star", "#FD690F", "none", 2],
-  ["jonathan", "Jonathan", 0, "Equipo", "persona", "Desarrollo", "", "hexagon", "#1E86FC", "glasses", 3],
-  ["debora", "Débora", 0, "Equipo", "persona", "Ventas y call center", "", "drop", "#14C16F", "antenna", 4],
+  ["barbara", "Bárbara", 5, "Gabinete", "persona", "Jefa de gabinete: coordina la operación, proyectos, demos y testing", "", "flower", "#F93498", "bow", 0],
+  ["jime", "Jime", 3, "Contenido", "persona", "Responsable de Contenido y redes: diseño y marketing", "", "star", "#FD690F", "none", 0],
+  ["jonathan", "Jonathan", 1, "Sistemas", "persona", "Responsable de Sistemas y desarrollo", "", "hexagon", "#1E86FC", "glasses", 0],
+  ["debora", "Débora", 4, "Comercial", "persona", "Responsable de Comercial: ventas y call center", "", "drop", "#14C16F", "antenna", 0],
 ]
 export const SEMILLA = L.map(([id, nombre, piso, equipo, tipo, rol, horario, forma, color, acc, orden, trigger, nohace]) => ({
   id,
   data: { nombre, piso, equipo, tipo, rol, horario, orden, look: { forma, color, acc }, ...(trigger ? { trigger } : {}), ...(nohace ? { nohace } : {}) },
 }))
+
+/** Áreas (pisos): título y responsable. El responsable es una persona; se puede cambiar desde la Oficina. */
+export const AREAS: Record<number, { titulo: string; responsable?: string; cargo?: string }> = {
+  5: { titulo: "Dirección y gabinete", responsable: "barbara", cargo: "Jefa de gabinete" },
+  4: { titulo: "Comercial y licitaciones", responsable: "debora", cargo: "Responsable de Comercial" },
+  3: { titulo: "Contenido y redes", responsable: "jime", cargo: "Responsable de Contenido" },
+  2: { titulo: "Administración y finanzas" },
+  1: { titulo: "Sistemas y desarrollo", responsable: "jonathan", cargo: "Responsable de Sistemas" },
+}

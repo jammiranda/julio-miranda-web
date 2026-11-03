@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "crypto"
 import { q, one } from "./db"
 import { usuarioActual, type Usuario } from "./auth"
-import { SEMILLA } from "./oficina-seed"
+import { SEMILLA, AREAS } from "./oficina-seed"
 
 /** Base de la Oficina: documentos por colección (agentes, eventos, ordenes, tareas), con la misma forma que usa el panel. */
 export const COLECCIONES = ["agentes", "eventos", "ordenes", "tareas"] as const
@@ -17,6 +17,17 @@ export function preparar() {
       await q("create index if not exists of_docs_col_idx on of_docs (col, actualizado desc)")
       const n = await one<{ c: number }>("select count(*)::int c from of_docs where col='agentes'")
       if (!n || n.c === 0) for (const s of SEMILLA) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(s.data)])
+      // Migración v2: áreas con título y responsable (una sola vez; no pisa nombres que Julio cambie después)
+      const v = await one<{ v: number }>("select (data->>'v')::int v from of_docs where col='_meta' and id='seed'")
+      if (!v || v.v < 2) {
+        for (const s of SEMILLA) {
+          const d = s.data as Record<string, any>
+          const patch = s.id === "jefe-gabinete" || d.tipo === "persona" ? { nombre: d.nombre, piso: d.piso, equipo: d.equipo, rol: d.rol, orden: d.orden } : { piso: d.piso, equipo: d.equipo }
+          const r = await q("update of_docs set data = data || $2::jsonb, actualizado=now() where col='agentes' and id=$1 returning id", [s.id, JSON.stringify(patch)])
+          if (!r.length) await q("insert into of_docs (col,id,data) values ('agentes',$1,$2::jsonb) on conflict do nothing", [s.id, JSON.stringify(d)])
+        }
+        await q("insert into of_docs (col,id,data) values ('_meta','seed','{\"v\":2}'::jsonb) on conflict (col,id) do update set data='{\"v\":2}'::jsonb")
+      }
     })().catch((e) => { listo = null; throw e })
   }
   return listo
@@ -130,8 +141,10 @@ export async function procesarOrden(id: string): Promise<{ ok: boolean; estado?:
   const o = await obtener("ordenes", id)
   if (!o) return { ok: false, error: "no existe" }
   const ags = await plantel()
-  const roster = ags.map((a) => `- id "${a.id}" · ${a.data.nombre} · ${a.data.tipo === "persona" ? "PERSONA" : "AGENTE"} · ${a.data.rol}${a.data.horario ? ` · corre: ${a.data.horario}` : ""}${a.data.nohace ? ` · NO HACE: ${a.data.nohace}` : ""}`).join("\n")
-  const system = `Sos el jefe de gabinete de Julio Miranda (DEVISEBIT SRL y su perfil personal). Recibís sus órdenes una sola vez, las repartís entre los agentes y personas del equipo, y le pedís el OK. Hablás en español rioplatense, con voseo, breve.\n\n${REGLAS}\n\nEQUIPO DISPONIBLE:\n${roster}\n\nRespondé SOLO un JSON: {"tipo":"orden"|"consulta","resumen":"1 o 2 oraciones en voseo con qué entendiste y cómo lo repartís (o la respuesta, si es una consulta)","reparto":[{"agente":"<id exacto>","tarea":"instrucción concreta, 1 o 2 oraciones"}],"aviso":"opcional: riesgo o dato que Julio debe saber"}. Si es una consulta de seguimiento (ej. "¿qué pasó con…?"), respondé con el estado real usando los datos y dejá reparto vacío. Usá solo ids de la lista. Un agente programado ejecuta sus tareas aprobadas en su próxima corrida; no prometas horarios que no figuren.`
+  const areas = new Map<number, { titulo: string; resp?: string }>()
+  for (const [piso, a] of Object.entries(AREAS)) areas.set(Number(piso), { titulo: a.titulo, resp: a.responsable ? ags.find((x) => x.id === a.responsable)?.data.nombre : undefined })
+  const roster = ags.map((a) => `- id "${a.id}" · ${a.data.nombre} · ${a.data.tipo === "persona" ? "PERSONA" : "AGENTE"} · ÁREA: ${areas.get(a.data.piso)?.titulo ?? "—"} (responsable: ${areas.get(a.data.piso)?.resp ?? "a definir"}) · ${a.data.rol}${a.data.horario ? ` · corre: ${a.data.horario}` : ""}${a.data.nohace ? ` · NO HACE: ${a.data.nohace}` : ""}`).join("\n")
+  const system = `Sos el jefe de oficina (una IA) de Julio Miranda (DEVISEBIT SRL y su perfil personal). La jefa de gabinete es Bárbara (persona). La oficina se divide en áreas, cada una con un responsable. Recibís las órdenes de Julio una sola vez, las repartís entre los agentes y personas de cada área, y le pedís el OK. Cuando una tarea de un agente necesita seguimiento o revisión humana, sumá una tarea corta para el responsable del área; si cruza varias áreas, sumá a Bárbara como coordinadora. Si un área no tiene responsable, avisalo en el campo aviso. Hablás en español rioplatense, con voseo, breve.\n\n${REGLAS}\n\nEQUIPO DISPONIBLE:\n${roster}\n\nRespondé SOLO un JSON: {"tipo":"orden"|"consulta","resumen":"1 o 2 oraciones en voseo con qué entendiste y cómo lo repartís (o la respuesta, si es una consulta)","reparto":[{"agente":"<id exacto>","tarea":"instrucción concreta, 1 o 2 oraciones"}],"aviso":"opcional: riesgo o dato que Julio debe saber"}. Si es una consulta de seguimiento (ej. "¿qué pasó con…?"), respondé con el estado real usando los datos y dejá reparto vacío. Usá solo ids de la lista. Un agente programado ejecuta sus tareas aprobadas en su próxima corrida; no prometas horarios que no figuren.`
   const txt = await claude(system, `ORDEN DE JULIO:\n${String(o.data.texto).slice(0, 1500)}\n\n${await fotoDelDia()}`)
   const m = txt?.match(/\{[\s\S]*\}/)
   if (!m) { await actualizar("ordenes", id, { procesando: false, error: "El jefe no pudo analizar la orden; probá de nuevo." }); return { ok: false, error: "sin respuesta de IA" } }
@@ -178,13 +191,14 @@ export function textoPropuesta(o: Doc) {
 
 /** Transcribe un audio (WhatsApp). Necesita OPENAI_API_KEY (u otro servicio compatible); sin clave devuelve null. */
 export async function transcribir(audio: ArrayBuffer, mime = "audio/ogg"): Promise<string | null> {
-  const key = process.env.STT_API_KEY ?? process.env.OPENAI_API_KEY
+  const groq = process.env.GROQ_API_KEY
+  const key = groq ?? process.env.STT_API_KEY ?? process.env.OPENAI_API_KEY
   if (!key) return null
   const f = new FormData()
   f.append("file", new Blob([audio], { type: mime }), mime.includes("mp4") ? "audio.m4a" : "audio.ogg")
-  f.append("model", process.env.STT_MODEL ?? "gpt-4o-mini-transcribe")
+  f.append("model", process.env.STT_MODEL ?? (groq ? "whisper-large-v3-turbo" : "gpt-4o-mini-transcribe"))
   f.append("language", "es")
-  const r = await fetch(process.env.STT_URL ?? "https://api.openai.com/v1/audio/transcriptions", { method: "POST", headers: { Authorization: `Bearer ${key}` }, body: f })
+  const r = await fetch(process.env.STT_URL ?? (groq ? "https://api.groq.com/openai/v1/audio/transcriptions" : "https://api.openai.com/v1/audio/transcriptions"), { method: "POST", headers: { Authorization: `Bearer ${key}` }, body: f })
   if (!r.ok) return null
   const j = await r.json().catch(() => null)
   return typeof j?.text === "string" ? j.text.trim() : null
