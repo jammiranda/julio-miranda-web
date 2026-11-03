@@ -89,12 +89,12 @@ export default function Resolver({ lang = "es" }: { lang?: Lang }) {
     <div className="db-tech rounded-[24px] bg-[#0B0D12] text-white p-5 md:p-9 grid lg:grid-cols-[1fr_1.1fr] gap-8 lg:gap-12">
       <div className="flex flex-col gap-5 min-w-0">
         <div className="flex flex-col gap-2.5">
-          <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{t.kicker}</p>
+          <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{t.kicker}</p>
           <h2 className="m-0 font-tight text-[28px] md:text-[38px] leading-[1.1] font-extrabold">{t.h2}</h2>
           <p className="m-0 text-[16px] leading-relaxed text-[#C3C8D1]">{t.sub}</p>
         </div>
         <label className="flex items-center gap-3 rounded-2xl border border-[#3A404B] focus-within:border-[#FF6A63] bg-[#161A22] px-4 py-3.5 transition-colors">
-          <span aria-hidden="true" className="text-[#FF6A63] text-xl">✦</span>
+          <span aria-hidden="true" className="text-[#FF8E88] text-xl">✦</span>
           <span className="sr-only">{t.kicker}</span>
           <input
             value={q}
@@ -105,7 +105,7 @@ export default function Resolver({ lang = "es" }: { lang?: Lang }) {
           />
         </label>
         <div className="flex flex-col gap-2.5">
-          <p className="m-0 text-xs font-bold uppercase tracking-widest text-[#9AA1AD]">{t.chips}</p>
+          <p className="m-0 text-xs font-bold uppercase tracking-widest text-[#C3C8D1]">{t.chips}</p>
           <div className="flex flex-wrap gap-2">
             {items.map((it, i) => {
               const on = !ranked && sel === i
@@ -128,11 +128,11 @@ export default function Resolver({ lang = "es" }: { lang?: Lang }) {
       <div className="min-w-0 flex flex-col gap-3" aria-live="polite">
         {current ? (
           <div className="rounded-2xl border border-[#262C37] bg-[#161A22] p-6 md:p-8 flex flex-col gap-5 h-full">
-            {ranked && <span className="self-start rounded-full bg-[#FF6A63]/15 text-[#FF6A63] text-xs font-bold uppercase tracking-widest px-3 py-1">{t.badge}</span>}
+            {ranked && <span className="self-start rounded-full bg-[#FF6A63]/15 text-[#FF8E88] text-xs font-bold uppercase tracking-widest px-3 py-1">{t.badge}</span>}
             <h3 className="m-0 font-tight text-[26px] md:text-[32px] leading-[1.12] font-extrabold">{current.title}</h3>
             <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">{current.text}</p>
             <div className="flex flex-col gap-2.5">
-              <p className="m-0 text-xs font-bold uppercase tracking-widest text-[#9AA1AD]">{t.integra}</p>
+              <p className="m-0 text-xs font-bold uppercase tracking-widest text-[#C3C8D1]">{t.integra}</p>
               <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
                 {current.integra.map((x) => (
                   <li key={x} className="rounded-lg border border-[#3A404B] bg-[#0B0D12] px-3 py-1.5 text-[14px] text-[#E2E5EA]">⇄ {x}</li>
@@ -144,7 +144,7 @@ export default function Resolver({ lang = "es" }: { lang?: Lang }) {
               <Link href={t.contact} className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-5 py-3 font-semibold text-white transition-colors">{t.talk}</Link>
             </div>
             {others.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-1 text-[14px] text-[#9AA1AD]">
+              <div className="flex flex-wrap gap-2 pt-1 text-[14px] text-[#C3C8D1]">
                 {others.map((o) => <Link key={o.title} href={o.href} className="underline underline-offset-4 hover:text-white">{o.title}</Link>)}
               </div>
             )}

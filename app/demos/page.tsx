@@ -22,13 +22,13 @@ export default function Demos() {
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-14 pb-16 flex flex-col gap-4">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Demos</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Demos</p>
             <h1 className="m-0 font-tight text-[34px] md:text-[52px] leading-[1.05] font-extrabold max-w-[860px]">Probalo antes de decidir.</h1>
             <p className="m-0 text-lg text-[#C3C8D1] max-w-[720px]">Dejanos tu email y te mandamos un link personal para probar las demos en tu celular o compu, con datos de ejemplo. También incluye un video de un minuto de cada producto.</p>
             <ul className="m-0 mt-2 p-0 list-none flex flex-wrap gap-x-6 gap-y-2 text-[15px] text-[#C3C8D1]">
-              <li className="flex items-center gap-2"><Mail size={17} aria-hidden="true" className="text-[#FF6A63]" /> Llega al instante a tu correo</li>
-              <li className="flex items-center gap-2"><PlayCircle size={17} aria-hidden="true" className="text-[#FF6A63]" /> Recorrido guiado y video</li>
-              <li className="flex items-center gap-2"><Lock size={17} aria-hidden="true" className="text-[#FF6A63]" /> Link personal, sin registrarte</li>
+              <li className="flex items-center gap-2"><Mail size={17} aria-hidden="true" className="text-[#FF8E88]" /> Llega al instante a tu correo</li>
+              <li className="flex items-center gap-2"><PlayCircle size={17} aria-hidden="true" className="text-[#FF8E88]" /> Recorrido guiado y video</li>
+              <li className="flex items-center gap-2"><Lock size={17} aria-hidden="true" className="text-[#FF8E88]" /> Link personal, sin registrarte</li>
             </ul>
           </div>
           <div className="db-scan"><i /></div>

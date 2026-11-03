@@ -93,7 +93,7 @@ export default function AdvisoryPage() {
       <main id="contenido" className="pt-[72px]">
         <DbHero
           kicker="Technology & AI advisory"
-          title={<>A technology and AI team for your organization, <span className="text-[#FF6A63]">by the hour or by the month.</span></>}
+          title={<>A technology and AI team for your organization, <span className="text-[#FF8E88]">by the hour or by the month.</span></>}
           sub="Make sound technology decisions without building an IT department. Choose how we work together: a quick consult, a bank of hours or a monthly retainer with one accountable lead and everything logged in your portal."
         >
           <div className="flex flex-wrap gap-2.5 mt-2">
@@ -132,27 +132,27 @@ export default function AdvisoryPage() {
         <section id="formas" aria-labelledby="t-for" className="db-tech bg-[#0B0D12] text-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#FF6A63]"}>Five ways to work together</p>
+              <p className={kicker + " text-[#FF8E88]"}>Five ways to work together</p>
               <h2 id="t-for" className={h2}>From a quick consult to year-round support.</h2>
               <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Start with one and switch to another whenever you need to. Prices are in US dollars.</p>
             </div>
             <ol className="m-0 p-0 list-none grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {FORMAS.map((f) => (
                 <li key={f.n} className="rounded-2xl border border-white/15 bg-white/[0.03] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-3xl font-extrabold text-[#FF6A63]">{f.n}</span>
+                  <span className="font-tight text-3xl font-extrabold text-[#FF8E88]">{f.n}</span>
                   <h3 className="m-0 text-lg font-bold leading-snug">{f.t}</h3>
                   <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{f.d}</p>
                   <dl className="m-0 mt-auto pt-3 border-t border-white/10 flex flex-col gap-1.5">
                     {f.precios.map(([k, v]) => (
-                      <div key={k} className="flex flex-col text-[14px] leading-snug"><dt className="text-[#9AA1AD]">{k}</dt><dd className="m-0 font-bold text-[15px]">{v}</dd></div>
+                      <div key={k} className="flex flex-col text-[14px] leading-snug"><dt className="text-[#C3C8D1]">{k}</dt><dd className="m-0 font-bold text-[15px]">{v}</dd></div>
                     ))}
                   </dl>
-                  <span className="text-[13px] text-[#9AA1AD]">{f.nota}</span>
+                  <span className="text-[13px] text-[#C3C8D1]">{f.nota}</span>
                 </li>
               ))}
             </ol>
             <div className="rounded-2xl border border-[#C8231F]/60 bg-[#C8231F]/10 p-5 md:p-6 flex flex-col gap-1.5">
-              <strong className="text-sm uppercase tracking-[0.14em] text-[#FF6A63]">First meeting is free</strong>
+              <strong className="text-sm uppercase tracking-[0.14em] text-[#FF8E88]">First meeting is free</strong>
               <p className="m-0 text-[16px] leading-relaxed text-[#E6E8EC]">Your first meeting is free and lasts 30 minutes. Tell us about your situation and what you need to decide. We will tell you which format fits, or whether we are the right team at all.</p>
             </div>
           </div>
@@ -223,14 +223,14 @@ export default function AdvisoryPage() {
         <section id="equipo" aria-labelledby="t-eq" className="db-tech bg-[#0B0D12] text-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#FF6A63]"}>Who you work with</p>
+              <p className={kicker + " text-[#FF8E88]"}>Who you work with</p>
               <h2 id="t-eq" className={h2}>One accountable lead coordinates your account.</h2>
               <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Each hour is delivered by the team member who knows the topic best.</p>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {DIRECCION.map((p) => (
                 <article key={p.area} className="rounded-2xl border border-[#262C37] bg-[#161A22] p-6 md:p-7 flex flex-col gap-2">
-                  <p className="m-0 text-xs font-bold uppercase tracking-[0.14em] text-[#FF6A63]">{p.area}</p>
+                  <p className="m-0 text-xs font-bold uppercase tracking-[0.14em] text-[#FF8E88]">{p.area}</p>
                   <h3 className="m-0 font-tight text-[24px] font-bold">{p.titulo}</h3>
                   <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{p.d}</p>
                 </article>

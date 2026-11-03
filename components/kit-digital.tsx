@@ -25,7 +25,7 @@ export default function KitDigital({ lang }: { lang: Lang }) {
         <section className="db-tech relative overflow-hidden bg-[#0B0D12] text-white">
           <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(800px 420px at 85% 0%, rgba(200,35,31,.4), transparent 70%)" }} />
           <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 pt-14 pb-14 flex flex-col gap-5">
-            <p className={kicker + " text-[#FF6A63]"}>{t.kicker}</p>
+            <p className={kicker + " text-[#FF8E88]"}>{t.kicker}</p>
             <h1 className="m-0 font-tight text-[36px] md:text-[54px] leading-[1.04] font-extrabold tracking-[-0.02em] max-w-[900px]">{t.h1}</h1>
             <p className="m-0 text-lg md:text-xl leading-relaxed text-[#C3C8D1] max-w-[720px]">{t.sub}</p>
             <div className="flex flex-wrap gap-3 pt-1">
@@ -57,7 +57,7 @@ export default function KitDigital({ lang }: { lang: Lang }) {
 
         <section id="financiamiento" className="db-tech bg-[#0B0D12] text-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-10 flex flex-wrap gap-4 items-center justify-between">
-            <p className="m-0 text-[17px] md:text-[18px] leading-snug max-w-[820px]"><strong className="text-[#FF6A63]">{t.finKicker}.</strong> {t.finCorto}</p>
+            <p className="m-0 text-[17px] md:text-[18px] leading-snug max-w-[820px]"><strong className="text-[#FF8E88]">{t.finKicker}.</strong> {t.finCorto}</p>
             <Link href={t.guiaHref} className="rounded-xl border-2 border-[#3A404B] hover:border-[#FF6A63] px-[22px] py-[12px] font-bold transition-colors">{t.finLink} →</Link>
           </div>
         </section>

@@ -137,7 +137,7 @@ export default function Kit40Herramienta() {
         </label>
         {neto > 0 && (
           <div className="rounded-2xl bg-[#0B0D12] text-white p-6 grid gap-4 sm:grid-cols-3" role="status">
-            <div><span className="block text-sm text-[#C3C8D1]">Cofinanciamiento estimado</span><span className="font-tight text-3xl font-extrabold text-[#FF6A63]">{ars(apoyo)}</span></div>
+            <div><span className="block text-sm text-[#C3C8D1]">Cofinanciamiento estimado</span><span className="font-tight text-3xl font-extrabold text-[#FF8E88]">{ars(apoyo)}</span></div>
             <div><span className="block text-sm text-[#C3C8D1]">Tu parte estimada</span><span className="font-tight text-3xl font-extrabold">{ars(neto - apoyo)}</span></div>
             <div><span className="block text-sm text-[#C3C8D1]">Cobertura</span><span className="font-tight text-3xl font-extrabold">{Math.round((apoyo / neto) * 100)}%</span></div>
           </div>

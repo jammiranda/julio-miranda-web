@@ -59,12 +59,12 @@ export default function KitSelector({ kits, textos }: Props) {
         </div>
         <div className="rounded-2xl bg-[#0B0D12] text-white p-6 flex flex-col gap-4 justify-between">
           <div className="flex flex-col gap-2">
-            <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{textos.despuesT}</p>
+            <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{textos.despuesT}</p>
             <p className="m-0 text-[16px] leading-relaxed text-[#C3C8D1]">{k.siguiente.texto}</p>
           </div>
           <ul className="m-0 p-0 list-none flex flex-col gap-2">
             {k.siguiente.links.map((l) => (
-              <li key={l.href}><Link href={l.href} className="flex items-center justify-between rounded-xl border border-white/15 hover:border-[#FF6A63] hover:bg-white/5 px-4 py-3 font-bold transition-colors">{l.t}<span aria-hidden="true" className="text-[#FF6A63]">→</span></Link></li>
+              <li key={l.href}><Link href={l.href} className="flex items-center justify-between rounded-xl border border-white/15 hover:border-[#FF6A63] hover:bg-white/5 px-4 py-3 font-bold transition-colors">{l.t}<span aria-hidden="true" className="text-[#FF8E88]">→</span></Link></li>
             ))}
           </ul>
         </div>

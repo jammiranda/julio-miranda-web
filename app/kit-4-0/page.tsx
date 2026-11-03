@@ -62,7 +62,7 @@ export default function Kit40Page() {
             <a href="#herramienta" className="inline-flex items-center gap-2 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3.5 font-bold text-white transition-colors"><FileText size={19} aria-hidden="true" /> Usar la herramienta gratis</a>
             <a href={WA} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#1EB956] px-5 py-3.5 font-bold text-[#0B0D12] transition-colors"><MessageCircle size={19} aria-hidden="true" /> Consultar por WhatsApp</a>
           </div>
-          <p className="m-0 text-sm text-[#9AA1AD]">Información actualizada al {ACTUALIZADO}.</p>
+          <p className="m-0 text-sm text-[#C3C8D1]">Información actualizada al {ACTUALIZADO}.</p>
         </DbHero>
 
         <section aria-labelledby="k-que" className="bg-white">

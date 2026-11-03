@@ -22,7 +22,7 @@ export default function PrivacidadPage() {
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[56px] flex flex-col gap-4">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Legal</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Legal</p>
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold">Política de privacidad</h1>
             <p className="m-0 text-lg text-[#C3C8D1]">Última actualización: 22 de octubre de 2026</p>
           </div>

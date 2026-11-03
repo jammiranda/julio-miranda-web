@@ -112,9 +112,9 @@ export default function Integracion({ lang = "es", compacta = false }: { lang?: 
       <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 flex flex-col gap-14">
         <div className="grid lg:grid-cols-[1fr_1.1fr] gap-10 items-center">
           <div className="flex flex-col gap-5">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{t.kicker}</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{t.kicker}</p>
             <h2 id={"integ-" + lang} className="m-0 font-tight text-[34px] md:text-[56px] leading-[1.04] font-extrabold tracking-[-0.02em]">
-              {t.h2a} <span className="text-[#FF6A63]">{t.h2b}</span>
+              {t.h2a} <span className="text-[#FF8E88]">{t.h2b}</span>
             </h2>
             <p className="m-0 text-[17px] md:text-lg leading-relaxed text-[#C3C8D1] max-w-[560px]">{t.p}</p>
             <div className="flex flex-wrap gap-3 pt-1">

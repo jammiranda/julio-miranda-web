@@ -21,7 +21,7 @@ export default function ProductsPage() {
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[72px] flex flex-col gap-4">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Products</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Products</p>
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold max-w-[900px]">Proven systems, ready to deploy.</h1>
             <p className="m-0 text-lg md:text-[19px] leading-relaxed text-[#C3C8D1] max-w-[760px]">We don&apos;t start from scratch. We adapt products that already run in production, which shortens the timeline and lowers the risk.</p>
             <div className="flex flex-wrap gap-2 mt-3"><Link href="/en/services#soluciones" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">See ready-to-launch packages</Link><Link href="/en/services#a-medida" className="rounded-xl border border-white/20 hover:border-[#FF6A63] px-5 py-3 font-bold text-white transition-colors">Custom services</Link></div>
@@ -85,7 +85,7 @@ export default function ProductsPage() {
             <ol className="list-none m-0 p-0 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {PRODUCT_STEPS.map((s) => (
                 <li key={s.n} className="db-card rounded-2xl border border-[#262C37] bg-[#161A22] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-[30px] font-extrabold text-[#FF6A63]">{s.n}</span>
+                  <span className="font-tight text-[30px] font-extrabold text-[#FF8E88]">{s.n}</span>
                   <strong className="text-[19px]">{s.t}</strong>
                   <span className="text-[#C3C8D1] leading-normal">{s.d}</span>
                 </li>

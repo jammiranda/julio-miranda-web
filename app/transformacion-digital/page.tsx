@@ -87,13 +87,13 @@ export default function TransformacionDigitalPage() {
         <section aria-labelledby="t-eta" className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Cómo trabajamos</p>
+              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Cómo trabajamos</p>
               <h2 id="t-eta" className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">Cinco etapas, con resultados en cada una.</h2>
             </div>
             <ol className="m-0 p-0 list-none grid md:grid-cols-2 lg:grid-cols-5 gap-4">
               {ETAPAS.map((e) => (
                 <li key={e.n} className="rounded-2xl border border-white/15 bg-white/[0.03] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-3xl font-extrabold text-[#FF6A63]">{e.n}</span>
+                  <span className="font-tight text-3xl font-extrabold text-[#FF8E88]">{e.n}</span>
                   <h3 className="m-0 text-lg font-bold leading-snug">{e.t}</h3>
                   <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{e.d}</p>
                 </li>

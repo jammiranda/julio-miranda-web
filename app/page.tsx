@@ -59,9 +59,9 @@ export default function HomePage() {
         <section id="inicio" className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-20 md:pt-20 md:pb-24 flex flex-wrap gap-14 items-center">
             <div className="db-rise flex-[999_1_560px] min-w-0 flex flex-col gap-6">
-              <p className={kicker + " text-[#FF6A63]"}><span className="db-live" />Software e IA. Desde 2009 · sistemas en producción</p>
+              <p className={kicker + " text-[#FF8E88]"}><span className="db-live" />Software e IA. Desde 2009 · sistemas en producción</p>
               <h1 className="m-0 font-tight text-[40px] md:text-[64px] leading-[1.04] font-extrabold tracking-[-0.02em]">
-                Sistemas que ordenan tu organización. <span className="text-[#FF6A63]">Con precio fijo y fecha de entrega.</span>
+                Sistemas que ordenan tu organización. <span className="text-[#FF8E88]">Con precio fijo y fecha de entrega.</span>
               </h1>
               <p className="m-0 text-lg md:text-xl leading-relaxed text-[#C3C8D1] max-w-[640px]">
                 Desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Antes de empezar, sabés qué vas a recibir, cuándo y cuánto cuesta.
@@ -72,13 +72,19 @@ export default function HomePage() {
                 <Link href="/transformacion-digital" className="rounded-xl bg-white hover:bg-[#FDECEB] px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Transformación digital →</Link>
               </div>
             </div>
-            <div className="db-rise2 flex-[1_1_360px] min-w-0 grid grid-cols-2 gap-3">
-              {STATS.map((s) => (
-                <div key={s.l} className="db-card db-dark rounded-2xl border border-[#262C37] bg-[#161A22] p-5 md:p-6">
-                  <div className="font-tight text-4xl md:text-[44px] font-extrabold" data-count={s.c || undefined} data-prefix={s.pre}>{s.n}</div>
-                  <div className="text-[#C3C8D1] text-[15px]">{s.l}</div>
-                </div>
-              ))}
+            <div className="flex-[1_1_360px] min-w-0 flex flex-col gap-3">
+              <figure className="db-rise2 m-0 rounded-2xl bg-white overflow-hidden">
+                <img src="/images/case-management-new.webp" alt="Herramienta de gestión de proyectos y clientes desarrollada por DEVISEBIT: agenda, seguimiento de reuniones y tablero de clientes" width={1094} height={694} decoding="async" fetchPriority="high" className="w-full h-auto aspect-[19/10] object-cover object-center" />
+                <figcaption className="px-4 py-2.5 text-[13px] text-[#4A515C] bg-[#F5F6F8]">Herramienta de gestión de proyectos, desarrollada a medida.</figcaption>
+              </figure>
+              <div className="db-rise2 grid grid-cols-2 gap-3">
+                {STATS.map((s) => (
+                  <div key={s.l} className="db-card db-dark rounded-2xl border border-[#262C37] bg-[#161A22] p-5">
+                    <div className="font-tight text-4xl font-extrabold" data-count={s.c || undefined} data-prefix={s.pre}>{s.n}</div>
+                    <div className="text-[#C3C8D1] text-[15px]">{s.l}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div className="db-scan"><i /></div>
@@ -88,7 +94,6 @@ export default function HomePage() {
         <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
         {/* Transformación digital (destacado, claro para cortar el ritmo oscuro) */}
         <section id="transformacion" className="relative overflow-hidden bg-[#FFF4F2]">
-          <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
           <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
             <div className="flex flex-col gap-5">
               <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Consultoría de Transformación Digital</p>
@@ -135,10 +140,9 @@ export default function HomePage() {
             </div>
             <div className="db-tech flex-[999_1_560px] min-w-0 rounded-[24px] bg-[#0B0D12] p-4 md:p-6 grid sm:grid-cols-2 gap-3">
               {PRODUCTS.map((p, i) => (
-                <Link key={p.title} href={"/productos#" + PRODUCT_IDS[i]} className="db-card group rounded-2xl border border-[#262C37] bg-[#161A22] p-5 flex gap-4 items-start text-white">
-                  <span className="shrink-0 w-11 h-11 rounded-xl bg-[#C8231F] font-tight font-extrabold flex items-center justify-center group-hover:scale-110 transition-transform">{String(i + 1).padStart(2, "0")}</span>
+                <Link key={p.title} href={"/productos#" + PRODUCT_IDS[i]} className="db-card group rounded-2xl border border-[#262C37] border-l-4 border-l-[#C8231F] bg-[#161A22] p-5 flex items-start text-white">
                   <span className="flex flex-col gap-1 min-w-0">
-                    <span className="font-tight text-lg font-bold leading-snug group-hover:text-[#FF6A63] transition-colors">{p.title}</span>
+                    <span className="font-tight text-lg font-bold leading-snug group-hover:text-[#FF8E88] transition-colors">{p.title}</span>
                     <span className="text-[15px] leading-normal text-[#C3C8D1]">{p.text}</span>
                   </span>
                 </Link>
@@ -178,13 +182,13 @@ export default function HomePage() {
         <section id="desarrollo" className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-9">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#FF6A63]"}>Desarrollo a medida</p>
+              <p className={kicker + " text-[#FF8E88]"}>Desarrollo a medida</p>
               <h2 className={h2}>De la idea a producción, en cuatro pasos claros.</h2>
             </div>
             <ol className="list-none m-0 p-0 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {STEPS.map((s) => (
                 <li key={s.n} className="db-card rounded-2xl border border-[#262C37] bg-[#161A22] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-[32px] font-extrabold text-[#FF6A63]">{s.n}</span>
+                  <span className="font-tight text-[32px] font-extrabold text-[#FF8E88]">{s.n}</span>
                   <strong className="text-[19px]">{s.t}</strong>
                   <span className="text-[#C3C8D1] leading-normal">{s.d}</span>
                 </li>
@@ -198,13 +202,11 @@ export default function HomePage() {
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-6">
             <h2 className="m-0 font-tight text-[28px] md:text-[32px] font-extrabold">Sectores donde trabajamos</h2>
           </div>
-          <div className="db-marquee pb-16" aria-label={SECTORS.join(", ")}>
-            <div className="db-marquee-track" aria-hidden="true">
-              {[...SECTORS, ...SECTORS, ...SECTORS, ...SECTORS].map((s, i) => (
-                <span key={i} className="shrink-0 rounded-full border border-[#E2E5EA] bg-white px-6 py-3.5 font-semibold text-lg">{s}</span>
-              ))}
-            </div>
-          </div>
+          <ul className="max-w-[1240px] mx-auto px-4 md:px-8 pb-16 m-0 p-0 list-none flex flex-wrap gap-3">
+            {SECTORS.map((s) => (
+              <li key={s} className="rounded-full border border-[#E2E5EA] bg-white px-6 py-3.5 font-semibold text-lg">{s}</li>
+            ))}
+          </ul>
         </section>
 
         {/* Academia DEVISEBIT */}
@@ -212,7 +214,7 @@ export default function HomePage() {
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20">
             <div className="db-tech rounded-[20px] bg-[#0B0D12] text-white p-7 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-8 lg:gap-12 items-center">
               <div className="flex flex-col gap-4">
-                <p className={kicker + " text-[#FF6A63]"}>Academia DEVISEBIT</p>
+                <p className={kicker + " text-[#FF8E88]"}>Academia DEVISEBIT</p>
                 <h2 className="m-0 font-tight text-[30px] md:text-[40px] leading-[1.12] font-extrabold">Cursos de tecnología e IA aplicada, con certificado.</h2>
                 <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Para equipos de salud, gestión y administración. También armamos la academia online de tu organización.</p>
                 <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-2.5">

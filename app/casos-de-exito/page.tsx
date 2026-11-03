@@ -6,7 +6,7 @@ import MapaProyectos from "@/components/mapa-proyectos"
 import { CASOS, SECTORES } from "@/lib/casos-datos"
 import { SITE_URL, breadcrumb } from "@/lib/seo"
 
-const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]"
+const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]"
 
 export default function CasosDeExitoPage() {
   const sector = (id: string) => SECTORES.find((s) => s.id === id)?.name ?? ""

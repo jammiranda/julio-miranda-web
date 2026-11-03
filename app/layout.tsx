@@ -1,7 +1,7 @@
 import SkipLink from "@/components/skip-link"
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Inter_Tight, Playfair_Display } from "next/font/google"
+import { Inter, Inter_Tight, Fraunces } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
 import { I18nProvider } from "@/lib/i18n/context"
@@ -16,17 +16,20 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
-const interTight = Inter_Tight({
+// Títulos: serif con carácter (Fraunces). Inter queda solo para texto corrido.
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  axes: ["opsz"],
   display: "swap",
-  variable: "--font-tight",
+  variable: "--font-display",
 })
 
-const playfair = Playfair_Display({
+// Solo para el logotipo escrito "DEVISEBIT" (se mantiene igual que antes).
+const marca = Inter_Tight({
   subsets: ["latin"],
+  weight: ["800"],
   display: "swap",
-  variable: "--font-playfair",
+  variable: "--font-marca",
 })
 
 export const metadata: Metadata = {
@@ -48,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${inter.variable} ${interTight.variable} ${playfair.variable} antialiased`}>
+    <html lang="es-AR" className={`${inter.variable} ${fraunces.variable} ${marca.variable} antialiased`}>
       <body>
         <JsonLd data={ORGANIZACION} />
         <JsonLd data={SITIO_WEB} />

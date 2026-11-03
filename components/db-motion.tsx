@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 
-/* Animaciones globales: aparición al hacer scroll, contadores y brillo que sigue al mouse en las tarjetas */
+/* Contadores y brillo que sigue al mouse en las tarjetas. La aparición al hacer scroll es solo para lo marcado con data-reveal: no se anima todo por defecto. */
 export default function DbMotion() {
   const pathname = usePathname()
 
@@ -16,7 +16,7 @@ export default function DbMotion() {
     const t = window.setTimeout(() => {
       const root = document.querySelector("main") || document.body
       const targets = Array.from(
-        root.querySelectorAll<HTMLElement>("section h2, section h3, .db-card, [data-reveal], section img, section li, section p"),
+        root.querySelectorAll<HTMLElement>("[data-reveal]"),
       ).filter((el) => !el.closest("header") && !el.closest(".db-rise") && !el.classList.contains("db-anim"))
 
       if (!reduce) {

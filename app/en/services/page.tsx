@@ -21,7 +21,7 @@ export default function ServicesPage() {
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[72px] flex flex-col gap-4">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Services</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Services</p>
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold max-w-[900px]">Everything you need to digitize your organization, from one team.</h1>
             <p className="m-0 text-lg md:text-[19px] leading-relaxed text-[#C3C8D1] max-w-[760px]">Start with a ready-to-launch package or build a custom service with us. Every offer rests on products already running in production.</p>
             <nav aria-label="Services" className="flex flex-wrap gap-2 mt-4">
@@ -108,13 +108,13 @@ export default function ServicesPage() {
         <section id="desarrollo" className="db-tech bg-[#0B0D12] text-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-9">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">How we work</p>
+              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">How we work</p>
               <h2 className="m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold">From idea to production in four clear steps.</h2>
             </div>
             <ol className="list-none m-0 p-0 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {SERVICE_STEPS.map((s) => (
                 <li key={s.n} className="db-card rounded-2xl border border-[#262C37] bg-[#161A22] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-[32px] font-extrabold text-[#FF6A63]">{s.n}</span>
+                  <span className="font-tight text-[32px] font-extrabold text-[#FF8E88]">{s.n}</span>
                   <strong className="text-[19px]">{s.t}</strong>
                   <span className="text-[#C3C8D1] leading-normal">{s.d}</span>
                 </li>

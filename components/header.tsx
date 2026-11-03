@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, ChevronDown } from "lucide-react"
+import { IcoMenu, IcoCerrar, IcoDesplegar } from "./iconos"
 import DbMotion from "./db-motion"
 import { equivalente } from "@/lib/rutas"
 
@@ -96,20 +96,20 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
       <div className="max-w-[1240px] mx-auto px-4 md:px-8 h-[72px] flex items-center gap-4 xl:gap-6 lg:h-[58px] lg:w-fit lg:max-w-[calc(100vw-24px)] lg:rounded-full lg:border lg:border-white/15 lg:bg-[#0B0D12]/85 lg:backdrop-blur-xl lg:shadow-[0_14px_40px_rgba(0,0,0,.35)] lg:pl-5 lg:pr-2 lg:pointer-events-auto">
         <Link href={homeHref} className="flex items-center gap-2.5 text-white shrink-0" aria-label={L.home}>
           <Image src="/images/devisebit-icon-transparent.png" alt="" width={32} height={32} className="w-8 h-8" />
-          <span className="font-tight font-extrabold text-[22px] tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
+          <span className="font-marca font-extrabold text-[22px] tracking-[0.04em]">DEVISE<span className="text-[#FF8E88]">BIT</span></span>
         </Link>
 
         <nav ref={navRef} aria-label={L.nav} className="hidden lg:flex items-center gap-1 ml-auto">
           <Link href={homeHref} className={linkCls(homeHref)}>{en ? "Home" : "Inicio"}</Link>
           <div className="relative" onMouseEnter={() => show("servicios")} onMouseLeave={hideSoon}>
             <button type="button" aria-haspopup="true" aria-expanded={drop === "servicios"} onClick={() => setDrop((v) => (v === "servicios" ? null : "servicios"))} className={"flex items-center gap-1 " + linkCls("/servicios")}>
-              {L.services} <ChevronDown size={16} className={"transition-transform " + (drop === "servicios" ? "rotate-180" : "")} />
+              {L.services} <IcoDesplegar size={16} className={"transition-transform " + (drop === "servicios" ? "rotate-180" : "")} />
             </button>
             {drop === "servicios" && (
               <div className="absolute top-full left-0 pt-2" onMouseEnter={() => show("servicios")} onMouseLeave={hideSoon}>
                 <div className="min-w-[300px] rounded-2xl border border-white/10 bg-[#11141B] shadow-2xl shadow-black/50 p-2" onClick={() => setDrop(null)}>
                   {SERV.map((l) => {
-                    const inner = (<><span className="block text-[15px] text-white font-semibold">{l.label}</span>{l.desc && <span className="block text-[13px] text-[#9AA1AD] mt-0.5">{l.desc}</span>}</>)
+                    const inner = (<><span className="block text-[15px] text-white font-semibold">{l.label}</span>{l.desc && <span className="block text-[13px] text-[#C3C8D1] mt-0.5">{l.desc}</span>}</>)
                     return (l as any).plain
                       ? <a key={l.href} href={l.href} className="block rounded-lg px-4 py-3 hover:bg-white/5">{inner}</a>
                       : <Link key={l.href} href={l.href} className="block rounded-lg px-4 py-3 hover:bg-white/5">{inner}</Link>
@@ -129,7 +129,7 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
               onClick={() => setDrop((v) => (v === "nosotros" ? null : "nosotros"))}
               className={"flex items-center gap-1 " + linkCls("/nosotros")}
             >
-              {L.about} <ChevronDown size={16} className={"transition-transform " + (drop === "nosotros" ? "rotate-180" : "")} />
+              {L.about} <IcoDesplegar size={16} className={"transition-transform " + (drop === "nosotros" ? "rotate-180" : "")} />
             </button>
             {drop === "nosotros" && (
               <div className="absolute top-full right-0 pt-2" onMouseEnter={() => show("nosotros")} onMouseLeave={hideSoon}>
@@ -157,7 +157,7 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? <X size={22} /> : <Menu size={22} />}
+          {open ? <IcoCerrar size={22} /> : <IcoMenu size={22} />}
         </button>
       </div>
 
@@ -167,7 +167,7 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
             {MAINL.map((l) => (
               <Link key={l.href} href={l.href} className={linkCls(l.href)}>{l.label}</Link>
             ))}
-            <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{L.consulting}</p>
+            <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{L.consulting}</p>
             {en ? (
               <>
                 <Link href="/en/digital-transformation" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Digital transformation</Link>
@@ -181,7 +181,7 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
                 <a href={AUTODIAG} className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">Autodiagnóstico gratis</a>
               </>
             )}
-            <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{L.aboutMenu}</p>
+            <p className="px-3 pt-4 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{L.aboutMenu}</p>
             {NOS.map((l) =>
               (l as any).external ? (
                 <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="px-3 py-3 rounded-lg text-[15px] text-[#D3D7DE] hover:text-white">{l.label}</a>

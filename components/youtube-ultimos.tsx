@@ -1,4 +1,4 @@
-import { Youtube } from "lucide-react"
+import { IcoYoutube } from "./iconos"
 import { YOUTUBE } from "@/lib/marca"
 
 /** Últimos videos y shorts del canal (se actualiza solo) + botón para suscribirse. */
@@ -17,7 +17,7 @@ export default function YoutubeUltimos({ oscuro = true, titulo = "Lo último en 
         />
       </div>
       <div className="flex flex-wrap gap-2">
-        <a href={YOUTUBE.suscribirse} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#CC0000] hover:bg-[#A30000] px-4 py-2.5 text-sm font-bold text-white transition-colors"><Youtube size={18} aria-hidden="true" /> Suscribirme al canal</a>
+        <a href={YOUTUBE.suscribirse} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#CC0000] hover:bg-[#A30000] px-4 py-2.5 text-sm font-bold text-white transition-colors"><IcoYoutube size={18} /> Suscribirme al canal</a>
         <a href={YOUTUBE.shorts} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition-colors ${oscuro ? "border-white/20 text-white hover:border-[#FF6A63]" : "border-[#C3C8D1] text-[#262C37] hover:border-[#C8231F]"}`}>Ver todos los shorts</a>
       </div>
     </div>

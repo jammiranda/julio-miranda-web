@@ -498,7 +498,7 @@ export default function MapaProyectos({ lang = "es" }: { lang?: "es" | "en" } = 
 
         {/* título */}
         <div className="pointer-events-none absolute left-4 md:left-8 top-4 md:top-6 z-10 max-w-[calc(100%-96px)] md:max-w-[420px]">
-          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{T.kicker}</p>
+          <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{T.kicker}</p>
           <p className="m-0 mt-1 font-tight text-[22px] md:text-[28px] leading-tight font-extrabold">{T.title(TOTAL_NODOS, GALAXIAS.length)}</p>
           <p className="m-0 mt-1 text-[13px] text-[#AEB5C2]">{T.hint}</p>
         </div>

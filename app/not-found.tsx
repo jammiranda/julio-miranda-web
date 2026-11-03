@@ -11,7 +11,7 @@ export default function NotFound() {
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-[72px] flex flex-col gap-4">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Error 404</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Error 404</p>
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold max-w-[900px]">No encontramos esta página.</h1>
             <p className="m-0 text-lg md:text-[19px] leading-relaxed text-[#C3C8D1] max-w-[760px]">Puede que el link haya cambiado. Te dejamos los caminos más usados.</p>
             <div className="flex flex-wrap gap-3 mt-2">

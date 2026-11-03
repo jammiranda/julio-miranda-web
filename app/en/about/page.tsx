@@ -146,11 +146,11 @@ export default function AboutPage() {
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 grid md:grid-cols-2 gap-5">
             <div className="rounded-[20px] border border-[#262C37] bg-[#161A22] p-8 flex flex-col gap-3">
-              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Mission</p>
+              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Mission</p>
               <p className="m-0 font-tight text-2xl md:text-[28px] leading-snug font-bold">To drive the growth of companies, entrepreneurs and governments with efficient, custom technology solutions.</p>
             </div>
             <div className="rounded-[20px] border border-[#262C37] bg-[#161A22] p-8 flex flex-col gap-3">
-              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Vision</p>
+              <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Vision</p>
               <p className="m-0 font-tight text-2xl md:text-[28px] leading-snug font-bold">To be the go-to partner for software, data and artificial intelligence in healthcare and institutions, with excellence in every delivery.</p>
             </div>
           </div>

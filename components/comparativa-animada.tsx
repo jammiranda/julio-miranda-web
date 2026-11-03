@@ -39,7 +39,7 @@ export default function ComparativaAnimada({ a, b, filas }: { a: string; b: stri
   return (
     <div ref={ref} className="overflow-hidden rounded-2xl border border-white/10">
       <div className="grid grid-cols-2 text-sm md:text-[15px] font-bold uppercase tracking-wider">
-        <div className="bg-[#1B2029] text-[#9AA1AD] px-4 md:px-6 py-3.5">{a}</div>
+        <div className="bg-[#1B2029] text-[#C3C8D1] px-4 md:px-6 py-3.5">{a}</div>
         <div className="bg-[#C8231F] text-white px-4 md:px-6 py-3.5">{b}</div>
       </div>
       {filas.map(([x, y], i) => {
@@ -54,7 +54,7 @@ export default function ComparativaAnimada({ a, b, filas }: { a: string; b: stri
               <span style={{ textDecoration: tachada ? "line-through" : "none", textDecorationColor: "#FF6A63", textDecorationThickness: "2px" }}>{x}</span>
             </div>
             <div className="px-4 md:px-6 py-4 text-[14.5px] md:text-[16px] leading-snug font-semibold text-white bg-[#C8231F]/10 flex gap-2">
-              {tipeando && <span aria-hidden="true" className="text-[#FF6A63]">✓</span>}
+              {tipeando && <span aria-hidden="true" className="text-[#FF8E88]">✓</span>}
               <span aria-label={y}>{visibleDer}{i === fila && !todo && fase >= 2 && chars < y.length ? <span className="inline-block w-[2px] h-[1em] bg-[#FF6A63] align-middle ml-0.5 animate-pulse" /> : null}</span>
             </div>
           </div>

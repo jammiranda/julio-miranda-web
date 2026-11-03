@@ -16,7 +16,7 @@ export const metadata = pageMeta(
   "/casos-de-exito/todos",
 )
 
-const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]"
+const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]"
 
 export default function CasosDeExitoPage() {
   const sector = (id: string) => SECTORES.find((s) => s.id === id)?.name ?? ""
@@ -81,7 +81,7 @@ export default function CasosDeExitoPage() {
                     <div>
                       <p className="m-0 text-sm font-semibold text-[#FF9A95]">{c.client} · {c.industry}</p>
                       <h3 className="m-0 mt-1 font-tight text-[22px] md:text-[26px] leading-snug font-bold">{c.title}</h3>
-                      <p className="m-0 mt-1 text-sm text-[#9AA1AD]">{c.category}</p>
+                      <p className="m-0 mt-1 text-sm text-[#C3C8D1]">{c.category}</p>
                     </div>
                     <dl className="m-0 flex flex-col gap-3">
                       <div><dt className="text-sm font-bold text-white">Desafío</dt><dd className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{c.challenge}</dd></div>
@@ -101,7 +101,7 @@ export default function CasosDeExitoPage() {
       <section id="redes" aria-labelledby="t-redes" className="scroll-mt-[72px] db-tech bg-[#0B0D12] text-white border-t border-white/10">
         <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
           <div className="flex flex-col gap-3 max-w-[820px]">
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Redes que gestionamos</p>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">Redes que gestionamos</p>
             <h2 id="t-redes" className="m-0 font-tight text-[32px] md:text-[42px] leading-[1.1] font-extrabold">Contenido, reels y campañas, todas las semanas.</h2>
             <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Universidades, gobierno, gremios, salud y empresas: cuentas que llevamos hoy o que llevamos en distintas etapas, con planificación, placas, reels, publicación y respuesta con IA. Entrá y mirá cómo trabajamos.</p>
           </div>
@@ -123,7 +123,7 @@ export default function CasosDeExitoPage() {
                     <span className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]"><Instagram size={20} aria-hidden="true" /></span>
                     <strong className="text-[17px] leading-snug">{r.nombre}</strong>
                     <span className="text-sm text-[#C3C8D1]">{r.rubro}</span>
-                    <span className="mt-auto pt-1 text-sm font-bold text-[#FF6A63] break-all">@{r.ig} →</span>
+                    <span className="mt-auto pt-1 text-sm font-bold text-[#FF8E88] break-all">@{r.ig} →</span>
                   </a>
                 </li>
               )

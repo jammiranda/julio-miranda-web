@@ -14,7 +14,7 @@ export const metadata = pageMeta(
   "/en/success-stories/all",
 )
 
-const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]"
+const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]"
 
 const TECNOLOGIAS = [
   "React Native", "Firebase", "WordPress", "Moodle", "Microsoft Power BI", "Python", "JavaScript", "PHP",
@@ -84,7 +84,7 @@ export default function SuccessStoriesPage() {
                     <div>
                       <p className="m-0 text-sm font-semibold text-[#FF9A95]">{c.client} · {c.industry}</p>
                       <h3 className="m-0 mt-1 font-tight text-[22px] md:text-[26px] leading-snug font-bold">{c.title}</h3>
-                      <p className="m-0 mt-1 text-sm text-[#9AA1AD]">{c.category}</p>
+                      <p className="m-0 mt-1 text-sm text-[#C3C8D1]">{c.category}</p>
                     </div>
                     <dl className="m-0 flex flex-col gap-3">
                       <div><dt className="text-sm font-bold text-white">Challenge</dt><dd className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{c.challenge}</dd></div>

@@ -103,7 +103,7 @@ export default function AsesoriaPage() {
       <main id="contenido" className="pt-[72px]">
         <DbHero
           kicker="Asesoría y consultoría en tecnología e IA"
-          title={<>Un equipo de tecnología e IA a disposición de tu organización, <span className="text-[#FF6A63]">por horas o por mes.</span></>}
+          title={<>Un equipo de tecnología e IA a disposición de tu organización, <span className="text-[#FF8E88]">por horas o por mes.</span></>}
           sub="Tomá buenas decisiones de tecnología sin tener un área de sistemas propia. Elegís cómo trabajar con nosotros: una consulta puntual, un paquete de horas o un abono mensual con un responsable único y todo registrado en tu portal."
         >
           <div className="flex flex-wrap gap-2.5 mt-2">
@@ -143,27 +143,27 @@ export default function AsesoriaPage() {
         <section id="formas" aria-labelledby="t-for" className="db-tech bg-[#0B0D12] text-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#FF6A63]"}>Cinco formas de contratar</p>
+              <p className={kicker + " text-[#FF8E88]"}>Cinco formas de contratar</p>
               <h2 id="t-for" className={h2}>De la consulta puntual al acompañamiento de todo el año.</h2>
               <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Podés empezar por una y pasar a otra cuando lo necesites.</p>
             </div>
             <ol className="m-0 p-0 list-none grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {FORMAS.map((f) => (
                 <li key={f.n} className="rounded-2xl border border-white/15 bg-white/[0.03] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-3xl font-extrabold text-[#FF6A63]">{f.n}</span>
+                  <span className="font-tight text-3xl font-extrabold text-[#FF8E88]">{f.n}</span>
                   <h3 className="m-0 text-lg font-bold leading-snug">{f.t}</h3>
                   <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{f.d}</p>
                   <dl className="m-0 mt-auto pt-3 border-t border-white/10 flex flex-col gap-1.5">
                     {f.precios.map(([k, v]) => (
-                      <div key={k} className="flex flex-col text-[14px] leading-snug"><dt className="text-[#9AA1AD]">{k}</dt><dd className="m-0 font-bold text-[15px]">{v}</dd></div>
+                      <div key={k} className="flex flex-col text-[14px] leading-snug"><dt className="text-[#C3C8D1]">{k}</dt><dd className="m-0 font-bold text-[15px]">{v}</dd></div>
                     ))}
                   </dl>
-                  <span className="text-[13px] text-[#9AA1AD]">{f.nota}</span>
+                  <span className="text-[13px] text-[#C3C8D1]">{f.nota}</span>
                 </li>
               ))}
             </ol>
             <div className="rounded-2xl border border-[#C8231F]/60 bg-[#C8231F]/10 p-5 md:p-6 flex flex-col gap-1.5">
-              <strong className="text-sm uppercase tracking-[0.14em] text-[#FF6A63]">Primera reunión sin costo</strong>
+              <strong className="text-sm uppercase tracking-[0.14em] text-[#FF8E88]">Primera reunión sin costo</strong>
               <p className="m-0 text-[16px] leading-relaxed text-[#E6E8EC]">La primera reunión es gratuita y dura 30 minutos. Para aprovecharla, antes hacés el autodiagnóstico de madurez digital (10 minutos, gratis): así llegamos con tus datos a la reunión y vamos directo a lo que necesitás decidir.</p>
             </div>
           </div>
@@ -234,14 +234,14 @@ export default function AsesoriaPage() {
         <section id="equipo" aria-labelledby="t-eq" className="db-tech bg-[#0B0D12] text-white scroll-mt-[72px]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] flex flex-col gap-8">
             <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#FF6A63]"}>Quién te atiende</p>
+              <p className={kicker + " text-[#FF8E88]"}>Quién te atiende</p>
               <h2 id="t-eq" className={h2}>Un responsable único coordina tu cuenta.</h2>
               <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Las horas las da la persona del equipo que mejor conoce cada tema.</p>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {DIRECCION.map((p) => (
                 <article key={p.area} className="rounded-2xl border border-[#262C37] bg-[#161A22] p-6 md:p-7 flex flex-col gap-2">
-                  <p className="m-0 text-xs font-bold uppercase tracking-[0.14em] text-[#FF6A63]">{p.area}</p>
+                  <p className="m-0 text-xs font-bold uppercase tracking-[0.14em] text-[#FF8E88]">{p.area}</p>
                   <h3 className="m-0 font-tight text-[24px] font-bold">{p.titulo}</h3>
                   <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">{p.d}</p>
                 </article>

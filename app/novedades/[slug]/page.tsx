@@ -50,8 +50,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <main id="contenido" className="pt-[72px]">
         <section className="db-tech bg-[#0B0D12] text-white">
           <div className="db-rise max-w-[860px] mx-auto px-4 md:px-8 pt-14 pb-16 flex flex-col gap-4">
-            <Link href="/novedades" className="self-start text-sm font-semibold text-[#FF6A63] hover:text-white">← Novedades</Link>
-            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">{p.kicker}</p>
+            <Link href="/novedades" className="self-start text-sm font-semibold text-[#FF8E88] hover:text-white">← Novedades</Link>
+            <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]">{p.kicker}</p>
             <h1 className="m-0 font-tight text-[32px] md:text-[46px] leading-[1.1] font-extrabold">{p.title}</h1>
             <p className="m-0 text-[#C3C8D1]">{p.dateTxt} · Equipo DEVISEBIT</p>
           </div>
@@ -67,7 +67,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <div className="mt-10 rounded-[20px] bg-[#0B0D12] text-white p-7">
               <p className="m-0 mb-4 font-tight text-xl font-bold">{NUM[p.box.length] ?? p.box.length} preguntas para hacerte hoy</p>
               <ul className="m-0 p-0 list-none flex flex-col gap-3">
-                {p.box.map((t, i) => (<li key={i} className="flex gap-3"><span className="text-[#FF6A63] font-extrabold" aria-hidden="true">{i + 1}.</span>{t}</li>))}
+                {p.box.map((t, i) => (<li key={i} className="flex gap-3"><span className="text-[#FF8E88] font-extrabold" aria-hidden="true">{i + 1}.</span>{t}</li>))}
               </ul>
             </div>
           )}

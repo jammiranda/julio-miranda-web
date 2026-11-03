@@ -13,7 +13,7 @@ export const metadata = pageMeta(
   "/en/success-stories",
 )
 
-const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]"
+const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF8E88]"
 
 export default function SuccessStoriesPage() {
   const sector = (id: string) => SECTORES_EN.find((s) => s.id === id)?.name ?? ""

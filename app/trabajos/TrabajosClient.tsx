@@ -95,7 +95,7 @@ export default function TrabajosClient({ embedded = false }: { embedded?: boolea
         <div className="tb-grid absolute inset-0 opacity-40" aria-hidden="true" />
         <div className="tb-glow absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-4">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#FF6A63]">Todos los trabajos · 2009–2026</p>
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#FF8E88]">Todos los trabajos · 2009–2026</p>
           {embedded ? <h2 className="text-4xl md:text-6xl font-extrabold mt-3 max-w-3xl leading-[1.05]">Más de 150 proyectos en producción.</h2> : <h1 className="text-4xl md:text-6xl font-extrabold mt-3 max-w-3xl leading-[1.05]">Más de 150 proyectos en producción.</h1>}
           <p className="text-lg text-gray-300 mt-5 max-w-2xl">Plataformas, apps, webs e identidad para salud, gobierno, universidades, gremios, medios y empresas de todo el país.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
@@ -135,7 +135,7 @@ export default function TrabajosClient({ embedded = false }: { embedded?: boolea
                 <div className="aspect-[16/10] bg-[#0B0D12] relative overflow-hidden flex flex-col justify-between p-6">
                   <div className="tb-grid absolute inset-0 opacity-50" aria-hidden="true" />
                   <div className="absolute -bottom-24 -right-24 w-72 h-72 rounded-full" style={{ background: "radial-gradient(closest-side,rgba(200,35,31,.45),transparent)" }} aria-hidden="true" />
-                  <span className="relative text-[#FF6A63] font-mono text-sm">{"<"}{i.c.toLowerCase()}{" />"}</span>
+                  <span className="relative text-[#FF8E88] font-mono text-sm">{"<"}{i.c.toLowerCase()}{" />"}</span>
                   <span className="relative text-white text-2xl font-extrabold leading-tight max-w-[90%]" aria-hidden="true">{i.t}</span>
                 </div>
               )}
