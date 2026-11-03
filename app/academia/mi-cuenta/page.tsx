@@ -18,6 +18,10 @@ export default async function MiCuentaAcademia() {
      order by destacado desc, creado desc limit 3`, [c.id])
   const enCurso = ins.filter((x) => ["inscripto", "cursando"].includes(x.estado))
   const siguiente = enCurso[0]
+  // Si el nombre guardado es solo el usuario del email (sin espacios ni mayúsculas), no lo mostramos como nombre.
+  const primero = (c.nombre ?? "").trim().split(/\s+/)[0]
+  const sinNombre = !primero || (!/\s/.test((c.nombre ?? "").trim()) && primero === primero.toLowerCase() && primero === (c.email ?? "").split("@")[0].toLowerCase())
+  const saludo = sinNombre ? "Hola" : `Hola, ${primero}`
 
   return (
     <div className="flex flex-col gap-8">
@@ -25,7 +29,7 @@ export default async function MiCuentaAcademia() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-col gap-2 min-w-[14rem] flex-1">
             <p className="m-0 aula-eyebrow">ACADEMIA DEVISEBIT · Mi cuenta</p>
-            <h1 id="t-hola" className="m-0">Hola, {c.nombre.split(" ")[0]}</h1>
+            <h1 id="t-hola" className="m-0">{saludo}</h1>
             <p className="m-0 text-white/85 text-[15px] max-w-xl">{ins.length ? `Tus cursos, clases en vivo y certificados en un solo lugar.${enCurso.length ? ` Tenés ${enCurso.length} ${enCurso.length === 1 ? "curso" : "cursos"} en marcha.` : ""}` : "Acá vas a seguir tus cursos, clases y certificados. Elegí uno para empezar."}</p>
             {siguiente && (
               <div className="flex flex-wrap items-center gap-3 pt-2">

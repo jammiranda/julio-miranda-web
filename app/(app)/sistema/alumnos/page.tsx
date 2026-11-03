@@ -58,7 +58,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
       </ul>
       <div className="flex flex-wrap items-center gap-2">
         {tab("alumnos", "Alumnos")}{tab("compradores", "Compradores")}{tab("suscriptos", "Suscriptos")}
-        <form className="ml-auto flex gap-2"><input type="hidden" name="v" value={vista} /><input name="b" defaultValue={b} placeholder="Buscar nombre, email o curso" className="inp py-2 w-56" /><button className="btn-s py-2">Buscar</button></form>
+        <form className="sm:ml-auto flex gap-2 w-full sm:w-auto"><input type="hidden" name="v" value={vista} /><input name="b" defaultValue={b} placeholder="Buscar nombre, email o curso" aria-label="Buscar" className="inp py-2 w-full sm:w-72" /><button className="btn-s py-2">Buscar</button></form>
       </div>
       <div className="card p-0 overflow-x-auto">
         {vista === "alumnos" && (
