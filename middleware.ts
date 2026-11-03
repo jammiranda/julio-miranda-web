@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
-const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/consultas", "/api/whatsapp", "/api/crm", "/api/salud", "/api/visita", "/api/panel", "/api/ads", "/api/demos", "/api/diagnosticos", "/demo/", "/doc/", "/v.js", "/brief", "/agendar", "/fichas", "/api/e/", "/baja", "/api/suscribir", "/api/cron", "/api/academia", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon", "/sw.js", "/robots.txt", "/sitemap.xml", "/descarga", "/gracias", "/lista-precios", "/portal", "/wa-perfil.jpg", "/marca/", "/mv-a7c41e9b3f06/"]
+const PUBLIC = ["/login", "/primer-ingreso", "/activar", "/recuperar", "/api/consultas", "/api/whatsapp", "/api/oficina/evento", "/api/oficina/tareas", "/api/oficina/google", "/api/crm", "/api/salud", "/api/visita", "/api/panel", "/api/ads", "/api/demos", "/api/diagnosticos", "/demo/", "/doc/", "/v.js", "/brief", "/agendar", "/fichas", "/api/e/", "/baja", "/api/suscribir", "/api/cron", "/api/academia", "/_next", "/favicon", "/manifest.webmanifest", "/icon", "/apple-icon", "/sw.js", "/robots.txt", "/sitemap.xml", "/descarga", "/gracias", "/lista-precios", "/portal", "/wa-perfil.jpg", "/marca/", "/mv-a7c41e9b3f06/"]
 /** Reescribe a `pathname` y deja en x-ruta la ruta que pidió el navegador (para volver ahí después de entrar). */
 function reescribir(req: NextRequest, pathname: string) {
   const u = req.nextUrl.clone()
@@ -42,6 +42,15 @@ export function middleware(req: NextRequest) {
     if (p === "/panel-contenido" || p.startsWith("/panel-contenido/")) return NextResponse.next()
     const u = req.nextUrl.clone()
     u.pathname = "/panel-contenido" + (p === "/" ? "" : p)
+    return NextResponse.rewrite(u)
+  }
+  // oficina.devisebit.com: Oficina de agentes (vive en /oficina). Solo entra Julio (rol gerente); la ruta lo vuelve a verificar
+  if (host.startsWith("oficina.")) {
+    if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
+    if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
+    if (p === "/oficina") return NextResponse.next()
+    const u = req.nextUrl.clone()
+    u.pathname = "/oficina"
     return NextResponse.rewrite(u)
   }
   // sistema.devisebit.com: la Academia tiene su propio sistema en academia.devisebit.com/sistema
