@@ -40,7 +40,7 @@ export default function Nav({ base, oficina = false }: { base: string; oficina?:
         <div key={gi} style={{ display: "contents" }}>
           {g.g && <div className="grp">{g.g}</div>}
           {g.items.map(([s, t]) => (
-            <Link key={s} href={`${base}/${s}`.replace(/\/$/, "") || "/"} aria-current={rel === s ? "page" : undefined} prefetch={false}>
+            <Link key={s} href={`${base}/${s}`.replace(/\/$/, "") || "/"} aria-current={rel === s ? "page" : undefined}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{I[s || "inicio"]}</svg>
               {t}
             </Link>

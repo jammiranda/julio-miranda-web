@@ -1,3 +1,5 @@
+import { unstable_cache } from "next/cache"
+import { waitUntil } from "@vercel/functions"
 import { instagram, sincronizarPublicacionesIG } from "@/lib/instagram"
 import { linkedin } from "@/lib/linkedin"
 import { historial, interacciones, REDES, type Publicacion } from "@/lib/publicaciones"
@@ -9,11 +11,14 @@ const PERIODOS: [string, string, number][] = [["30", "30 días", 30], ["90", "90
 const ORDEN: [string, string][] = [["", "Más recientes"], ["int", "Más interacciones"], ["imp", "Más impresiones / vistas"]]
 const alcanceDe = (p: Publicacion) => p.impresiones ?? p.vistas ?? p.alcance ?? null
 
+const refrescarFuentes = unstable_cache(async () => { await Promise.all([sincronizarPublicacionesIG(100).catch(() => 0), linkedin("pagina").catch(() => null), linkedin("julio").catch(() => null)]); return Date.now() }, ["pc-pub-refrescar"], { revalidate: 600 })
+
 export default async function Publicaciones({ searchParams }: { searchParams: { red?: string; periodo?: string; orden?: string; q?: string } }) {
   if (!(await acceso())) return null
   const b = base()
   // Refresca las fuentes que el panel puede leer directo (Instagram y Buffer) antes de mostrar el historial
-  await Promise.all([sincronizarPublicacionesIG(100).catch(() => 0), linkedin("pagina").catch(() => null), linkedin("julio").catch(() => null)])
+  // En segundo plano y como mucho cada 10 minutos: la página ya no espera a Instagram ni a Buffer
+  waitUntil(refrescarFuentes().catch(() => null))
   const per = PERIODOS.find(([k]) => k === searchParams.periodo) ?? PERIODOS[1]
   const red = searchParams.red && REDES[searchParams.red] ? searchParams.red : ""
   const orden = ORDEN.some(([k]) => k === searchParams.orden) ? searchParams.orden ?? "" : ""

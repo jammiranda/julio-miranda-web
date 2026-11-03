@@ -791,9 +791,17 @@ export function ensureSchema() {
   if (!ready) {
     ready = (async () => {
       const sql = client()
+      // Si el esquema no cambió desde el último arranque, no se repiten ~cientos de sentencias (eso demoraba cada arranque en frío)
+      let h = 5381
+      for (let i = 0; i < SCHEMA.length; i++) h = ((h << 5) + h + SCHEMA.charCodeAt(i)) | 0
+      const marca = `${h >>> 0}:${SCHEMA.length}`
+      await sql.query("create table if not exists _schema_meta (k text primary key, v text not null)")
+      const r = (await sql.query("select v from _schema_meta where k='schema'")) as { v: string }[]
+      if (r[0]?.v === marca) return
       for (const stmt of SCHEMA.split(";").map((s) => s.trim()).filter(Boolean)) {
         await sql.query(stmt)
       }
+      await sql.query("insert into _schema_meta(k,v) values ('schema',$1) on conflict (k) do update set v=excluded.v", [marca])
     })().catch((e) => {
       ready = null
       throw e

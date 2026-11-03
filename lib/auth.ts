@@ -2,6 +2,7 @@ import { SignJWT, jwtVerify } from "jose"
 import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { randomBytes } from "crypto"
+import { cache } from "react"
 import { one, q } from "./db"
 
 export type Rol = "gerente" | "coordinacion" | "consulta" | "profesional"
@@ -35,18 +36,28 @@ export function cerrarSesion() {
   cookies().delete(COOKIE)
 }
 
-export async function usuarioActual(): Promise<Usuario | null> {
+// Memoria corta por instancia: evita ir a la base en cada pedido (el panel y la Oficina consultan seguido). Un usuario dado de baja deja de entrar en <= 30 s.
+const memo = new Map<number, { u: Usuario | null; hasta: number }>()
+async function cargarUsuario(uid: number): Promise<Usuario | null> {
+  const m = memo.get(uid)
+  if (m && m.hasta > Date.now()) return m.u
+  const u = await one<Usuario & { activo: boolean }>("select id, usuario, nombre, rol, activo, espacios from usuarios where id=$1", [uid]).catch(async () => { const x = await one<Omit<Usuario, "espacios"> & { activo: boolean }>("select id, usuario, nombre, rol, activo from usuarios where id=$1", [uid]); return x ? { ...x, espacios: ["comercial", "academia"] as Espacio[] } : null })
+  const r: Usuario | null = !u || !u.activo ? null : { id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol, espacios: (u.espacios?.length ? u.espacios : ["comercial", "academia"]) as Espacio[] }
+  if (memo.size > 200) memo.clear()
+  memo.set(uid, { u: r, hasta: Date.now() + 30000 })
+  return r
+}
+/** Usuario de la sesión. Se calcula una sola vez por pedido (React cache) aunque lo pidan el layout y la página. */
+export const usuarioActual = cache(async (): Promise<Usuario | null> => {
   const t = cookies().get(COOKIE)?.value
   if (!t) return null
   try {
     const { payload } = await jwtVerify(t, await secret())
-    const u = await one<Usuario & { activo: boolean }>("select id, usuario, nombre, rol, activo, espacios from usuarios where id=$1", [payload.uid]).catch(async () => { const x = await one<Omit<Usuario, "espacios"> & { activo: boolean }>("select id, usuario, nombre, rol, activo from usuarios where id=$1", [payload.uid]); return x ? { ...x, espacios: ["comercial", "academia"] as Espacio[] } : null })
-    if (!u || !u.activo) return null
-    return { id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol, espacios: (u.espacios?.length ? u.espacios : ["comercial", "academia"]) as Espacio[] }
+    return await cargarUsuario(payload.uid as number)
   } catch {
     return null
   }
-}
+})
 
 export async function requerir(roles?: Rol[]): Promise<Usuario> {
   const u = await usuarioActual()
