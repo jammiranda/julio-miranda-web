@@ -13,6 +13,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { col: strin
       const r = await decidir(params.id, b.estado === "aprobada")
       return NextResponse.json(r, { status: r.ok ? 200 : 409 })
     }
+    if (b.ejecutar) {
+      const o = await obtener("ordenes", params.id)
+      if (!o || o.data.estado !== "repartida") return NextResponse.json({ ok: false }, { status: 409 })
+      return NextResponse.json({ ok: await actualizar("ordenes", params.id, { ejecutar: new Date().toISOString() }) })
+    }
     return NextResponse.json({ ok: false }, { status: 403 })
   }
   if (params.col === "agentes") {
