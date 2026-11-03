@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { informarEstado, tokenValido } from "@/lib/oficina"
+import { informarEstado, listar, tokenValido } from "@/lib/oficina"
 
 export const dynamic = "force-dynamic"
 
@@ -10,6 +10,8 @@ export const dynamic = "force-dynamic"
  */
 async function manejar(p: URLSearchParams) {
   if (!tokenValido(p.get("k"))) return NextResponse.json({ ok: false, error: "no autorizado" }, { status: 401 })
+  // ?leer=1: últimos movimientos (para verificar que las tareas están informando)
+  if (p.get("leer")) return NextResponse.json({ ok: true, eventos: (await listar("eventos", { orden: "at", dir: "desc", limite: 15 })).map((e) => e.data) }, { headers: { "cache-control": "no-store" } })
   const r = await informarEstado(String(p.get("agente") ?? ""), String(p.get("estado") ?? ""), String(p.get("paso") ?? ""))
   return NextResponse.json(r, { headers: { "cache-control": "no-store" } })
 }
