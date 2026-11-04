@@ -3,7 +3,7 @@ import { waitUntil } from "@vercel/functions"
 import { agregar, esCol, listar, obtener, procesarOrden, soloJulio, informarEstado } from "@/lib/oficina"
 
 export const dynamic = "force-dynamic"
-export const maxDuration = 60
+export const maxDuration = 180
 
 const no = () => NextResponse.json({ ok: false, error: "no autorizado" }, { status: 401 })
 

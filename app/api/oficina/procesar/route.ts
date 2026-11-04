@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { reintentarOrden, soloJulio } from "@/lib/oficina"
 
 export const dynamic = "force-dynamic"
-export const maxDuration = 60
+export const maxDuration = 180
 
 /** Reintenta que el jefe analice una orden que quedó sin propuesta. Solo Julio. */
 export async function POST(req: NextRequest) {

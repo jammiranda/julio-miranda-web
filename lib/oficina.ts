@@ -111,6 +111,18 @@ const REGLAS = `PERMISOS (obligatorios; el jefe de oficina propone, Julio da el 
 - Cada agente hace solo lo que figura en su rol y respeta su límite ("no hace"). Si el pedido excede a todos los agentes, decilo y proponé qué persona del equipo debería hacerlo.`
 
 let ultimoErrorIA = ""
+
+/** Saca el primer objeto JSON válido de una respuesta (tolera texto alrededor y bloques ```json). */
+function leerJSON(txt: string | null): any | null {
+  if (!txt) return null
+  const limpio = txt.replace(/```(?:json)?/g, "")
+  const ini = limpio.indexOf("{")
+  if (ini < 0) return null
+  for (let fin = limpio.lastIndexOf("}"); fin > ini; fin = limpio.lastIndexOf("}", fin - 1)) {
+    try { const v = JSON.parse(limpio.slice(ini, fin + 1)); if (v && typeof v === "object") return v } catch {}
+  }
+  return null
+}
 async function claude(system: string, user: string, max = 1500): Promise<string | null> {
   ultimoErrorIA = ""
   const key = process.env.ANTHROPIC_API_KEY
@@ -160,11 +172,17 @@ export async function procesarOrden(id: string): Promise<{ ok: boolean; estado?:
   for (const [piso, a] of Object.entries(AREAS)) areas.set(Number(piso), { titulo: a.titulo, resp: a.responsable ? ags.find((x) => x.id === a.responsable)?.data.nombre : undefined })
   const roster = ags.map((a) => `- id "${a.id}" · ${a.data.nombre} · ${a.data.tipo === "persona" ? "PERSONA" : "AGENTE"} · ÁREA: ${areas.get(a.data.piso)?.titulo ?? "—"} (responsable: ${areas.get(a.data.piso)?.resp ?? "a definir"}) · ${a.data.rol}${a.data.horario ? ` · corre: ${a.data.horario}` : ""}${a.data.nohace ? ` · NO HACE: ${a.data.nohace}` : ""}`).join("\n")
   const system = `Sos el jefe de oficina (una IA) de Julio Miranda (DEVISEBIT SRL y su perfil personal). La jefa de gabinete es Bárbara (persona). La oficina se divide en áreas, cada una con un responsable. Recibís las órdenes de Julio una sola vez, las repartís entre los agentes y personas de cada área, y le pedís el OK. Cuando una tarea de un agente necesita seguimiento o revisión humana, sumá una tarea corta para el responsable del área; si cruza varias áreas, sumá a Bárbara como coordinadora. Si un área no tiene responsable, avisalo en el campo aviso. Hablás en español rioplatense, con voseo, breve.\n\n${REGLAS}\n\nEQUIPO DISPONIBLE:\n${roster}\n\nRespondé SOLO un JSON: {"tipo":"orden"|"consulta","resumen":"1 o 2 oraciones en voseo con qué entendiste y cómo lo repartís (o la respuesta, si es una consulta)","reparto":[{"agente":"<id exacto>","tarea":"instrucción concreta, 1 o 2 oraciones"}],"aviso":"opcional: riesgo o dato que Julio debe saber"}. Si es una consulta de seguimiento (ej. "¿qué pasó con…?"), respondé con el estado real usando los datos y dejá reparto vacío. Usá solo ids de la lista. Un agente programado ejecuta sus tareas aprobadas en su próxima corrida; no prometas horarios que no figuren.`
-  const txt = await claude(system, `ORDEN DE JULIO:\n${String(o.data.texto).slice(0, 1500)}\n\n${await fotoDelDia()}`)
-  const m = txt?.match(/\{[\s\S]*\}/)
-  if (!m) { await actualizar("ordenes", id, { procesando: false, error: `El jefe no pudo analizar la orden. ${ultimoErrorIA}`.trim() }); return { ok: false, error: ultimoErrorIA || "sin respuesta de IA" } }
-  let p: any
-  try { p = JSON.parse(m[0]) } catch { await actualizar("ordenes", id, { procesando: false, error: "Respuesta ilegible del jefe." }); return { ok: false, error: "json" } }
+  const pedido = `ORDEN DE JULIO:\n${String(o.data.texto).slice(0, 1500)}\n\n${await fotoDelDia()}`
+  let txt = await claude(system, pedido, 4000)
+  let p = leerJSON(txt)
+  // Segundo intento: si contestó en prosa o se cortó, se le pide solo el JSON (más corto)
+  if (!p && txt !== null) {
+    txt = await claude(system + "\n\nIMPORTANTE: tu respuesta anterior no fue un JSON válido. Devolvé ÚNICAMENTE el objeto JSON, sin texto antes ni después, con tareas de 1 oración y como máximo 6 ítems en reparto.", pedido, 4000)
+    p = leerJSON(txt)
+  }
+  // Si igual vino en prosa, se toma como respuesta a una consulta (mejor eso que un error)
+  if (!p && txt && txt.trim()) p = { tipo: "consulta", resumen: txt.replace(/```(json)?/g, "").trim().slice(0, 600), reparto: [] }
+  if (!p) { await actualizar("ordenes", id, { procesando: false, error: `El jefe no pudo analizar la orden. ${ultimoErrorIA || "La IA no respondió; probá de nuevo en un minuto."}`.trim() }); return { ok: false, error: ultimoErrorIA || "sin respuesta de IA" } }
   const validos = new Set(ags.map((a) => a.id))
   const reparto = (Array.isArray(p.reparto) ? p.reparto : []).filter((r: any) => r && validos.has(r.agente) && r.tarea).slice(0, 8).map((r: any) => ({ agente: String(r.agente), tarea: String(r.tarea).slice(0, 400) }))
   const resumen = [String(p.resumen ?? "").slice(0, 600), p.aviso ? `Ojo: ${String(p.aviso).slice(0, 300)}` : ""].filter(Boolean).join(" ")
