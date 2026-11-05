@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { waitUntil } from "@vercel/functions"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { ETAPAS, CLASES } from "@/lib/crm"
@@ -52,6 +53,17 @@ async function lanzar(fd: FormData) {
   await audit(u, "email_lanzar", "em_campania", id, `${n} destinatarios`)
   waitUntil(procesarCola())
   redirect(`/email/${id}?ok=${encodeURIComponent(`Campaña en marcha: ${n} destinatarios. Hoy salen hasta ${LIMITE_DIARIO}; el resto sigue solo cada día.`)}`)
+}
+
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  if (!id) redirect("/email")
+  await q("delete from em_clics where campania_id=$1", [id]).catch(() => {})
+  await q("delete from em_campanias where id=$1", [id])
+  await audit(u, "elimina_campania", "em_campania", id)
+  redirect("/email")
 }
 
 async function estado(fd: FormData) {
@@ -140,6 +152,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
           {k.estado === "enviando" && <button name="a" value="pausar" className="btn-s">Pausar</button>}
           {k.estado === "pausada" && <button name="a" value="reanudar" className="btn-s">Reanudar</button>}
           <button name="a" value="duplicar" className="btn-s">Duplicar</button></form>}
+        {!nueva && puede.admin(u) && <form className="flex"><input type="hidden" name="id" value={k.id} /><BotonConfirmar chico accion={eliminar} mensaje="¿Eliminar esta campaña con sus envíos y estadísticas? No se puede deshacer.">Eliminar campaña</BotonConfirmar></form>}
       </div>
       {searchParams.ok && <p role="status" className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
       {searchParams.err && <p role="alert" className="m-0 text-sm text-rojo">{searchParams.err}</p>}

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { fechaHora } from "@/lib/consultas"
@@ -75,6 +76,16 @@ async function cambiar(fd: FormData) {
   if (fd.get("a") === "guardar") await q("update bot_conocimiento set pregunta=$1, respuesta=$2 where id=$3 and empresa=$4", [s(fd.get("pregunta")), s(fd.get("respuesta")) ?? "", id, e])
   else await q("update bot_conocimiento set activo = not activo where id=$1 and empresa=$2", [id, e])
   await audit(u, "bot_conocimiento_" + fd.get("a"), "bot", id)
+  redirect(`/bot?e=${e}`)
+}
+
+async function borrarConocimiento(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  const e = empresaDe(u.rol, String(fd.get("e")))
+  await q("delete from bot_conocimiento where id=$1 and empresa=$2", [id, e])
+  await audit(u, "bot_conocimiento_borrar", "bot", id)
   redirect(`/bot?e=${e}`)
 }
 
@@ -207,6 +218,7 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
               <div className="flex gap-2">
                 <button name="a" value="guardar" className="btn-s py-1.5">Guardar cambios</button>
                 <button name="a" value="toggle" className="btn-s py-1.5">{r.activo ? "Desactivar" : "Activar"}</button>
+                {puede.admin(u) && <BotonConfirmar chico accion={borrarConocimiento} mensaje="¿Eliminar esto de lo que sabe el bot? No se puede deshacer.">Eliminar</BotonConfirmar>}
               </div>
             </form>
           </details>

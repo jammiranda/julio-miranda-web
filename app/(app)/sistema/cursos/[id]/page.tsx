@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { requerir } from "@/lib/auth"
+import { requerir, puede as permisos } from "@/lib/auth"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { slugDe, URL_ACADEMIA } from "@/lib/academia"
@@ -36,6 +37,17 @@ async function guardar(fd: FormData) {
   )
   await audit(u, "edita_curso", "am_curso", id, est)
   redirect(`/sistema/cursos/${id}?ok=1`)
+}
+
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  const n = (await one<{ n: number }>("select count(*)::int n from am_inscripciones i join am_ediciones e on e.id=i.edicion_id where e.curso_id=$1", [id]))?.n ?? 0
+  if (n > 0) redirect(`/sistema/cursos/${id}?borrerr=${n}`)
+  await q("delete from am_cursos where id=$1", [id])
+  await audit(u, "elimina_curso", "am_curso", id)
+  redirect("/sistema/cursos")
 }
 
 async function leccion(fd: FormData) {
@@ -78,7 +90,7 @@ async function edicion(fd: FormData) {
 
 const Campo = ({ l, children, className = "" }: { l: string; children: React.ReactNode; className?: string }) => <label className={`lbl ${className}`}>{l}{children}</label>
 
-export default async function Curso({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; nuevo?: string; lok?: string; lerr?: string; editar?: string } }) {
+export default async function Curso({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; nuevo?: string; lok?: string; lerr?: string; editar?: string; borrerr?: string } }) {
   const u = await requerir(["gerente", "coordinacion", "profesional"])
   const c = await one<any>("select * from am_cursos where id=$1", [Number(params.id)])
   if (!c) notFound()
@@ -103,6 +115,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
 
       <form action={guardar} className="card grid grid-cols-1 md:grid-cols-4 gap-3">
         <input type="hidden" name="id" value={c.id} />
+        {searchParams.borrerr && <p role="alert" className="m-0 md:col-span-4 text-sm text-rojo">No se puede eliminar: tiene {searchParams.borrerr} inscripto{searchParams.borrerr === "1" ? "" : "s"}. Pasalo a Archivado.</p>}
         <div className="md:col-span-4 flex items-center justify-between gap-2"><h1 className="m-0 text-xl">{c.titulo}</h1>{searchParams.ok && <span role="status" className="text-sm text-emerald-700">Guardado.</span>}</div>
         {searchParams.err && <p role="alert" className="m-0 md:col-span-4 text-sm text-rojo">Falta el título.</p>}
         <Campo l="Título *" className="md:col-span-3"><input name="titulo" required defaultValue={c.titulo} className="inp" /></Campo>
@@ -130,7 +143,7 @@ export default async function Curso({ params, searchParams }: { params: { id: st
         <Campo l="Nota interna (no se publica: revisiones pendientes, a quién consultar…)" className="md:col-span-4"><textarea name="nota_interna" rows={2} defaultValue={c.nota_interna ?? ""} className="inp text-sm" /></Campo>
         <Campo l="Descripción (texto simple: ## títulos, - listas, **negrita**)" className="md:col-span-4"><textarea name="descripcion" rows={8} defaultValue={c.descripcion} className="inp font-mono text-sm" /></Campo>
         <div className="md:col-span-4"><AyudaIA campo="descripcion" contexto={`Descripción del curso «${c.titulo}»`} /></div>
-        {puede && <div className="md:col-span-4"><button className="btn-p">Guardar curso</button></div>}
+        {puede && <div className="md:col-span-4 flex flex-wrap items-center gap-2"><button className="btn-p">Guardar curso</button>{permisos.admin(u) && <BotonConfirmar chico accion={eliminar} mensaje="¿Eliminar este curso con sus ediciones, lecciones y clases? No se puede deshacer.">Eliminar curso</BotonConfirmar>}</div>}
       </form>
 
       <section id="ediciones" className="card flex flex-col gap-3" aria-labelledby="t-ed">

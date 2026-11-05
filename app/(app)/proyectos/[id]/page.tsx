@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
 import { FASES, TIPOS_HITO, tipoHito, registrarHito, avisarNovedad, enviarAcceso, urlPortal, fase as faseDe, type Hito } from "@/lib/portal"
@@ -54,6 +55,17 @@ async function guardar(fd: FormData) {
   else if (v[1]) await q("update db_contactos set clase=coalesce(clase,'oportunidad') where id=$1", [v[1]])
   await audit(u, id ? "edita_proyecto_db" : "crea_proyecto_db", "db_proyecto", pid, est)
   redirect(`/proyectos/${pid}?ok=1`)
+}
+
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  if (!id) redirect("/proyectos")
+  // Hitos, plan de horas y horas se borran con el proyecto; cobros, reuniones y envíos quedan sin proyecto asociado.
+  await q("delete from db_proyectos where id=$1", [id])
+  await audit(u, "elimina_proyecto", "db_proyecto", id)
+  redirect("/proyectos")
 }
 
 async function crearTablero(fd: FormData) {
@@ -285,7 +297,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
         <label className="lbl">Monto acordado<span className="flex gap-2"><select name="moneda_proy" defaultValue={p.moneda ?? "USD"} className="inp w-24" aria-label="Moneda"><option>USD</option><option>ARS</option></select><input name="monto" inputMode="decimal" defaultValue={p.monto ?? ""} className="inp" /></span></label>
         <label className="lbl">Tablero de Trello (URL)<input name="trello_url" type="url" defaultValue={p.trello_url ?? ""} placeholder="https://trello.com/b/…" className="inp" /></label>
         <label className="lbl md:col-span-2">Alcance y notas<textarea name="notas" rows={6} defaultValue={p.notas ?? ""} className="inp" /></label>
-        <div className="md:col-span-2"><button className="btn-p">Guardar</button></div>
+        <div className="md:col-span-2 flex flex-wrap items-center gap-2"><button className="btn-p">Guardar</button>{!nuevo && puede.admin(await requerir()) && <BotonConfirmar chico accion={eliminar} mensaje="¿Eliminar este proyecto con sus hitos, plan y horas? Los cobros quedan sin proyecto asociado. No se puede deshacer.">Eliminar proyecto</BotonConfirmar>}</div>
       </form>
 
       {!nuevo && (

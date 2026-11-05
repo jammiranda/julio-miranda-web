@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { palabraValida, linkRecurso, type Recurso } from "@/lib/recursos"
@@ -24,8 +25,20 @@ async function guardar(fd: FormData) {
 
 const textoPost = (r: Recurso) => `💬 Escribinos "${r.palabra}" por mensaje directo y te mandamos ${r.titulo.charAt(0).toLowerCase() + r.titulo.slice(1)} gratis.`
 
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const palabra = String(fd.get("palabra") ?? "")
+  if (palabra) {
+    await q("delete from am_recursos where palabra=$1", [palabra])
+    await audit(u, "elimina_recurso", "am_recurso", palabra)
+  }
+  revalidatePath("/sistema/recursos")
+  redirect("/sistema/recursos?ok=" + encodeURIComponent("Recurso eliminado"))
+}
+
 export default async function Recursos({ searchParams }: { searchParams: { ok?: string; err?: string } }) {
-  await requerir(["gerente", "coordinacion"])
+  const uRec = await requerir(["gerente", "coordinacion"])
   const lista = await q<Recurso>("select * from am_recursos order by activo desc, creado desc").catch(() => [] as Recurso[])
   return (
     <div className="flex flex-col gap-6">
@@ -54,6 +67,7 @@ export default async function Recursos({ searchParams }: { searchParams: { ok?: 
             <details>
               <summary className="cursor-pointer text-sm font-semibold">Editar</summary>
               <Formulario r={r} />
+              {puede.admin(uRec) && <form className="mt-2"><input type="hidden" name="palabra" value={r.palabra} /><BotonConfirmar chico accion={eliminar} mensaje={`¿Eliminar el recurso ${r.palabra}? Los links cortos dejan de funcionar. No se puede deshacer.`}>Eliminar recurso</BotonConfirmar></form>}
             </details>
           </li>
         ))}

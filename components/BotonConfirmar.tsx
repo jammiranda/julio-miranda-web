@@ -1,11 +1,14 @@
 "use client"
 
-/** Botón de envío (rojo) que pide confirmación antes de ejecutar la acción del formulario. */
-export default function BotonConfirmar({ mensaje, children }: { mensaje: string; children: React.ReactNode }) {
+/** Botón rojo que pide confirmación antes de ejecutar. Con `accion` usa esa acción del servidor (sin validar el resto del formulario). */
+export default function BotonConfirmar({ mensaje, children, accion, chico }: { mensaje: string; children: React.ReactNode; accion?: (fd: FormData) => Promise<void>; chico?: boolean }) {
   return (
     <button
+      type={accion ? "submit" : undefined}
+      formAction={accion}
+      formNoValidate={!!accion}
       onClick={(e) => { if (!window.confirm(mensaje)) e.preventDefault() }}
-      className="btn-s w-full !border-red-300 text-red-700 hover:!border-red-600"
+      className={`btn-s !border-red-300 text-red-700 hover:!border-red-600 ${chico ? "py-1.5 px-3 text-xs" : "w-full"}`}
     >
       {children}
     </button>

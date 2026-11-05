@@ -1,5 +1,7 @@
 import { revalidatePath } from "next/cache"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import Importar from "@/components/Importar"
@@ -22,6 +24,18 @@ async function guardar(fd: FormData) {
   revalidatePath("/servicios")
 }
 
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  if (!id) return
+  await q("update db_proyectos set servicio_id=null where servicio_id=$1", [id])
+  await q("delete from db_servicios where id=$1", [id])
+  await audit(u, "elimina_servicio_db", "db_servicio", id)
+  revalidatePath("/servicios")
+  redirect("/servicios")
+}
+
 function Campos({ x }: { x?: any }) {
   return (
     <>
@@ -38,6 +52,7 @@ function Campos({ x }: { x?: any }) {
 }
 
 export default async function Servicios() {
+  const adm = puede.admin(await requerir())
   const rows = await q<any>(`select s.*, (select count(*)::int from db_proyectos p where p.servicio_id=s.id) usos from db_servicios s order by s.activo desc, s.categoria nulls last, s.nombre`)
   return (
     <div className="flex flex-col gap-4">
@@ -48,7 +63,7 @@ export default async function Servicios() {
             <input type="hidden" name="id" value={x.id} />
             <Campos x={x} />
             <label className="md:col-span-1 flex items-center gap-1.5 text-sm pb-2"><input type="checkbox" name="activo" defaultChecked={x.activo} /> Activo</label>
-            <div className="md:col-span-1 flex flex-col items-start gap-0.5"><button className="btn-s py-1.5 px-3 text-xs">Guardar</button><span className="text-[11px] text-[#4A515C]">{x.usos} proy.</span></div>
+            <div className="md:col-span-1 flex flex-col items-start gap-0.5"><button className="btn-s py-1.5 px-3 text-xs">Guardar</button><span className="text-[11px] text-[#4A515C]">{x.usos} proy.</span>{adm && <BotonConfirmar chico accion={eliminar} mensaje={`¿Eliminar el servicio "${x.nombre}"? Los proyectos que lo usan quedan sin servicio. No se puede deshacer.`}>Eliminar</BotonConfirmar>}</div>
           </form>
         ))}
       </div>

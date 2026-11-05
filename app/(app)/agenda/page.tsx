@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, one, audit } from "@/lib/db"
 import { horario, guardarHorario, gcalConfig, guardarGcalUrl, probarGcal, turnosLibres, leerFranjas, type HorarioAgenda } from "@/lib/agenda"
 import { eventosCalendario } from "@/lib/integraciones"
@@ -29,6 +30,18 @@ async function guardar(fd: FormData) {
   redirect("/agenda?ok=1")
 }
 
+async function eliminarReunion(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  if (id) {
+    await q("delete from db_reuniones where id=$1", [id])
+    await audit(u, "elimina_reunion", "db_reunion", id)
+  }
+  revalidatePath("/agenda")
+  redirect("/agenda")
+}
+
 async function conectarGcal(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
@@ -42,11 +55,12 @@ async function conectarGcal(fd: FormData) {
 }
 
 export default async function Agenda({ searchParams }: { searchParams: { ok?: string; e?: string } }) {
-  await requerir(["gerente", "coordinacion"])
+  const uAg = await requerir(["gerente", "coordinacion"])
+  const adm = puede.admin(uAg)
   const [h, av, prox, libres, gc] = await Promise.all([
     horario(),
     one<{ valor: string }>("select valor from config where clave='avisos_email'"),
-    q<any>("select r.inicio, r.modalidad, c.nombre, c.organizacion, c.id cid from db_reuniones r left join consultas c on c.id=r.consulta_id where r.estado='confirmada' and r.inicio > now() order by r.inicio limit 8"),
+    q<any>("select r.id rid, r.inicio, r.modalidad, c.nombre, c.organizacion, c.id cid from db_reuniones r left join consultas c on c.id=r.consulta_id where r.estado='confirmada' and r.inicio > now() order by r.inicio limit 8"),
     turnosLibres(3),
     gcalConfig(),
   ])
@@ -89,7 +103,7 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
         <div className="card text-sm flex flex-col gap-2">
           <h2 className="m-0 text-base">Próximas reuniones</h2>
           <ul className="m-0 p-0 list-none flex flex-col gap-1">
-            {prox.map((r: any, i: number) => <li key={i} className="border-b border-[#EEF0F3] pb-1"><a href={`/consultas/${r.cid}`} className="font-semibold">{fmt(r.inicio)}</a> · {r.nombre ?? "Cliente"}{r.organizacion ? ` (${r.organizacion})` : ""} · {r.modalidad}</li>)}
+            {prox.map((r: any, i: number) => <li key={i} className="border-b border-[#EEF0F3] pb-1"><a href={`/consultas/${r.cid}`} className="font-semibold">{fmt(r.inicio)}</a> · {r.nombre ?? "Cliente"}{r.organizacion ? ` (${r.organizacion})` : ""} · {r.modalidad}{adm && <form className="inline-block ml-2"><input type="hidden" name="id" value={r.rid} /><BotonConfirmar chico accion={eliminarReunion} mensaje="¿Eliminar esta reunión reservada? Si está en tu Google Calendar, ese evento hay que borrarlo a mano.">Eliminar</BotonConfirmar></form>}</li>)}
             {!prox.length && <li className="text-[#4A515C]">No hay reuniones reservadas por clientes.</li>}
           </ul>
           <h3 className="m-0 mt-2 text-sm">En tu Google Calendar · 14 días</h3>
