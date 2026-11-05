@@ -12,6 +12,8 @@ import { generarPropuesta } from "@/lib/propuesta"
 import Copiar from "@/components/Copiar"
 import { MATERIALES, material } from "@/lib/materiales"
 import { enviarTexto } from "@/lib/whatsapp"
+import { borrarConsultas } from "@/lib/consultas-borrar"
+import BotonConfirmar from "@/components/BotonConfirmar"
 
 export const dynamic = "force-dynamic"
 
@@ -24,6 +26,15 @@ async function actualizar(fd: FormData) {
   await q("update consultas set estado=$1, asignado=$2, notas=$3, actualizado=now() where id=$4", [est, s(fd.get("asignado")), s(fd.get("notas")), id])
   await audit(u, "estado_consulta", "consulta", id, est)
   redirect(`/consultas/${id}?ok=1`)
+}
+
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const id = Number(fd.get("id"))
+  const n = await borrarConsultas([id]).catch(() => 0)
+  if (n) await audit(u, "elimina_consultas", "consulta", id, "1 consulta")
+  redirect(n ? "/consultas?borr=1" : `/consultas/${id}`)
 }
 
 async function responder(fd: FormData) {
@@ -264,6 +275,12 @@ export default async function Consulta({ params, searchParams }: { params: { id:
             </form>
           ) : (
             <section className="card text-sm"><strong>Responsable:</strong> {c.asignado ?? "Sin asignar"}<p className="mb-0 whitespace-pre-line">{c.notas}</p></section>
+          )}
+          {puede.admin(u) && (
+            <form action={eliminar} className="card flex flex-col gap-2">
+              <input type="hidden" name="id" value={c.id} />
+              <BotonConfirmar mensaje="¿Eliminar esta consulta con su chat, mensajes y reuniones? El contacto del CRM queda. No se puede deshacer.">Eliminar consulta</BotonConfirmar>
+            </form>
           )}
         </aside>
       </div>

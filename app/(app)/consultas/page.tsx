@@ -2,6 +2,11 @@ import Link from "next/link"
 import { requerir, puede } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { ESTADOS, CANAL, hace, fechaHora } from "@/lib/consultas"
+import { borrarConsultas } from "@/lib/consultas-borrar"
+import { audit } from "@/lib/db"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
+import BorrarSeleccion from "@/components/BorrarSeleccion"
 
 
 export const dynamic = "force-dynamic"
@@ -13,7 +18,17 @@ const VISTAS = [
   { v: "descartada", n: "Descartadas", d: "No avanzaron", estados: ["descartada"], c: "border-slate-300", t: "text-slate-600" },
 ]
 
-export default async function Consultas({ searchParams }: { searchParams: { v?: string; b?: string; e?: string } }) {
+async function eliminar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const ids = fd.getAll("ids").map(Number)
+  const n = await borrarConsultas(ids).catch(() => -1)
+  if (n > 0) await audit(u, "elimina_consultas", "consulta", ids.join(","), `${n} consultas`)
+  revalidatePath("/consultas")
+  redirect(n < 0 ? "/consultas?borr=error" : `/consultas?borr=${n}`)
+}
+
+export default async function Consultas({ searchParams }: { searchParams: { v?: string; b?: string; e?: string; borr?: string } }) {
   const u = await requerir()
   const emp = "devisebit"
   const qs = (x: Record<string, string>) => "?" + new URLSearchParams(x).toString()
@@ -30,6 +45,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
     [vista ? vista.estados : null, b, emp],
   )
   const ed = puede.editar(u)
+  const adm = puede.admin(u)
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -39,6 +55,8 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
         </div>
         {ed && <div className="flex flex-wrap gap-2 items-start"><Link href="/consultas/nueva" className="btn-p">+ Nueva consulta</Link></div>}
       </div>
+
+      {searchParams.borr && <p className="m-0 text-sm text-[#9E1A17]">{searchParams.borr === "error" ? "No se pudo eliminar. Probá de nuevo." : `Se eliminaron ${searchParams.borr} consulta${searchParams.borr === "1" ? "" : "s"}.`}</p>}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {VISTAS.map((x) => {
@@ -63,15 +81,18 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
             {vista && <Link href={`/consultas${qs({ v: "todas" })}`} className="text-sm underline text-[#4A515C] whitespace-nowrap">Ver todas</Link>}
           </form>
         </div>
+        {adm && <form id="f-eliminar" action={eliminar} />}
+        {adm && <BorrarSeleccion form="f-eliminar" singular="consulta" plural="consultas" aviso="Se borran también su chat, mensajes y reuniones; el contacto del CRM queda." />}
         <div className="overflow-x-auto">
           <table className="tbl">
-            <thead><tr><th>Entró</th><th>Estado</th><th>Quién consulta</th><th>Organización</th><th>Motivo</th><th>Canal y origen</th><th>Responsable</th><th></th></tr></thead>
+            <thead><tr>{adm && <th></th>}<th>Entró</th><th>Estado</th><th>Quién consulta</th><th>Organización</th><th>Motivo</th><th>Canal y origen</th><th>Responsable</th><th></th></tr></thead>
             <tbody>
               {rows.map((c) => {
                 const est = ESTADOS.find((e) => e.v === c.estado)!
                 const demora = c.estado === "nueva" && Date.now() - new Date(c.creado).getTime() > 4 * 3600e3
                 return (
                   <tr key={c.id} className={`hover:bg-[#F8F9FB] ${c.estado === "nueva" ? "font-semibold" : ""}`}>
+                    {adm && <td><input type="checkbox" name="ids" value={c.id} form="f-eliminar" className="sel-fila" aria-label="Marcar" /></td>}
                     <td className="whitespace-nowrap">{fechaHora(c.creado)}<div className={`text-xs font-normal ${demora ? "text-rojo font-semibold" : "text-[#4A515C]"}`}>{hace(c.creado)}</div></td>
                     <td><span className={`chip whitespace-nowrap ${est.c}`}>{est.n}</span>{c.necesita_humano && c.estado !== "descartada" && <div><span className="chip whitespace-nowrap bg-red-600 text-white mt-1">Quiere una persona</span></div>}</td>
                     <td><Link href={`/consultas/${c.id}`} className="hover:underline">{c.nombre ?? "Sin nombre"}</Link><div className="text-xs font-normal text-[#4A515C]">{c.telefono ?? ""}</div></td>
@@ -83,7 +104,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
                   </tr>
                 )
               })}
-              {!rows.length && <tr><td colSpan={8} className="text-[#4A515C] py-6 text-center">No hay consultas en esta vista.</td></tr>}
+              {!rows.length && <tr><td colSpan={9} className="text-[#4A515C] py-6 text-center">No hay consultas en esta vista.</td></tr>}
             </tbody>
           </table>
         </div>
