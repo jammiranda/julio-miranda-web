@@ -296,3 +296,25 @@ a.pc-al:hover { border-color: var(--fg); transform: translateX(3px); }
   .pc-posts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
 }
 .pc-acct .pc-sp { width: 100%; margin: 6px 0; height: 28px; }
+
+/* Personalizar */
+.pc-pers { width: min(680px, 100%); max-height: 86vh; }
+.pc-pers-hd { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px 12px; border-bottom: 1px solid var(--line); }
+.pc-pers-bd { overflow: auto; padding: 8px 22px 18px; display: flex; flex-direction: column; gap: 22px; }
+.pc-pers-bd section { display: flex; flex-direction: column; gap: 8px; padding-top: 14px; }
+.pc-pers-bd section + section { border-top: 1px solid var(--line); }
+.pc-pers-lista { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pc-pers-lista li { display: flex; align-items: center; gap: 8px; background: var(--panel2); border-radius: 10px; padding: 7px 8px 7px 12px; }
+.pc-pers-lista li.vacia { color: var(--muted); justify-content: center; padding: 14px; }
+.pc-pers-lista .n { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 18px; }
+.pc-pers-lista .t { flex: 1; min-width: 0; font-size: 14px; }
+.pc-pers-lista .t em { color: var(--red); font-style: normal; font-size: 12px; }
+.pc-ic { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line2); background: var(--panel); color: var(--fg); cursor: pointer; font: inherit; line-height: 1; }
+.pc-ic:hover:not(:disabled) { background: var(--fg); color: var(--bg); }
+.pc-ic:disabled { opacity: .3; cursor: default; }
+.pc-pers-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+.pc-pers-add .pc-btn { padding: 5px 11px; font-size: 12.5px; }
+.pc-chk { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 5px 2px; cursor: pointer; }
+.pc-chk input { width: 17px; height: 17px; accent-color: var(--red); }
+.pc-pers-ft { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.pc-pers-ft .pc-btn:disabled { opacity: .6; }

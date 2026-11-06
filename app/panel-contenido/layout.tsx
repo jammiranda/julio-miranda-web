@@ -5,7 +5,10 @@ import { waitUntil } from "@vercel/functions"
 import { redirect } from "next/navigation"
 import { cerrarSesion, ROL_NOMBRE } from "@/lib/auth"
 import { instagram, registrarSeguidores, historialSeguidores } from "@/lib/instagram"
-import { one } from "@/lib/db"
+import { one, q } from "@/lib/db"
+import { facebook } from "@/lib/facebook"
+import { diaHace } from "@/lib/panel-analisis"
+import { PREFS_BASE, prefsDe } from "@/lib/panel-prefs"
 import { safe } from "@/lib/panel"
 import { acceso, base, fmt, Spark, NoPermiso } from "./_ui"
 import Nav from "./_nav"
@@ -33,15 +36,36 @@ const avisosMenu = unstable_cache(
   { revalidate: 60 },
 )
 
-async function CuentaIG() {
-  const [ig, hist] = await Promise.all([instagram(), historialSeguidores(60).catch(() => [])])
-  if (ig?.ok) waitUntil(registroDiario().catch(() => null))
+/** Indicador destacado del menú lateral: cada usuario elige cuál (por defecto, las visitas diarias de la web). */
+async function Destacado({ id }: { id: string }) {
+  // La foto diaria de seguidores y el historial de Instagram se siguen guardando sea cual sea el indicador elegido
+  waitUntil(registroDiario().catch(() => null))
+  if (id === "ninguno") return null
+  let rotulo = "", valor = "—", pie = "", serie: number[] = [], color = "var(--info)"
+  if (id === "visitas") {
+    const filas = await safe(q<{ dia: string; c: number }>(`select to_char(dia,'YYYY-MM-DD') dia, sum(n)::int c from pv_visitas where dia > current_date - 14 group by dia`))
+    const por = new Map((filas ?? []).map((f) => [f.dia, Number(f.c)]))
+    serie = Array.from({ length: 14 }, (_, i) => por.get(diaHace(13 - i)) ?? 0)
+    const hoy = serie[13], ayer = serie[12], prom = serie.slice(6, 13).reduce((a, x) => a + x, 0) / 7
+    rotulo = "Visitas de hoy · web"; valor = filas ? fmt(hoy) : "—"
+    pie = filas ? `ayer ${fmt(ayer)} · promedio de 7 días ${fmt(prom)}` : "Sin datos de visitas"
+  } else if (id === "consultas") {
+    const r = await safe(one<{ d30: number; d7: number }>(`select count(*) filter (where creado > now()-interval '30 days')::int d30, count(*) filter (where creado > now()-interval '7 days')::int d7 from consultas where empresa='devisebit'`))
+    rotulo = "Consultas · 30 días"; valor = r ? fmt(r.d30) : "—"; pie = r ? `${fmt(r.d7)} en los últimos 7 días` : ""; color = "var(--warn)"
+  } else if (id === "fb_seg") {
+    const fb = await facebook()
+    rotulo = "Seguidores en Facebook"; valor = fb.ok ? fmt(fb.seguidores) : "—"; serie = fb.ok ? fb.serieSeguidores : []; pie = fb.ok ? "página DEVISEBIT · Metricool" : "Facebook sin datos"; color = "var(--fb)"
+  } else {
+    const [ig, hist] = await Promise.all([instagram(), historialSeguidores(60).catch(() => [])])
+    rotulo = "Seguidores en Instagram"; valor = ig?.ok ? fmt(ig.perfil.seguidores) : "—"; serie = hist.map((h) => h.seguidores); color = "var(--ig)"
+    pie = ig?.ok ? `@${ig.perfil.username}${hist.length > 1 ? ` · evolución de ${hist.length} días` : ""}` : "Instagram sin conexión"
+  }
   return (
     <div className="pc-acct">
-      <div className="l">Seguidores en Instagram</div>
-      <div className="n">{ig?.ok ? fmt(ig.perfil.seguidores) : "—"}</div>
-      {hist.length > 1 && <Spark vals={hist.map((h) => h.seguidores)} color="var(--ig)" alto={28} className="pc-sp" />}
-      <div className="l">{ig?.ok ? `@${ig.perfil.username} · ${hist.length > 1 ? `evolución de ${hist.length} días` : "la evolución se arma día a día"}` : "Instagram sin conexión"}</div>
+      <div className="l">{rotulo}</div>
+      <div className="n">{valor}</div>
+      {serie.length > 1 && <Spark vals={serie} color={color} alto={28} className="pc-sp" />}
+      <div className="l">{pie}</div>
     </div>
   )
 }
@@ -49,6 +73,7 @@ async function CuentaIG() {
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const u = await acceso()
   const b = base()
+  const pref = u ? await prefsDe(u.id) : PREFS_BASE
   const av = u ? await avisosMenu().catch(() => ({ crm: 0 })) : { crm: 0 }
   return (
     <>
@@ -66,8 +91,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           </div>
           {u && <Buscar base={b} oficina={u.rol === "gerente"} />}
           {u && (
-            <Suspense fallback={<div className="pc-acct"><div className="l">Seguidores en Instagram</div><div className="n">…</div></div>}>
-              <CuentaIG />
+            <Suspense fallback={<div className="pc-acct"><div className="l">&nbsp;</div><div className="n">…</div></div>}>
+              <Destacado id={pref.lateral} />
             </Suspense>
           )}
           {u && <Nav base={b} oficina={u.rol === "gerente"} avisos={{ crm: av.crm }} />}
