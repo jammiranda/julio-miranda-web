@@ -34,7 +34,61 @@ export function Head({ t, sub, children }: { t: string; sub?: React.ReactNode; c
     </div>
   )
 }
-export const Sec = ({ t }: { t: string }) => <div className="pc-sec"><span className="pc-k">{t}</span></div>
+export const Sec = ({ t, id }: { t: string; id?: string }) => <div className="pc-sec" id={id}><span className="pc-k">{t}</span></div>
+
+/** Diferencia entre dos números (null si falta alguno). */
+export const dif = (a: number | null | undefined, b: number | null | undefined) => (a != null && b != null && Number.isFinite(a) && Number.isFinite(b) ? a - b : null)
+
+/** Selector de período (enlaces, sin JavaScript). Conserva los demás parámetros de la URL; 30 días es el valor por defecto. */
+export function Periodo({ ruta, params = {}, actual, opciones = [7, 30, 90] }: { ruta: string; params?: Record<string, string | undefined>; actual: number; opciones?: readonly number[] }) {
+  const href = (d: number) => {
+    const s = new URLSearchParams()
+    for (const [k, v] of Object.entries(params)) if (v && k !== "dias") s.set(k, v)
+    if (d !== 30) s.set("dias", String(d))
+    const t = s.toString()
+    return `${ruta}${t ? "?" + t : ""}`
+  }
+  return <div className="pc-seg" role="group" aria-label="Período">{opciones.map((d) => <a key={d} href={href(d)} aria-current={d === actual ? "true" : undefined}>{d} días</a>)}</div>
+}
+
+/** Índice de secciones de una página larga (saltos con ancla). */
+export const Anclas = ({ items }: { items: [id: string, titulo: string][] }) => (
+  <nav className="pc-anclas" aria-label="Secciones de esta página">{items.map(([id, t]) => <a key={id} href={`#${id}`}>{t}</a>)}</nav>
+)
+
+const NIVEL: Record<string, { ic: string; sr: string }> = { alto: { ic: "!", sr: "Urgente" }, medio: { ic: "!", sr: "Atención" }, info: { ic: "i", sr: "Información" }, ok: { ic: "✓", sr: "Todo bien" } }
+/** Aviso accionable: el nivel se indica con color, ícono y texto (no solo con color). */
+export function Alerta({ nivel, t, d, href, accion }: { nivel: "alto" | "medio" | "info" | "ok"; t: string; d?: React.ReactNode; href?: string; accion?: string }) {
+  const n = NIVEL[nivel]
+  const cuerpo = (
+    <>
+      <span className="ic" aria-hidden="true">{n.ic}</span>
+      <span className="tx"><b><span className="pc-sr">{n.sr}: </span>{t}</b>{d ? <small>{d}</small> : null}</span>
+      {href ? <span className="go">{accion ?? "Ver"} →</span> : null}
+    </>
+  )
+  return href ? <a className={`pc-al ${nivel}`} href={href}>{cuerpo}</a> : <div className={`pc-al ${nivel}`}>{cuerpo}</div>
+}
+
+/** Embudo: cada paso con su valor y el porcentaje que pasó desde el paso anterior. */
+export function Embudo({ pasos }: { pasos: { k: string; v: number | null; nota?: string }[] }) {
+  const max = Math.max(...pasos.map((p) => p.v ?? 0), 1)
+  return (
+    <div className="pc-emb">
+      {pasos.map((p, i) => {
+        const ant = i ? pasos[i - 1].v : null
+        const tasa = ant != null && ant > 0 && p.v != null ? (p.v / ant) * 100 : null
+        return (
+          <div key={p.k} className="fila">
+            <div className="k">{p.k}{p.nota ? <small>{p.nota}</small> : null}</div>
+            <div className="b" aria-hidden="true"><i style={{ width: `${p.v ? Math.max((p.v / max) * 100, 2) : 0}%` }} /></div>
+            <div className="v"><b>{fmt(p.v)}</b>{tasa != null ? <small>{fmt(tasa, tasa < 10 ? 1 : 0)}% del paso anterior</small> : null}</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 export function Delta({ v, sufijo = "", invertir = false }: { v: number | null | undefined; sufijo?: string; invertir?: boolean }) {
   if (v == null || !Number.isFinite(v)) return null
@@ -42,16 +96,17 @@ export function Delta({ v, sufijo = "", invertir = false }: { v: number | null |
   return <span className={`pc-dc ${v === 0 ? "" : bueno ? "up" : "dn"}`}>{v > 0 ? "+" : ""}{fmt(v, Number.isInteger(v) ? 0 : 1)}{sufijo}</span>
 }
 
-export function Kpi({ k, v, ft, serie, delta, color = "var(--red)" }: { k: string; v: React.ReactNode; ft?: React.ReactNode; serie?: number[]; delta?: React.ReactNode; color?: string }) {
-  const nd = v == null || v === "—"
-  return (
-    <div className="pc-card pc-kt">
+export function Kpi({ k, v, ft, serie, delta, color = "var(--red)", href }: { k: string; v: React.ReactNode; ft?: React.ReactNode; serie?: number[]; delta?: React.ReactNode; color?: string; href?: string }) {
+  const nd = v == null || v === "" || v === "—"
+  const cuerpo = (
+    <>
       <div className="top"><span className="pc-k" title={k}>{k}</span>{delta}</div>
       <div className={`pc-big ${nd ? "nd" : ""}`}>{nd ? "Sin datos" : v}</div>
       <div className="pc-ft">{ft}</div>
       {serie && serie.length > 1 && <Spark vals={serie} color={color} />}
-    </div>
+    </>
   )
+  return href ? <a className="pc-card pc-kt pc-kl" href={href}>{cuerpo}</a> : <div className="pc-card pc-kt">{cuerpo}</div>
 }
 
 /** Mini gráfico de área. */

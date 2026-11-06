@@ -5,7 +5,9 @@ import { publicacionesYouTubeCache } from "@/lib/youtube-publicaciones"
 import { resumenAds } from "@/lib/ads"
 import { linkedinExport } from "@/lib/linkedin-export"
 import { facebook, FB_URL } from "@/lib/facebook"
-import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, fmt, plata, fechaCorta, fechaHora } from "./_ui"
+import { historial, interacciones, REDES } from "@/lib/publicaciones"
+import { edadDias, formatoDe, negocioPeriodo, sumaDias, cubrePrevio, diaHace } from "@/lib/panel-analisis"
+import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, Alerta, Embudo, dif, fmt, plata, fechaCorta, fechaHora } from "./_ui"
 
 export const dynamic = "force-dynamic"
 
@@ -15,7 +17,7 @@ export default async function Inicio() {
   if (!(await acceso())) return null
   const b = base()
   const [ig, hist, m, yt, ads, li, ytp] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
-  const [lix, fb] = await Promise.all([safe(linkedinExport()), facebook()])
+  const [lix, fb, pubs, neg] = await Promise.all([safe(linkedinExport()), facebook(), historial(90).catch(() => []), negocioPeriodo(30)])
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
   const p30 = posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5)
@@ -28,21 +30,49 @@ export default async function Inicio() {
   const vis30 = visDias.length ? visDias.reduce((a, x) => a + x, 0) : null
   const gasto = ads?.plataformas.filter((p) => p.gasto > 0) ?? []
 
+  const ultima = (reds: string[]) => pubs.find((p) => reds.includes(p.red) && p.fecha)?.fecha ?? null
+  const cuentasEstado: [string, string, string[]][] = [["Instagram", "instagram", ["instagram"]], ["Facebook", "facebook", ["facebook"]], ["YouTube", "youtube", ["youtube", "youtube_post"]], ["LinkedIn de la página", "linkedin", ["linkedin"]], ["LinkedIn de Julio", "linkedin_julio", ["linkedin_julio"]]]
+  type Al = { nivel: "alto" | "medio" | "info" | "ok"; t: string; d?: string; href?: string; accion?: string }
+  const atencion: Al[] = []
+  if (c?.esperanHumano) atencion.push({ nivel: "alto", t: `${fmt(c.esperanHumano)} consulta${c.esperanHumano === 1 ? "" : "s"} esperan a una persona`, d: "Hay clientes esperando respuesta humana.", href: `${b}/crm`, accion: "Atender" })
+  for (const [nom, id, reds] of cuentasEstado) {
+    const d = edadDias(ultima(reds))
+    if (pubs.length && (d == null || d > 7)) atencion.push({ nivel: d == null || d > 14 ? "alto" : "medio", t: `${nom}: ${d == null ? "sin publicaciones registradas" : `sin publicar hace ${Math.floor(d)} días`}`, href: `${b}/analisis?cuenta=${id}#que-funciona`, accion: "Ver cuenta" })
+  }
+  if (!ig.ok) atencion.push({ nivel: "medio", t: "Instagram sin conexión", d: ig.error, href: `${b}/analisis#datos`, accion: "Detalle" })
+  if (neg && (c?.d30 ?? 1) === 0) atencion.push({ nivel: "medio", t: "Sin consultas nuevas en 30 días", href: `${b}/analisis#negocio`, accion: "Ver embudo" })
+  const nv = neg?.visitas ?? [], nc = neg?.consultas ?? []
+  const visA = neg ? sumaDias(nv, (x) => x.c, 30) : null
+  const visP = cubrePrevio(neg?.primeraVisita, 30) ? sumaDias(nv, (x) => x.c, 60, 30) : null
+  const conA = neg ? sumaDias(nc, (x) => x.c, 30) ?? 0 : null
+  const atenA = sumaDias(nc, (x) => x.a, 30) ?? 0, ganA = sumaDias(nc, (x) => x.g, 30) ?? 0
+  const recientes = pubs.filter((p) => p.fecha).slice(0, 8)
+
   return (
     <>
       <Head t="Inicio" sub={<>Resumen de redes, web y negocio de DEVISEBIT · últimos 30 días{ig.ok ? ` · Instagram actualizado ${fechaHora(ig.actualizado)}` : ""}</>} />
 
+      <Sec t="Qué requiere atención" id="atencion" />
+      <div className="pc-alertas">
+        {atencion.length ? atencion.map((a, i) => <Alerta key={i} {...a} />) : <Alerta nivel="ok" t="Todo en orden: no hay nada pendiente ni cuentas paradas." />}
+      </div>
+
       <Sec t="Indicadores" />
       <div className="pc-kpis">
-        <Kpi k="Seguidores Instagram" v={seg != null ? fmt(seg) : null} color="var(--ig)" serie={hist.map((h) => h.seguidores)} delta={<Delta v={crecimiento} />} ft={crecimiento != null ? `desde ${fechaCorta(hace30!.dia)}` : ig.ok ? "La evolución se registra cada día" : "Instagram sin conexión"} />
-        <Kpi k="Publicaciones IG (30 días)" v={ig.ok ? fmt(p30.length) : null} color="var(--ig)" ft={ig.ok ? `${fmt(ig.perfil.publicaciones)} en total` : ""} />
-        <Kpi k="Engagement aprox." v={engProm != null ? `${fmt(engProm, 2)}%` : null} color="var(--ig)" serie={posts.slice(0, 10).reverse().map((p) => engagement(p, seg ?? 0) ?? 0)} ft="Me gusta + comentarios / seguidores (últimas 10)" />
-        <Kpi k="Consultas (30 días)" v={c?.d30 != null ? fmt(c.d30) : null} delta={<Delta v={c?.d30 != null && c?.p30 != null ? c.d30 - c.p30 : null} />} ft={c?.d7 != null ? `${fmt(c.d7)} en los últimos 7 días` : ""} />
-        <Kpi k="Visitas web (30 días)" v={vis30 != null ? fmt(vis30) : null} serie={visDias} color="var(--info)" ft={visDias.length ? `${visDias.length} días con registro` : "Sin visitas registradas"} />
-        <Kpi k="Suscriptores Academia" v={m?.academia.suscriptores?.act != null ? fmt(m.academia.suscriptores.act) : null} color="var(--ok)" delta={<Delta v={m?.academia.suscriptores?.d30 ?? null} />} ft="activos · altas en 30 días" />
-        <Kpi k="Seguidores Facebook" v={fb.ok && fb.seguidores != null ? fmt(fb.seguidores) : null} color="var(--fb)" serie={fb.ok ? fb.serieSeguidores : undefined} delta={<Delta v={fb.ok ? fb.crecimiento30 : null} />} ft={fb.ok ? `desde ${fechaCorta(fb.desde)} · ${fmt(fb.vistasContenido30)} visualizaciones` : "Facebook sin datos todavía"} />
-        <Kpi k="Vistas YouTube" v={yt?.vistas != null ? fmt(yt.vistas) : null} color="var(--yt)" serie={yt?.lista.slice().reverse().map((v) => v.vistas ?? 0)} ft={yt ? `últimos ${yt.videos} videos del canal` : "Sin conexión con YouTube"} />
-        <Kpi k="Inversión en anuncios" v={gasto.length ? gasto.map((p) => plata(p.gasto, p.moneda)).join(" + ") : null} ft={gasto.length ? gasto.map((p) => p.nombre).join(" y ") + " · 30 días" : "No hay datos de anuncios cargados"} />
+        <Kpi href={`${b}/analisis?cuenta=instagram#que-funciona`} k="Seguidores Instagram" v={seg != null ? fmt(seg) : null} color="var(--ig)" serie={hist.map((h) => h.seguidores)} delta={<Delta v={crecimiento} />} ft={crecimiento != null ? `desde ${fechaCorta(hace30!.dia)}` : ig.ok ? "La evolución se registra cada día" : "Instagram sin conexión"} />
+        <Kpi href={`${b}/publicaciones?red=instagram`} k="Publicaciones IG (30 días)" v={ig.ok ? fmt(p30.length) : null} color="var(--ig)" ft={ig.ok ? `${fmt(ig.perfil.publicaciones)} en total` : ""} />
+        <Kpi href={`${b}/analisis#que-funciona`} k="Engagement aprox." v={engProm != null ? `${fmt(engProm, 2)}%` : null} color="var(--ig)" serie={posts.slice(0, 10).reverse().map((p) => engagement(p, seg ?? 0) ?? 0)} ft="Me gusta + comentarios / seguidores (últimas 10)" />
+        <Kpi href={`${b}/crm`} k="Consultas (30 días)" v={c?.d30 != null ? fmt(c.d30) : null} delta={<Delta v={c?.d30 != null && c?.p30 != null ? c.d30 - c.p30 : null} />} ft={c?.d7 != null ? `${fmt(c.d7)} en los últimos 7 días` : ""} />
+        <Kpi href={`${b}/web`} k="Visitas web (30 días)" delta={<Delta v={dif(visA, visP)} />} v={vis30 != null ? fmt(vis30) : null} serie={visDias} color="var(--info)" ft={visDias.length ? `${visDias.length} días con registro` : "Sin visitas registradas"} />
+        <Kpi href={`${b}/academia`} k="Suscriptores Academia" v={m?.academia.suscriptores?.act != null ? fmt(m.academia.suscriptores.act) : null} color="var(--ok)" delta={<Delta v={m?.academia.suscriptores?.d30 ?? null} />} ft="activos · altas en 30 días" />
+        <Kpi href={`${b}/analisis?cuenta=facebook#que-funciona`} k="Seguidores Facebook" v={fb.ok && fb.seguidores != null ? fmt(fb.seguidores) : null} color="var(--fb)" serie={fb.ok ? fb.serieSeguidores : undefined} delta={<Delta v={fb.ok ? fb.crecimiento30 : null} />} ft={fb.ok ? `desde ${fechaCorta(fb.desde)} · ${fmt(fb.vistasContenido30)} visualizaciones` : "Facebook sin datos todavía"} />
+        <Kpi href={`${b}/youtube`} k="Vistas YouTube" v={yt?.vistas != null ? fmt(yt.vistas) : null} color="var(--yt)" serie={yt?.lista.slice().reverse().map((v) => v.vistas ?? 0)} ft={yt ? `últimos ${yt.videos} videos del canal` : "Sin conexión con YouTube"} />
+        <Kpi href={`${b}/anuncios`} k="Inversión en anuncios" v={gasto.length ? gasto.map((p) => plata(p.gasto, p.moneda)).join(" + ") : null} ft={gasto.length ? gasto.map((p) => p.nombre).join(" y ") + " · 30 días" : "No hay datos de anuncios cargados"} />
+      </div>
+
+      <Sec t="Del visitante a la venta" />
+      <div className="pc-card"><div className="pc-ch"><h2>Embudo · 30 días</h2><a className="pc-btn" href={`${b}/analisis#negocio`}>Análisis</a></div>
+        {neg ? <Embudo pasos={[{ k: "Visitas web", v: visA }, { k: "Consultas", v: conA }, { k: "Atendidas", v: atenA }, { k: "Ganadas", v: ganA }]} /> : <div className="pc-empty">Sin datos.</div>}
       </div>
 
       <Sec t="Redes" />
@@ -88,19 +118,17 @@ export default async function Inicio() {
 
       <div className="pc-grid pc-g2">
         <div className="pc-card">
-          <div className="pc-ch"><h2>Últimas publicaciones en Instagram</h2><a className="pc-btn" href={`${b}/publicaciones`}>Ver todas</a></div>
-          {ig.ok ? (
-            posts.length ? (
-              <div className="pc-list">
-                {posts.slice(0, 5).map((p) => (
-                  <a key={p.id} className="pc-item" href={p.url} target="_blank" rel="noreferrer">
-                    <span className="t">{p.texto.split("\n")[0].slice(0, 110) || "(sin texto)"}</span>
-                    <span className="m"><span>{fechaCorta(p.fecha)} · {p.tipo === "VIDEO" ? "Video" : p.tipo === "CAROUSEL_ALBUM" ? "Carrusel" : "Imagen"}</span><span>♥ {fmt(p.meGusta)} · {fmt(p.comentarios)} coment. · {fmt(engagement(p, seg ?? 0), 2)}%</span></span>
-                  </a>
-                ))}
-              </div>
-            ) : <div className="pc-empty">La cuenta todavía no tiene publicaciones.</div>
-          ) : <SinDatos><b>Instagram sin datos.</b> {ig.error}</SinDatos>}
+          <div className="pc-ch"><h2>Últimas publicaciones</h2><span className="pc-k">todas las redes</span><a className="pc-btn" href={`${b}/publicaciones`}>Ver todas</a></div>
+          {recientes.length ? (
+            <div className="pc-list">
+              {recientes.map((p) => (
+                <a key={p.red + p.id} className="pc-item" href={p.url ?? "#"} target="_blank" rel="noreferrer">
+                  <span className="t">{(p.texto.split("\n")[0] || "(ver publicación)").slice(0, 110)}</span>
+                  <span className="m"><span><span className="pc-dot" style={{ background: REDES[p.red]?.color }} /> {REDES[p.red]?.nombre} · {formatoDe(p.red, p.tipo)} · {fechaCorta(p.fecha!)}</span><span><b>{fmt(interacciones(p))}</b> interacciones</span></span>
+                </a>
+              ))}
+            </div>
+          ) : <SinDatos><b>Sin publicaciones en el historial.</b></SinDatos>}
         </div>
         <div className="pc-card">
           <div className="pc-ch"><h2>Consultas por estado</h2><a className="pc-btn" href={`${b}/crm`}>CRM y ventas</a></div>
