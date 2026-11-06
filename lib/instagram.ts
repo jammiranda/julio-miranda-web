@@ -68,6 +68,11 @@ export async function sincronizarPublicacionesIG(max = 300) {
     const sig: string | undefined = j.paging?.next
     ruta = sig ? sig.replace(/^https:\/\/graph\.instagram\.com\/[^/]+\//, "").replace(/([?&])access_token=[^&]*&?/, "$1").replace(/[?&]$/, "") : null
   }
+  // Si la API ya no lista una publicación (la borraron en Instagram), sale también del historial; así los conteos coinciden con el perfil.
+  if (!ruta && todas.length > 0 && todas.length < max) {
+    const ids = todas.map((x) => String(x.id))
+    await q(`delete from pc_publicaciones where red='instagram' and origen='API de Instagram' and id <> all($1::text[]) and (select count(*) from pc_publicaciones where red='instagram' and id <> all($1::text[])) <= 5`, [ids]).catch(() => {})
+  }
   return guardarPublicaciones(todas.map((x) => ({ red: "instagram", id: String(x.id), fecha: x.timestamp ?? null, texto: String(x.caption ?? ""), tipo: x.media_type ?? null, url: x.permalink ?? null, me_gusta: x.like_count, comentarios: x.comments_count })), "API de Instagram")
 }
 

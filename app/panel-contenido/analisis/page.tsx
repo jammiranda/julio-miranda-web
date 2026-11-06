@@ -65,13 +65,13 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
   const cIG = crecimientoSerie(histIG, dias, AHORA)
 
   const fbRows = fbD ?? []
-  const fbCubre = cubrePrevio(fbRows[0]?.dia, dias, AHORA)
-  const vFB = vol(["facebook"])
+    const vFB = vol(["facebook"])
   const fbPostsMet = sumaDias(fbRows, (f) => f.publicaciones, dias, 0, AHORA)
-  const fbPosts = mayor(vFB.posts, fbPostsMet) ?? 0
-  const fbInter = mayor(vFB.inter, sumaDias(fbRows, (f) => f.interacciones, dias, 0, AHORA)) ?? 0
-  const fbPostsPrev = mayor(vFB.postsPrev, fbCubre ? sumaDias(fbRows, (f) => f.publicaciones, dias * 2, dias, AHORA) : null)
-  const fbInterPrev = mayor(vFB.interPrev, fbCubre ? sumaDias(fbRows, (f) => f.interacciones, dias * 2, dias, AHORA) : null)
+  // Facebook: el contador diario de Metricool cuenta de más (41 contra 19 reales); los totales salen del detalle por publicación.
+  const fbPosts = vFB.posts
+  const fbInter = vFB.inter
+  const fbPostsPrev = vFB.postsPrev
+  const fbInterPrev = vFB.interPrev
   const cFB = crecimientoSerie(fbRows, dias, AHORA)
   const fbSeg = [...fbRows].reverse().find((f) => f.seguidores != null)?.seguidores ?? (fb.ok ? fb.seguidores : null)
 
@@ -162,7 +162,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
 
   /* ───── Calidad de los datos ───── */
   const calidad: { t: string; d?: string }[] = []
-  if (fbPostsMet != null && fbPostsMet > vFB.posts) calidad.push({ t: `Facebook: Metricool cuenta ${fmt(fbPostsMet)} publicaciones en ${dias} días, pero el historial del panel solo tiene el detalle de ${fmt(vFB.posts)}.`, d: "Los totales usan el número más completo (Metricool). El análisis por formato, día y horario usa solo las publicaciones con detalle." })
+  if (fbPostsMet != null && fbPostsMet > vFB.posts + 2) calidad.push({ t: `Facebook: el contador diario de Metricool suma ${fmt(fbPostsMet)} publicaciones en ${dias} días, pero el detalle publicación por publicación tiene ${fmt(vFB.posts)}.`, d: "El contador de Metricool cuenta más tipos de contenido; el panel usa el detalle, que se puede verificar una por una." })
   const sinTipo = conFechaTodas.filter((p) => formatoDe(p.red, p.tipo) === "Sin clasificar").length
   if (sinTipo) calidad.push({ t: `${fmt(sinTipo)} publicaciones no tienen formato cargado y figuran como «Sin clasificar».`, d: "Mientras no se sepa el formato, no cuentan para decidir cuál rinde mejor." })
   if (!histCubre && historiaDesde) calidad.push({ t: `El historial de publicaciones empieza el ${fechaCorta(historiaDesde)}: todavía no cubre los ${dias} días anteriores.`, d: "Por eso no se muestran variaciones de publicaciones ni de interacciones. Aparecen solas cuando haya historial suficiente." })
@@ -197,7 +197,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
       <Sec t="Por cuenta" id="cuentas" />
       <div className="pc-card" style={{ padding: 0 }}>
         <div className="pc-tw"><table className="pc-fija">
-          <thead><tr><th>Cuenta</th><th>Estado</th><th className="n">Seguidores</th><th className="n">Crec.</th><th className="n">Publicaciones</th><th className="n">Interacciones</th><th className="n">Por publicación</th><th className="n" title="Interacciones por publicación ÷ seguidores">Sobre seguidores</th><th className="n">Imp. / vistas</th><th>Última publicación</th><th>Fuente</th></tr></thead>
+          <thead><tr><th>Cuenta</th><th>Estado</th><th className="n">Seguidores</th><th className="n">Crec.</th><th className="n">Publicaciones</th><th className="n">Interacciones</th><th className="n">Por publicación</th><th className="n" title="Interacciones por publicación ÷ seguidores">Sobre seguidores</th><th className="n" title="Impresiones o vistas del período. En Facebook son las visualizaciones de contenido de la página">Alcance / vistas</th><th>Última publicación</th><th>Fuente</th></tr></thead>
           <tbody>{cuentas.map((x) => { const e = estado(x); const t = tasa(x); return (
             <tr key={x.id}>
               <td style={{ whiteSpace: "nowrap" }}><span className="pc-dot" style={{ background: x.color }} /> <a href={liga(x.id) + "#que-funciona"}>{x.nombre}</a></td>

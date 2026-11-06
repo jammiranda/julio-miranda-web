@@ -53,13 +53,13 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" />
       <div className="pc">
         <a className="pc-skip" href="#contenido">Saltar al contenido</a>
         <aside className="pc-side">
           <div className="pc-brand">
             <a href={b || "/"} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-              <span className="pc-mark">D</span>
+              <span className="pc-mark" style={{ backgroundImage: "url(/marca/logo-devisebit.png)" }} aria-hidden="true" />
               <span><b>DEVISEBIT</b><small>Panel de contenido</small></span>
             </a>
             <form action={salir} className="pc-salir-movil"><button className="pc-btn" style={{ padding: "4px 10px", fontSize: 12 }}>Salir</button></form>

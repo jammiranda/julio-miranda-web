@@ -3,6 +3,7 @@ import { linkedin } from "@/lib/linkedin"
 import { panelMetricas, youtubeCache, safe } from "@/lib/panel"
 import { publicacionesYouTubeCache } from "@/lib/youtube-publicaciones"
 import { resumenAds } from "@/lib/ads"
+import { seguimientos } from "@/lib/ads-seguimiento"
 import { linkedinExport } from "@/lib/linkedin-export"
 import { facebook, FB_URL } from "@/lib/facebook"
 import { historial, interacciones, REDES } from "@/lib/publicaciones"
@@ -16,7 +17,7 @@ const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contacta
 export default async function Inicio() {
   if (!(await acceso())) return null
   const b = base()
-  const [ig, hist, m, yt, ads, li, ytp] = await Promise.all([instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
+  const [segAds, ig, hist, m, yt, ads, li, ytp] = await Promise.all([safe(seguimientos()), instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
   const [lix, fb, pubs, neg] = await Promise.all([safe(linkedinExport()), facebook(), historial(90).catch(() => []), negocioPeriodo(30)])
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
@@ -29,6 +30,9 @@ export default async function Inicio() {
   const visDias = (m?.visitas.dias ?? []).map((d) => Number(d.c))
   const vis30 = visDias.length ? visDias.reduce((a, x) => a + x, 0) : null
   const gasto = ads?.plataformas.filter((p) => p.gasto > 0) ?? []
+  // Meta no se sincroniza solo: la inversión sale de los controles de la bitácora de cada campaña (acumulado desde su inicio).
+  const metaBit = (segAds ?? []).filter((x) => x.gasto != null && x.inicio && Date.now() - new Date(x.inicio.replace(/([+-]\d\d)$/, "$1:00")).getTime() < 30 * 864e5).reduce((a, x) => a + Number(x.gasto), 0)
+  const inversion = [...gasto.map((p) => ({ n: p.nombre, t: plata(p.gasto, p.moneda) })), ...(!gasto.some((p) => p.plataforma === "meta") && metaBit > 0 ? [{ n: "Meta Ads (según controles)", t: plata(metaBit) }] : [])]
 
   const ultima = (reds: string[]) => pubs.find((p) => reds.includes(p.red) && p.fecha)?.fecha ?? null
   const cuentasEstado: [string, string, string[]][] = [["Instagram", "instagram", ["instagram"]], ["Facebook", "facebook", ["facebook"]], ["YouTube", "youtube", ["youtube", "youtube_post"]], ["LinkedIn de la página", "linkedin", ["linkedin"]], ["LinkedIn de Julio", "linkedin_julio", ["linkedin_julio"]]]
@@ -67,7 +71,7 @@ export default async function Inicio() {
         <Kpi href={`${b}/academia`} k="Suscriptores Academia" v={m?.academia.suscriptores?.act != null ? fmt(m.academia.suscriptores.act) : null} color="var(--ok)" delta={<Delta v={m?.academia.suscriptores?.d30 ?? null} />} ft="activos · altas en 30 días" />
         <Kpi href={`${b}/analisis?cuenta=facebook#que-funciona`} k="Seguidores Facebook" v={fb.ok && fb.seguidores != null ? fmt(fb.seguidores) : null} color="var(--fb)" serie={fb.ok ? fb.serieSeguidores : undefined} delta={<Delta v={fb.ok ? fb.crecimiento30 : null} />} ft={fb.ok ? `desde ${fechaCorta(fb.desde)} · ${fmt(fb.vistasContenido30)} visualizaciones` : "Facebook sin datos todavía"} />
         <Kpi href={`${b}/youtube`} k="Vistas YouTube" v={yt?.vistas != null ? fmt(yt.vistas) : null} color="var(--yt)" serie={yt?.lista.slice().reverse().map((v) => v.vistas ?? 0)} ft={yt ? `últimos ${yt.videos} videos del canal` : "Sin conexión con YouTube"} />
-        <Kpi href={`${b}/anuncios`} k="Inversión en anuncios" v={gasto.length ? gasto.map((p) => plata(p.gasto, p.moneda)).join(" + ") : null} ft={gasto.length ? gasto.map((p) => p.nombre).join(" y ") + " · 30 días" : "No hay datos de anuncios cargados"} />
+        <Kpi href={`${b}/anuncios`} k="Inversión en anuncios" v={inversion.length ? inversion.map((x) => x.t).join(" + ") : null} ft={inversion.length ? inversion.map((x) => x.n).join(" y ") + " · 30 días" : "No hay datos de anuncios cargados"} />
       </div>
 
       <Sec t="Del visitante a la venta" />
@@ -90,7 +94,7 @@ export default async function Inicio() {
           <div className="hd"><span className="ic" style={{ background: "rgba(24,119,242,.15)", color: "var(--fb)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M15 8h-1.5A2.5 2.5 0 0011 10.5V21M8.5 13H15" /></svg></span><div><h3>Facebook</h3><span className="pc-muted" style={{ fontSize: 12 }}>Página DEVISEBIT</span></div></div>
           {fb.ok ? (
             <>
-              <div className="pc-mono" style={{ fontSize: 13 }}>{fmt(fb.seguidores)} seguidores · +{fmt(fb.nuevos30)} / −{fmt(fb.perdidos30)} en 30 días · {fmt(fb.publicaciones30)} publicaciones · {fmt(fb.interacciones30)} interacciones</div>
+              <div className="pc-mono" style={{ fontSize: 13 }}>{fmt(fb.seguidores)} seguidores · +{fmt(fb.nuevos30)} / −{fmt(fb.perdidos30)} en 30 días · {fmt(pubs.filter((p) => p.red === "facebook" && p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5).length)} publicaciones</div>
               <div className="pc-mono pc-muted" style={{ fontSize: 12, marginTop: 4 }}>{fmt(fb.vistasPagina30)} vistas de la página · {fmt(fb.vistasContenido30)} visualizaciones de contenido (Metricool, {fechaHora(fb.actualizado)})</div>
             </>
           ) : <span className="pc-muted" style={{ fontSize: 12.5 }}>{fb.error}</span>}

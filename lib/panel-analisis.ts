@@ -7,7 +7,7 @@ import { interacciones, type Publicacion } from "./publicaciones"
  * Reglas: ningún número sin fuente, un solo criterio de conteo, y ningún "mejor" sin muestra suficiente.
  */
 export const TZ = "America/Argentina/Buenos_Aires"
-export const DIAS_OPCIONES = [7, 30, 90] as const
+export const DIAS_OPCIONES = [7, 15, 30, 90] as const
 export const MUESTRA_MIN = 5
 const DIA = 864e5
 

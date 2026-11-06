@@ -28,7 +28,7 @@ export default function Buscar({ base, oficina }: { base: string; oficina: boole
       out.push({ id: `a-${id}`, t: `Análisis · ${nombre}`, sub: "Qué funciona en esta cuenta", href: `${base}/analisis?cuenta=${id}#que-funciona`, grupo: "Cuenta", claves: `analisis cuenta ${id} rendimiento formato día horario` })
       out.push({ id: `p-${id}`, t: `Publicaciones · ${nombre}`, sub: "Historial de esta cuenta", href: `${base}/publicaciones?red=${id}`, grupo: "Cuenta", claves: `publicaciones posts historial ${id}` })
     }
-    for (const d of [7, 30, 90]) out.push({ id: `d-${d}`, t: `Análisis · últimos ${d} días`, sub: "Comparado con el período anterior", href: `${base}/analisis?dias=${d}`, grupo: "Período", claves: `analisis periodo semana mes trimestre ${d} dias` })
+    for (const d of [7, 15, 30, 90]) out.push({ id: `d-${d}`, t: `Análisis · últimos ${d} días`, sub: "Comparado con el período anterior", href: `${base}/analisis?dias=${d}`, grupo: "Período", claves: `analisis periodo semana quincena 15 dias mes trimestre ${d} dias` })
     out.push({ id: "f-top", t: "Publicaciones con más interacciones", sub: "Ordenadas de mayor a menor", href: `${base}/publicaciones?orden=int`, grupo: "Filtro", claves: "mejores top publicaciones interacciones" })
     out.push({ id: "f-12m", t: "Publicaciones de los últimos 12 meses", sub: "Historial largo", href: `${base}/publicaciones?periodo=365`, grupo: "Filtro", claves: "publicaciones historial año 12 meses" })
     out.push({ id: "f-esp", t: "Consultas que esperan a una persona", sub: "CRM y ventas", href: `${base}/crm`, grupo: "Filtro", claves: "consultas esperan humano atender pendientes" })

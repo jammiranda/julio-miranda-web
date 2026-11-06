@@ -19,12 +19,15 @@ export function base() {
 const nf = new Intl.NumberFormat("es-AR")
 export const fmt = (v: number | null | undefined, dec = 0) => (v == null || !Number.isFinite(v) ? "—" : dec ? v.toLocaleString("es-AR", { minimumFractionDigits: dec, maximumFractionDigits: dec }) : nf.format(Math.round(v)))
 export const plata = (v: number | null | undefined, moneda = "ARS") => (v == null ? "—" : `${moneda === "ARS" ? "$" : moneda + " "}${nf.format(Math.round(v))}`)
+/** Acepta fechas ISO con zona abreviada ("...-03" de Postgres) y las completa para que el navegador las entienda. */
+const isoOk = (iso: string) => (iso.length === 10 ? iso + "T12:00:00-03:00" : iso.replace(/([+-]\d\d)$/, "$1:00"))
 export const fechaCorta = (iso: string) => {
   if (!iso) return ""
-  const d = new Date(iso.length === 10 ? iso + "T12:00:00-03:00" : iso)
+  const d = new Date(isoOk(iso))
+  if (Number.isNaN(d.getTime())) return ""
   return d.toLocaleDateString("es-AR", { day: "2-digit", month: "short", timeZone: "America/Argentina/Buenos_Aires" }).replace(".", "")
 }
-export const fechaHora = (iso: string) => new Date(iso).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" }).replace(".", "")
+export const fechaHora = (iso: string) => new Date(isoOk(iso)).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" }).replace(".", "")
 
 export function Head({ t, sub, children }: { t: string; sub?: React.ReactNode; children?: React.ReactNode }) {
   return (
@@ -40,7 +43,7 @@ export const Sec = ({ t, id }: { t: string; id?: string }) => <div className="pc
 export const dif = (a: number | null | undefined, b: number | null | undefined) => (a != null && b != null && Number.isFinite(a) && Number.isFinite(b) ? a - b : null)
 
 /** Selector de período (enlaces, sin JavaScript). Conserva los demás parámetros de la URL; 30 días es el valor por defecto. */
-export function Periodo({ ruta, params = {}, actual, opciones = [7, 30, 90] }: { ruta: string; params?: Record<string, string | undefined>; actual: number; opciones?: readonly number[] }) {
+export function Periodo({ ruta, params = {}, actual, opciones = [7, 15, 30, 90] }: { ruta: string; params?: Record<string, string | undefined>; actual: number; opciones?: readonly number[] }) {
   const href = (d: number) => {
     const s = new URLSearchParams()
     for (const [k, v] of Object.entries(params)) if (v && k !== "dias") s.set(k, v)

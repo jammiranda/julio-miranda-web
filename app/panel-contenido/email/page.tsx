@@ -11,7 +11,7 @@ const FRANJAS: [number, number, string][] = [[0, 7, "Madrugada (0–7)"], [7, 10
 
 export default async function Email({ searchParams }: { searchParams: { d?: string } }) {
   if (!(await acceso())) return null
-  const dias = [7, 30, 90].includes(Number(searchParams.d)) ? Number(searchParams.d) : 30
+  const dias = [7, 15, 30, 90].includes(Number(searchParams.d)) ? Number(searchParams.d) : 30
   const m = await safe(emailPanel(dias))
   if (!m) return (<><Head t="Email" /><SinDatos>No se pudo leer la base del sistema en este momento.</SinDatos></>)
   const t = m.tot ?? {}
@@ -20,7 +20,7 @@ export default async function Email({ searchParams }: { searchParams: { d?: stri
   return (
     <>
       <Head t="Email" sub={`Campañas enviadas desde el sistema por Brevo · últimos ${dias} días`}>
-        {[7, 30, 90].map((d) => <a key={d} href={`?d=${d}`} className={`pc-btn ${d === dias ? "pri" : ""}`}>{d} días</a>)}
+        {[7, 15, 30, 90].map((d) => <a key={d} href={`?d=${d}`} className={`pc-btn ${d === dias ? "pri" : ""}`}>{d} días</a>)}
       </Head>
 
       <div className="pc-kpis">
