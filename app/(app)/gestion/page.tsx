@@ -3,7 +3,7 @@ import { requerir } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { ESTADOS_MOD, dinero, isoD, sumarDias } from "@/lib/gestion"
 import { fecha, hoyISO, nombrePeriodo, periodoActual, rangoPeriodo } from "@/lib/util"
-import { Kpi } from "@/components/Registro"
+import { Kpis, ParaHoy, type KpiDato } from "@/components/Kpi"
 import { eventosCalendario, correosGmail, correosImap, contactosPorEmail, nombreDe, emailDe } from "@/lib/integraciones"
 
 export const dynamic = "force-dynamic"
@@ -86,15 +86,23 @@ export default async function TableroDireccion() {
         <div className="pag-acc"><Link href="/agentes" className="btn-s">Equipo de agentes</Link>{fin && <Link href="/finanzas" className="btn-p">Ver finanzas</Link>}</div>
       </header>
 
-      <section aria-label="Indicadores" className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {fin && <Kpi t="Resultado del mes" v={dinero(res)} d={`${dinero(n.ing)} entró · ${dinero(n.egr)} salió`} tono={res >= 0 ? "verde" : "rojo"} href="/finanzas" />}
-        {fin && <Kpi t="Cobros vencidos" v={dinero(n.cobrar_venc)} d={Number(n.cobrar_venc) ? "Reclamar esta semana" : "Nada vencido"} tono={Number(n.cobrar_venc) ? "rojo" : "verde"} href="/finanzas" />}
-        <Kpi t="Oportunidades abiertas" v={n.oportunidades} d={`${n.propuestas} con propuesta enviada`} href="/contactos" />
-        <Kpi t="Proyectos activos" v={n.proyectos} d={n.proy_tarde ? `${n.proy_tarde} con entrega vencida` : "Entregas al día"} tono={n.proy_tarde ? "rojo" : undefined} href="/proyectos" />
-        {fin && <Kpi t="Legales" v={n.venc_30} d={n.venc_tarde ? `${n.venc_tarde} vencidos sin resolver` : `vencimientos en 30 días · ${n.contratos_firma} contratos a firmar`} tono={n.venc_tarde ? "rojo" : n.venc_30 ? "ambar" : undefined} href="/legales?ver=vencimientos" />}
-        <Kpi t="Licitaciones abiertas" v={n.licitaciones} href="/licitaciones" />
-        <Kpi t="Reuniones en 7 días" v={cal.ok ? proxReu.length : "—"} d={cal.ok ? (proxReu[0] ? `Próxima: ${fecha(proxReu[0].f).slice(0, 5)} ${proxReu[0].hora} · ${proxReu[0].t}` : "Agenda libre") : "Conectá Google Calendar"} href={cal.ok ? undefined : "/integraciones"} />
-      </section>
+      <ParaHoy items={[
+        ...(fin ? [{ n: Number(n.cobrar_venc) ? dinero(n.cobrar_venc) : 0, t: "Cobros vencidos", d: "Reclamar esta semana", href: "/finanzas", accion: "Ver cobros", tono: "av" as const }] : []),
+        ...(fin ? [{ n: Number(n.venc_tarde), t: "Vencimientos legales sin resolver", href: "/legales?ver=vencimientos", accion: "Resolver", tono: "av" as const }] : []),
+        { n: Number(n.proy_tarde), t: "Proyectos con entrega vencida", href: "/proyectos", accion: "Revisar", tono: "av" as const },
+        { n: totalSinLeer, t: "Correos sin leer", href: "/correos", accion: "Abrir" },
+        { n: proxReu.filter((r) => r.f === hoy).length, t: "Reuniones hoy", d: proxReu.find((r) => r.f === hoy)?.t, href: "/agenda", accion: "Ver agenda" },
+      ]} />
+
+      <Kpis min={200} datos={[
+        ...(fin ? [{ t: "Resultado del mes", v: dinero(res), d: `${dinero(n.ing)} entró · ${dinero(n.egr)} salió`, href: "/finanzas", tono: res >= 0 ? "oscuro" : "alerta" } as KpiDato] : []),
+        ...(fin ? [{ t: "Cobros vencidos", v: dinero(n.cobrar_venc), d: Number(n.cobrar_venc) ? "Reclamar esta semana" : "Nada vencido", tono: Number(n.cobrar_venc) ? "alerta" : undefined, href: "/finanzas" } as KpiDato] : []),
+        { t: "Oportunidades abiertas", v: n.oportunidades, d: `${n.propuestas} con propuesta enviada`, href: "/contactos" },
+        { t: "Proyectos activos", v: n.proyectos, d: n.proy_tarde ? `${n.proy_tarde} con entrega vencida` : "Entregas al día", tono: n.proy_tarde ? "alerta" : undefined, href: "/proyectos" },
+        ...(fin ? [{ t: "Legales", v: n.venc_30, d: n.venc_tarde ? `${n.venc_tarde} vencidos sin resolver` : `vencimientos en 30 días · ${n.contratos_firma} contratos a firmar`, tono: n.venc_tarde ? "alerta" : undefined, href: "/legales?ver=vencimientos" } as KpiDato] : []),
+        { t: "Licitaciones abiertas", v: n.licitaciones, href: "/licitaciones" },
+        { t: "Reuniones en 7 días", v: cal.ok ? proxReu.length : "—", d: cal.ok ? (proxReu[0] ? `Próxima: ${fecha(proxReu[0].f).slice(0, 5)} ${proxReu[0].hora} · ${proxReu[0].t}` : "Agenda libre") : "Conectá Google Calendar", href: cal.ok ? undefined : "/integraciones" },
+      ]} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-5">
         <section className="card flex flex-col gap-3" aria-label="Lo que viene">

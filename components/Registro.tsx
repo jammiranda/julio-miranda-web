@@ -184,17 +184,16 @@ export function Pestanias({ base, actual, items }: { base: string; actual: strin
 }
 
 export function Kpi({ t, v, d, tono, href }: { t: string; v: string | number; d?: string; tono?: "rojo" | "verde" | "ambar"; href?: string }) {
-  const col = tono === "rojo" ? "text-rojo" : tono === "verde" ? "text-emerald-700" : tono === "ambar" ? "text-amber-700" : "text-[var(--tinta)]"
+  const col = tono === "verde" ? "var(--ok)" : tono === "ambar" ? "var(--aviso)" : undefined
   const cuerpo = (
     <>
-      <span className="text-xs font-bold uppercase tracking-[0.08em] text-[var(--gris)]">{t}</span>
-      <span className={`text-2xl font-extrabold tabular-nums leading-tight ${col}`}>{v}</span>
-      {d && <span className="text-xs text-[var(--gris)]">{d}</span>}
+      <span className="kpi-t">{t}</span>
+      <span className="kpi-v" style={col ? { color: col } : undefined}>{v}</span>
+      {d && <span className="kpi-d">{d}</span>}
     </>
   )
-  return href
-    ? <Link href={href} className="card card-link !p-4 flex flex-col gap-1 min-w-0 transition-shadow">{cuerpo}</Link>
-    : <div className="card !p-4 flex flex-col gap-1 min-w-0">{cuerpo}</div>
+  const cl = `kpi ${tono === "rojo" ? "kpi-alerta" : ""}`
+  return href ? <Link href={href} className={cl}>{cuerpo}</Link> : <div className={cl}>{cuerpo}</div>
 }
 
 export { op }
