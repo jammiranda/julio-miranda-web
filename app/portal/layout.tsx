@@ -26,11 +26,11 @@ export default async function PortalLayout({ children }: { children: React.React
     ? [{ href: "/portal", t: "Inicio" }, ...(ase ? [{ href: "/portal/asesoria", t: "Asesoría" }] : []), { href: "/portal/cursos", t: "Mis cursos" }, { href: "/portal/pagos", t: "Pagos y facturas" }, { href: "/portal/reuniones", t: "Reuniones" }, { href: "/portal/servicios", t: "Servicios y productos" }]
     : c ? [{ href: "/portal/pagos", t: "Pagos y facturas" }] : []
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-[#E2E5EA]">
+    <div data-espacio="portal" className="min-h-screen flex flex-col">
+      <header className="portal-cab">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <Link href="/portal" aria-label="DEVISEBIT Mi cuenta, inicio"><Marca chico sub="MI CUENTA" /></Link>
-          {!c && <a href={MI_ACADEMIA} className="text-sm font-semibold text-[#0F766E] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
+          {!c && <a href={MI_ACADEMIA} className="text-sm font-semibold text-[var(--ac-texto)] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
           {c && (
             <div className="flex items-center gap-3 text-sm">
               <span className="hidden sm:flex flex-col leading-tight text-right"><span className="font-semibold">{c.nombre}</span>{c.organizacion && <span className="text-xs text-[#4A515C]">{c.organizacion}</span>}</span>
@@ -39,9 +39,9 @@ export default async function PortalLayout({ children }: { children: React.React
           )}
         </div>
         {c && (
-          <nav aria-label="Mi cuenta" className="max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
-            {items.map((i) => <Link key={i.href} href={i.href} className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#262C37] hover:bg-[#FDECEB] whitespace-nowrap">{i.t}</Link>)}
-            <a href={MI_ACADEMIA} title="Tus cursos, clases y certificados. Entrás con esta misma cuenta" className="px-3 py-1.5 rounded-lg text-sm font-semibold text-[#0F766E] hover:bg-[#E6F6F4] whitespace-nowrap">ACADEMIA DEVISEBIT ↗</a>
+          <nav aria-label="Mi cuenta" className="portal-nav max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
+            {items.map((i) => <Link key={i.href} href={i.href} >{i.t}</Link>)}
+            <a href={MI_ACADEMIA} title="Tus cursos, clases y certificados. Entrás con esta misma cuenta" >ACADEMIA DEVISEBIT ↗</a>
           </nav>
         )}
       </header>

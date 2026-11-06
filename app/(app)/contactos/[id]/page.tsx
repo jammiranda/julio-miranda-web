@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Eliminar from "@/components/Eliminar"
 import { notFound, redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
@@ -144,6 +145,11 @@ export default async function Contacto({ params, searchParams }: { params: { id:
               {mails.length ? mails.map((h: any) => <a key={h.id} href={h.link} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline"><span className={h.noLeido ? "font-bold" : "font-semibold"}>{h.asunto}</span><span className="block text-xs text-[#4A515C]">{new Date(h.fecha).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })} · {h.mensajes} {h.mensajes === 1 ? "mensaje" : "mensajes"}</span></a>) : <p className="m-0 text-sm text-[#4A515C]">Sin correos con {c.email} (o Gmail sin conectar).</p>}
             </section>
           )}
+          <section className="card flex flex-col gap-2 items-start">
+            <h2 className="m-0 text-base">Eliminar contacto</h2>
+            <p className="m-0 text-xs text-[#4A515C]">Los proyectos, reuniones y envíos se conservan, sin contacto asociado.</p>
+            <Eliminar e="contacto" id={c.id} volver="/contactos" nombre={c.organizacion ?? c.nombre} texto="Eliminar este contacto" />
+          </section>
           <section className="card flex flex-col gap-2">
             <h2 className="m-0 text-base">Conversaciones del bot</h2>
             {consultas.length ? consultas.map((k: any) => <Link key={k.id} href={`/consultas/${k.id}`} className="text-sm hover:underline">{fechaHora(k.creado)} · {k.motivo ?? "Consulta"}</Link>) : <p className="m-0 text-sm text-[#4A515C]">Ninguna.</p>}

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import Eliminar from "@/components/Eliminar"
 import { revalidatePath } from "next/cache"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
@@ -123,6 +124,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
                 <button className="btn-p py-1.5">Guardar</button>
               </div>
             </form>
+            <div className="mt-3 pt-3 border-t border-[var(--borde-2)]"><Eliminar e="guia" id={g.id} volver="/sistema#guias" nombre={g.titulo} texto="Eliminar esta guía" /></div>
           </details>
         ))}
       </section>
@@ -131,7 +133,8 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
         <h2 className="m-0 text-xl">Productos</h2>
         {!mpConfigurado() && <p className="m-0 text-sm text-[#4A515C]">Para vender, cargá <code>MP_ACCESS_TOKEN</code> de Mercado Pago en Vercel. Mientras tanto los productos funcionan como lista de espera.</p>}
         {productos.map((p) => (
-          <form key={p.id} action={guardarProducto} className="card grid grid-cols-1 md:grid-cols-6 gap-3">
+          <div key={p.id} className="flex flex-col gap-1.5">
+          <form action={guardarProducto} className="card grid grid-cols-1 md:grid-cols-6 gap-3">
             <input type="hidden" name="id" value={p.id} />
             <label className="lbl md:col-span-3">Título<input name="titulo" defaultValue={p.titulo} className="inp" /></label>
             <label className="lbl">Precio (ARS)<input name="precio" inputMode="decimal" defaultValue={p.precio ?? ""} className="inp" /></label>
@@ -141,6 +144,8 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
             <label className="lbl md:col-span-5">Link del archivo que se entrega (PDF en Drive con acceso por link, etc.)<input name="archivo_url" type="url" defaultValue={p.archivo_url ?? ""} className="inp" /></label>
             <div className="flex items-end"><button className="btn-p w-full">Guardar</button></div>
           </form>
+          <div className="flex justify-end"><Eliminar e="producto" id={p.id} volver="/sistema#productos" nombre={p.titulo} texto="Eliminar producto" /></div>
+          </div>
         ))}
       </section>
 
@@ -159,9 +164,9 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
 
       <section id="ventas" className="card !p-0 overflow-hidden scroll-mt-28">
         <h2 className="m-0 px-5 py-4 text-xl">Ventas</h2>
-        <div className="overflow-x-auto"><table className="tbl"><thead><tr><th>Fecha</th><th>Producto</th><th>Comprador</th><th>Monto</th><th>Estado</th></tr></thead>
-          <tbody>{ordenes.map((o) => <tr key={o.id}><td>{fechaHora(o.creado)}</td><td>{o.titulo}</td><td>{o.nombre ?? ""} {o.email}</td><td>{o.moneda} {Number(o.monto).toLocaleString("es-AR")}</td><td>{o.estado}</td></tr>)}
-            {!ordenes.length && <tr><td colSpan={5} className="text-center text-[#4A515C] py-5">Todavía no hay ventas.</td></tr>}</tbody></table></div>
+        <div className="overflow-x-auto"><table className="tbl"><thead><tr><th>Fecha</th><th>Producto</th><th>Comprador</th><th>Monto</th><th>Estado</th><th></th></tr></thead>
+          <tbody>{ordenes.map((o) => <tr key={o.id}><td>{fechaHora(o.creado)}</td><td>{o.titulo}</td><td>{o.nombre ?? ""} {o.email}</td><td>{o.moneda} {Number(o.monto).toLocaleString("es-AR")}</td><td>{o.estado}</td><td>{o.estado !== "pagada" && <Eliminar e="orden" id={o.id} volver="/sistema#ventas" nombre={`${o.nombre ?? o.email}`} />}</td></tr>)}
+            {!ordenes.length && <tr><td colSpan={6} className="text-center text-[#4A515C] py-5">Todavía no hay ventas.</td></tr>}</tbody></table></div>
       </section>
     </div>
   )

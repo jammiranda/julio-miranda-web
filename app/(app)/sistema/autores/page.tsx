@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Eliminar from "@/components/Eliminar"
 import { redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
@@ -156,6 +157,7 @@ export default async function Autores({ searchParams }: { searchParams: { ok?: s
                     {a.activo && <button name="op" value="invitar" className="btn-s py-1">Mandar acceso por email</button>}
                     <button name="op" value={a.activo ? "desactivar" : "activar"} className="btn-s py-1">{a.activo ? "Desactivar" : "Activar"}</button>
                   </form>
+                  <div className="mt-1"><Eliminar e="autor" id={a.id} volver="/sistema/autores" nombre={a.email} /></div>
                 </td>
               </tr>
             ))}

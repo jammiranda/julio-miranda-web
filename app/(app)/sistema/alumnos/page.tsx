@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Eliminar from "@/components/Eliminar"
 import { requerir } from "@/lib/auth"
 import { q, one } from "@/lib/db"
 import { fecha } from "@/lib/util"
@@ -15,7 +16,7 @@ const Persona = ({ nombre, email, href }: { nombre?: string | null; email?: stri
 )
 
 /** Sistema Academia: quién estudia, quién compró y quién está suscripto. */
-export default async function Alumnos({ searchParams }: { searchParams: { v?: string; b?: string } }) {
+export default async function Alumnos({ searchParams }: { searchParams: { v?: string; b?: string} }) {
   const u = await requerir(["gerente", "coordinacion", "consulta", "profesional"])
   const ficha = u.espacios.includes("comercial")
   const vista = ["alumnos", "compradores", "suscriptos"].includes(searchParams.v ?? "") ? searchParams.v! : "alumnos"
@@ -40,6 +41,7 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
     vista === "suscriptos" ? q<any>(`select id, nombre, email, suscrito_en, tags from db_contactos where suscrito_en is not null and email_estado='activo'
       and ($1::text is null or lower(coalesce(nombre,'')||' '||coalesce(email,'')) like $1) order by suscrito_en desc limit 200`, [like]).catch(() => []) : Promise.resolve([]),
   ])
+  const volverA = `/sistema/alumnos?v=${vista}${b ? `&b=${encodeURIComponent(b)}` : ""}`
   const tiles = [
     { t: "Alumnos", v: k?.alumnos, d: `${k?.activos ?? 0} activos en 30 días` },
     { t: "Aprobados", v: k?.aprobados, d: "con certificado" },
@@ -60,34 +62,34 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
       <div className="card p-0 overflow-x-auto">
         {vista === "alumnos" && (
           <table className="tbl">
-            <thead><tr><th>Alumno</th><th>Curso</th><th>Estado</th><th>Lecciones vistas</th><th>Última actividad</th><th>Inscripción</th></tr></thead>
+            <thead><tr><th>Alumno</th><th>Curso</th><th>Estado</th><th>Lecciones vistas</th><th>Última actividad</th><th>Inscripción</th><th></th></tr></thead>
             <tbody>
               {(alumnos as any[]).map((r) => (
-                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} href={ficha ? `https://sistema.devisebit.com/contactos/${r.cid}` : undefined} /></td><td>{r.curso}<div className="text-xs text-[#4A515C]">{r.edicion}</div></td><td><span className={`chip ${COLOR_ESTADO[r.estado] ?? "bg-slate-100 text-slate-600"}`}>{ESTADO[r.estado] ?? r.estado}</span></td><td>{r.lecciones}</td><td>{r.ultima_actividad ? fecha(r.ultima_actividad) : "—"}</td><td>{fecha(r.creado)}</td></tr>
+                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} href={ficha ? `https://sistema.devisebit.com/contactos/${r.cid}` : undefined} /></td><td>{r.curso}<div className="text-xs text-[#4A515C]">{r.edicion}</div></td><td><span className={`chip ${COLOR_ESTADO[r.estado] ?? "bg-slate-100 text-slate-600"}`}>{ESTADO[r.estado] ?? r.estado}</span></td><td>{r.lecciones}</td><td>{r.ultima_actividad ? fecha(r.ultima_actividad) : "—"}</td><td>{fecha(r.creado)}</td><td><Eliminar e="inscripcion" id={r.id} volver={volverA} nombre={r.nombre ?? r.email} /></td></tr>
               ))}
-              {!(alumnos as any[]).length && <tr><td colSpan={6} className="text-center text-[#4A515C] py-6">Todavía no hay alumnos{b ? " con esa búsqueda" : ""}. Se suman al inscribirse en un curso.</td></tr>}
+              {!(alumnos as any[]).length && <tr><td colSpan={7} className="text-center text-[#4A515C] py-6">Todavía no hay alumnos{b ? " con esa búsqueda" : ""}. Se suman al inscribirse en un curso.</td></tr>}
             </tbody>
           </table>
         )}
         {vista === "compradores" && (
           <table className="tbl">
-            <thead><tr><th>Comprador</th><th>Producto</th><th>Importe</th><th>Pagado</th></tr></thead>
+            <thead><tr><th>Comprador</th><th>Producto</th><th>Importe</th><th>Pagado</th><th></th></tr></thead>
             <tbody>
               {(compradores as any[]).map((r) => (
-                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} /></td><td>{r.titulo}</td><td>{r.monto != null ? `${r.moneda ?? "ARS"} ${Number(r.monto).toLocaleString("es-AR")}` : "—"}</td><td>{r.pagada_en ? fecha(r.pagada_en) : "—"}</td></tr>
+                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} /></td><td>{r.titulo}</td><td>{r.monto != null ? `${r.moneda ?? "ARS"} ${Number(r.monto).toLocaleString("es-AR")}` : "—"}</td><td>{r.pagada_en ? fecha(r.pagada_en) : "—"}</td><td className="text-xs text-[var(--gris)]">Registro de venta</td></tr>
               ))}
-              {!(compradores as any[]).length && <tr><td colSpan={4} className="text-center text-[#4A515C] py-6">Todavía no hay compras pagadas{b ? " con esa búsqueda" : ""}.</td></tr>}
+              {!(compradores as any[]).length && <tr><td colSpan={5} className="text-center text-[#4A515C] py-6">Todavía no hay compras pagadas{b ? " con esa búsqueda" : ""}.</td></tr>}
             </tbody>
           </table>
         )}
         {vista === "suscriptos" && (
           <table className="tbl">
-            <thead><tr><th>Suscripto</th><th>Intereses</th><th>Desde</th></tr></thead>
+            <thead><tr><th>Suscripto</th><th>Intereses</th><th>Desde</th><th></th></tr></thead>
             <tbody>
               {(suscriptos as any[]).map((r) => (
-                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} href={ficha ? `https://sistema.devisebit.com/contactos/${r.id}` : undefined} /></td><td className="text-xs"><div className="flex flex-wrap gap-1">{(r.tags ?? []).slice(0, 4).map((t: string) => <span key={t} className="chip bg-[var(--ac-suave)] text-[var(--ac-texto)]">{t}</span>)}{!(r.tags ?? []).length && "—"}</div></td><td>{fecha(r.suscrito_en)}</td></tr>
+                <tr key={r.id}><td><Persona nombre={r.nombre} email={r.email} href={ficha ? `https://sistema.devisebit.com/contactos/${r.id}` : undefined} /></td><td className="text-xs"><div className="flex flex-wrap gap-1">{(r.tags ?? []).slice(0, 4).map((t: string) => <span key={t} className="chip bg-[var(--ac-suave)] text-[var(--ac-texto)]">{t}</span>)}{!(r.tags ?? []).length && "—"}</div></td><td>{fecha(r.suscrito_en)}</td><td><Eliminar e="contacto" id={r.id} volver={volverA} nombre={r.nombre ?? r.email} /></td></tr>
               ))}
-              {!(suscriptos as any[]).length && <tr><td colSpan={3} className="text-center text-[#4A515C] py-6">Todavía no hay suscriptos{b ? " con esa búsqueda" : ""}.</td></tr>}
+              {!(suscriptos as any[]).length && <tr><td colSpan={4} className="text-center text-[#4A515C] py-6">Todavía no hay suscriptos{b ? " con esa búsqueda" : ""}.</td></tr>}
             </tbody>
           </table>
         )}

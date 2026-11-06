@@ -4,6 +4,7 @@ import { ETAPAS, etapa, estadoProy } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
 import { local, calendarioConectado } from "@/lib/agenda"
 import { eventosCalendario, contactosPorEmail } from "@/lib/integraciones"
+import { Kpis, ParaHoy } from "@/components/Kpi"
 
 export const dynamic = "force-dynamic"
 
@@ -48,16 +49,14 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
         <div><div className="eyebrow">Ventas</div><h1 className="m-0">Resumen comercial</h1><p>Embudo, próximos pasos y proyectos en curso.</p></div>
         <div className="pag-acc"><Link href="/proyectos/nuevo" className="btn-s">+ Proyecto</Link><Link href="/contactos/nuevo" className="btn-p">+ Contacto</Link></div>
       </header>
-      <section aria-label="Embudo comercial" className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-3">
-        {ETAPAS.map((e) => (
-          <Link key={e.v} href={`/contactos?etapa=${e.v}`} className="card card-link p-4 flex flex-col justify-between gap-3 min-h-[104px] transition-shadow">
-            <span className={`chip self-start ${e.c}`}>{e.n}</span>
-            <span className="text-3xl font-extrabold tabular-nums text-[#0E1116]">{n[e.v] ?? 0}</span>
-          </Link>
-        ))}
-      </section>
+      <ParaHoy items={[
+        { n: sinPasar.length, t: "Consultas del bot sin atender", d: "Pasalas a contacto o descartalas", href: "/consultas", accion: "Abrir" },
+        { n: proximos.filter((c: any) => { const f = iso(c.proximo_fecha); return f && f < hoy }).length, t: "Próximos pasos vencidos", d: "Contactos con una acción atrasada", href: "/contactos", accion: "Ver", tono: "av" },
+        { n: todas.filter((r) => r.ini.toISOString().slice(0, 10) === hoy).length, t: "Reuniones de hoy", d: "Entrá desde la lista de abajo", href: "#reuniones", accion: "Ver", tono: "ok" },
+      ]} />
+      <Kpis datos={ETAPAS.map((e) => ({ t: e.n, v: n[e.v] ?? 0, href: `/contactos?etapa=${e.v}`, tono: e.v === "ganado" ? "oscuro" as const : undefined }))} />
 
-      <section className="card flex flex-col gap-3" aria-label="Próximas reuniones">
+      <section id="reuniones" className="card flex flex-col gap-3 scroll-mt-28" aria-label="Próximas reuniones">
         <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="m-0 text-base">📅 Próximas reuniones</h2>{!cal.ok && <span className="text-xs text-[#4A515C]">{(await calendarioConectado()) ? "Para ver también las reuniones que anotás en Google Calendar, actualizá el conector en" : "Google Calendar sin conectar:"} <Link href="/integraciones" className="underline">Integraciones</Link>.</span>}</div>
         {todas.length ? (
           <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">{todas.map((r) => (

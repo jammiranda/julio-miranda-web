@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { MarcaIcono } from "@/components/Marca"
+import AvisoUrl from "@/components/AvisoUrl"
 
 /**
  * Dos sistemas separados, cada uno en su dominio y con identidad propia:
@@ -183,6 +184,55 @@ function CambioSistema({ espacio, espacios, compacta = false }: { espacio: Espac
   )
 }
 
+
+/* ---------- Buscador de pantallas (Ctrl+K o ⌘K): saltar a cualquier lugar en un paso ---------- */
+function Buscador({ espacio, rol }: { espacio: Espacio; rol: string }) {
+  const router = useRouter()
+  const [abierto, setAbierto] = useState(false)
+  const [b, setB] = useState("")
+  const [sel, setSel] = useState(0)
+  const entrada = useRef<HTMLInputElement>(null)
+  const todas = seccionesDe(espacio, rol).flatMap((s) => s.items.map((i) => ({ ...i, seccion: s.t ?? "General" })))
+  const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  const lista = todas.filter((i) => !b || norm(`${i.t} ${i.seccion}`).includes(norm(b))).slice(0, 9)
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setAbierto((v) => !v); setB(""); setSel(0) }
+      if (e.key === "Escape") setAbierto(false)
+    }
+    document.addEventListener("keydown", tecla)
+    return () => document.removeEventListener("keydown", tecla)
+  }, [])
+  useEffect(() => { if (abierto) entrada.current?.focus() }, [abierto])
+  const ir = (href: string) => { setAbierto(false); router.push(href) }
+  return (
+    <>
+      <button type="button" onClick={() => { setAbierto(true); setB(""); setSel(0) }} className="buscar-btn" aria-label="Buscar una pantalla (Ctrl+K)">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <span className="hidden md:inline">Buscar</span><kbd className="hidden md:inline">Ctrl K</kbd>
+      </button>
+      {abierto && (
+        <div className="pal-velo" onClick={() => setAbierto(false)} role="dialog" aria-modal="true" aria-label="Buscar una pantalla">
+          <div className="pal" onClick={(e) => e.stopPropagation()}>
+            <input ref={entrada} value={b} onChange={(e) => { setB(e.target.value); setSel(0) }} placeholder="Ir a… (contactos, finanzas, alumnos)" aria-label="Buscar"
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown") { e.preventDefault(); setSel((s) => Math.min(s + 1, lista.length - 1)) }
+                if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => Math.max(s - 1, 0)) }
+                if (e.key === "Enter" && lista[sel]) ir(lista[sel].href)
+              }} />
+            <ul role="listbox">
+              {lista.map((i, k) => (
+                <li key={i.href} role="option" aria-selected={k === sel}><button type="button" className={k === sel ? "on" : ""} onMouseEnter={() => setSel(k)} onClick={() => ir(i.href)}><Icono n={i.i} tam={18} /><span>{i.t}</span><small>{i.seccion}</small></button></li>
+              ))}
+              {!lista.length && <li className="pal-vacio">No encontré esa pantalla.</li>}
+            </ul>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 /* ---------- Shell: sidebar fija (escritorio), barra superior y drawer (celular/tablet) ---------- */
 export function EspacioShell({ espacio, espacios, rol, colapsado: colapsadoInicial = false, acciones, pie, children }: Props & { colapsado?: boolean; acciones: React.ReactNode; pie: React.ReactNode; children: React.ReactNode }) {
   const ruta = usePathname() ?? "/"
@@ -285,10 +335,10 @@ export function EspacioShell({ espacio, espacios, rol, colapsado: colapsadoInici
               {aqui?.seccion && <><span className="text-[var(--gris)]" aria-hidden="true">/</span><span className="text-[var(--gris)]">{aqui.seccion}</span></>}
               {aqui && <><span className="text-[var(--gris)]" aria-hidden="true">/</span><span className="font-semibold text-[var(--tinta)] truncate">{aqui.item.t}</span></>}
             </div>
-            <div className="ml-auto flex items-center gap-1 sm:gap-2 text-sm">{acciones}</div>
+            <div className="ml-auto flex items-center gap-1 sm:gap-2 text-sm"><Buscador espacio={espacio} rol={rol} />{acciones}</div>
           </div>
         </header>
-        <main id="contenido" tabIndex={-1} className="flex-1 w-full max-w-[1320px] mx-auto px-4 lg:px-8 py-5 lg:py-7 outline-none">{children}</main>
+        <main id="contenido" tabIndex={-1} className="flex-1 w-full max-w-[1320px] mx-auto px-4 lg:px-8 py-5 lg:py-7 outline-none"><AvisoUrl />{children}</main>
         <footer className="no-print flex flex-col items-center gap-2 text-center text-xs text-[var(--gris)] py-6 pb-24 md:pb-6">{pie}<EspacioPie espacio={espacio} /></footer>
       </div>
       <EspacioRapidos espacio={espacio} />
