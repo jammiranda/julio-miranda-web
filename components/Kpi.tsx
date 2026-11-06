@@ -4,7 +4,7 @@ import Link from "next/link"
 export type KpiDato = { t: string; v: string | number | null | undefined; d?: string; href?: string; tono?: "oscuro" | "alerta"; tendencia?: { texto: string; sube: boolean }; serie?: number[] }
 
 function Spark({ serie }: { serie: number[] }) {
-  if (serie.length < 2) return null
+  if (serie.length < 2 || !serie.some((v) => v > 0)) return null
   const max = Math.max(...serie, 1), w = 100, h = 28
   const pts = serie.map((v, i) => `${(i / (serie.length - 1)) * w},${h - 3 - (v / max) * (h - 6)}`).join(" ")
   return <svg className="kpi-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true"><polyline points={pts} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" opacity=".55" /></svg>

@@ -4,6 +4,7 @@ import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { slugDe, URL_ACADEMIA, sembrar } from "@/lib/academia"
 import { modalidad } from "@/lib/cursos"
+import { Kpis } from "@/components/Kpi"
 
 export const dynamic = "force-dynamic"
 
@@ -39,11 +40,12 @@ export default async function CursosAdmin({ searchParams }: { searchParams: { er
         <div><div className="eyebrow">Academia</div><h1 className="m-0">Cursos</h1><p>Cursos, ediciones, alumnos, asistencia y certificados. Se publican en <a href={`${URL_ACADEMIA}/cursos`} target="_blank" rel="noopener noreferrer" className="underline font-semibold text-[var(--ac-texto)]">academia.devisebit.com/cursos</a>.</p></div>
         <div className="pag-acc"><Link href="/sistema" className="btn-s">Guías y productos</Link><Link href="/sistema/alumnos" className="btn-s">Alumnos</Link></div>
       </header>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[["Alumnos", kpi?.alumnos], ["Certificados emitidos", kpi?.certificados], ["Activos últimos 30 días", kpi?.activos], ["Descargas últimos 30 días", kpi?.descargas]].map(([t, v]) => (
-          <div key={t as string} className="card flex flex-col gap-0.5"><span className="text-xs font-bold uppercase tracking-wider text-[#4A515C]">{t}</span><strong className="text-4xl font-semibold leading-tight text-[var(--ac-texto)]" style={{ fontFamily: "var(--fuente-titulos)" }}>{v ?? 0}</strong></div>
-        ))}
-      </div>
+      <Kpis datos={[
+        { t: "Alumnos", v: kpi?.alumnos ?? 0, d: "inscriptos en algún curso", href: "/sistema/alumnos" },
+        { t: "Certificados", v: kpi?.certificados ?? 0, d: "emitidos" },
+        { t: "Activos · 30 días", v: kpi?.activos ?? 0, d: "con alguna actividad" },
+        { t: "Descargas · 30 días", v: kpi?.descargas ?? 0, d: "de material", tono: "oscuro" },
+      ]} />
       <form action={crear} className="card flex flex-wrap items-end gap-3">
         <label className="lbl flex-1 min-w-[240px]">Nuevo curso<input name="titulo" required placeholder="Ej.: IA para atención al cliente por WhatsApp" className="inp" /></label>
         <label className="lbl">Modalidad<select name="modalidad" className="inp" defaultValue="online"><option value="online">Online a tu ritmo</option><option value="en_vivo">Online en vivo</option><option value="presencial">Presencial</option><option value="mixta">Mixta</option></select></label>
