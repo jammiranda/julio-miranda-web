@@ -2,6 +2,7 @@ import Link from "next/link"
 import { requerir } from "@/lib/auth"
 import { q, one } from "@/lib/db"
 import { fecha } from "@/lib/util"
+import { Kpis } from "@/components/Kpi"
 
 export const dynamic = "force-dynamic"
 
@@ -46,17 +47,13 @@ export default async function Alumnos({ searchParams }: { searchParams: { v?: st
     { t: "Suscriptos", v: k?.suscriptos, d: `${k?.nuevos ?? 0} nuevos en 30 días` },
   ]
   const tab = (v: string, t: string) => (
-    <Link href={`/sistema/alumnos?v=${v}${b ? `&b=${encodeURIComponent(b)}` : ""}`} aria-current={vista === v ? "page" : undefined} className={`px-4 py-2 rounded-full text-sm font-semibold no-underline ${vista === v ? "bg-[var(--ac)] text-white shadow-sm" : "bg-white border border-[var(--borde)] text-[#262C37] hover:border-[var(--borde-fuerte)]"}`}>{t}</Link>
+    <Link href={`/sistema/alumnos?v=${v}${b ? `&b=${encodeURIComponent(b)}` : ""}`} aria-current={vista === v ? "page" : undefined} className="no-underline">{t}</Link>
   )
   return (
     <div className="flex flex-col gap-5">
       <header className="pag-cab"><div><div className="eyebrow">Academia</div><h1 className="m-0">Alumnos y suscriptos</h1><p>Todo en un solo lugar: quién cursa, quién compró y quién recibe el newsletter.</p></div></header>
-      <ul className="m-0 p-0 list-none grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {tiles.map((x) => (
-          <li key={x.t} className="card py-4 flex flex-col gap-0.5"><div className="text-xs font-bold uppercase tracking-wider text-[#4A515C]">{x.t}</div><div className="text-4xl font-semibold leading-tight text-[var(--ac-texto)]" style={{ fontFamily: "var(--fuente-titulos)" }}>{x.v ?? "—"}</div><div className="text-xs text-[#4A515C]">{x.d}</div></li>
-        ))}
-      </ul>
-      <div className="flex flex-wrap items-center gap-2">
+      <Kpis datos={tiles.map((x) => ({ t: x.t, v: x.v ?? null, d: x.d }))} />
+      <div className="pestanas items-center">
         {tab("alumnos", "Alumnos")}{tab("compradores", "Compradores")}{tab("suscriptos", "Suscriptos")}
         <form className="sm:ml-auto flex gap-2 w-full sm:w-auto"><input type="hidden" name="v" value={vista} /><input name="b" defaultValue={b} placeholder="Buscar nombre, email o curso" aria-label="Buscar" className="inp py-2 w-full sm:w-72" /><button className="btn-s py-2">Buscar</button></form>
       </div>

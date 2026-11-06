@@ -6,6 +6,8 @@ import { s } from "@/lib/util"
 import { sembrar, slugDe, URL_ACADEMIA, mpConfigurado } from "@/lib/academia"
 import { fechaHora } from "@/lib/consultas"
 import { PROGRAMAS } from "@/lib/programas"
+import { Kpis, ParaHoy } from "@/components/Kpi"
+import Link from "next/link"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 120
@@ -55,23 +57,45 @@ async function guardarProducto(fd: FormData) {
 export default async function AcademiaAdmin({ searchParams }: { searchParams: { ok?: string; err?: string } }) {
   await requerir(["gerente", "coordinacion"])
   await sembrar()
-  const [guias, productos, ordenes, subs, programas] = await Promise.all([
+  const [guias, productos, ordenes, subs, programas, k] = await Promise.all([
     q<any>("select * from am_guias order by publicada, creado desc"),
     q<any>("select p.*, (select count(*)::int from db_contactos c where ('espera-'||p.slug) = any(c.tags)) espera from am_productos p order by id"),
     q<any>("select o.*, coalesce(p.titulo, 'Curso: ' || c.titulo) titulo from am_ordenes o left join am_productos p on p.id=o.producto_id left join am_cursos c on c.id=o.curso_id order by o.creado desc limit 30"),
     one<any>("select count(*) filter (where suscrito_en is not null and email_estado='activo')::int activos, count(*) filter (where suscrito_en > now() - interval '7 days')::int semana from db_contactos"),
     q<{ tag: string; n: number }>("select t tag, count(*)::int n from db_contactos, unnest(tags) t where t like 'espera-programa-%' group by t"),
+    one<any>(`select
+      (select count(distinct contacto_id) from am_inscripciones where estado<>'baja')::int alumnos,
+      (select count(distinct contacto_id) from am_inscripciones where ultima_actividad > now()-interval '30 days')::int activos,
+      (select count(distinct contacto_id) from am_inscripciones where estado<>'baja' and (ultima_actividad is null or ultima_actividad < now()-interval '14 days'))::int inactivos,
+      (select count(*) from am_certificados where not anulado)::int certificados,
+      (select count(*) from am_ordenes where estado='pagada' and pagada_en > now()-interval '30 days')::int ventas30,
+      (select coalesce(sum(monto),0) from am_ordenes where estado='pagada' and moneda='ARS' and pagada_en > now()-interval '30 days')::float ingresos30,
+      (select count(*) from am_ordenes where estado not in ('pagada','cancelada','rechazada') and creado > now()-interval '7 days')::int pendientes,
+      (select count(*) from am_cursos where estado='publicado')::int cursos`).catch(() => null),
   ])
+  const serie = await q<{ n: number }>(`select count(*)::int n from generate_series(now()::date - 13, now()::date, '1 day') d left join db_contactos c on c.suscrito_en::date = d::date and c.email_estado='activo' group by d order by d`).catch(() => [])
+  const borradores = guias.filter((g: any) => !g.publicada).length
+  const espera = productos.reduce((a: number, p: any) => a + (p.estado === "lista_espera" ? p.espera : 0), 0)
   return (
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
-        <div><div className="eyebrow">Academia</div><h1 className="m-0">Sistema Academia</h1><p>Guías gratis, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline font-semibold text-[var(--ac-texto)]">academia.devisebit.com</a>.</p></div>
-        <div className="pag-acc"><span className="stat"><b>{subs?.activos ?? 0}</b><span>suscriptos</span></span><span className="stat"><b>{subs?.semana ?? 0}</b><span>nuevos esta semana</span></span></div>
+        <div><div className="eyebrow">Academia</div><h1 className="m-0">Tablero de la Academia</h1><p>Lo urgente primero, después los números. Guías, newsletter y productos en <a href={URL_ACADEMIA} target="_blank" rel="noopener noreferrer" className="underline font-semibold text-[var(--ac-texto)]">academia.devisebit.com</a>.</p></div>
+        <div className="pag-acc"><Link href="/sistema/cursos" className="btn-p">Nuevo curso</Link><Link href="/sistema/alumnos" className="btn-s">Ver alumnos</Link></div>
       </header>
-      <nav aria-label="Secciones de la Academia" className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
-        {[["/sistema/cursos", "Cursos", "Lecciones y ediciones"], ["/sistema/alumnos", "Alumnos", "Quién cursa y compró"], ["#guias", "Guías", `${guias.filter((g) => g.publicada).length} publicadas`], ["#productos", "Productos", `${productos.length} cargados`], ["#programas", "Programas", "Listas de espera"], ["/sistema/autores", "Autores", "Docentes"], ["/sistema/recursos", "Recursos", "Material"]].map(([h, t, d]) => (
-          <a key={h} href={h} className="card !p-4 no-underline text-[#0E1116] flex flex-col gap-0.5 hover:border-[color:var(--ac)] transition-colors"><strong className="text-[15px]" style={{ fontFamily: "var(--fuente-titulos)" }}>{t}</strong><span className="text-xs text-[#4A515C]">{d}</span></a>
-        ))}
+      <ParaHoy items={[
+        { n: borradores, t: "Guías en borrador", d: "Revisalas y publicalas", href: "#guias", accion: "Revisar", tono: "av" },
+        { n: k?.pendientes ?? 0, t: "Compras sin confirmar", d: "De los últimos 7 días", href: "#ventas", accion: "Ver" },
+        { n: k?.inactivos ?? 0, t: "Alumnos sin actividad", d: "Hace más de 14 días", href: "/sistema/alumnos", accion: "Ver", tono: "av" },
+        { n: espera, t: "Anotados en lista de espera", d: "Productos sin abrir a la venta", href: "#productos", accion: "Abrir", tono: "ok" },
+      ]} />
+      <Kpis datos={[
+        { t: "Suscriptos", v: subs?.activos ?? 0, d: `${subs?.semana ?? 0} nuevos esta semana`, serie: serie.map((x) => x.n), href: "/sistema/alumnos?v=suscriptos" },
+        { t: "Alumnos", v: k?.alumnos ?? 0, d: `${k?.activos ?? 0} activos en 30 días`, href: "/sistema/alumnos" },
+        { t: "Ventas · 30 días", v: k?.ventas30 ?? 0, d: k?.ingresos30 ? `ARS ${Number(k.ingresos30).toLocaleString("es-AR")}` : "Sin ingresos todavía", tono: "oscuro", href: "#ventas" },
+        { t: "Certificados", v: k?.certificados ?? 0, d: `${k?.cursos ?? 0} cursos publicados`, href: "/sistema/cursos" },
+      ]} />
+      <nav aria-label="Secciones de la Academia" className="pestanas">
+        {[["/sistema/cursos", "Cursos"], ["/sistema/alumnos", "Alumnos"], ["#guias", "Guías"], ["#productos", "Productos"], ["#programas", "Programas"], ["/sistema/autores", "Autores"], ["/sistema/recursos", "Recursos"]].map(([h, t]) => <Link key={h} href={h}>{t}</Link>)}
       </nav>
       {searchParams.ok && <p role="status" className="m-0 text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">{searchParams.ok}</p>}
       {searchParams.err && <p role="alert" className="m-0 text-sm font-semibold text-red-800 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{searchParams.err}</p>}
@@ -133,7 +157,7 @@ export default async function AcademiaAdmin({ searchParams }: { searchParams: { 
         </ul>
       </section>
 
-      <section className="card !p-0 overflow-hidden">
+      <section id="ventas" className="card !p-0 overflow-hidden scroll-mt-28">
         <h2 className="m-0 px-5 py-4 text-xl">Ventas</h2>
         <div className="overflow-x-auto"><table className="tbl"><thead><tr><th>Fecha</th><th>Producto</th><th>Comprador</th><th>Monto</th><th>Estado</th></tr></thead>
           <tbody>{ordenes.map((o) => <tr key={o.id}><td>{fechaHora(o.creado)}</td><td>{o.titulo}</td><td>{o.nombre ?? ""} {o.email}</td><td>{o.moneda} {Number(o.monto).toLocaleString("es-AR")}</td><td>{o.estado}</td></tr>)}
