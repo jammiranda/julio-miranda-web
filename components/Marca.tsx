@@ -13,7 +13,7 @@ export default function Marca({ chico = false, sub = "SISTEMA DE GESTIÓN" }: { 
     <div className="flex items-center gap-2.5">
       <MarcaIcono academia={aca} tam={chico ? 36 : 48} />
       <div className="leading-tight">
-        <div className={`${chico ? "text-[17px]" : "text-xl"} font-extrabold tracking-[0.04em] text-[#0E1116]`}>DEVISE<span className={aca ? "text-[#0F766E]" : "text-[#C8231F]"}>BIT</span></div>
+        <div className={`${chico ? "text-[17px]" : "text-xl"} font-extrabold tracking-[0.04em] text-[#0E1116]`}>DEVISE<span className={aca ? "text-[#D11F26]" : "text-[#C8231F]"}>BIT</span></div>
         <div className="text-[10px] font-semibold tracking-[0.25em] text-[#4A515C]">{sub}</div>
       </div>
     </div>

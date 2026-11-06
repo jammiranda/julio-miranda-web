@@ -127,7 +127,7 @@ function MarcaSistema({ espacio, compacta = false }: { espacio: Espacio; compact
   const aca = espacio === "academia"
   return (
     <Link href={INICIO[espacio]} className="sb-marca flex items-center gap-2.5 rounded-xl min-w-0" aria-label={aca ? "ACADEMIA DEVISEBIT · Sistema, ir al inicio" : "DEVISEBIT · Sistema de gestión, ir al inicio"}>
-      <MarcaIcono academia={aca} tam={36} fondo={aca ? "#0F766E" : "#1B2029"} />
+      <MarcaIcono academia={aca} tam={36} fondo={aca ? "#D11F26" : "#1B2029"} />
       {!compacta && (
         <span className="leading-tight min-w-0">
           {aca ? (
@@ -176,7 +176,7 @@ function CambioSistema({ espacio, espacios, compacta = false }: { espacio: Espac
   if (!espacios.includes(otro)) return null
   return (
     <a href={URL_ESPACIO[otro]} className={`sb-cambio ${compacta ? "justify-center px-0" : "px-3"}`} title={compacta ? `Ir al ${NOMBRE[otro]}` : undefined} aria-label={compacta ? `Ir al ${NOMBRE[otro]}` : undefined}>
-      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: otro === "academia" ? "#14B8A6" : "#E5484D" }} aria-hidden="true" />
+      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: otro === "academia" ? "#FF5A60" : "#E5484D" }} aria-hidden="true" />
       {!compacta && <span className="truncate">Ir al {NOMBRE[otro]}</span>}
       {!compacta && <Icono n="salir" tam={14} className="ml-auto opacity-70" />}
     </a>
@@ -274,7 +274,7 @@ export function EspacioShell({ espacio, espacios, rol, colapsado: colapsadoInici
           <div className="h-14 lg:h-16 px-3 sm:px-4 lg:px-8 flex items-center gap-2 sm:gap-3">
             <button ref={boton} type="button" onClick={() => setAbierto(true)} className="lg:hidden tb-icono" aria-label="Abrir menú" aria-expanded={abierto} aria-controls="menu-movil"><Icono n="menu" tam={22} /></button>
             <Link href={INICIO[espacio]} className="lg:hidden flex items-center gap-2 min-w-0" aria-label={`${NOMBRE[espacio]}, ir al inicio`}>
-              <MarcaIcono academia={espacio === "academia"} tam={30} fondo={espacio === "academia" ? "#0F766E" : "#0E1116"} />
+              <MarcaIcono academia={espacio === "academia"} tam={30} fondo={espacio === "academia" ? "#D11F26" : "#0E1116"} />
               <span className="leading-tight min-w-0">
                 <span className={`block truncate text-[15px] font-bold text-[var(--tinta)] ${espacio === "academia" ? "font-titulo font-semibold" : ""}`}>{espacio === "academia" ? "Academia" : "Gestión"}</span>
                 {aqui && <span className="block truncate text-[11px] text-[var(--gris)]">{aqui.item.t}</span>}

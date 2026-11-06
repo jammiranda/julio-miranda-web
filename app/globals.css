@@ -266,9 +266,9 @@ html:has(.acad) { scroll-padding-top: 5rem; }
 .login-com { background: #0E1116; }
 .login-com::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 50% at 85% 10%, rgba(200, 35, 31, .45), transparent 70%), radial-gradient(40% 40% at 0% 100%, rgba(200, 35, 31, .18), transparent 70%); }
 .login-com::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(180deg, #000, transparent 85%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); }
-.login-aca { background: #0F766E; }
-.login-aca::before { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 55% at 90% 0%, rgba(94, 234, 212, .35), transparent 70%), radial-gradient(60% 50% at 0% 100%, rgba(8, 47, 44, .6), transparent 70%); }
-.login-aca::after { content: ""; position: absolute; right: -80px; bottom: -80px; width: 320px; height: 320px; border-radius: 999px; border: 40px solid rgba(255, 253, 248, .07); }
+.login-aca { background: #131110; }
+.login-aca::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 50% at 85% 10%, rgba(209, 31, 38, .45), transparent 70%), radial-gradient(40% 40% at 0% 100%, rgba(209, 31, 38, .18), transparent 70%); }
+.login-aca::after { content: ""; position: absolute; right: -80px; bottom: -80px; width: 320px; height: 320px; border-radius: 999px; border: 40px solid rgba(255, 253, 248, .06); }
 [data-espacio="academia"] .font-titulo-sis { font-family: var(--fuente-titulos); font-weight: 600; }
 .login-panel > * { position: relative; z-index: 1; }
 @media (max-width: 1023.98px) { .login-panel { padding-top: 20px; padding-bottom: 20px; } }

@@ -32,7 +32,7 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
           <MarcaIcono academia={aca} tam={44} fondo={aca ? "#0B4F4A" : "#1B2029"} />
           <div className="leading-tight">
             {aca
-              ? <div className="font-titulo text-xl font-semibold text-white">ACADEMIA <span className="font-sans text-base font-extrabold tracking-[0.06em] text-[#5EEAD4]">DEVISEBIT</span></div>
+              ? <div className="font-titulo text-xl font-semibold text-white">ACADEMIA <span className="font-sans text-base font-extrabold tracking-[0.06em] text-[#FF6A63]">DEVISEBIT</span></div>
               : <div className="text-xl font-extrabold tracking-[0.05em] text-white">DEVISE<span className="text-[#FF6A63]">BIT</span></div>}
             <div className="text-[10px] font-semibold tracking-[0.25em] text-white/70">{aca ? "SISTEMA" : "SISTEMA DE GESTIÓN"}</div>
           </div>
