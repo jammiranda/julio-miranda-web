@@ -295,3 +295,4 @@ a.pc-al:hover { border-color: var(--fg); transform: translateX(3px); }
   .pc-big { font-size: 28px; }
   .pc-posts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
 }
+.pc-acct .pc-sp { width: 100%; margin: 6px 0; height: 28px; }
