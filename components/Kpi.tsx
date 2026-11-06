@@ -10,9 +10,9 @@ function Spark({ serie }: { serie: number[] }) {
   return <svg className="kpi-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true"><polyline points={pts} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" opacity=".55" /></svg>
 }
 
-export function Kpis({ datos }: { datos: KpiDato[] }) {
+export function Kpis({ datos, min = 190 }: { datos: KpiDato[]; min?: number }) {
   return (
-    <ul className="kpis">
+    <ul className="kpis" style={{ ["--kmin" as string]: `${min}px` }}>
       {datos.map((x) => {
         const cuerpo = (
           <>

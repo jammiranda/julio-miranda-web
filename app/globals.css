@@ -367,7 +367,7 @@ html:has(.acad) { scroll-padding-top: 5rem; }
 
 /* ===== Indicadores (KPI) y "Para hoy": mismo componente en Sistema, Academia y Panel ===== */
 .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
-@media (min-width: 900px) { .kpis { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } }
+@media (min-width: 900px) { .kpis { grid-template-columns: repeat(auto-fit, minmax(var(--kmin, 190px), 1fr)); } }
 .kpi { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; border-radius: var(--radio); background: var(--sup); border: 1px solid var(--borde); box-shadow: var(--sombra); text-decoration: none; color: var(--tinta); min-width: 0; position: relative; }
 a.kpi:hover { border-color: var(--borde-fuerte); transform: translateY(-2px); box-shadow: var(--sombra-alta); }
 .kpi-t { font-family: var(--fuente-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--gris); }
