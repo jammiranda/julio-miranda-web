@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Julio Miranda · Technology & Digital Transformation · Project Leader. 15+ years leading software, data and digital transformation projects.">
+<meta property="og:title" content="Julio Miranda">
+<meta property="og:description" content="Julio Miranda · Technology & Digital Transformation · Project Leader. 15+ years leading software, data and digital transformation projects.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://julio.devisebit.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:url" content="https://julio.devisebit.com/en/portfolio.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Julio Miranda Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an archive of 17 years — counters, a year scrubber with histogram, filterable case files, and a wall of every domain shipped */
+:root{
+  --bg:#0c1316;--surface:#131d21;--raise:#1a272c;--line:#26363d;--ink:#e9f0f2;--muted:#8fa4ab;
+  --accent:#6fb8ff;--warm:#ffb661;--health:#5fd4a8;--gov:#b49cff;--biz:#f08cb6;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"Manrope",ui-sans-serif,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f2f5f6;--surface:#ffffff;--raise:#e9eef0;--line:#d3dde1;--ink:#0f1b1f;--muted:#566b72;--accent:#1d67c9;--warm:#b8600f;--health:#13865e;--gov:#6a4fd1;--biz:#b13f6f;color-scheme:light}}
+:root[data-theme="light"]{--bg:#f2f5f6;--surface:#ffffff;--raise:#e9eef0;--line:#d3dde1;--ink:#0f1b1f;--muted:#566b72;--accent:#1d67c9;--warm:#b8600f;--health:#13865e;--gov:#6a4fd1;--biz:#b13f6f;color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:64px;padding-block:40px 72px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hero{display:grid;gap:22px}
+.hero h1{font-size:clamp(2.3rem,6.4vw,4.6rem);font-weight:800;line-height:1.02}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{max-width:62ch;color:var(--muted);margin:0;font-size:1.06rem}
+.term{font-family:var(--mono);font-size:.9rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:center;max-width:100%;overflow:hidden;white-space:nowrap}
+.term b{color:var(--health);font-weight:500}
+.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--accent);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stat{background:var(--surface);padding:18px 18px 16px;display:grid;gap:4px}
+.stat b{font-family:var(--display);font-size:2.3rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.stat span{color:var(--muted);font-size:.86rem}
+@media (max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+section{display:grid;gap:22px}
+.sh{display:grid;gap:8px}.sh h2{font-size:clamp(1.6rem,3.6vw,2.3rem)}.sh p{margin:0;color:var(--muted);max-width:64ch}
+/* scrubber */
+.scrub{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:12px}
+.bars{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:4px;align-items:end;height:110px}
+.bar{background:var(--raise);border-radius:4px 4px 0 0;position:relative;cursor:pointer;transition:background .2s}
+.bar.on{background:var(--accent)}
+.bar:hover{background:color-mix(in srgb,var(--accent) 60%,var(--raise))}
+.yrs{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:4px;font-family:var(--mono);font-size:.66rem;color:var(--muted);text-align:center}
+.yrs span:nth-child(odd){visibility:visible}
+@media (max-width:560px){.yrs span:nth-child(even){visibility:hidden}}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.now{font-family:var(--display);font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.now small{font-family:var(--body);font-size:.85rem;font-weight:500;color:var(--muted);margin-left:8px}
+button,.chip{font:inherit;cursor:pointer}
+.btn{background:var(--raise);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:.88rem;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.search{flex:1 1 220px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:999px;color:var(--ink);padding:8px 14px;font:inherit;font-size:.9rem}
+/* cases */
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.case{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:10px;align-content:start;transition:opacity .3s,transform .3s,border-color .2s;text-align:left;color:inherit}
+.case:hover{border-color:color-mix(in srgb,var(--c) 70%,var(--line));transform:translateY(-2px)}
+.case.dim{opacity:.22}
+.case .top{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.case .sec{color:var(--c);letter-spacing:.06em;text-transform:uppercase}
+.case h3{font-size:1.2rem;font-weight:700;line-height:1.2}
+.case p{margin:0;color:var(--muted);font-size:.93rem}
+.case .metric{font-family:var(--display);font-weight:700;color:var(--ink);font-size:.98rem;border-top:1px dashed var(--line);padding-top:10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tags i{font-style:normal;font-family:var(--mono);font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+.case details summary{cursor:pointer;font-size:.84rem;font-weight:700;color:var(--c);list-style:none}
+.case details summary::-webkit-details-marker{display:none}
+.case details p{margin-top:8px}
+/* wall */
+.wall{display:flex;flex-wrap:wrap;gap:6px}
+.dom{font-family:var(--mono);font-size:.8rem;padding:5px 9px;border-radius:7px;background:var(--surface);border:1px solid var(--line);color:var(--ink);transition:opacity .25s,background .25s;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.dom::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:1px}
+.dom.dim{opacity:.15}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
+.note{font-size:.82rem;color:var(--muted);margin:0}
+.counter{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding-top:22px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:.88rem}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<link rel="alternate" hreflang="es" href="https://julio.devisebit.com/portfolio.html">
+<link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/portfolio.html">
+<link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/portfolio.html">
+<style>.lang-switch{position:fixed;top:12px;right:12px;z-index:99;display:flex;gap:2px;font:600 12px/1 Manrope,system-ui,sans-serif;background:rgba(255,255,255,.92);border:1px solid #D5DFE2;border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(14,42,51,.08)}.lang-switch a,.lang-switch span{padding:6px 10px;border-radius:999px;text-decoration:none;color:#566B72}.lang-switch span{background:#0E2A33;color:#fff}</style>
+</head>
+<body>
+<div class="lang-switch" aria-label="Language"><a href="../portfolio.html" hreflang="es">ES</a><span>EN</span></div>
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow">Julio Miranda · Project archive 2009 – 2026</span>
+  <h1>Seventeen years of projects <em>that went into production</em>.</h1>
+  <p>From the first digital newspaper in Catamarca to healthcare technology management: portals, apps, federal platforms, online academies and management systems. Each project ran its course and was left running for the client who commissioned it.</p>
+  <div class="term" aria-live="off"><span>›</span><span id="typed">deploy catamarcagrande.com</span><span class="cursor" aria-hidden="true"></span><b id="ok">online</b></div>
+</header>
+
+<div class="stats" role="list">
+  <div class="stat" role="listitem"><b data-n="17">17</b><span>years building technology</span></div>
+  <div class="stat" role="listitem"><b data-n="31">31</b><span>featured cases</span></div>
+  <div class="stat" role="listitem"><b data-n="123">123</b><span>sites and platforms in the archive</span></div>
+  <div class="stat" role="listitem"><b data-n="8">8</b><span>sectors, from healthcare to government</span></div>
+</div>
+
+<section aria-labelledby="t-tl">
+  <div class="sh"><span class="eyebrow">Timeline</span><h2 id="t-tl">Browse the archive year by year</h2><p>Each bar shows how many projects were active that year. Tap a year or play the full timeline.</p></div>
+  <div class="scrub">
+    <div class="ctrl"><div class="now" id="now">All years<small id="nowc"></small></div>
+      <div class="filters"><button class="btn" id="play" type="button">▶ Play</button><button class="btn" id="all" type="button">See all</button></div></div>
+    <div class="bars" id="bars" role="group" aria-label="Active projects per year"></div>
+    <div class="yrs" id="yrs"></div>
+  </div>
+  <div class="filters" role="group" aria-label="Filter by sector">
+    <div class="filters" id="chips"></div>
+    <input class="search" id="q" type="search" placeholder="Search: UBA, app, union, health…" aria-label="Search projects">
+  </div>
+</section>
+
+<section aria-labelledby="t-cases">
+  <div class="sh"><span class="eyebrow">Cases</span><h2 id="t-cases">Featured projects</h2></div>
+  <span class="counter" id="cc"></span>
+  <div class="cases" id="cases"></div>
+</section>
+
+<section aria-labelledby="t-wall">
+  <div class="sh"><span class="eyebrow">Domain wall</span><h2 id="t-wall">Everything that went through Web y Graf and DEVISEBIT SRL</h2><p>Sites, portals and platforms for clients in different industries, rebuilt from the studio's email archive.</p></div>
+  <div class="legend" id="legend"></div>
+  <span class="counter" id="wc"></span>
+  <div class="wall" id="wall"></div>
+  <p class="note">The years of each site come from the studio's email archive, which starts in 2014; earlier projects appear from their first record. The union's projects are shown without its name.</p>
+</section>
+
+<footer><span>Julio Miranda · Technology & Digital Transformation · mirandajulioadrian@gmail.com</span><a href="./">See full profile</a></footer>
+</div>
+<script>
+const CASES=[{"t": "Provider digitalized end to end", "c": "SAN PATRICIO SRL", "a": 2025, "b": 2026, "s": "Health", "d": "General management of a home-care and day-center provider: restructuring of operations, an in-house management system (patients, orders, visit scheduling, digital medical records and monthly closing), an executive dashboard and AI-powered WhatsApp support.", "m": "Health-insurer agreements", "tags": ["General management", "Processes", "Digital medical records", "AI"], "x": null}, {"t": "Healthcare management and technology", "c": "MC SALUD SAS", "a": 2024, "b": 2026, "s": "Health", "d": "I coordinated the administrative and technology management of a long-term care residence, day centers and a health insurer's capitation plan. Medical leadership was in the hands of a licensed physician.", "m": "4 healthcare operations under one model", "tags": ["CRM", "AI-powered WhatsApp", "Control dashboard"], "x": "Single member registry, authorizations with traceability, a 24/7 WhatsApp assistant for appointments, provider directory and ID card, and a dashboard of consumption per provider and cost per member with deviation alerts."}, {"t": "Sagrado Corazón Center", "c": "Merlo, San Luis", "a": 2025, "b": 2026, "s": "Business", "d": "Identity, website and online appointment booking.", "m": "Branding, web and online appointments", "tags": ["Identity", "Web", "Appointment booking"], "x": null}, {"t": "Health coverage sales channel", "c": "EFFI SOLUTIONS SAS", "a": 2024, "b": 2026, "s": "Health", "d": "Commercial and technology service for selling a national health plan in San Luis, Cuyo and across the country.", "m": "In-house call center, sales and CRM", "tags": ["Multi-user CRM", "Funnel", "WhatsApp"], "x": null}, {"t": "Technology modernization of a union", "c": "San Luis", "a": 2025, "b": 2026, "s": "Unions", "d": "A full year of work: its training area became an online academy, and we digitalized internal registries and the administration of its health plan.", "m": "1 year of continuous work", "tags": ["Online academy", "App", "Digital ID card"], "x": "Institutional website, course platform with online payments, mobile app with a digital ID card and social media marketing."}, {"t": "USL Academy", "c": "Union in San Luis", "a": 2025, "b": 2025, "s": "Education", "d": "Online academy with payments, an app and course management.", "m": "Online training for the whole union", "tags": ["LMS", "Online payments"], "x": null}, {"t": "BA Emprende Academy", "c": "Buenos Aires City Government", "a": 2021, "b": 2022, "s": "Education", "d": "Training campus for the City's entrepreneurs.", "m": "Public training campus", "tags": ["LMS", "WordPress"], "x": null}, {"t": "SODETEC Foundation Academy", "c": "SODETEC Foundation", "a": 2022, "b": 2023, "s": "Education", "d": "Virtual training platform for the foundation.", "m": "Virtual training", "tags": ["LMS"], "x": null}, {"t": "Municipal benefits app", "c": "Municipality in Buenos Aires province", "a": 2022, "b": 2022, "s": "Government", "d": "Redesign, development and support of the benefits app for residents and participating businesses.", "m": "Project delivered in 2022", "tags": ["Mobile app", "Benefits"], "x": null}, {"t": "International Virtual Classroom and UBA TIC Meeting", "c": "University of Buenos Aires", "a": 2020, "b": 2021, "s": "Education", "d": "Design and setup of virtual classrooms and rooms, and of the UBA TIC Meeting platform.", "m": "The country's largest public university", "tags": ["Virtual classrooms", "Online events"], "x": null}, {"t": "UBA Graduate Programs Expo", "c": "University of Buenos Aires", "a": 2022, "b": 2023, "s": "Education", "d": "Registration and accreditation platform, with a data warehouse and Power BI.", "m": "Registration, accreditation and data", "tags": ["Data warehouse", "Power BI"], "x": null}, {"t": "UBA management dashboards", "c": "Undersecretariat for Modernization", "a": 2021, "b": 2024, "s": "Education", "d": "Tracking of modernization and digital transformation projects with Power BI.", "m": "Strategic projects measured", "tags": ["Power BI"], "x": null}, {"t": "Integrated Faculty Competitions system", "c": "UBA · Rectorate", "a": 2022, "b": 2024, "s": "Education", "d": "Development and go-live of the faculty competitions system: applicant registration and validation, documentation and follow-up, with an in-house development team and weekly reports to the PMO.", "m": "From assessment to a system in production", "tags": ["Custom development", "Docker", "PMO"], "x": null}, {"t": "Higher Council modernization", "c": "UBA · Rectorate", "a": 2023, "b": 2023, "s": "Education", "d": "Assessment of the sessions and files process, the voting system and the Higher Council website; project charter, stakeholder matrix and modernization plan.", "m": "Voting and sessions of UBA's highest governing body", "tags": ["Electronic voting", "Processes", "Project management"], "x": null}, {"t": "Academic Map", "c": "UBA · Rectorate", "a": 2022, "b": 2023, "s": "Education", "d": "Design, development and delivery of versions I and II of the Academic Map of the university's offering.", "m": "Two versions delivered", "tags": ["Web", "UX", "Development"], "x": null}, {"t": "Electronic File and portals", "c": "UBA · Rectorate", "a": 2022, "b": 2023, "s": "Education", "d": "Incident management and dashboard for the Electronic File, new web portal, single survey portal and ticketing system.", "m": "Incident desk with a technical team", "tags": ["Dashboards", "Support", "Portals"], "x": null}, {"t": "Misiones Tax Agency", "c": "With Think Solutions", "a": 2021, "b": 2021, "s": "Government", "d": "A year of travel to Misiones for the major tax project: assessment and improvement of its technology services.", "m": "Tax system, data center and help desk", "tags": ["Consulting", "Assessment"], "x": null}, {"t": "Metropolitan Design Center", "c": "Buenos Aires City Government", "a": 2020, "b": 2023, "s": "Innovation", "d": "Management of a public innovation campus with an incubator, coworking, lab and auditorium.", "m": "14,000 m², 70 boxes, team of 30", "tags": ["Operations management", "Innovation"], "x": null}, {"t": "BA Technology Lab", "c": "Buenos Aires City Government", "a": 2020, "b": 2023, "s": "Innovation", "d": "Technology applied to production processes and prototyping for SMEs, universities and R&D centers.", "m": "Team of 8 people", "tags": ["Prototyping", "R&D"], "x": null}, {"t": "Open Innovation Network", "c": "Buenos Aires City Government", "a": 2021, "b": 2023, "s": "Innovation", "d": "A platform connecting companies with challenges and startups with solutions.", "m": "Companies and startups connected", "tags": ["Platform", "Open innovation"], "x": null}, {"t": "Federal Environmental Monitoring Network", "c": "Ministry of Environment · UNDP", "a": 2016, "b": 2020, "s": "Government", "d": "In-house web system with air and water data and decision dashboards, deployed and trained nationwide.", "m": "All provinces and neighboring countries", "tags": ["Web system", "Dashboards", "Scrum"], "x": "UNDP-funded project (UNDP 16/002). Kick-off, deliverables schedule and training province by province: Mendoza, Entre Ríos, Bariloche and many more."}, {"t": "GIRO", "c": "National Ministry of Environment", "a": 2017, "b": 2020, "s": "Government", "d": "Federal hazardous-waste traceability, integrated with AFIP, CNRT and SENASA.", "m": "Team of 15 people", "tags": ["Integrations", "Traceability"], "x": null}, {"t": "Union Culture Secretariat", "c": "National tourism and hospitality workers' union", "a": 2017, "b": 2021, "s": "Unions", "d": "Website, fan page, newsletter, annual magazine and national photography and painting contests, plus online chess tournaments.", "m": "5 years of cultural communication", "tags": ["Web", "Newsletter", "Magazine"], "x": null}, {"t": "The Cup", "c": "National soccer tournament", "a": 2015, "b": 2016, "s": "Unions", "d": "Results website and app for a national soccer tournament of union members, with team profiles and fixtures.", "m": "Teams from Tucumán, Rosario, Río Cuarto, Mar del Plata, Tandil and more", "tags": ["Web", "App", "Live results"], "x": null}, {"t": "IPLIDO", "c": "Union institute", "a": 2014, "b": 2017, "s": "Unions", "d": "Institutional website, mobile app, monthly bulletin of notable dates, branch offices and social networks.", "m": "The project with the most exchanges in the archive", "tags": ["Web", "Mobile app", "Bulletin"], "x": null}, {"t": "Union's official website and health plan", "c": "National tourism and hospitality workers' union", "a": 2014, "b": 2019, "s": "Unions", "d": "The union's official website, the website of its health plan with content moderation and the website of its managers' association.", "m": "Five years of continuous support", "tags": ["Web", "Content"], "x": null}, {"t": "UBA Urology Portal", "c": "UBA urology community", "a": 2014, "b": 2016, "s": "Health", "d": "Academic portal with user registration: the first healthcare project.", "m": "Nearly 480 registered users", "tags": ["WordPress", "User registration"], "x": null}, {"t": "Catamarca Exporta", "c": "Government of Catamarca", "a": 2014, "b": 2016, "s": "Government", "d": "Website, app and newsletter for the export agency, translated export catalog, and websites for ExpoCatamarca, Expolivo and ExpoProductiva.", "m": "The province shown to the world", "tags": ["Web", "App", "Newsletter"], "x": null}, {"t": "First digital newspapers of Catamarca", "c": "Web y Graf", "a": 2009, "b": 2018, "s": "Media", "d": "Pioneering news portals such as Catamarcagrande, Datamarca, Nuevo Tiempo Catamarca and CatamarcaInfo.", "m": "When nobody knew what a domain was", "tags": ["Portals", "CMS"], "x": null}, {"t": "Cable-TV media company", "c": "Catamarca", "a": 2009, "b": 2012, "s": "Media", "d": "News site, videos and social networks for a media company, when all of that was new.", "m": "The first job, the first idea", "tags": ["Web", "Video", "Social media"], "x": null}, {"t": "Web y Graf", "c": "Founder", "a": 2009, "b": 2021, "s": "Business", "d": "Design, programming and website management: from Catamarca to an office in San Telmo and a remote team.", "m": "Between 100 and 150 active portals", "tags": ["Design", "Development", "Hosting"], "x": null}];
+const WALL=[{"d": "elsuizoturismo.com.ar", "s": "Business", "a": 2014, "b": 2021, "n": 658, "sub": "Tourism"}, {"d": "serviviaje.com", "s": "Business", "a": 2016, "b": 2021, "n": 158, "sub": "Tourism"}, {"d": "complejoelremansodelrio.com", "s": "Business", "a": 2014, "b": 2017, "n": 4, "sub": "Tourism"}, {"d": "departamentosenbuenosaires.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Tourism"}, {"d": "bairesalquileres.com", "s": "Business", "a": 2016, "b": 2016, "n": 6, "sub": "Tourism"}, {"d": "israelforyou.net", "s": "Business", "a": 2015, "b": 2016, "n": 3, "sub": "Tourism"}, {"d": "todo-rio.com", "s": "Business", "a": 2014, "b": 2014, "n": 6, "sub": "Tourism"}, {"d": "emporio-nautico.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Tourism"}, {"d": "taxienbuenosaires.com", "s": "Business", "a": 2014, "b": 2020, "n": 5, "sub": "Tourism"}, {"d": "urologiauba.com", "s": "Health", "a": 2014, "b": 2021, "n": 494, "sub": "Health"}, {"d": "dralejandroshifman.com", "s": "Health", "a": 2014, "b": 2017, "n": 11, "sub": "Health"}, {"d": "dmapsicologia.com", "s": "Health", "a": 2015, "b": 2015, "n": 1, "sub": "Health"}, {"d": "osepcatamarca.org", "s": "Health", "a": 2014, "b": 2014, "n": 2, "sub": "Health"}, {"d": "filamtex.com", "s": "Business", "a": 2015, "b": 2017, "n": 152, "sub": "Industry & SMEs"}, {"d": "aislatec.com.ar", "s": "Business", "a": 2014, "b": 2018, "n": 122, "sub": "Industry & SMEs"}, {"d": "riwelsa.com.ar", "s": "Business", "a": 2015, "b": 2016, "n": 142, "sub": "Industry & SMEs"}, {"d": "ingetec-argentina.com", "s": "Business", "a": 2015, "b": 2016, "n": 45, "sub": "Industry & SMEs"}, {"d": "inartec.com.ar", "s": "Business", "a": 2015, "b": 2016, "n": 42, "sub": "Industry & SMEs"}, {"d": "jvplastificados.com", "s": "Business", "a": 2014, "b": 2015, "n": 8, "sub": "Industry & SMEs"}, {"d": "masteramoblamientos.com", "s": "Business", "a": 2015, "b": 2015, "n": 60, "sub": "Industry & SMEs"}, {"d": "renovateya.com.ar", "s": "Business", "a": 2015, "b": 2016, "n": 98, "sub": "Industry & SMEs"}, {"d": "neuma-tech.com", "s": "Business", "a": 2015, "b": 2021, "n": 20, "sub": "Industry & SMEs"}, {"d": "biotromsa.com.ar", "s": "Business", "a": 2015, "b": 2017, "n": 3, "sub": "Industry & SMEs"}, {"d": "diammet.com.ar", "s": "Business", "a": 2015, "b": 2017, "n": 9, "sub": "Industry & SMEs"}, {"d": "tejasantigranizo.com.ar", "s": "Business", "a": 2015, "b": 2016, "n": 3, "sub": "Industry & SMEs"}, {"d": "sitecautomatizacion.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Industry & SMEs"}, {"d": "aerosolessilva.com", "s": "Business", "a": 2016, "b": 2017, "n": 5, "sub": "Industry & SMEs"}, {"d": "americacomex.com", "s": "Business", "a": 2014, "b": 2016, "n": 8, "sub": "Industry & SMEs"}, {"d": "trasandinocomex.com.ar", "s": "Business", "a": 2014, "b": 2021, "n": 7, "sub": "Industry & SMEs"}, {"d": "nikayonlimpieza.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Industry & SMEs"}, {"d": "pisosyrevestimientoslecas.com", "s": "Business", "a": 2015, "b": 2015, "n": 1, "sub": "Industry & SMEs"}, {"d": "castelbotachocuellosytiras.com", "s": "Business", "a": 2014, "b": 2015, "n": 4, "sub": "Industry & SMEs"}, {"d": "samigrafica.com", "s": "Business", "a": 2014, "b": 2015, "n": 56, "sub": "Industry & SMEs"}, {"d": "jiagraf.com", "s": "Business", "a": 2014, "b": 2016, "n": 96, "sub": "Industry & SMEs"}, {"d": "qbotype.com", "s": "Business", "a": 2014, "b": 2021, "n": 37, "sub": "Industry & SMEs"}, {"d": "panambicrea.com", "s": "Business", "a": 2014, "b": 2017, "n": 11, "sub": "Industry & SMEs"}, {"d": "mkmediagroup.com.ar", "s": "Business", "a": 2016, "b": 2016, "n": 73, "sub": "Industry & SMEs"}, {"d": "buscandoautos.com", "s": "Business", "a": 2016, "b": 2016, "n": 18, "sub": "Industry & SMEs"}, {"d": "grupofinper.com", "s": "Business", "a": 2015, "b": 2016, "n": 23, "sub": "Industry & SMEs"}, {"d": "grupofrancia.com", "s": "Business", "a": 2015, "b": 2016, "n": 11, "sub": "Industry & SMEs"}, {"d": "consultoradelmonte.com.ar", "s": "Business", "a": 2015, "b": 2018, "n": 20, "sub": "Professional services"}, {"d": "consultoraneayasociados.com", "s": "Business", "a": 2015, "b": 2016, "n": 3, "sub": "Professional services"}, {"d": "zarconsultoria.com", "s": "Business", "a": 2015, "b": 2015, "n": 1, "sub": "Professional services"}, {"d": "asnegociosinmobiliarios.com", "s": "Business", "a": 2014, "b": 2015, "n": 8, "sub": "Professional services"}, {"d": "pypsolucionesinmobiliarias.com", "s": "Business", "a": 2014, "b": 2015, "n": 3, "sub": "Professional services"}, {"d": "stellviviendas.com", "s": "Business", "a": 2014, "b": 2014, "n": 12, "sub": "Professional services"}, {"d": "arqamproject.com", "s": "Business", "a": 2014, "b": 2015, "n": 10, "sub": "Professional services"}, {"d": "mhlarquitectura.com", "s": "Business", "a": 2015, "b": 2015, "n": 1, "sub": "Professional services"}, {"d": "arenales1925.com", "s": "Business", "a": 2015, "b": 2016, "n": 4, "sub": "Professional services"}, {"d": "estudioquatraro.com", "s": "Business", "a": 2015, "b": 2015, "n": 8, "sub": "Professional services"}, {"d": "estudiosvicente.com", "s": "Business", "a": 2014, "b": 2018, "n": 43, "sub": "Professional services"}, {"d": "casadeteoma.com.ar", "s": "Business", "a": 2015, "b": 2016, "n": 9, "sub": "Professional services"}, {"d": "diazgiaccio.com", "s": "Business", "a": 2014, "b": 2016, "n": 4, "sub": "Professional services"}, {"d": "lymabogados.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Professional services"}, {"d": "consultorlegal.net", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Professional services"}, {"d": "soch.com.ar", "s": "Business", "a": 2014, "b": 2019, "n": 97, "sub": "Professional services"}, {"d": "elisii.com.ar", "s": "Business", "a": 2014, "b": 2021, "n": 274, "sub": "Professional services"}, {"d": "estelafolco.com", "s": "Business", "a": 2014, "b": 2016, "n": 49, "sub": "Professional services"}, {"d": "redisenartecoachingcenter.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Professional services"}, {"d": "formacionesfamiliares.com", "s": "Business", "a": 2015, "b": 2016, "n": 2, "sub": "Professional services"}, {"d": "myrjoyas.com", "s": "Business", "a": 2015, "b": 2015, "n": 1, "sub": "Commerce & restaurants"}, {"d": "souvenirsoriginales.net", "s": "Business", "a": 2014, "b": 2015, "n": 3, "sub": "Commerce & restaurants"}, {"d": "divinapiel.com", "s": "Business", "a": 2014, "b": 2014, "n": 3, "sub": "Commerce & restaurants"}, {"d": "gisellacameranosalon.com", "s": "Business", "a": 2015, "b": 2016, "n": 2, "sub": "Commerce & restaurants"}, {"d": "peritomorenowines.com.ar", "s": "Business", "a": 2015, "b": 2016, "n": 3, "sub": "Commerce & restaurants"}, {"d": "aromasdebarrica.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Commerce & restaurants"}, {"d": "lafiestadelapizza.com.ar", "s": "Business", "a": 2016, "b": 2017, "n": 4, "sub": "Commerce & restaurants"}, {"d": "piegrande.com.ar", "s": "Business", "a": 2016, "b": 2017, "n": 4, "sub": "Commerce & restaurants"}, {"d": "el-spiedo.com.ar", "s": "Business", "a": 2014, "b": 2014, "n": 2, "sub": "Commerce & restaurants"}, {"d": "mensajeriasafarimotos.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Commerce & restaurants"}, {"d": "avifert.com", "s": "Business", "a": 2014, "b": 2016, "n": 34, "sub": "Commerce & restaurants"}, {"d": "eljardindemuriel.com", "s": "Business", "a": 2014, "b": 2015, "n": 20, "sub": "Commerce & restaurants"}, {"d": "dalemaramisky.com", "s": "Business", "a": 2015, "b": 2017, "n": 3, "sub": "Commerce & restaurants"}, {"d": "sideportes.org", "s": "Business", "a": 2014, "b": 2018, "n": 140, "sub": "Sports"}, {"d": "banfieldpongajuego.com.ar", "s": "Business", "a": 2014, "b": 2015, "n": 18, "sub": "Sports"}, {"d": "ligarecreativalifir.com", "s": "Business", "a": 2014, "b": 2016, "n": 5, "sub": "Sports"}, {"d": "rugbycatamarca.com", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Sports"}, {"d": "basquetcatamarca.com.ar", "s": "Business", "a": 2014, "b": 2014, "n": 1, "sub": "Sports"}, {"d": "rfmarketingdeportivo.com", "s": "Business", "a": 2015, "b": 2016, "n": 2, "sub": "Sports"}, {"d": "catamarcagrande.com", "s": "Media", "a": 2014, "b": 2014, "n": 5, "sub": "Media"}, {"d": "datamarca.com", "s": "Media", "a": 2014, "b": 2018, "n": 164, "sub": "Media"}, {"d": "nuevotiempocatamarca.com", "s": "Media", "a": 2014, "b": 2016, "n": 37, "sub": "Media"}, {"d": "catamarcainfo.com", "s": "Media", "a": 2014, "b": 2015, "n": 11, "sub": "Media"}, {"d": "eldiapason.com.ar", "s": "Media", "a": 2015, "b": 2016, "n": 68, "sub": "Media"}, {"d": "opinioncatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "envivocatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "catamarcanoticia.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "catamarcacultura.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "paravoscatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "entrevistasgrande.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "fotografiacatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "airevisioncatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "belenalinstante.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "belenteinforma.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "elponchocatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "interiorcatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 2, "sub": "Media"}, {"d": "socialescatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 2, "sub": "Media"}, {"d": "catamarcaciudad.com", "s": "Media", "a": 2014, "b": 2015, "n": 23, "sub": "Media"}, {"d": "catamarcatelevision.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 2, "sub": "Media"}, {"d": "elgrupovision.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "jovenesencatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 3, "sub": "Media"}, {"d": "lasaluddecatamarca.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 3, "sub": "Media"}, {"d": "deportescatamara.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 3, "sub": "Media"}, {"d": "radionostalgiafm945.com.ar", "s": "Media", "a": 2015, "b": 2015, "n": 2, "sub": "Media"}, {"d": "radiomaxfm1011.com.ar", "s": "Media", "a": 2015, "b": 2015, "n": 1, "sub": "Media"}, {"d": "radioazulfm.com.ar", "s": "Media", "a": 2015, "b": 2015, "n": 1, "sub": "Media"}, {"d": "spicaradioweb.com.ar", "s": "Media", "a": 2014, "b": 2014, "n": 1, "sub": "Media"}, {"d": "mega997.com.ar", "s": "Media", "a": 2016, "b": 2017, "n": 3, "sub": "Media"}, {"d": "catamarcaexporta.gob.ar", "s": "Government", "a": 2014, "b": 2017, "n": 74, "sub": "Government"}, {"d": "expoproductiva.com", "s": "Government", "a": 2014, "b": 2016, "n": 36, "sub": "Government"}, {"d": "expo-olivo.com.ar", "s": "Government", "a": 2014, "b": 2014, "n": 5, "sub": "Government"}, {"d": "catamarcaminera.ar", "s": "Government", "a": 2021, "b": 2021, "n": 7, "sub": "Government"}, {"d": "residencialosaleros.org.ar", "s": "Education", "a": 2015, "b": 2015, "n": 8, "sub": "Education"}, {"d": "escuelavirtualdidacticaportugues.com", "s": "Education", "a": 2014, "b": 2014, "n": 3, "sub": "Education"}, {"d": "Union's official website", "s": "Unions", "a": 2014, "b": 2018, "n": 0, "g": 1, "sub": "Unions"}, {"d": "IPLIDO · website, app and bulletin", "s": "Unions", "a": 2014, "b": 2017, "n": 0, "g": 1, "sub": "Unions"}, {"d": "Union's health plan · website", "s": "Unions", "a": 2014, "b": 2019, "n": 0, "g": 1, "sub": "Unions"}, {"d": "Managers' association · website", "s": "Unions", "a": 2015, "b": 2020, "n": 0, "g": 1, "sub": "Unions"}, {"d": "The Cup · website and app", "s": "Unions", "a": 2015, "b": 2016, "n": 0, "g": 1, "sub": "Unions"}, {"d": "Catamarca branch · website", "s": "Unions", "a": 2014, "b": 2015, "n": 0, "g": 1, "sub": "Unions"}, {"d": "Lomas branch · website", "s": "Unions", "a": 2015, "b": 2016, "n": 0, "g": 1, "sub": "Unions"}, {"d": "Culture Secretariat · website and newsletter", "s": "Unions", "a": 2017, "b": 2021, "n": 0, "g": 1, "sub": "Unions"}, {"d": "IT workers union · website", "s": "Unions", "a": 2015, "b": 2017, "n": 0, "g": 1, "sub": "Unions"}];
+
+const SECS=[["All",null],["Health","--health"],["Government","--gov"],["Education","--accent"],["Innovation","--accent"],["Unions","--warm"],["Media","--warm"],["Business","--biz"]];
+const COL=Object.fromEntries(SECS.filter(s=>s[1]));
+const Y0=2009,Y1=2026;let year=null,sec="All",q="",timer=null;
+const $=id=>document.getElementById(id);
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function match(it,txt){return (sec==="All"||it.s===sec)&&(year===null||(it.a<=year&&year<=it.b))&&(!q||norm(txt).includes(q))}
+// chips
+SECS.forEach(([n])=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=n;b.setAttribute("aria-pressed",n===sec);b.onclick=()=>{sec=n;document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c.textContent===sec));render()};$("chips").appendChild(b)});
+// legend
+SECS.filter(s=>s[1]&&s[0]!=="Innovation"&&s[0]!=="Media").forEach(([n,c])=>{const s=document.createElement("span");s.style.setProperty("--c",`var(${c})`);s.textContent=n==="Unions"?"Unions & media":n==="Education"?"Education & innovation":n;$("legend").appendChild(s)});
+// cases (newest first)
+CASES.sort((a,b)=>b.b-a.b||b.a-a.a);
+const caseEls=CASES.map(c=>{const el=document.createElement("article");el.className="case";el.style.setProperty("--c",`var(${COL[c.s]})`);
+ const yr=c.a===c.b?c.a:`${c.a} – ${c.b}`;
+ el.innerHTML=`<div class="top"><span class="sec">${c.s}</span><span>${yr}</span></div><h3>${c.t}</h3><div class="counter">${c.c}</div><p>${c.d}</p><div class="tags">${c.tags.map(t=>`<i>${t}</i>`).join("")}</div>${c.x?`<details><summary>See details +</summary><p>${c.x}</p></details>`:""}<div class="metric">${c.m}</div>`;
+ $("cases").appendChild(el);return [c,el,[c.t,c.c,c.d,c.m,c.s,c.tags.join(" ")].join(" ")]});
+// wall
+WALL.sort((a,b)=>a.a-b.a||a.d.localeCompare(b.d));
+const wallEls=WALL.map(w=>{const el=document.createElement("span");el.className="dom";el.style.setProperty("--c",`var(${COL[w.s]})`);el.textContent=w.d;el.title=`${w.sub} · ${w.a===w.b?w.a:w.a+"–"+w.b}`;$("wall").appendChild(el);return [w,el,w.d+" "+w.sub+" "+w.s]});
+// bars
+const bars=[];for(let y=Y0;y<=Y1;y++){const b=document.createElement("div");b.className="bar";b.tabIndex=0;b.setAttribute("role","button");b.onclick=()=>pick(y);b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(y)}};$("bars").appendChild(b);bars.push(b);const s=document.createElement("span");s.textContent="'"+String(y).slice(2);$("yrs").appendChild(s)}
+function pick(y){stop();year=(year===y)?null:y;render()}
+function render(){
+ let nc=0,nw=0;
+ caseEls.forEach(([c,el,t])=>{const m=match(c,t);el.classList.toggle("dim",!m);if(m)nc++});
+ wallEls.forEach(([w,el,t])=>{const m=match(w,t);el.classList.toggle("dim",!m);if(m)nw++});
+ // order: matching cases first
+ caseEls.slice().sort((x,y)=>x[1].classList.contains("dim")-y[1].classList.contains("dim")).forEach(([,el])=>$("cases").appendChild(el));
+ const counts=[];for(let y=Y0;y<=Y1;y++){counts.push([...CASES,...WALL].filter(it=>(sec==="All"||it.s===sec)&&it.a<=y&&y<=it.b).length)}
+ const mx=Math.max(...counts,1);
+ bars.forEach((b,i)=>{const y=Y0+i;b.style.height=Math.max(4,counts[i]/mx*100)+"%";b.classList.toggle("on",year===null||year===y);b.setAttribute("aria-label",`${y}: ${counts[i]} active projects`);b.setAttribute("aria-pressed",year===y)});
+ $("now").firstChild.nodeValue=year===null?"All years":String(year);
+ $("nowc").textContent=` ${nc+nw} projects`;
+ $("cc").textContent=`${nc} of ${CASES.length} cases`;$("wc").textContent=`${nw} of ${WALL.length} sites and platforms`;
+}
+function stop(){if(timer){clearInterval(timer);timer=null;$("play").textContent="▶ Play"}}
+$("play").onclick=()=>{if(timer){stop();return}year=Y0;render();$("play").textContent="❚❚ Pause";timer=setInterval(()=>{if(year>=Y1){stop();return}year++;render()},850)};
+$("all").onclick=()=>{stop();year=null;sec="All";q="";$("q").value="";document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c.textContent==="All"));render()};
+$("q").addEventListener("input",e=>{q=norm(e.target.value.trim());render()});
+render();
+// typing terminal
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+if(!reduce){const doms=["catamarcagrande.com","datamarca.com","catamarcaexporta.gob.ar","iplido.org.ar","urologiauba.com","elsuizoturismo.com.ar","red-federal-monitoreo-ambiental","academia-ba-emprende","expo-uba-posgrados","centro-sagrado-corazon"];let i=0;
+ setInterval(()=>{i=(i+1)%doms.length;const t="deploy "+doms[i];let k=6;$("ok").style.visibility="hidden";const iv=setInterval(()=>{k++;$("typed").textContent=t.slice(0,k);if(k>=t.length){clearInterval(iv);$("ok").style.visibility="visible"}},45)},3200);
+ document.querySelectorAll(".stat b").forEach(b=>{const n=+b.dataset.n;let v=0;const st=performance.now();const f=t=>{const p=Math.min(1,(t-st)/1100);b.textContent=Math.round(n*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
+</script>
+
+</body>
+</html>
