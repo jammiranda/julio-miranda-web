@@ -1,6 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState, useTransition } from "react"
+import { createPortal } from "react-dom"
 import { BLOQUES, LATERAL, TARJETAS, type Prefs } from "@/lib/panel-prefs"
 import { guardarPrefs, restablecerPrefs } from "./_prefs-acciones"
 
@@ -44,7 +45,7 @@ export default function Personalizar({ actual }: { actual: Prefs }) {
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
         Personalizar
       </button>
-      {abierto && (
+      {abierto && createPortal(
         <div className="pc-bus" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setAbierto(false) }}>
           <div ref={caja} tabIndex={-1} className="pc-bus-box pc-pers" role="dialog" aria-modal="true" aria-label="Personalizar el Inicio">
             <div className="pc-pers-hd"><h2>Personalizar el Inicio</h2><button type="button" className="pc-x" onClick={() => setAbierto(false)}>Cerrar</button></div>
@@ -90,7 +91,8 @@ export default function Personalizar({ actual }: { actual: Prefs }) {
               <button type="button" className="pc-btn pri" onClick={guardar} disabled={pend}>{pend ? "Guardando…" : "Guardar"}</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.querySelector(".pc") ?? document.body,
       )}
     </>
   )

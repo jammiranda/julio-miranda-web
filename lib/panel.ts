@@ -144,7 +144,8 @@ export async function youtube() {
     return { ...v, fecha: v.fecha || fechaDe(v.id), vistas: pv?.vistas != null && (v.vistas == null || pv.vistas > v.vistas) ? pv.vistas : v.vistas }
   })
   videos.sort((a, b) => (b.fecha || "9").localeCompare(a.fecha || "9"))
-  const subs = numSubs(canal) ?? pag?.suscriptores ?? respaldo?.suscriptores ?? null
+  // Si la página pública no muestra los suscriptores desde este servidor, se usa el último dato guardado (lo carga la tarea diaria)
+  const subs = numSubs(canal) ?? pag?.suscriptores ?? respaldo?.suscriptores ?? (await leerRespaldoYouTube())?.suscriptores ?? null
   if (desdeFeed) await guardarRespaldoYouTube({ suscriptores: subs, videos }).catch(() => {})
   const d30 = videos.filter((v) => v.fecha && Date.now() - new Date(v.fecha).getTime() < 30 * 864e5)
   const suma = (a: typeof videos, k: "vistas" | "meGusta") => (a.some((v) => v[k] != null) ? a.reduce((s, v) => s + (v[k] ?? 0), 0) : null)
