@@ -84,7 +84,7 @@ export function agrupar(posts: Publicacion[], clave: (p: Publicacion) => string,
 
 /** El mejor grupo solo si hay muestra suficiente (≥5 publicaciones) en al menos dos grupos; si no, null. */
 export function mejorGrupo(gs: Grupo[]): Grupo | null {
-  const ok = gs.filter((g) => !g.poca && g.indice != null)
+  const ok = gs.filter((g) => !g.poca && g.indice != null && g.k !== "Sin clasificar")
   if (ok.length < 2) return null
   return [...ok].sort((a, b) => (b.indice ?? 0) - (a.indice ?? 0))[0]
 }

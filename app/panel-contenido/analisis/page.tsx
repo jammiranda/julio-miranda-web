@@ -110,7 +110,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
   const postsT = sumC((c) => c.posts), interT = sumC((c) => c.inter)
   const postsPrevT = todas((c) => c.postsPrev) ? sumC((c) => c.postsPrev) : null
   const interPrevT = todas((c) => c.interPrev) ? sumC((c) => c.interPrev) : null
-  const tasa = (c: Cuenta) => (c.posts && c.seguidores ? (c.inter / c.posts / c.seguidores) * 100 : null)
+  const tasa = (c: Cuenta) => (c.posts && c.seguidores && c.seguidores >= 50 ? (c.inter / c.posts / c.seguidores) * 100 : null)
 
   /* ───── Negocio y web ───── */
   const nv = neg?.visitas ?? [], nc = neg?.consultas ?? []
