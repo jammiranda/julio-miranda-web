@@ -10,6 +10,7 @@ import { historial, interacciones, REDES } from "@/lib/publicaciones"
 import { edadDias, formatoDe, negocioPeriodo, sumaDias, cubrePrevio, diaHace } from "@/lib/panel-analisis"
 import { prefsDe } from "@/lib/panel-prefs"
 import Personalizar from "./_personalizar"
+import { ParaHoy } from "@/components/Kpi"
 import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, Alerta, Embudo, dif, fmt, plata, fechaCorta, fechaHora } from "./_ui"
 
 export const dynamic = "force-dynamic"
@@ -79,10 +80,7 @@ export default async function Inicio() {
       <Head t="Inicio" sub={<>Resumen de redes, web y negocio de DEVISEBIT · últimos 30 días{ig.ok ? ` · Instagram actualizado ${fechaHora(ig.actualizado)}` : ""}</>}><Personalizar actual={P} /></Head>
 
       {ver("atencion") && <>
-      <Sec t="Qué requiere atención" id="atencion" />
-      <div className="pc-alertas">
-        {atencion.length ? atencion.map((a, i) => <Alerta key={i} {...a} />) : <Alerta nivel="ok" t="Todo en orden: no hay nada pendiente ni cuentas paradas." />}
-      </div>
+      <div id="atencion"><ParaHoy items={atencion.map((a) => ({ n: a.nivel === "alto" ? "!" : "·", t: a.t, d: a.d, href: a.href ?? `${b}/analisis`, accion: a.accion ?? "Ver", tono: a.nivel === "alto" ? undefined : "av" as const }))} /></div>
       </>}
 
       {P.tarjetas.length > 0 && <Sec t="Indicadores" />}
