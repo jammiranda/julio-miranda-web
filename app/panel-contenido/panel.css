@@ -318,3 +318,26 @@ a.pc-al:hover { border-color: var(--fg); transform: translateX(3px); }
 .pc-chk input { width: 17px; height: 17px; accent-color: var(--red); }
 .pc-pers-ft { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 .pc-pers-ft .pc-btn:disabled { opacity: .6; }
+
+/* ───────── Exportar ───────── */
+.pc-inp { width: 100%; font: inherit; color: var(--fg); background: var(--panel2); border: 1px solid var(--line2); border-radius: 10px; padding: 9px 12px; resize: vertical; }
+.pc-print-hd { display: none; }
+@media print {
+  .pc, .pc.pc-exp { --bg: #fff; --panel: #fff; --panel2: #f4f2ec; --line: #ddd; --line2: #bbb; --fg: #111; --muted: #555; --red: #d11f26; --ok: #0b8a5d; --warn: #b4730a; --info: #2457d6; --violet: #6b4fd8; --sombra: none; color-scheme: light; display: block; background: #fff; font-size: 12px; }
+  html:has(.pc), body:has(.pc) { background: #fff !important; }
+  .pc-side, .pc-skip, .pc-anclas, .pc-head .pc-row, .pc-bus, .pc-seg, .pc-btn { display: none !important; }
+  .pc-main { padding: 0; background: #fff; }
+  .pc-x-oculto { display: none !important; }
+  .pc-exp .pc-head { border-bottom: 0; padding: 0; margin-bottom: 4px; }
+  .pc-exp .pc-head > div:first-child { display: none; }
+  .pc-print-hd { display: block; border-bottom: 2px solid #111; padding-bottom: 10px; }
+  .pc-print-hd h1 { font-size: 26px; }
+  .pc-print-hd p { margin: 4px 0 0; color: #555; }
+  .pc-print-hd .nota { margin-top: 8px; padding: 8px 12px; background: #f4f2ec; border-left: 3px solid #d11f26; white-space: pre-wrap; }
+  .pc-card, .pc-al, .pc-kt, .pc-item { break-inside: avoid; box-shadow: none !important; }
+  .pc-sec { break-after: avoid; }
+  .pc-wrap > *, .pc-kpis > * { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .pc-kpis > .pc-kt:first-child { background: #111 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pc-exp-sg .pc-sp, .pc-exp-sg .pc-plot, .pc-exp-sg .pc-bar, .pc-exp-sg .pc-emb .b { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

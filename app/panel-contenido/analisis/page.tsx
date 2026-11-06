@@ -4,6 +4,7 @@ import { linkedinExport } from "@/lib/linkedin-export"
 import { panelMetricas, youtubeCache, safe } from "@/lib/panel"
 import { historial, interacciones, redDiario, REDES, type Publicacion } from "@/lib/publicaciones"
 import { agrupar, crecimientoSerie, cubrePrevio, diaHace, diasDe, edadDias, enVentana, fbDiario, formatoDe, mejorGrupo, MUESTRA_MIN, negocioPeriodo, sumaDias, TZ, type Grupo } from "@/lib/panel-analisis"
+import Exportar from "../_exportar"
 import { acceso, base, Head, Sec, Kpi, Delta, Barras, Linea, SinDatos, Anclas, Alerta, Embudo, Periodo, dif, fmt, fechaCorta, plata } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -175,6 +176,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
     <>
       <Head t="Análisis" sub={`Todo el ecosistema DEVISEBIT · últimos ${dias} días, comparados con los ${dias} anteriores cuando hay historial`}>
         <Periodo ruta={`${b}/analisis`} params={{ cuenta: sel?.id }} actual={dias} />
+        <Exportar />
       </Head>
       <Anclas items={[["resumen", "Resumen"], ["hallazgos", "Hallazgos"], ["cuentas", "Cuentas"], ["que-funciona", "Qué funciona"], ["negocio", "Negocio"], ["web", "Web"], ["datos", "Calidad de datos"]]} />
 
