@@ -237,6 +237,11 @@ create table if not exists pv_visitas (
   n int not null default 0,
   primary key (dia, host, path, ref, disp)
 );
+create table if not exists pv_clics (
+  dia date not null, host text not null, path text not null, accion text not null,
+  n int not null default 0,
+  primary key (dia, host, path, accion)
+);
 insert into am_productos(slug,titulo,bajada,descripcion,precio,moneda,estado) values ('prueba-de-pago','Pago de prueba','Producto de prueba para verificar el cobro con Mercado Pago.','## Pago de prueba\nEste producto sirve solo para probar que el cobro con Mercado Pago funciona de punta a punta: pago, aviso y página de gracias.',100,'ARS','venta') on conflict (slug) do nothing;
 alter table am_productos add column if not exists servicio boolean not null default false;
 insert into am_productos(slug,titulo,bajada,descripcion,precio,moneda,estado,archivo_url) values ('guia-transformacion-digital','Guía de Transformación Digital para pymes y organizaciones','Diagnóstico de madurez, hoja de ruta en 14 pasos, pilotos, gestión del cambio, indicadores y el Programa Kit 4.0. PDF de 13 páginas con plantillas.',E'## Qué incluye\n- Qué es (y qué no es) la transformación digital, y sus tres pilares: estrategia, cultura y tecnología.\n- **Autodiagnóstico de madurez digital** en 4 ejes y 4 niveles, con cómo leer el resultado.\n- Cadena de valor, PEST, cinco fuerzas y **Canvas del modelo de negocio** con preguntas guía.\n- **Hoja de ruta en 14 pasos** y cómo empezar con un piloto o producto mínimo viable.\n- Gestión del cambio: qué hacer cuando la cultura no acompaña.\n- Qué tecnologías mirar primero y cuándo conviene cada una.\n- **Programa Kit 4.0**: qué cofinancia, requisitos y pasos (resumen a octubre de 2026).\n- Tablero de indicadores y checklist final.\n\n## Para quién\nDirectores, gerentes, dueños de pymes y empresas familiares, gremios, mutuales y organismos públicos que quieren ordenar la transformación digital con un método.\n\nElaborada por el equipo de DEVISEBIT a partir de su experiencia en proyectos y de su formación en la Diplomatura en Transformación Digital (Universidad de Belgrano).',19900,'ARS','venta','enc:private/guia-transformacion-digital.enc') on conflict (slug) do nothing;
