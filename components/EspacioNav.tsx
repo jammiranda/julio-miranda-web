@@ -89,6 +89,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           { href: "/", t: "Resumen comercial", i: "tablero" },
           { href: "/consultas", t: "Conversaciones", i: "chat" },
           { href: "/contactos", t: "Contactos", i: "personas" },
+          ...(edita ? [{ href: "/prospeccion", t: "Prospección", i: "mail" }] : []),
           { href: "/proyectos", t: "Proyectos", i: "maletin" },
           ...(edita ? [{ href: "/piezas", t: "Piezas para redes", i: "demo" }, { href: "/demos-admin", t: "Demos", i: "demo" }, { href: "/material", t: "Material de venta", i: "guia" }, { href: "/biblioteca", t: "Documentos de la empresa", i: "carpeta" }] : []),
         ] },

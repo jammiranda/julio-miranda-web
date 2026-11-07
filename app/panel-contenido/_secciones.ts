@@ -25,6 +25,7 @@ export const GRUPOS: GrupoNav[] = [
     g: "Negocio",
     items: [
       { s: "crm", t: "CRM y ventas", claves: "consultas contactos proyectos reuniones whatsapp ventas clientes conversión embudo" },
+      { s: "prospeccion", t: "Prospección", claves: "mails gmail invitaciones linkedin socios comerciales búsqueda laboral postulaciones respuestas seguimiento trazabilidad campañas tandas" },
       { s: "academia", t: "Academia", claves: "cursos alumnos suscriptores guías ventas certificados órdenes" },
       { s: "web", t: "Web", claves: "sitios estado visitas blog novedades notas velocidad" },
       { s: "usuarios", t: "Usuarios", claves: "portal clientes alumnos equipo accesos" },

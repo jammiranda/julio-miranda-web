@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { ENTIDADES, ESTADOS_MOD, numero, siguiente, isoD } from "@/lib/gestion"
+import { registrarCambios, marcarEnviado } from "@/lib/prospeccion"
 
 const volverA = (fd: FormData, def: string) => {
   const v = String(fd.get("_volver") ?? def)
@@ -60,10 +61,12 @@ export async function guardarRegistro(fd: FormData) {
       const ya = await one("select id from g_vencimientos where titulo=$1 and vence=$2", [r.titulo, prox])
       if (!ya) await q("insert into g_vencimientos(titulo,area,vence,recurrencia,estado,monto,responsable,nota,creado_por) values ($1,$2,$3,$4,'pendiente',$5,$6,$7,$8)", [r.titulo, r.area, prox, r.recurrencia, r.monto, r.responsable, r.nota, u.usuario])
     }
+    if (clave === "prospeccion") await registrarCambios(id, antes, u.nombre ?? u.usuario)
     await audit(u, "editar", ent.tabla, id)
   } else {
     const r = await one<{ id: number }>(`insert into ${ent.tabla}(${cols.join(",")},creado_por) values (${cols.map((_, i) => `$${i + 1}`).join(",")},$${cols.length + 1}) returning id`, [...vals, u.usuario])
     nuevoId = r?.id ?? null
+    if (clave === "prospeccion" && nuevoId) await registrarCambios(nuevoId, null, u.nombre ?? u.usuario)
     await audit(u, "crear", ent.tabla, nuevoId ?? undefined)
   }
   revalidatePath("/", "layout")
@@ -90,7 +93,9 @@ export async function resolverRapido(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const clave = String(fd.get("_ent") ?? "")
   const id = Number(fd.get("_id") ?? 0)
-  if (clave === "movimientos") {
+  if (clave === "prospeccion") {
+    await marcarEnviado(id, u.nombre ?? u.usuario)
+  } else if (clave === "movimientos") {
     await q("update g_movimientos set estado='pagado', fecha=coalesce(fecha, current_date), actualizado=now() where id=$1 and estado='pendiente'", [id])
   } else if (clave === "vencimientos") {
     const v = await one<any>("select * from g_vencimientos where id=$1", [id])

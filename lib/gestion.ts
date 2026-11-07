@@ -196,8 +196,44 @@ export const ACTIVOS: Ent = {
   ],
 }
 
+/* ---------------- Prospección (mails, invitaciones de LinkedIn y postulaciones, con trazabilidad) ---------------- */
+export const ESTADOS_PROS: Op[] = [
+  { v: "borrador", n: "Borrador", c: C.gris }, { v: "enviado", n: "Enviado", c: C.cielo }, { v: "respondio", n: "Respondió", c: C.violeta },
+  { v: "reunion", n: "Reunión", c: C.ambar }, { v: "ganado", n: "Ganado", c: C.verde }, { v: "sin_respuesta", n: "Sin respuesta", c: C.apagado }, { v: "descartado", n: "Descartado", c: C.apagado },
+]
+export const CANALES_PROS: Op[] = [
+  { v: "gmail", n: "Gmail", c: C.rojo }, { v: "linkedin", n: "LinkedIn", c: C.cielo }, { v: "whatsapp", n: "WhatsApp", c: C.verde },
+  { v: "telefono", n: "Teléfono", c: C.gris }, { v: "web", n: "Web / portal de empleo", c: C.violeta }, { v: "otro", n: "Otro", c: C.gris },
+]
+export const TIPOS_PROS: Op[] = [
+  { v: "socio", n: "Socio comercial", c: C.rojo }, { v: "convenio", n: "Convenio (cámara)", c: C.ambar }, { v: "cliente", n: "Cliente", c: C.verde },
+  { v: "empleo", n: "Búsqueda laboral", c: C.violeta }, { v: "red", n: "Red y reconexión", c: C.cielo }, { v: "otro", n: "Otro", c: C.gris },
+]
+export const PROSPECCION: Ent = {
+  tabla: "g_prospeccion", n: "Prospección", uno: "contacto", titulo: "organizacion", edita: EDITAN,
+  orden: "case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, coalesce(seguimiento, enviado_en, creado::date) nulls last, id desc",
+  campos: [
+    { k: "organizacion", n: "Organización", t: "text", req: true, lista: true },
+    { k: "persona", n: "Persona", t: "text", lista: true },
+    { k: "cargo", n: "Cargo", t: "text" },
+    { k: "campania", n: "Campaña", t: "text", req: true, lista: true, def: "General", ayuda: "Ej.: Socios comerciales 2026-11, Búsqueda laboral, Reconexión Web y Graf." },
+    { k: "tanda", n: "Tanda", t: "num" },
+    { k: "tipo", n: "Tipo", t: "sel", lista: true, def: "cliente", ops: TIPOS_PROS },
+    { k: "canal", n: "Canal", t: "sel", req: true, lista: true, def: "gmail", ops: CANALES_PROS },
+    { k: "sentido", n: "Sentido", t: "sel", def: "saliente", ops: [{ v: "saliente", n: "Saliente (lo iniciamos)" }, { v: "entrante", n: "Entrante (nos buscaron)" }] },
+    { k: "destino", n: "Email o perfil", t: "text", ayuda: "Email de destino o link al perfil de LinkedIn." },
+    { k: "asunto", n: "Asunto o nota de invitación", t: "text" },
+    { k: "estado", n: "Estado", t: "sel", req: true, lista: true, def: "borrador", ops: ESTADOS_PROS, ayuda: "Al cambiarlo se anota solo en la historia, con fecha y usuario." },
+    { k: "enviado_en", n: "Enviado", t: "date", lista: true },
+    { k: "respondio_en", n: "Respondió", t: "date", lista: true },
+    { k: "seguimiento", n: "Próximo seguimiento", t: "date", lista: true, ayuda: "Se completa solo a los 7 días del envío." },
+    { k: "responsable", n: "Responsable", t: "text", def: "Julio" },
+    { k: "notas", n: "Notas", t: "area", ancho: true },
+  ],
+}
+
 export const ENTIDADES: Record<string, Ent> = {
-  movimientos: MOVIMIENTOS, proveedores: PROVEEDORES, contratos: CONTRATOS, vencimientos: VENCIMIENTOS, documentos: DOCUMENTOS, licitaciones: LICITACIONES, activos: ACTIVOS,
+  movimientos: MOVIMIENTOS, proveedores: PROVEEDORES, contratos: CONTRATOS, vencimientos: VENCIMIENTOS, documentos: DOCUMENTOS, licitaciones: LICITACIONES, activos: ACTIVOS, prospeccion: PROSPECCION,
 }
 
 /* ---------------- Módulos de DEVISEBIT (el manual operativo, vivo) ---------------- */
