@@ -1,5 +1,6 @@
 import webpush from "web-push"
 import { q, one } from "./db"
+import { enviarTelegram } from "./telegram"
 
 /** Claves VAPID propias del sistema: se generan solas la primera vez y quedan en la base. */
 async function vapid() {
@@ -17,6 +18,8 @@ export async function clavePublica() { return (await vapid()).pub }
 
 /** Manda una notificación al celular/compu de los usuarios de esos roles que la activaron, y también por email. */
 export async function notificar(roles: string[], titulo: string, cuerpo: string, url = "/") {
+  // Telegram: es el canal de Julio (rol gerente); sale en paralelo con el email y nunca lanza error
+  const tg = roles.includes("gerente") ? enviarTelegram({ titulo, cuerpo, url }) : Promise.resolve()
   await porEmail(roles, titulo, cuerpo, url).catch((e) => console.error("aviso email", e))
   try {
     const { pub, priv } = await vapid()
@@ -31,6 +34,7 @@ export async function notificar(roles: string[], titulo: string, cuerpo: string,
       catch (e: any) { if (e?.statusCode === 404 || e?.statusCode === 410) await q("delete from push_subs where id=$1", [s.id]) }
     }))
   } catch (e) { console.error("push", e) }
+  await tg
 }
 
 /**

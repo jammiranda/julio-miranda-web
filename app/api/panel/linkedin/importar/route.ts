@@ -3,6 +3,7 @@ import { timingSafeEqual } from "crypto"
 import { claveOk } from "@/lib/clave"
 import { usuarioActual } from "@/lib/auth"
 import { audit } from "@/lib/db"
+import { enviarTelegram } from "@/lib/telegram"
 import { leerArchivo, importar, type ArchivoLeido, type FilaDia, type FilaPost } from "@/lib/linkedin-export"
 
 export const dynamic = "force-dynamic"
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
   try {
     const r = await importar(archivos, extra, { origen: qn.origen, por: qn.por })
     if (qn.u) await audit(qn.u, "importar", "linkedin", undefined, `${r.guardado.dias} días, ${r.guardado.publicaciones} publicaciones (${r.periodo.desde ?? "?"} a ${r.periodo.hasta ?? "?"})`)
+    await enviarTelegram({ titulo: r.ok ? "📈 LinkedIn cargado en el Panel" : "⚠️ La carga de LinkedIn al Panel no se guardó", cuerpo: `${r.guardado.dias} días y ${r.guardado.publicaciones} publicaciones (${r.periodo.desde ?? "?"} a ${r.periodo.hasta ?? "?"})`, url: "https://panel.devisebit.com/linkedin", silencioso: r.ok })
     return NextResponse.json({ ...r, rechazados, origen: qn.origen }, { status: r.ok ? 200 : 422, headers: { "cache-control": "no-store" } })
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: `error al guardar: ${String(e?.message ?? e).slice(0, 300)}`, rechazados }, { status: 500 })

@@ -232,6 +232,7 @@ create table if not exists avisos_estado (
   primary key (usuario_id, clave)
 );
 create table if not exists avisos_email (clave text primary key, enviado timestamptz not null default now());
+create table if not exists avisos_telegram (clave text primary key, enviado timestamptz not null default now());
 create table if not exists pv_visitas (
   dia date not null, host text not null, path text not null, ref text not null default '', disp text not null default '',
   n int not null default 0,

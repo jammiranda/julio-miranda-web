@@ -3,6 +3,16 @@ import { q, one } from "./db"
 import { usuarioActual, type Usuario } from "./auth"
 import { SEMILLA, AREAS } from "./oficina-seed"
 import { politicaTexto } from "./oficina-politica"
+import { enviarTelegram, primeraVez } from "./telegram"
+
+/** Aviso de la Oficina por Telegram (nunca lanza error). Los "hecho" salen en silencio para no sonar a cada corrida. */
+const OFICINA_URL = "https://oficina.devisebit.com"
+async function avisoOficina(titulo: string, cuerpo?: string, silencioso = false, clave?: string) {
+  try {
+    if (clave && !(await primeraVez("of:" + clave, 30))) return
+    await enviarTelegram({ titulo, cuerpo, url: OFICINA_URL, silencioso })
+  } catch {}
+}
 
 /** Base de la Oficina: documentos por colección (agentes, eventos, ordenes, tareas), con la misma forma que usa el panel. */
 export const COLECCIONES = ["agentes", "eventos", "ordenes", "tareas"] as const
@@ -83,10 +93,16 @@ const ESTADOS = ["working", "done", "waiting_user", "error", "idle"]
 /** Un agente informa cómo va (lo usan las tareas programadas). El paso se recorta y se limpia de datos sensibles obvios. */
 export async function informarEstado(agente: string, estado: string, paso: string) {
   await preparar()
-  if (!(await obtener("agentes", agente))) return { ok: false, error: "agente desconocido" }
+  const ag = await obtener("agentes", agente)
+  if (!ag) return { ok: false, error: "agente desconocido" }
   if (!ESTADOS.includes(estado)) return { ok: false, error: "estado inválido" }
   const limpio = paso.replace(/https?:\/\/\S+/g, "").replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "").replace(/\s+/g, " ").trim().slice(0, 60)
   await agregar("eventos", { agente, estado, paso: limpio, at: new Date().toISOString(), por: "agente" })
+  // Telegram: errores y "te necesita" suenan; los terminados llegan en silencio (el paso ya viene limpio de mails y links)
+  const nombre = String(ag.data.nombre ?? agente)
+  if (estado === "error") await avisoOficina(`⚠️ ${nombre} falló`, limpio || undefined, false, `${agente}|${estado}|${limpio}`)
+  else if (estado === "waiting_user") await avisoOficina(`🙋 ${nombre} te necesita`, limpio || undefined, false, `${agente}|${estado}|${limpio}`)
+  else if (estado === "done") await avisoOficina(`✅ ${nombre} terminó`, limpio || undefined, true, `${agente}|${estado}|${limpio}`)
   return { ok: true }
 }
 
@@ -97,7 +113,10 @@ export async function tareasPendientes(agente: string) {
   return rows.map((r) => ({ id: r.id, texto: r.data.texto, orden: r.data.orden ?? null }))
 }
 export async function cerrarTarea(id: string, nota: string) {
-  return actualizar("tareas", id, { estado: "hecha", nota: nota.slice(0, 200), hecha: new Date().toISOString() })
+  const t = await obtener("tareas", id)
+  const ok = await actualizar("tareas", id, { estado: "hecha", nota: nota.slice(0, 200), hecha: new Date().toISOString() })
+  if (ok && t) await avisoOficina(`✅ Tarea hecha · ${t.data.agente ?? ""}`, [String(t.data.texto ?? "").slice(0, 300), nota ? `Nota: ${nota.slice(0, 200)}` : ""].filter(Boolean).join("\n"), true)
+  return ok
 }
 
 /* ---------------- Jefe de gabinete ---------------- */
@@ -186,8 +205,9 @@ export async function procesarOrden(id: string): Promise<{ ok: boolean; estado?:
   const validos = new Set(ags.map((a) => a.id))
   const reparto = (Array.isArray(p.reparto) ? p.reparto : []).filter((r: any) => r && validos.has(r.agente) && r.tarea).slice(0, 8).map((r: any) => ({ agente: String(r.agente), tarea: String(r.tarea).slice(0, 400) }))
   const resumen = [String(p.resumen ?? "").slice(0, 600), p.aviso ? `Ojo: ${String(p.aviso).slice(0, 300)}` : ""].filter(Boolean).join(" ")
-  if (!reparto.length) { await actualizar("ordenes", id, { procesando: false, estado: "hecha", resumen, reparto: [], decidida: new Date().toISOString() }); return { ok: true, estado: "hecha" } }
+  if (!reparto.length) { await actualizar("ordenes", id, { procesando: false, estado: "hecha", resumen, reparto: [], decidida: new Date().toISOString() }); await avisoOficina("🧭 Respuesta del jefe de oficina", resumen.slice(0, 600), true); return { ok: true, estado: "hecha" } }
   await actualizar("ordenes", id, { procesando: false, estado: "propuesta", resumen, reparto, error: null })
+  await avisoOficina("🧭 Propuesta lista: necesita tu OK", `${resumen.slice(0, 500)}\n${reparto.map((r: any) => `• ${r.agente}: ${String(r.tarea).slice(0, 120)}`).join("\n")}`.slice(0, 900))
   return { ok: true, estado: "propuesta" }
 }
 
@@ -203,6 +223,7 @@ export async function repartir(id: string): Promise<number> {
   if (!tomada.length) return 0
   const reparto: { agente: string; tarea: string }[] = (tomada[0] as any).data.reparto ?? []
   for (const r of reparto) await agregar("tareas", { agente: r.agente, texto: r.tarea, estado: "pendiente", orden: id, creado: new Date().toISOString() })
+  if (reparto.length) await avisoOficina(`📋 ${reparto.length} tarea${reparto.length > 1 ? "s" : ""} repartida${reparto.length > 1 ? "s" : ""}`, reparto.map((r) => `• ${r.agente}: ${String(r.tarea).slice(0, 120)}`).join("\n").slice(0, 900), true)
   return reparto.length
 }
 

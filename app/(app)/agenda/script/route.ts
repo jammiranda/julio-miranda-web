@@ -1,15 +1,16 @@
 import { requerir } from "@/lib/auth"
 import { gcalConfig } from "@/lib/agenda"
+import { URL_SISTEMA } from "@/lib/brief"
 
 /**
  * Conector de Google (Apps Script) del Sistema de gestión DEVISEBIT.
  * Versión 2: además de la agenda (ocupado/crear) lee eventos del calendario, archivos de una carpeta de Drive y correos de Gmail.
  * Corre en la cuenta de Google de quien lo implementa; el sistema solo recibe lo que pide, con la clave.
  */
-const CODIGO = `// DEVISEBIT · Conector de Google para el Sistema de gestión (versión 2)
-// Calendar, Drive y Gmail. La clave ya viene puesta: es la que generó el sistema para tu cuenta. No la compartas.
+const CODIGO = `// DEVISEBIT · Conector de Google para el Sistema de gestión (versión 3)
+// Calendar, Drive, Gmail y avisos de correo por Telegram. La clave ya viene puesta: es la que generó el sistema para tu cuenta. No la compartas.
 const TOKEN = '__TOKEN__';
-const VERSION = 2;
+const VERSION = 3;
 
 function doPost(e) {
   const b = JSON.parse(e.postData.contents || '{}');
@@ -105,6 +106,40 @@ function gmail(b) {
   });
 }
 
+// ---- Avisos de correo nuevo por Telegram (versión 3) ----
+// Se instala UNA vez: elegí la función instalarAvisosDeCorreo en el editor y tocá Ejecutar (te pide autorizar Gmail y conexiones externas).
+// Cada 5 minutos revisa la bandeja de entrada y avisa al sistema de los correos no leídos, que los manda a Telegram.
+// Salta promociones, redes, foros, notificaciones automáticas y lo que mandás vos. Cada hilo se marca con la etiqueta «avisado-telegram».
+const SISTEMA = '__SISTEMA__';
+const BUSQUEDA = 'in:inbox is:unread newer_than:1d -label:avisado-telegram -category:promotions -category:social -category:forums -category:updates';
+
+function instalarAvisosDeCorreo() {
+  const etiqueta = GmailApp.getUserLabelByName('avisado-telegram') || GmailApp.createLabel('avisado-telegram');
+  // Lo que ya está en la bandeja se marca sin avisar, para no recibir un aluvión el primer día
+  GmailApp.search(BUSQUEDA, 0, 100).forEach(function (t) { t.addLabel(etiqueta); });
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'vigilarCorreo') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('vigilarCorreo').timeBased().everyMinutes(5).create();
+}
+
+function vigilarCorreo() {
+  const etiqueta = GmailApp.getUserLabelByName('avisado-telegram') || GmailApp.createLabel('avisado-telegram');
+  const yo = Session.getActiveUser().getEmail().toLowerCase();
+  GmailApp.search(BUSQUEDA, 0, 15).forEach(function (t) {
+    const ms = t.getMessages(), u = ms[ms.length - 1];
+    const de = u.getFrom(), asunto = t.getFirstMessageSubject() || '(sin asunto)';
+    if (de.toLowerCase().indexOf(yo) >= 0 || /no-?reply|mailer-daemon|postmaster/i.test(de) || asunto.indexOf('🔔') === 0) { t.addLabel(etiqueta); return; }
+    const frag = u.getPlainBody().replace(/\\s+/g, ' ').slice(0, 220);
+    try {
+      const r = UrlFetchApp.fetch(SISTEMA + '/api/telegram/entrada', {
+        method: 'post', contentType: 'application/json', headers: { 'x-token': TOKEN }, muteHttpExceptions: true,
+        payload: JSON.stringify({ id: 'mail:' + t.getId() + ':' + ms.length, titulo: '✉️ Correo nuevo · ' + de.replace(/<.*>/, '').trim().slice(0, 60),
+          cuerpo: 'Para: ' + u.getTo().slice(0, 80) + '\\n' + asunto + '\\n' + frag, url: 'https://mail.google.com/mail/u/0/#inbox/' + t.getId() })
+      });
+      if (r.getResponseCode() === 200) t.addLabel(etiqueta);
+    } catch (err) {}
+  });
+}
+
 function json(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 }
@@ -113,5 +148,5 @@ function json(o) {
 export async function GET() {
   await requerir(["gerente", "coordinacion"])
   const { token } = await gcalConfig()
-  return new Response(CODIGO.replace("__TOKEN__", token), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } })
+  return new Response(CODIGO.replace("__TOKEN__", token).replace("__SISTEMA__", URL_SISTEMA), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } })
 }

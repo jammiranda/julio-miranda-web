@@ -7,6 +7,7 @@ import { horario, guardarHorario, gcalConfig, guardarGcalUrl, probarGcal, turnos
 import { eventosCalendario } from "@/lib/integraciones"
 import { URL_SISTEMA } from "@/lib/brief"
 import Copiar from "@/components/Copiar"
+import { codigoVigente, datosBot, desvincularTodo, enviarTelegram, estadoTelegram, fijarActivo, generarCodigo, registrarWebhook } from "@/lib/telegram"
 
 export const dynamic = "force-dynamic"
 const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
@@ -54,9 +55,41 @@ async function conectarGcal(fd: FormData) {
   redirect(t.ok ? "/agenda?ok=" + encodeURIComponent("Google Calendar conectado") : "/agenda?e=" + encodeURIComponent(`Google no respondió bien (${t.error}). Revisá que la implementación sea "Cualquier persona" y que hayas autorizado el calendario.`))
 }
 
+async function conectarTelegram() {
+  "use server"
+  const u = await requerir(["gerente"])
+  const w = await registrarWebhook()
+  if (!w.ok) redirect("/agenda?e=" + encodeURIComponent(`Telegram no aceptó la conexión: ${w.error}`))
+  await generarCodigo()
+  await audit(u, "conecta_telegram", "config", 0, "webhook + código")
+  revalidatePath("/agenda")
+  redirect("/agenda?ok=" + encodeURIComponent("Bot conectado. Ahora mandale al bot el comando que aparece abajo."))
+}
+async function probarTelegram() {
+  "use server"
+  await requerir(["gerente"])
+  const r = await enviarTelegram({ titulo: "Prueba de avisos ✅", cuerpo: "Si lees esto, Telegram está bien conectado al sistema de DEVISEBIT.", url: "/agenda" })
+  redirect(r.ok ? "/agenda?ok=" + encodeURIComponent("Te mandé la prueba a Telegram.") : "/agenda?e=" + encodeURIComponent(`No salió la prueba: ${r.error ?? "error"}`))
+}
+async function ajustarTelegram(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente"])
+  const op = String(fd.get("op"))
+  if (op === "pausar") await fijarActivo(false)
+  if (op === "activar") await fijarActivo(true)
+  if (op === "desvincular") await desvincularTodo()
+  await audit(u, "ajusta_telegram", "config", 0, op)
+  revalidatePath("/agenda")
+  redirect("/agenda?ok=1")
+}
+
 export default async function Agenda({ searchParams }: { searchParams: { ok?: string; e?: string } }) {
   const uAg = await requerir(["gerente", "coordinacion"])
   const adm = puede.admin(uAg)
+  const esJulio = uAg.rol === "gerente"
+  const tg = esJulio ? await estadoTelegram() : null
+  const tgCodigo = esJulio ? await codigoVigente() : null
+  const tgBot = esJulio && tg?.bot ? await datosBot() : null
   const [h, av, prox, libres, gc] = await Promise.all([
     horario(),
     one<{ valor: string }>("select valor from config where clave='avisos_email'"),
@@ -131,6 +164,33 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
           </form>
         </div>
       </section>
+      {tg && (
+        <section className="card text-sm flex flex-col gap-3">
+          <h2 className="m-0 text-base">Telegram {tg.bot && tg.chats > 0 ? (tg.activo ? <span className="chip bg-emerald-100 text-emerald-800">avisando</span> : <span className="chip bg-amber-100 text-amber-800">en pausa</span>) : <span className="chip bg-amber-100 text-amber-800">sin conectar</span>}</h2>
+          <p className="m-0 text-[#4A515C]">Todo lo que entra al sistema te llega a Telegram: consultas por WhatsApp, Instagram, web y portal, reuniones, pagos y compras, la Academia, lo que pasa en la Oficina (propuestas, tareas, agentes que fallan o te necesitan), cargas del Panel y los correos nuevos de tus casillas. Lo terminado llega en silencio; lo que necesita tu atención, con sonido.</p>
+          {!tg.bot && <ol className="m-0 pl-5 flex flex-col gap-1">
+            <li>En Telegram abrí <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="underline">@BotFather</a>, mandá <code>/newbot</code> y elegí nombre y usuario (por ejemplo «DEVISEBIT Avisos»). Te da un token.</li>
+            <li>En Vercel, proyecto <strong>devisebit-sistema</strong> → Settings → Environment Variables, cargá <code>TELEGRAM_BOT_TOKEN</code> con ese token y volvé a desplegar.</li>
+            <li>Volvé acá y tocá «Conectar bot».</li>
+          </ol>}
+          {tg.bot && <p className="m-0">Bot: {tgBot?.usuario ? <strong>@{tgBot.usuario}</strong> : <span className="text-[#C8231F]">{tgBot?.error ?? "no responde"}</span>} · Chats vinculados: <strong>{tg.chats}</strong>{tg.ultimo && <> · Último aviso: {tg.ultimo.ok ? "salió bien" : <span className="text-[#C8231F]">falló ({tg.ultimo.error})</span>} ({fmt(tg.ultimo.cuando)})</>}</p>}
+          {tgCodigo && <p className="m-0 rounded-md bg-[#F5F6F8] p-3">Abrí el bot en Telegram y mandale: <strong className="select-all">/vincular {tgCodigo}</strong> <span className="text-[#4A515C]">(vale 15 minutos)</span></p>}
+          <div className="flex flex-wrap gap-2">
+            {tg.bot && <form action={conectarTelegram}><button className="btn-s">{tg.chats > 0 ? "Vincular otro chat" : "Conectar bot"}</button></form>}
+            {tg.bot && tg.chats > 0 && <form action={probarTelegram}><button className="btn-s">Mandar prueba</button></form>}
+            {tg.chats > 0 && <form action={ajustarTelegram}><input type="hidden" name="op" value={tg.activo ? "pausar" : "activar"} /><button className="btn-s">{tg.activo ? "Pausar avisos" : "Reactivar avisos"}</button></form>}
+            {tg.chats > 0 && <form><input type="hidden" name="op" value="desvincular" /><BotonConfirmar chico accion={ajustarTelegram} mensaje="¿Desvincular todos los chats de Telegram? Dejás de recibir avisos hasta volver a vincular.">Desvincular chats</BotonConfirmar></form>}
+          </div>
+          <details className="text-[#4A515C]">
+            <summary className="cursor-pointer font-semibold text-[#0E1116]">Correos nuevos a Telegram (casillas que reenvían a tu Gmail)</summary>
+            <ol className="m-0 mt-2 pl-5 flex flex-col gap-1">
+              <li>Actualizá el conector de Google: pegá el código de <a href="/agenda/script" target="_blank" className="underline">este archivo</a> en tu proyecto de Apps Script (ahora es la versión 3) y guardá. La URL de implementación sigue siendo la misma: usá «Administrar implementaciones → editar → Nueva versión».</li>
+              <li>En el editor elegí la función <code>instalarAvisosDeCorreo</code> y tocá Ejecutar. Autorizá Gmail y conexiones externas. Se hace una sola vez.</li>
+              <li>Desde ahí, cada 5 minutos revisa tu bandeja y manda a Telegram los correos no leídos que no sean promociones, redes ni notificaciones automáticas. Como info@devisebit.com y devisebit66@gmail.com reenvían a esa casilla, entran todas; el aviso dice a qué casilla llegó.</li>
+            </ol>
+          </details>
+        </section>
+      )}
       <section className="card text-sm flex flex-wrap items-center justify-between gap-2">
         <span>El perfil de WhatsApp (foto, descripción, webs) se edita en <a href="/whatsapp-business" className="underline font-semibold">WhatsApp Business</a>.</span>
       </section>

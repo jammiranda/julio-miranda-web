@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { claveOk } from "@/lib/clave"
 import { guardarFilas, type FilaAds } from "@/lib/ads"
 import { q } from "@/lib/db"
+import { enviarTelegram } from "@/lib/telegram"
 
 const anotar = (v: object) => q("insert into config(clave,valor) values ('ads_ultima_ingesta',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify({ cuando: new Date().toISOString(), ...v })]).catch(() => {})
 
@@ -19,5 +20,6 @@ export async function POST(req: NextRequest) {
   if (!p || !Array.isArray(b.filas)) return NextResponse.json({ ok: false, error: "faltan plataforma o filas" }, { status: 400 })
   const n = await guardarFilas(p, (b.filas as FilaAds[]).slice(0, 5000))
   await anotar({ ok: true, plataforma: p, filas_recibidas: b.filas.length, guardadas: n })
+  await enviarTelegram({ titulo: `📣 Anuncios ${p === "meta" ? "de Meta" : "de Google"} al Panel`, cuerpo: `${n} filas guardadas (de ${b.filas.length} recibidas)`, url: "https://panel.devisebit.com", silencioso: true })
   return NextResponse.json({ ok: true, guardadas: n })
 }
