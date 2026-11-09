@@ -2,6 +2,41 @@ export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: st
 
 export const posts: Post[] = [
   {
+    "slug": "ia-argentina-2026-de-asistentes-a-agentes",
+    "seoTitle": "IA en Argentina 2026: de asistentes a agentes",
+    "seoDesc": "Según un estudio de UdeSA, solo el 11,2% de las empresas argentinas usa IA en su operación. Qué cambia con los agentes y cómo prepararse.",
+    "date": "2026-11-09",
+    "dateTxt": "9 de noviembre de 2026",
+    "kicker": "Inteligencia artificial",
+    "title": "Inteligencia artificial en Argentina: el salto de los asistentes a los agentes",
+    "desc": "Un estudio de la Universidad de San Andrés estima que la IA podría aportar el 2,1% del PBI en 2030, pero la adopción en las empresas todavía es baja. Qué son los agentes y por qué importan.",
+    "body": [
+      "A fines de octubre, la Cátedra de Competitividad Jorge H. Forteza de la Universidad de San Andrés (UdeSA) presentó el estudio \"Una estrategia de competitividad en Inteligencia Artificial para la Argentina\", dirigido por Raúl Katz, Luciana Pagani y Natalia Méndez Huergo. Según el trabajo, la IA podría aportar a la economía argentina el equivalente al 2,1% del PBI proyectado para 2030, frente al 0,6% actual. Si se mantiene el ritmo de hoy, llegaría a cerca del 1,5%: la diferencia depende de cuántas organizaciones la incorporen de verdad.",
+      "Ahí está el punto débil. De acuerdo con el estudio, el 11,2% de las empresas argentinas usa IA en sus operaciones, contra un promedio de 20,2% en los países de la OCDE, 16,5% en Uruguay y 13,5% en Chile. Entre las grandes la cifra sube al 34,7%, pero en las medianas es del 16% y en las pequeñas, del 8,5%. En el Índice Latinoamericano de Inteligencia Artificial 2026, elaborado por CEPAL y CENIA, la Argentina quedó sexta entre 19 economías.",
+      "La misma semana, en las Jornadas Internacionales 2026 organizadas por ATVC y Cappsa, Juan Filips, country manager de AWS para Argentina, Paraguay y Uruguay, describió el panorama desde el lado de los proveedores de nube: \"Un 90% de los clientes con los que hablamos está usando IA en alguna tarea, pero en su mayoría como un asistente\". Según Filips, hoy solo un 25% piensa en agentes, aunque estimó que en dos años tres de cada cuatro empresas los tendrán desplegados. Es una proyección dicha en un panel, no el resultado de una encuesta, pero marca hacia dónde se mueve la industria.",
+      "La diferencia entre un asistente y un agente no es menor. Un asistente responde: redacta un mail, resume un documento o contesta una consulta. Un agente, además, ejecuta: busca un dato en el sistema de gestión, agenda un turno, carga un pedido, actualiza una ficha o deriva un caso a la persona indicada, siguiendo reglas que define la organización. Para hacerlo bien necesita algo que muchas empresas todavía no tienen: procesos claros y datos ordenados en sistemas que se puedan consultar.",
+      "El estudio de UdeSA señala además dos frenos para la próxima etapa. Por un lado, una posible brecha de talento hacia 2029 si la adopción se acelera. Por otro, advierte que \"los instrumentos de política pública y regulatoria continúan siendo fragmentados\". En otras palabras, buena parte del avance va a depender de lo que haga cada organización por su cuenta.",
+      "Qué significa para tu empresa: no hace falta esperar a los agentes para empezar, pero sí prepararse para ellos. El primer paso es elegir un proceso repetitivo y medible, como las consultas por WhatsApp, la gestión de turnos o el seguimiento de pedidos; después, documentar cómo se resuelve hoy, ordenar los datos que usa y definir qué puede hacer la IA sola y qué necesita la aprobación de una persona. En DEVISEBIT desarrollamos sistemas de gestión y asistentes conectados a WhatsApp que trabajan sobre los datos reales de cada organización, con permisos por rol y registro de cada acción. Conocé cómo trabajamos en www.devisebit.com/sistemas."
+    ],
+    "box": [
+      "¿Usás la IA solo para redactar textos o ya resuelve tareas dentro de tus sistemas?",
+      "¿Tenés identificado un proceso repetitivo que se pueda medir?",
+      "¿Tus datos de clientes, turnos o pedidos están en un sistema o en planillas sueltas?",
+      "¿Está definido qué decisiones puede tomar la IA y cuáles requieren aprobación humana?",
+      "¿Tu equipo sabe qué información no debe cargar en herramientas de IA?"
+    ],
+    "sources": [
+      {
+        "t": "Ámbito: La IA puede sumar u$s17.700 millones a la Argentina hasta 2030, pero necesita acelerar la adopción en empresas (29/10/2026)",
+        "u": "https://www.ambito.com/negocios/la-ia-puede-sumar-us17700-millones-la-argentina-2030-pero-necesita-acelerar-la-adopcion-empresas-n6339356"
+      },
+      {
+        "t": "ConverCom: Jornadas 2026, AWS estima que tres de cada cuatro empresas tendrán agentes de inteligencia artificial desplegados en dos años (28/10/2026)",
+        "u": "https://convercom.info/comunidades/contenidos/jornadas-2026-aws-estima-que-tres-cada-cuatro-empresas-tendran-agentes-inteligencia-artificial-desplegados-dos-anos/"
+      }
+    ]
+  },
+  {
     "slug": "ciberseguridad-2026-identidad-cuentas-pymes",
     "seoTitle": "Ciberseguridad 2026: la puerta es la cuenta",
     "seoDesc": "Argentina es sexta en las Américas por impacto de actividad cibernética, según Microsoft. Por qué proteger cuentas e identidades es la prioridad.",
