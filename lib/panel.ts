@@ -183,7 +183,7 @@ export async function panelMetricas() {
     safe(one<{ d7: number; d30: number; p30: number }>(`select count(*) filter (where creado > now()-interval '7 days')::int d7, count(*) filter (where creado > now()-interval '30 days')::int d30, count(*) filter (where creado <= now()-interval '30 days' and creado > now()-interval '60 days')::int p30 from consultas where empresa=$1`, [E])),
     safe(q<{ k: string; c: number }>(`select coalesce(canal,'otro') k, count(*)::int c from consultas where empresa=$1 and creado > now()-interval '30 days' group by 1 order by 2 desc limit 6`, [E])),
     safe(q<{ k: string; c: number }>(`select coalesce(nullif(fuente,''),'sin dato') k, count(*)::int c from consultas where empresa=$1 and creado > now()-interval '30 days' group by 1 order by 2 desc limit 6`, [E])),
-    safe(one<{ c: number }>(`select count(*)::int c from consultas where empresa=$1 and necesita_humano and estado in ('nueva','contactada')`, [E])),
+    safe(one<{ c: number }>(`select count(*)::int c from consultas where empresa=$1 and (estado='nueva' or (necesita_humano and estado in ('nueva','contactada')))`, [E])),
     safe(one<{ tot: number; conv: number }>(`select count(*)::int tot, count(*) filter (where estado='convertida')::int conv from consultas where empresa=$1 and creado > now()-interval '90 days'`, [E])),
     safe(q<{ etapa: string; c: number }>(`select etapa, count(*)::int c from db_contactos group by etapa`)),
     safe(one<{ c: number; d30: number }>(`select count(*)::int c, count(*) filter (where creado > now()-interval '30 days')::int d30 from db_contactos`)),

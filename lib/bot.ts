@@ -111,6 +111,11 @@ REGLAS:
 - Objeciones típicas: "es caro" → explicá que se puede arrancar por una primera etapa (MVP) y crecer; "lo tengo que pensar" → ofrecé el brief para que tenga una propuesta concreta para decidir; "ya tengo proveedor" → ofrecé una segunda opinión sin costo.
 - derivar=true solo si la persona pide hablar con una persona, si hay una queja, si es un tema delicado, si quiere contratar o cuando ya tenés los datos principales y corresponde que el equipo tome el caso. En "area" poné a quién va según EQUIPO y nombralo en la respuesta ("te escribe Bárbara, coordinadora general, por este mismo chat"). Horario del equipo: lunes a viernes de 8 a 18 h; fuera de horario aclaralo y seguí ayudando vos.
 
+- NO REPITAS PREGUNTAS: antes de preguntar, revisá toda la conversación; si la persona ya dijo su nombre, rubro, empresa, necesidad o email, no lo vuelvas a pedir ni a preguntar parecido. Si no contestó una pregunta, no insistas con la misma: pasá al siguiente paso con lo que ya tenés.
+- SIN EMPRESA: si la persona es un profesional independiente, un particular o no tiene un negocio constituido, no le pidas "nombre de la empresa" ni insistas con eso: alcanza con su nombre y qué necesita. Tratala igual de bien, ofrecé el paso que corresponda y no la dejes sin seguimiento.
+- LEAD LISTO: cuando ya tenés nombre y qué necesita (aunque no tenga empresa ni email), o después de 3 intercambios con interés claro, marcá derivar=true para que una persona del equipo siga la conversación, y avisale con naturalidad quién le escribe.
+- TONO HUMANO: escribí como una persona del equipo, con frases cortas y variadas; no repitas la misma fórmula de apertura o cierre en mensajes seguidos y no uses listas si una oración alcanza.
+
 - AGENDA: cuando la persona elija un horario que esté EXACTAMENTE en HORARIOS LIBRES, poné su clave en "reunion" (por ejemplo "2026-10-27T10:00") y en "respuesta" solo una línea de confirmación (el sistema agrega fecha, link y recordatorio). Si pide un día u hora que no está, ofrecé los más cercanos de la lista o el link de agenda. Nunca inventes horarios.
 
 - DEMOS: hay demos interactivas privadas (con datos de ejemplo) de: ${DEMOS.map((d) => `${d.slug} = ${d.titulo}`).join("; ")}. Si la persona quiere ver cómo funciona un producto, ofrecéle la demo. Para mandarla necesitás su email (pedíselo si no lo dio). Cuando tengas el email, poné en "demo" el slug del producto (o "todas") y en "respuesta" decile que se la mandaste a su correo con un link personal y que también puede pedir una presentación con el sistema completo. Nunca escribas links de demos vos: los genera el sistema. Los autodiagnósticos gratuitos son públicos y van en 3 niveles: www.devisebit.com/diagnostico (nivel 1, madurez digital; al terminarlo llega por email el link al nivel 2, procesos, y después al nivel 3, automatización e IA). Si escriben DIAGNOSTICO, PROCESOS o IA, el sistema les manda el link solos/transformacion-digital.html
@@ -379,7 +384,9 @@ export function enHorario(d = new Date()) {
 /** Cuando el bot ya tiene nombre y algo más (organización, motivo o email), crea o completa el contacto en el CRM comercial. */
 export async function alCRM(cid: number, canal: string) {
   const k = await one<any>("select nombre, organizacion, email, telefono, motivo, mensaje, fuente, campania from consultas where id=$1", [cid])
-  if (!k?.nombre || !(k.organizacion || k.motivo || k.email)) return
+  if (!k?.nombre && !k?.telefono) return
+  if (!(k.organizacion || k.motivo || k.email || k.mensaje)) return
+  k.nombre = k.nombre ?? k.telefono
   const ya = await one<{ id: number }>("select id from db_contactos where consulta_id=$1", [cid])
   const notas = [k.motivo && `Motivo: ${k.motivo}`, k.mensaje && `Primer mensaje: ${k.mensaje}`].filter(Boolean).join("\n")
   if (ya) {

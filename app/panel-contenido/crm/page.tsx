@@ -20,7 +20,7 @@ export default async function Crm() {
       <Head t="CRM y ventas" sub="Consultas, contactos, proyectos, reuniones y WhatsApp del sistema comercial" />
       <div className="pc-kpis">
         <Kpi k="Consultas (30 días)" v={fmt(c.d30)} delta={<Delta v={c.d30 != null && c.p30 != null ? c.d30 - c.p30 : null} />} ft={`${fmt(c.d7)} en 7 días · ${fmt(c.p30)} los 30 anteriores`} />
-        <Kpi k="Esperan una persona" v={fmt(c.esperanHumano)} ft="Consultas abiertas que pidió atender un humano" />
+        <Kpi k="Esperan una persona" v={fmt(c.esperanHumano)} ft="Sin atender, o que pidieron hablar con una persona" />
         <Kpi k="Conversión (90 días)" v={c.conversion90 != null ? `${fmt(c.conversion90, 1)}%` : null} ft={c.total90 != null ? `sobre ${fmt(c.total90)} consultas` : ""} color="var(--ok)" />
         <Kpi k="Contactos" v={fmt(contactos.total)} ft={contactos.nuevos30 != null ? `${fmt(contactos.nuevos30)} nuevos en 30 días` : ""} />
         <Kpi k="Proyectos activos" v={fmt(enCurso)} ft={proyectos.entregas14 != null ? `${fmt(proyectos.entregas14)} entregas en 14 días` : ""} />

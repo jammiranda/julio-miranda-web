@@ -29,7 +29,7 @@ const registroDiario = unstable_cache(async () => { await registrarSeguidores().
 /** Pendientes que se muestran como globito en el menú (se recalculan como mucho cada minuto). */
 const avisosMenu = unstable_cache(
   async () => {
-    const r = await safe(one<{ c: number }>(`select count(*)::int c from consultas where empresa='devisebit' and necesita_humano and estado in ('nueva','contactada')`))
+    const r = await safe(one<{ c: number }>(`select count(*)::int c from consultas where empresa='devisebit' and (estado='nueva' or (necesita_humano and estado in ('nueva','contactada')))`))
     return { crm: r?.c ?? 0 }
   },
   ["pc-avisos-menu"],

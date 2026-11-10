@@ -44,7 +44,7 @@ export default async function Inicio() {
   const cuentasEstado: [string, string, string[]][] = [["Instagram", "instagram", ["instagram"]], ["Facebook", "facebook", ["facebook"]], ["YouTube", "youtube", ["youtube", "youtube_post"]], ["LinkedIn de la página", "linkedin", ["linkedin"]], ["LinkedIn de Julio", "linkedin_julio", ["linkedin_julio"]]]
   type Al = { nivel: "alto" | "medio" | "info" | "ok"; t: string; d?: string; href?: string; accion?: string }
   const atencion: Al[] = []
-  if (c?.esperanHumano) atencion.push({ nivel: "alto", t: `${fmt(c.esperanHumano)} consulta${c.esperanHumano === 1 ? "" : "s"} esperan a una persona`, d: "Hay clientes esperando respuesta humana.", href: `${b}/crm`, accion: "Atender" })
+  if (c?.esperanHumano) atencion.push({ nivel: "alto", t: `${fmt(c.esperanHumano)} consulta${c.esperanHumano === 1 ? "" : "s"} sin atender o esperan a una persona`, d: "Entraron por la web, WhatsApp o el bot y nadie respondió todavía.", href: `${b}/crm`, accion: "Atender" })
   for (const [nom, id, reds] of cuentasEstado) {
     const d = edadDias(ultima(reds))
     if (pubs.length && (d == null || d > 7)) atencion.push({ nivel: d == null || d > 14 ? "alto" : "medio", t: `${nom}: ${d == null ? "sin publicaciones registradas" : `sin publicar hace ${Math.floor(d)} días`}`, href: `${b}/analisis?cuenta=${id}#que-funciona`, accion: "Ver cuenta" })
