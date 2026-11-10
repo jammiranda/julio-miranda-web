@@ -2,7 +2,8 @@
 const nextConfig = {
   poweredByHeader: false,
   // Fotos del perfil de WhatsApp y archivos chicos desde formularios
-  experimental: { serverActions: { bodySizeLimit: "5mb", allowedOrigins: ["panel.devisebit.com"] }, outputFileTracingIncludes: { "/academia/descarga/[token]": ["./private/**"], "/academia/mi-cuenta/descargar/[iid]/[lid]": ["./private/cursos/**"], "/portal/descargar/[iid]/[lid]": ["./private/cursos/**"], "/demo/[token]/[slug]": ["./private/demos/**"] } },
+  // staleTimes: volver a una pantalla vista hace menos de 30 s es instantáneo (cualquier guardado la refresca igual)
+  experimental: { staleTimes: { dynamic: 30, static: 180 }, serverActions: { bodySizeLimit: "5mb", allowedOrigins: ["panel.devisebit.com"] }, outputFileTracingIncludes: { "/academia/descarga/[token]": ["./private/**"], "/academia/mi-cuenta/descargar/[iid]/[lid]": ["./private/cursos/**"], "/portal/descargar/[iid]/[lid]": ["./private/cursos/**"], "/demo/[token]/[slug]": ["./private/demos/**"] } },
   async headers() {
     return [
       // La Oficina se muestra embebida en el panel (mismo origen)

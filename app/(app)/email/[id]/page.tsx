@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { waitUntil } from "@vercel/functions"
 import { requerir, puede } from "@/lib/auth"
 import BotonConfirmar from "@/components/BotonConfirmar"
+import VistaViva from "./VistaViva"
 import { q, one, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import { ETAPAS, CLASES } from "@/lib/crm"
@@ -16,6 +17,16 @@ function segDe(fd: FormData): Segmento {
   const all = (k: string) => fd.getAll(k).map(String).filter(Boolean)
   const lista = (k: string) => String(fd.get(k) ?? "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean)
   return { clases: all("clases"), etapas: all("etapas"), sectores: all("sectores"), categorias: all("categorias"), fuentes: all("fuentes"), tags: lista("tags"), excluirTags: lista("excluir"), soloSuscriptos: fd.get("solo") === "on" }
+}
+
+/** Guardado automático del borrador mientras se escribe: no redirige ni recarga. */
+async function autoguardar(fd: FormData) {
+  "use server"
+  await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  if (!id) return
+  await q("update em_campanias set asunto=$1, preheader=$2, contenido=$3, segmento=$4, estilo=$5, portada=$6 where id=$7 and estado='borrador'",
+    [s(fd.get("asunto")) ?? "Sin asunto", s(fd.get("preheader")), String(fd.get("contenido") ?? ""), JSON.stringify(segDe(fd)), estiloDe(s(fd.get("estilo"))).id, s(fd.get("portada")), id])
 }
 
 async function guardar(fd: FormData) {
@@ -116,8 +127,9 @@ Respondé SOLO un JSON: {"asunto":"...(máx 60 caracteres)","preheader":"...(má
 
 export default async function Campania({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string } }) {
   const u = await requerir(["gerente", "coordinacion"])
-  const nueva = params.id === "nueva"
+  const nueva = params.id === "nueva" || params.id === "nuevo"
   if (nueva) redirect("/email/plantillas")
+  if (!/^\d+$/.test(params.id)) notFound()
   const k: any = await one<any>("select * from em_campanias where id=$1", [Number(params.id)])
   if (!k) notFound()
   const seg: Segmento = k.segmento ?? {}
@@ -129,17 +141,22 @@ export default async function Campania({ params, searchParams }: { params: { id:
     q<{ v: string }>("select distinct unnest(tags) v from db_contactos order by 1"),
     one<{ email: string | null }>("select email from usuarios where id=$1", [u.id]),
   ])
-  const total = await contarSegmento(seg)
-  const excluidos = (await one<{ n: number }>(`select count(*)::int n from db_contactos c where c.email is not null and ${EXCLUIDOS_SQL}`).catch(() => null))?.n ?? 0
-  const stats = nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas, count(*) filter (where bot)::int robots from em_envios where campania_id=$1`, [k.id])
-  const links = stats && stats.enviados ? await q<{ url: string; n: number; personas: number }>(`select regexp_replace(url, '[?#].*$', '') url, count(*)::int n, count(distinct envio_id)::int personas from em_clics where campania_id=$1 group by 1 order by 2 desc limit 12`, [k.id]).catch(() => []) : []
-  const abrieron = stats && stats.abiertos ? await q<any>(`select e.email, e.abierto_en, e.aperturas, e.clics, e.clic_en, c.id cid, c.nombre, c.organizacion, c.clase,
+  // Antes: 6 consultas en fila. Ahora: dos tandas en paralelo.
+  const [total, excluidos, stats, hoy] = await Promise.all([
+    contarSegmento(seg),
+    (async () => (await one<{ n: number }>(`select count(*)::int n from db_contactos c where c.email is not null and ${EXCLUIDOS_SQL}`).catch(() => null))?.n ?? 0)(),
+    (async () => nueva ? null : await one<any>(`select count(*)::int total, count(*) filter (where estado='enviado')::int enviados, count(*) filter (where estado='pendiente')::int pendientes, count(*) filter (where estado='error')::int errores, count(abierto_en)::int abiertos, count(clic_en)::int clics, count(*) filter (where baja)::int bajas, count(*) filter (where bot)::int robots from em_envios where campania_id=$1`, [k.id]))(),
+    enviadosHoy(),
+  ])
+  const [links, abrieron] = await Promise.all([
+    (async () => stats && stats.enviados ? await q<{ url: string; n: number; personas: number }>(`select regexp_replace(url, '[?#].*$', '') url, count(*)::int n, count(distinct envio_id)::int personas from em_clics where campania_id=$1 group by 1 order by 2 desc limit 12`, [k.id]).catch(() => []) : [])(),
+    (async () => stats && stats.abiertos ? await q<any>(`select e.email, e.abierto_en, e.aperturas, e.clics, e.clic_en, c.id cid, c.nombre, c.organizacion, c.clase,
       (select string_agg(distinct regexp_replace(regexp_replace(x.url, '[?#].*$', ''), '^https?://(www\\.)?', ''), ' · ') from em_clics x where x.envio_id=e.id) destinos
     from em_envios e left join db_contactos c on c.id=e.contacto_id
     where e.campania_id=$1 and (e.abierto_en is not null or e.clic_en is not null)
-    order by (e.clic_en is not null) desc, e.clics desc, e.abierto_en desc limit 500`, [k.id]).catch(() => []) : []
+    order by (e.clic_en is not null) desc, e.clics desc, e.abierto_en desc limit 500`, [k.id]).catch(() => []) : [])(),
+  ])
   const vista = emailConEstilo(k.contenido, { estilo: k.estilo, portada: k.portada, preheader: k.preheader, nombre: u.nombre, baja: "#" })
-  const hoy = await enviadosHoy()
   const Chk = ({ name, v, label, on }: { name: string; v: string; label?: string; on: boolean }) => (
     <label className="cursor-pointer"><input type="checkbox" name={name} value={v} defaultChecked={on} disabled={!editable} className="peer sr-only" />
       <span className="inline-block rounded-full border border-[#C3C8D1] bg-white px-3 py-1 text-xs font-semibold peer-checked:border-[#C8231F] peer-checked:bg-[#FDECEB] peer-checked:text-[#9E1A17]">{label ?? v}</span></label>
@@ -228,10 +245,7 @@ export default async function Campania({ params, searchParams }: { params: { id:
             </section>
           )}
         </div>
-        <div className="flex flex-col gap-3 lg:sticky lg:top-28">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">Vista previa (guardá para actualizarla)</span>
-          <iframe title="Vista previa" srcDoc={vista} className="w-full h-[720px] rounded-2xl border border-[#E2E5EA] bg-white" />
-        </div>
+        <VistaViva inicial={vista} nombre={u.nombre} autoguardar={autoguardar} editable={editable} />
       </form>
       {!nueva && editable && (
         <form action={lanzar} className="card flex flex-wrap items-center justify-between gap-3 border-2 border-[#C8231F]">

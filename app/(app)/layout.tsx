@@ -1,6 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
-import { requerir, cerrarSesion, ROL_NOMBRE, espacioDelHost, URL_ESPACIO, type Espacio } from "@/lib/auth"
+import { requerir, cerrarSesion, ROL_NOMBRE, espacioDelHost, URL_ESPACIO, type Espacio, type Usuario } from "@/lib/auth"
 import { one } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -26,18 +27,14 @@ async function salir() {
   redirect("/login")
 }
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const u = await requerir()
-  const [perfil, av] = await Promise.all([one<{ foto: string | null }>("select foto from usuarios where id=$1", [u.id]).catch(() => null), avisos(u)])
+async function Acciones({ u, espacio }: { u: Usuario; espacio: Espacio }) {
+  // La foto no viaja en el HTML: se pide una sola vez por versión a /api/yo/foto y el navegador la guarda
+  const [perfil, av] = await Promise.all([one<{ v: string | null }>("select case when foto is null then null else md5(foto) end v from usuarios where id=$1", [u.id]).catch(() => null), avisos(u)])
+  const foto = perfil?.v ? `/api/yo/foto?v=${perfil.v}` : null
   const nuevos = av.filter((x) => !x.leido)
   const total = nuevos.reduce((a, x) => a + x.n, 0)
   const altas = nuevos.filter((x) => x.nivel === "alta").length
-  // Dos sistemas separados por dominio: sistema.devisebit.com (Comercial) y academia.devisebit.com/sistema (Academia)
-  const espacio: Espacio = espacioDelHost()
-  if (!u.espacios.includes(espacio)) redirect(URL_ESPACIO[u.espacios[0]])
-  const ep = { espacio, espacios: u.espacios }
-  const colapsado = cookies().get("sb_colapsado")?.value === "1"
-  const acciones = (
+  return (
     <>
       <details className="relative menu-pop">
         <summary className="tb-icono list-none cursor-pointer relative [&::-webkit-details-marker]:hidden" aria-label={`Avisos sin leer: ${nuevos.length}`} title="Avisos importantes">
@@ -74,12 +71,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </details>
       <details className="relative menu-pop">
         <summary className="list-none cursor-pointer flex items-center gap-2 rounded-full p-1 sm:pr-3 min-h-[44px] hover:bg-[var(--ac-suave)] [&::-webkit-details-marker]:hidden" title="Mi perfil" aria-label={`Mi perfil: ${u.nombre}`}>
-          <Avatar nombre={u.nombre} foto={perfil?.foto} />
+          <Avatar nombre={u.nombre} foto={foto} />
           <span className="hidden sm:flex flex-col leading-tight"><span className="font-semibold text-[var(--tinta)]">{u.nombre}</span><span className="text-xs text-[var(--ac-texto)] font-semibold">{ROL_NOMBRE[u.rol]}</span></span>
           <span className="hidden sm:inline text-[var(--gris)] text-xs" aria-hidden="true">▾</span>
         </summary>
         <div className="pop absolute right-0 mt-2 w-64 card !p-2 z-40 flex flex-col">
-          <div className="flex items-center gap-3 px-2 py-2 border-b border-[var(--borde)] mb-1"><Avatar nombre={u.nombre} foto={perfil?.foto} size={44} /><div><div className="font-semibold">{u.nombre}</div><div className="text-xs text-[var(--gris)]">@{u.usuario} · {ROL_NOMBRE[u.rol]}</div></div></div>
+          <div className="flex items-center gap-3 px-2 py-2 border-b border-[var(--borde)] mb-1"><Avatar nombre={u.nombre} foto={foto} size={44} /><div><div className="font-semibold">{u.nombre}</div><div className="text-xs text-[var(--gris)]">@{u.usuario} · {ROL_NOMBRE[u.rol]}</div></div></div>
           <Link href="/cuenta" className="menu-op">👤 Mi perfil y foto</Link>
           <Link href="/cuenta#clave" className="menu-op">🔒 Cambiar contraseña</Link>
           <Link href="/ayuda" className="menu-op">📘 Manual del sistema</Link>
@@ -88,6 +85,27 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </details>
     </>
   )
+}
+
+/** Mientras llegan los avisos: la pantalla ya se ve y se puede usar. */
+function AccionesCargando({ nombre }: { nombre: string }) {
+  return (
+    <>
+      <span className="tb-icono opacity-50" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg></span>
+      <span className="flex items-center gap-2 p-1 min-h-[44px]"><Avatar nombre={nombre} /></span>
+    </>
+  )
+}
+
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const u = await requerir()
+  // Dos sistemas separados por dominio: sistema.devisebit.com (Comercial) y academia.devisebit.com/sistema (Academia)
+  const espacio: Espacio = espacioDelHost()
+  if (!u.espacios.includes(espacio)) redirect(URL_ESPACIO[u.espacios[0]])
+  const ep = { espacio, espacios: u.espacios }
+  const colapsado = cookies().get("sb_colapsado")?.value === "1"
+  // Avisos y foto llegan después (streaming): ninguna pantalla espera a la campanita
+  const acciones = <Suspense fallback={<AccionesCargando nombre={u.nombre} />}><Acciones u={u} espacio={espacio} /></Suspense>
   return (
     <EspacioShell {...ep} rol={u.rol} colapsado={colapsado} acciones={acciones} pie={<Redes />}>
       {children}

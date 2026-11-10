@@ -964,7 +964,15 @@ create table if not exists base_tigre (
   lote text, cargado timestamptz not null default now(), actualizado timestamptz not null default now()
 );
 create unique index if not exists base_tigre_email on base_tigre (lower(email));
-create index if not exists base_tigre_banda on base_tigre (banda)
+create index if not exists base_tigre_banda on base_tigre (banda);
+create index if not exists consultas_estado on consultas(estado, creado desc);
+create index if not exists consultas_humano on consultas(actualizado desc) where necesita_humano;
+create index if not exists db_contactos_proximo on db_contactos(proximo_fecha) where proximo_fecha is not null;
+create index if not exists db_contactos_etapa on db_contactos(etapa, actualizado desc);
+create index if not exists db_proyectos_estado on db_proyectos(estado, entrega);
+create index if not exists db_proyectos_contacto on db_proyectos(contacto_id);
+create index if not exists auditoria_ts on auditoria(ts desc);
+create index if not exists g_documentos_cat on g_documentos(categoria, actualizado desc)
 `
 
 let ready: Promise<void> | null = null

@@ -1,7 +1,7 @@
 import { revalidatePath } from "next/cache"
 import { requerir, puede } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import BotonConfirmar from "@/components/BotonConfirmar"
+import ListaServicios, { type Servicio } from "./Lista"
 import { q, audit } from "@/lib/db"
 import { s } from "@/lib/util"
 import Importar from "@/components/Importar"
@@ -36,41 +36,16 @@ async function eliminar(fd: FormData) {
   redirect("/servicios")
 }
 
-function Campos({ x }: { x?: any }) {
-  return (
-    <>
-      <label className="lbl md:col-span-3">Servicio<input name="nombre" defaultValue={x?.nombre ?? ""} required className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-2">Categoría<input name="categoria" defaultValue={x?.categoria ?? ""} placeholder="A medida / Producto" className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-7">Descripción<input name="descripcion" defaultValue={x?.descripcion ?? ""} className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-1">Moneda<select name="moneda" defaultValue={x?.moneda ?? "USD"} className="inp py-1.5 pl-2 pr-5 text-sm"><option>USD</option><option>ARS</option></select></label>
-      <label className="lbl md:col-span-2">Desde<input name="precio_desde" inputMode="decimal" defaultValue={x?.precio_desde ?? ""} className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-2">Hasta<input name="precio_hasta" inputMode="decimal" defaultValue={x?.precio_hasta ?? ""} className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-2">Plazo típico<input name="plazo" defaultValue={x?.plazo ?? ""} placeholder="3 a 6 semanas" className="inp py-1.5" /></label>
-      <label className="lbl md:col-span-3">Link (caso, PDF, página)<input name="link" type="url" defaultValue={x?.link ?? ""} placeholder="https://www.devisebit.com/…" className="inp py-1.5" /></label>
-    </>
-  )
-}
-
 export default async function Servicios() {
-  const adm = puede.admin(await requerir())
-  const rows = await q<any>(`select s.*, (select count(*)::int from db_proyectos p where p.servicio_id=s.id) usos from db_servicios s order by s.activo desc, s.categoria nulls last, s.nombre`)
+  const u = await requerir()
+  const rows = await q<Servicio>(`select s.*, (select count(*)::int from db_proyectos p where p.servicio_id=s.id) usos from db_servicios s order by s.activo desc, s.categoria nulls last, s.nombre`)
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="m-0">Servicios</h1><p className="m-0 text-sm text-[#4A515C]">Lo que vende DEVISEBIT. El bot usa estos rangos de referencia, plazos y links para orientar al cliente y cerrar la venta (si un servicio no tiene rango, no da números). No se publican en la web ni en redes.</p></div><Importar ent="servicios" /></div>
-      <div className="flex flex-col gap-2">
-        {rows.map((x) => (
-          <form key={x.id} action={guardar} className={`card py-3 grid grid-cols-1 md:grid-cols-12 gap-2 items-end ${x.activo ? "" : "opacity-60"}`}>
-            <input type="hidden" name="id" value={x.id} />
-            <Campos x={x} />
-            <label className="md:col-span-1 flex items-center gap-1.5 text-sm pb-2"><input type="checkbox" name="activo" defaultChecked={x.activo} /> Activo</label>
-            <div className="md:col-span-1 flex flex-col items-start gap-0.5"><button className="btn-s py-1.5 px-3 text-xs">Guardar</button><span className="text-[11px] text-[#4A515C]">{x.usos} proy.</span>{adm && <BotonConfirmar chico accion={eliminar} mensaje={`¿Eliminar el servicio "${x.nombre}"? Los proyectos que lo usan quedan sin servicio. No se puede deshacer.`}>Eliminar</BotonConfirmar>}</div>
-          </form>
-        ))}
-      </div>
-      <form action={guardar} className="card grid grid-cols-1 md:grid-cols-12 gap-2 items-end border-dashed">
-        <Campos />
-        <div className="md:col-span-2"><button className="btn-p py-1.5 px-3 text-sm">Agregar</button></div>
-      </form>
+      <header className="pag-cab">
+        <div><div className="eyebrow">Catálogo</div><h1 className="m-0">Servicios</h1><p>Lo que vende DEVISEBIT. El bot usa estos rangos, plazos y links para orientar al cliente (si un servicio no tiene rango, no da números). No se publican en la web ni en redes.</p></div>
+        <div className="pag-acc"><Importar ent="servicios" /></div>
+      </header>
+      <ListaServicios filas={rows} guardar={guardar} eliminar={eliminar} edita={puede.editar(u)} admin={puede.admin(u)} />
     </div>
   )
 }

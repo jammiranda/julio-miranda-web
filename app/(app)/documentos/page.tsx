@@ -3,6 +3,7 @@ import { requerir } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { CAT_DOC } from "@/lib/gestion"
 import { TablaRegistro, Aviso } from "@/components/Registro"
+import BuscarVivo from "@/components/BuscarVivo"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { driveConfig, sincronizarDrive } from "@/lib/integraciones"
@@ -59,17 +60,16 @@ export default async function Documentos({ searchParams: sp }: { searchParams: S
         ))}
       </section>
 
-      <form action="/documentos" className="flex flex-wrap gap-2 items-center">
-        {cat && <input type="hidden" name="cat" value={cat} />}
-        <label htmlFor="b" className="sr-only">Buscar documento</label>
-        <input id="b" name="b" defaultValue={b} placeholder="Buscar por nombre o descripción" className="inp !w-auto flex-1 min-w-[220px]" />
-        <button className="btn-s">Buscar</button>
+      <div className="flex flex-wrap gap-2 items-center">
+        <BuscarVivo en="#docs" placeholder="Buscar por nombre o descripción" inicial={b} />
         {(cat || b) && <Link href="/documentos" className="text-sm underline text-[var(--gris)]">Ver todo ({total})</Link>}
-      </form>
+      </div>
 
       <p className="m-0 text-xs text-[var(--gris)]">{dr.ultima ? `${deDrive} de estos documentos vienen de la carpeta de Drive «${dr.carpeta}» · última sincronización ${fecha(dr.ultima)}. Se actualiza solo todos los días.` : <>Conectá una carpeta de Google Drive en <Link href="/integraciones" className="underline">Integraciones</Link> y sus archivos aparecen acá solos.</>}</p>
+      <div id="docs">
       <TablaRegistro clave="documentos" filas={docs} volver={volver} editar={Number(sp.editar) || null} nuevo={!!sp.nuevo} puedeEditar={edita}
         vacio={b || cat ? "No hay documentos con ese filtro." : "Todavía no hay documentos. Subí cada archivo a Drive y pegá el link acá: así el equipo encuentra la última versión sin buscar en chats."} />
+      </div>
       {!edita && <p className="m-0 text-xs text-[var(--gris)]">Los documentos confidenciales solo los ven Dirección y Coordinación.</p>}
     </div>
   )

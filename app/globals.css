@@ -433,3 +433,30 @@ a.kpi:hover { border-color: var(--borde-fuerte); transform: translateY(-2px); bo
 .pal li button.on { background: var(--ac-suave); color: var(--ac-texto); }
 .pal li button small { margin-left: auto; font-family: var(--fuente-mono); font-size: 11px; color: var(--gris); text-transform: uppercase; letter-spacing: .08em; }
 .pal-vacio { padding: 18px 12px; color: var(--gris); }
+
+/* ---------- Pestañas del área (rediseño 2026) ---------- */
+.pestanas { display: flex; gap: 2px; padding: 0 12px; overflow-x: auto; scrollbar-width: none; border-top: 1px solid var(--borde-2); }
+.pestanas::-webkit-scrollbar { display: none; }
+@media (min-width: 1024px) { .pestanas { padding: 0 28px; } }
+.pestana { position: relative; display: flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 14px; font-weight: 600; color: var(--gris); white-space: nowrap; border-radius: 8px 8px 0 0; }
+.pestana:hover { color: var(--tinta); background: var(--sup-2); }
+.pestana[aria-current="page"] { color: var(--tinta); }
+.pestana[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; background: var(--ac); border-radius: 3px 3px 0 0; }
+
+/* ---------- Esqueleto de carga: la pantalla responde al instante ---------- */
+.esq { background: linear-gradient(90deg, var(--borde-2) 25%, var(--sup-2) 50%, var(--borde-2) 75%); background-size: 200% 100%; animation: esq 1.2s linear infinite; border-radius: 8px; }
+@keyframes esq { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .esq { animation: none; } }
+
+/* ---------- Lista + panel lateral (patrón único de edición) ---------- */
+.lp { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (min-width: 1100px) { .lp { grid-template-columns: minmax(0, 1fr) 380px; } .lp-panel { position: sticky; top: 132px; } }
+.lp-fila { display: block; width: 100%; text-align: left; padding: 12px 16px; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.lp-fila:hover { background: var(--fila-hover, var(--sup-2)); }
+tr[aria-selected="true"], li[aria-selected="true"] { background: var(--ac-suave); }
+.guardado { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gris); }
+.guardado::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok, #0B8A5D); }
+.guardado[data-e="guardando"]::before { background: var(--aviso, #8A5A06); }
+.guardado[data-e="error"]::before { background: var(--ac); }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ac-texto); }
+.sb-item { min-height: 44px; }

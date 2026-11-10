@@ -81,38 +81,38 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
         { t: null, items: [{ href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
       ]
     : [
-        { t: "Dirección", items: [
+        // Siete áreas. Cada una abre en su primera pantalla; las demás quedan como pestañas arriba del contenido.
+        { t: "Hoy", items: [
+          { href: "/", t: "Resumen comercial", i: "tablero" },
           { href: "/gestion", t: "Tablero de dirección", i: "brujula" },
           { href: "/agentes", t: "Equipo de agentes", i: "bot" },
+          ...(edita ? [{ href: "/agenda", t: "Agenda y avisos", i: "calendario" }] : []),
         ] },
         { t: "Ventas", items: [
-          { href: "/", t: "Resumen comercial", i: "tablero" },
           { href: "/consultas", t: "Conversaciones", i: "chat" },
           { href: "/contactos", t: "Contactos", i: "personas" },
-          ...(edita ? [{ href: "/prospeccion", t: "Prospección", i: "mail" }] : []),
           { href: "/proyectos", t: "Proyectos", i: "maletin" },
-          ...(edita ? [{ href: "/piezas", t: "Piezas para redes", i: "demo" }, { href: "/demos-admin", t: "Demos", i: "demo" }, { href: "/material", t: "Material de venta", i: "guia" }, { href: "/biblioteca", t: "Documentos de la empresa", i: "carpeta" }] : []),
-        ] },
-        { t: "Oferta", items: [
-          { href: "/servicios", t: "Servicios", i: "paquete" },
-          ...(edita ? [{ href: "/precios", t: "Precios", i: "etiqueta" }, { href: "/portal-admin", t: "Portal y accesos", i: "llave" }] : []),
-        ] },
-        { t: "Gestión", items: [
-          ...(edita ? [{ href: "/finanzas", t: "Finanzas", i: "dinero" }, { href: "/legales", t: "Legales", i: "balanza" }] : []),
-          ...(edita ? [{ href: "/activos", t: "Activos digitales", i: "servidor" }] : []),
-          { href: "/documentos", t: "Documentos", i: "carpeta" },
+          ...(edita ? [{ href: "/prospeccion", t: "Prospección", i: "mail" }] : []),
           { href: "/licitaciones", t: "Licitaciones", i: "martillo" },
         ] },
+        { t: "Catálogo", items: [
+          { href: "/servicios", t: "Servicios", i: "paquete" },
+          ...(edita ? [{ href: "/precios", t: "Precios", i: "etiqueta" }, { href: "/demos-admin", t: "Demos", i: "demo" }, { href: "/portal-admin", t: "Portal y accesos", i: "llave" }] : []),
+        ] },
         { t: "Comunicación", items: edita ? [
-          { href: "/correos", t: "Correo", i: "bandeja" },
           { href: "/email", t: "Envíos de email", i: "mail" },
-          ...(gerente ? [{ href: "/base-tigre", t: "Base Tigre", i: "personas" }] : []),
+          { href: "/correos", t: "Correo", i: "bandeja" },
           { href: "/bot", t: "Bot · Conocimiento", i: "bot" },
           { href: "/whatsapp-business", t: "WhatsApp Business", i: "whatsapp" },
-          { href: "/agenda", t: "Agenda y avisos", i: "calendario" },
+          { href: "/piezas", t: "Piezas para redes", i: "demo" },
+          ...(gerente ? [{ href: "/base-tigre", t: "Base Tigre", i: "personas" }] : []),
         ] : [] },
-        { t: "Administración", items: [...(edita ? [{ href: "/integraciones", t: "Integraciones", i: "enchufe" }] : []), ...(gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : [])] },
-        { t: null, items: [{ href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
+        { t: "Documentos", items: [
+          { href: "/documentos", t: "Documentos", i: "carpeta" },
+          ...(edita ? [{ href: "/biblioteca", t: "De la empresa", i: "carpeta" }, { href: "/material", t: "Material de venta", i: "guia" }, { href: "/legales", t: "Legales", i: "balanza" }] : []),
+        ] },
+        { t: "Gestión", items: edita ? [{ href: "/finanzas", t: "Finanzas", i: "dinero" }, { href: "/activos", t: "Activos digitales", i: "servidor" }] : [] },
+        { t: "Ajustes", items: [...(edita ? [{ href: "/integraciones", t: "Integraciones", i: "enchufe" }] : []), ...(gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : []), { href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
       ]
   return s.filter((x) => x.items.length)
 }
@@ -149,27 +149,37 @@ function MarcaSistema({ espacio, compacta = false }: { espacio: Espacio; compact
 function Navegacion({ espacio, rol, compacta = false, alElegir }: { espacio: Espacio; rol: string; compacta?: boolean; alElegir?: () => void }) {
   const ruta = usePathname() ?? "/"
   return (
-    <nav aria-label={NOMBRE[espacio]} className="flex flex-col gap-3">
-      {seccionesDe(espacio, rol).map((s, k) => (
-        <div key={k} className="flex flex-col gap-0.5">
-          {s.t && !compacta && <div className="sb-seccion px-3 pb-1 text-[11px] font-bold uppercase tracking-[0.12em]">{s.t}</div>}
-          {compacta && k > 0 && <div className="mx-3 mb-1 border-t border-[var(--sb-borde)]" aria-hidden="true" />}
-          <ul className="m-0 p-0 list-none flex flex-col gap-0.5">
-            {s.items.map((i) => {
-              const on = activo(ruta, i.href, INICIO[espacio])
-              return (
-                <li key={i.href}>
-                  <Link href={i.href} onClick={alElegir} aria-current={on ? "page" : undefined} title={compacta ? i.t : undefined} aria-label={compacta ? i.t : undefined}
-                    className={`sb-item ${compacta ? "justify-center px-0" : "px-3"}`}>
-                    <Icono n={i.i} />
-                    {!compacta && <span className="truncate">{i.t}</span>}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      ))}
+    <nav aria-label={NOMBRE[espacio]}>
+      <ul className="m-0 p-0 list-none flex flex-col gap-1">
+        {seccionesDe(espacio, rol).map((s) => {
+          const on = s.items.some((i) => activo(ruta, i.href, INICIO[espacio]))
+          const t = s.t ?? s.items[0].t
+          return (
+            <li key={t}>
+              <Link href={s.items[0].href} onClick={alElegir} aria-current={on ? "page" : undefined} title={compacta ? t : undefined} aria-label={compacta ? t : undefined}
+                className={`sb-item ${compacta ? "justify-center px-0" : "px-3"}`}>
+                <Icono n={s.items[0].i} />
+                {!compacta && <span className="truncate">{t}</span>}
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </nav>
+  )
+}
+
+/* ---------- Pestañas del área actual: las pantallas hermanas, a un clic ---------- */
+function Pestanas({ espacio, rol }: { espacio: Espacio; rol: string }) {
+  const ruta = usePathname() ?? "/"
+  const s = seccionesDe(espacio, rol).find((x) => x.items.some((i) => activo(ruta, i.href, INICIO[espacio])))
+  if (!s || s.items.length < 2) return null
+  return (
+    <nav aria-label={`Pantallas de ${s.t ?? "esta área"}`} className="pestanas no-print">
+      {s.items.map((i) => {
+        const on = activo(ruta, i.href, INICIO[espacio])
+        return <Link key={i.href} href={i.href} aria-current={on ? "page" : undefined} className="pestana">{i.t}</Link>
+      })}
     </nav>
   )
 }
@@ -339,6 +349,7 @@ export function EspacioShell({ espacio, espacios, rol, colapsado: colapsadoInici
             </div>
             <div className="ml-auto flex items-center gap-1 sm:gap-2 text-sm"><Buscador espacio={espacio} rol={rol} />{acciones}</div>
           </div>
+          <Pestanas espacio={espacio} rol={rol} />
         </header>
         <main id="contenido" tabIndex={-1} className="flex-1 w-full max-w-[1320px] mx-auto px-4 lg:px-8 py-5 lg:py-7 outline-none"><AvisoUrl />{children}</main>
         <footer className="no-print flex flex-col items-center gap-2 text-center text-xs text-[var(--gris)] py-6 pb-24 md:pb-6">{pie}<EspacioPie espacio={espacio} /></footer>
@@ -352,7 +363,7 @@ export function EspacioRapidos({ espacio }: { espacio: Espacio }) {
   const ruta = usePathname() ?? "/"
   const r = espacio === "academia"
     ? [{ href: "/sistema", t: "Inicio", i: "casa" }, { href: "/sistema/alumnos", t: "Alumnos", i: "birrete" }, { href: "/sistema/cursos", t: "Cursos", i: "libro" }, { href: "/email", t: "Envíos", i: "mail" }]
-    : [{ href: "/gestion", t: "Dirección", i: "brujula" }, { href: "/consultas", t: "Chats", i: "chat" }, { href: "/contactos", t: "Contactos", i: "personas" }, { href: "/proyectos", t: "Proyectos", i: "maletin" }]
+    : [{ href: "/", t: "Hoy", i: "tablero" }, { href: "/consultas", t: "Chats", i: "chat" }, { href: "/contactos", t: "Contactos", i: "personas" }, { href: "/proyectos", t: "Proyectos", i: "maletin" }]
   return (
     <nav aria-label="Accesos rápidos" className="rapidos no-print md:hidden fixed bottom-0 inset-x-0 z-30 grid grid-cols-4 pb-[env(safe-area-inset-bottom)]">
       {r.map((i) => {
