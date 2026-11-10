@@ -106,6 +106,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
         { t: "Comunicación", items: edita ? [
           { href: "/correos", t: "Correo", i: "bandeja" },
           { href: "/email", t: "Envíos de email", i: "mail" },
+          ...(gerente ? [{ href: "/base-tigre", t: "Base Tigre", i: "personas" }] : []),
           { href: "/bot", t: "Bot · Conocimiento", i: "bot" },
           { href: "/whatsapp-business", t: "WhatsApp Business", i: "whatsapp" },
           { href: "/agenda", t: "Agenda y avisos", i: "calendario" },

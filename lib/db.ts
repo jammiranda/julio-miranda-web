@@ -955,7 +955,16 @@ select p.id, v.tipo, v.detalle, 'Carga inicial 06/11', v.fecha::timestamptz from
  ('gmail:maritavasquez619@gmail.com','alta','Cargado como borrador · Demos pedidas','2026-11-06 12:00-03')
 ) v(ref,tipo,detalle,fecha) join g_prospeccion p on p.ref=v.ref
 where not exists (select 1 from config where clave='semilla_prospeccion_2026_11');
-insert into config(clave,valor) values ('semilla_prospeccion_2026_11','1') on conflict (clave) do nothing
+insert into config(clave,valor) values ('semilla_prospeccion_2026_11','1') on conflict (clave) do nothing;
+create table if not exists base_tigre (
+  id serial primary key,
+  email text not null, nombre text, apellido text,
+  banda text not null, edad_aprox int, confianza text, tipo_email text,
+  estado text not null default 'activo' check (estado in ('activo','baja')),
+  lote text, cargado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create unique index if not exists base_tigre_email on base_tigre (lower(email));
+create index if not exists base_tigre_banda on base_tigre (banda)
 `
 
 let ready: Promise<void> | null = null
