@@ -1,5 +1,5 @@
 "use client"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 type Estado = "listo" | "pendiente" | "guardando" | "guardado" | "error"
 const TEXTO: Record<Estado, string> = {
@@ -18,14 +18,28 @@ const TEXTO: Record<Estado, string> = {
 export default function AutoGuardar({ accion, children, className }: { accion: (fd: FormData) => Promise<unknown>; children: React.ReactNode; className?: string }) {
   const form = useRef<HTMLFormElement>(null)
   const [e, setE] = useState<Estado>("listo")
+  const sucio = useRef(false)
+  const ref = useRef(accion)
+  ref.current = accion
   const guardar = async () => {
     const f = form.current
-    if (!f || !f.reportValidity()) return
+    if (!f || !sucio.current || !f.reportValidity()) return
+    sucio.current = false
     setE("guardando")
-    try { await accion(new FormData(f)); setE("guardado") } catch { setE("error") }
+    try { await ref.current(new FormData(f)); setE(sucio.current ? "pendiente" : "guardado") } catch { sucio.current = true; setE("error") }
   }
+  // Evento "change" nativo del navegador: en un campo de texto llega al salir del campo, no en cada tecla
+  // (el onChange de React se dispara con cada letra, por eso no se usa acá).
+  useEffect(() => {
+    const f = form.current
+    if (!f) return
+    const alCambiar = () => { sucio.current = true; guardar() }
+    f.addEventListener("change", alCambiar)
+    return () => f.removeEventListener("change", alCambiar)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return (
-    <form ref={form} className={className} onInput={() => setE("pendiente")} onChange={guardar} onSubmit={(ev) => { ev.preventDefault(); guardar() }}>
+    <form ref={form} className={className} onInput={() => { sucio.current = true; setE("pendiente") }} onSubmit={(ev) => { ev.preventDefault(); sucio.current = true; guardar() }}>
       {children}
       <div className="flex flex-wrap items-center gap-3 min-h-[44px]">
         <span className="guardado" data-e={e === "guardado" ? "listo" : e === "pendiente" ? "guardando" : e} role="status" aria-live="polite">{TEXTO[e]}</span>
