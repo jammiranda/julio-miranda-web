@@ -118,14 +118,9 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
   const cols = ent.campos.filter((c) => c.lista)
   const refs = await cargarRefs(cols)
   const filaEditar = editar ? filas.find((f) => f.id === editar) ?? (await q<any>(`select * from ${ent.tabla} where id=$1`, [editar]))[0] ?? null : null
+  const panel = puedeEditar && (nuevo || !!filaEditar)
   return (
-    <div className="flex flex-col gap-3">
-      {puedeEditar && (nuevo || filaEditar) && (
-        <section className="card border-[var(--ac)]" aria-label={filaEditar ? `Editar ${ent.uno}` : `Nuevo ${ent.uno}`}>
-          <h2 className="m-0 mb-3 text-base">{filaEditar ? `Editar: ${filaEditar[ent.titulo]}` : `Nuevo ${ent.uno}`}</h2>
-          <FormRegistro clave={clave} fila={filaEditar ?? undefined} volver={volver} />
-        </section>
-      )}
+    <div className={panel ? "lp" : "flex flex-col gap-3"}>
       {filas.length ? (
         <div className="card !p-0 overflow-x-auto">
           <table className="tbl">
@@ -134,7 +129,7 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
               {filas.map((r) => {
                 const ab = abierto ? abierto(r) : true
                 return (
-                  <tr key={r.id} className={editar === r.id ? "bg-[var(--ac-suave)]" : ""}>
+                  <tr key={r.id} aria-selected={editar === r.id}>
                     {cols.map((c, i) => (
                       <td key={c.k} className={`${c.t === "num" ? "text-right" : ""} ${i === 0 ? "font-semibold min-w-[180px]" : ""}`}>
                         <Celda c={c} r={r} refs={refs} abiertos={ab} />
@@ -147,7 +142,7 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
                             <form action={resolverRapido}><input type="hidden" name="_ent" value={clave} /><input type="hidden" name="_id" value={r.id} /><input type="hidden" name="_volver" value={volver} />
                               <button className="btn-s py-1 px-2.5 text-xs">✓ {rapido.etiqueta}</button></form>
                           )}
-                          <Link href={conParam(sinParams(volver, "nuevo", "ok", "error"), "editar", String(r.id))} className="btn-s py-1 px-2.5 text-xs" aria-label={`Editar ${r[ent.titulo]}`}>Editar</Link>
+                          <Link scroll={false} href={conParam(sinParams(volver, "nuevo", "ok", "error"), "editar", String(r.id))} className="btn-s py-1 px-2.5 text-xs" aria-label={`Editar ${r[ent.titulo]}`}>Editar</Link>
                         </span>
                       </td>
                     )}
@@ -158,6 +153,13 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
           </table>
         </div>
       ) : <p className="vacio">{vacio}</p>}
+      {/* Edición al costado: la lista queda a la vista mientras se edita */}
+      {panel && (
+        <aside className="lp-panel card border-[var(--ac)]" aria-label={filaEditar ? `Editar ${ent.uno}` : `Nuevo ${ent.uno}`}>
+          <h2 className="m-0 mb-3 text-base">{filaEditar ? `Editar: ${filaEditar[ent.titulo]}` : `Nuevo ${ent.uno}`}</h2>
+          <FormRegistro key={filaEditar?.id ?? "nuevo"} clave={clave} fila={filaEditar ?? undefined} volver={volver} />
+        </aside>
+      )}
     </div>
   )
 }
