@@ -20,8 +20,10 @@ export default async function TableroDireccion() {
   const per = periodoActual()
   const { ini, fin: finMes } = rangoPeriodo(per)
 
+  const t0 = Date.now()
+  const medir = <T,>(n: string, p: Promise<T>) => p.finally(() => console.log(`[gestion] ${n} ${Date.now() - t0}ms`))
   const [num, mods, agenda, cal, gm, im] = await Promise.all([
-    q<any>(
+    medir("numeros", q<any>(
       `select
         (select count(*) from db_contactos where etapa in ('conversando','reunion','propuesta') and coalesce(clase,'')<>'descartado')::int oportunidades,
         (select count(*) from db_contactos where etapa='propuesta' and coalesce(clase,'')<>'descartado')::int propuestas,
@@ -36,9 +38,9 @@ export default async function TableroDireccion() {
         (select count(*) from g_vencimientos where estado='pendiente' and vence <= $2)::int venc_30,
         (select count(*) from g_vencimientos where estado='pendiente' and vence < $1)::int venc_tarde,
         (select count(*) from g_licitaciones where estado in ('detectada','analizando','preparando','presentada'))::int licitaciones,
-        (select count(*) from g_documentos)::int documentos`, [hoy, h30, ini, finMes]),
+        (select count(*) from g_documentos)::int documentos`, [hoy, h30, ini, finMes])),
     Promise.resolve([] as any[]),
-    q<Item>(
+    medir("agenda", q<Item>(
       `select * from (
         select k.vence::text f, k.concepto t, coalesce(c.organizacion,c.nombre) d, 'Cobro' area, '/proyectos/'||coalesce(k.proyecto_id::text,'') href, k.monto::text||' '||k.moneda monto
           from db_cobros k join db_contactos c on c.id=k.contacto_id where k.estado='pendiente' and k.vence <= $2
@@ -54,10 +56,10 @@ export default async function TableroDireccion() {
           from db_proyectos p left join db_contactos c on c.id=p.contacto_id where p.estado in ('planificado','en_curso','pausado') and p.entrega <= $2
         union all select a.vence::text, 'Renovar '||a.nombre, coalesce(a.cliente,'Sin asignar')||' · '||coalesce(a.proveedor,''), 'Renovación', '/activos?editar='||a.id, a.costo::text||' '||a.moneda
           from g_activos a where a.estado in ('activo','a_revisar') and a.vence <= $2
-      ) x where f is not null order by f limit 40`, [hoy, h30]),
-    eventosCalendario(30).catch(() => ({ eventos: [], cuando: null, ok: false })),
-    fin ? correosGmail().catch(() => ({ hilos: [], cuando: null, ok: false })) : Promise.resolve({ hilos: [], cuando: null, ok: false }),
-    fin ? correosImap().catch(() => ({ mails: [], cuando: null, ok: false, noLeidos: 0 })) : Promise.resolve({ mails: [], cuando: null, ok: false, noLeidos: 0 }),
+      ) x where f is not null order by f limit 40`, [hoy, h30])),
+    medir("calendario", eventosCalendario(30).catch(() => ({ eventos: [], cuando: null, ok: false }))),
+    fin ? medir("gmail", correosGmail().catch(() => ({ hilos: [], cuando: null, ok: false }))) : Promise.resolve({ hilos: [], cuando: null, ok: false }),
+    fin ? medir("imap", correosImap().catch(() => ({ mails: [], cuando: null, ok: false, noLeidos: 0 }))) : Promise.resolve({ mails: [], cuando: null, ok: false, noLeidos: 0 }),
   ])
   const diaLocal = (iso: string) => new Date(iso).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" })
   const horaLocal = (iso: string) => new Date(iso).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })

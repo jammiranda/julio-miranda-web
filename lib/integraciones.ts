@@ -11,12 +11,17 @@ import { googleScript, calendarioConectado, gcalConfig } from "@/lib/agenda"
 import { secret } from "@/lib/auth"
 
 /* ---------------- Caché ---------------- */
+const fallas = new Map<string, number>()
 export async function cache<T>(clave: string, minutos: number, cargar: () => Promise<T | null>, forzar = false): Promise<{ valor: T | null; cuando: Date | null }> {
   const c = await one<{ valor: T; actualizado: Date }>("select valor, actualizado from g_cache where clave=$1", [clave]).catch(() => null)
   const edad = c ? Date.now() - new Date(c.actualizado).getTime() : Infinity
   if (!forzar && c && edad < minutos * 60e3) return { valor: c.valor, cuando: new Date(c.actualizado) }
   const renovar = async () => {
+    const t0 = Date.now()
     const v = await cargar().catch(() => null)
+    console.log(`[cache] ${clave} ${v != null ? "ok" : "sin respuesta"} ${Date.now() - t0}ms`)
+    // Si el servicio externo falla, no se reintenta en cada pantalla: se espera 2 minutos
+    if (v == null) fallas.set(clave, Date.now() + 120e3)
     if (v != null) await q("insert into g_cache(clave,valor,actualizado) values ($1,$2,now()) on conflict (clave) do update set valor=excluded.valor, actualizado=now()", [clave, JSON.stringify(v)]).catch(() => {})
     return v
   }
@@ -25,6 +30,7 @@ export async function cache<T>(clave: string, minutos: number, cargar: () => Pro
     waitUntil(renovar())
     return { valor: c.valor, cuando: new Date(c.actualizado) }
   }
+  if (!forzar && (fallas.get(clave) ?? 0) > Date.now()) return { valor: c?.valor ?? null, cuando: c ? new Date(c.actualizado) : null }
   const v = await renovar()
   if (v != null) {
     return { valor: v, cuando: new Date() }
