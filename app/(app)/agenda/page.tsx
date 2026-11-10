@@ -4,7 +4,7 @@ import { requerir, puede } from "@/lib/auth"
 import BotonConfirmar from "@/components/BotonConfirmar"
 import { q, one, audit } from "@/lib/db"
 import { horario, guardarHorario, gcalConfig, guardarGcalUrl, probarGcal, turnosLibres, leerFranjas, type HorarioAgenda } from "@/lib/agenda"
-import { eventosCalendario } from "@/lib/integraciones"
+import { eventosCalendario, cache } from "@/lib/integraciones"
 import { URL_SISTEMA } from "@/lib/brief"
 import Copiar from "@/components/Copiar"
 import { codigoVigente, datosBot, desvincularTodo, enviarTelegram, estadoTelegram, fijarActivo, generarCodigo, registrarWebhook } from "@/lib/telegram"
@@ -87,17 +87,18 @@ export default async function Agenda({ searchParams }: { searchParams: { ok?: st
   const uAg = await requerir(["gerente", "coordinacion"])
   const adm = puede.admin(uAg)
   const esJulio = uAg.rol === "gerente"
-  const tg = esJulio ? await estadoTelegram() : null
-  const tgCodigo = esJulio ? await codigoVigente() : null
-  const tgBot = esJulio && tg?.bot ? await datosBot() : null
-  const [h, av, prox, libres, gc] = await Promise.all([
+  // Todo junto; el nombre del bot de Telegram no cambia, se guarda un día (antes se le preguntaba a Telegram en cada visita)
+  const [tg, tgCodigo, cal, h, av, prox, libres, gc] = await Promise.all([
+    esJulio ? estadoTelegram() : null,
+    esJulio ? codigoVigente() : null,
+    eventosCalendario(14).catch(() => ({ eventos: [], ok: false, cuando: null })),
     horario(),
     one<{ valor: string }>("select valor from config where clave='avisos_email'"),
     q<any>("select r.id rid, r.inicio, r.modalidad, c.nombre, c.organizacion, c.id cid from db_reuniones r left join consultas c on c.id=r.consulta_id where r.estado='confirmada' and r.inicio > now() order by r.inicio limit 8"),
     turnosLibres(3),
     gcalConfig(),
   ])
-  const cal = await eventosCalendario(14).catch(() => ({ eventos: [], ok: false, cuando: null }))
+  const tgBot = esJulio && tg?.bot ? (await cache("tg:bot", 1440, async () => { const d = await datosBot(); return d.usuario ? d : null })).valor ?? ({ usuario: null } as { usuario: string | null; error?: string }) : null
   const link = `${URL_SISTEMA}/agendar`
   const gcal = !!gc.url
   const fmt = (d: string) => new Date(d).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "short", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })

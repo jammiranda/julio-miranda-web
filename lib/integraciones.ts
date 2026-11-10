@@ -4,18 +4,29 @@
  * - Casilla info@devisebit.com (Donweb) por IMAP.
  * Las respuestas se guardan unos minutos en g_cache para que las pantallas carguen rápido.
  */
+import { waitUntil } from "@vercel/functions"
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto"
 import { q, one } from "@/lib/db"
 import { googleScript, calendarioConectado, gcalConfig } from "@/lib/agenda"
 import { secret } from "@/lib/auth"
 
 /* ---------------- Caché ---------------- */
-async function cache<T>(clave: string, minutos: number, cargar: () => Promise<T | null>, forzar = false): Promise<{ valor: T | null; cuando: Date | null }> {
+export async function cache<T>(clave: string, minutos: number, cargar: () => Promise<T | null>, forzar = false): Promise<{ valor: T | null; cuando: Date | null }> {
   const c = await one<{ valor: T; actualizado: Date }>("select valor, actualizado from g_cache where clave=$1", [clave]).catch(() => null)
-  if (!forzar && c && Date.now() - new Date(c.actualizado).getTime() < minutos * 60e3) return { valor: c.valor, cuando: new Date(c.actualizado) }
-  const v = await cargar().catch(() => null)
+  const edad = c ? Date.now() - new Date(c.actualizado).getTime() : Infinity
+  if (!forzar && c && edad < minutos * 60e3) return { valor: c.valor, cuando: new Date(c.actualizado) }
+  const renovar = async () => {
+    const v = await cargar().catch(() => null)
+    if (v != null) await q("insert into g_cache(clave,valor,actualizado) values ($1,$2,now()) on conflict (clave) do update set valor=excluded.valor, actualizado=now()", [clave, JSON.stringify(v)]).catch(() => {})
+    return v
+  }
+  // Dato vencido pero reciente (menos de 6 h): se muestra ya y se renueva por detrás, así la pantalla no espera al servicio externo
+  if (!forzar && c && edad < 6 * 3600e3) {
+    waitUntil(renovar())
+    return { valor: c.valor, cuando: new Date(c.actualizado) }
+  }
+  const v = await renovar()
   if (v != null) {
-    await q("insert into g_cache(clave,valor,actualizado) values ($1,$2,now()) on conflict (clave) do update set valor=excluded.valor, actualizado=now()", [clave, JSON.stringify(v)]).catch(() => {})
     return { valor: v, cuando: new Date() }
   }
   return { valor: c?.valor ?? null, cuando: c ? new Date(c.actualizado) : null }

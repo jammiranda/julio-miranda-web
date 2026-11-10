@@ -55,7 +55,7 @@ export default function ListaPrecios({ filas, guardar, editar }: { filas: FilaPr
               {p.fuente && <div className="text-xs text-[var(--gris)]">{p.fuente}</div>}
             </div>
             {editar ? (
-              <AutoGuardar key={p.id} accion={guardar} espera={1200} className="flex flex-col gap-3">
+              <AutoGuardar key={p.id} accion={guardar} className="flex flex-col gap-3">
                 <input type="hidden" name="id" value={p.id} />
                 <div className="grid grid-cols-2 gap-2">
                   <label className="lbl">Proyecto ($)<input name="precio" defaultValue={p.precio ?? ""} inputMode="numeric" className="inp text-base font-bold" /></label>

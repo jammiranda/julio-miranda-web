@@ -132,7 +132,10 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
                   <tr key={r.id} aria-selected={editar === r.id}>
                     {cols.map((c, i) => (
                       <td key={c.k} className={`${c.t === "num" ? "text-right" : ""} ${i === 0 ? "font-semibold min-w-[180px]" : ""}`}>
-                        <Celda c={c} r={r} refs={refs} abiertos={ab} />
+                        {/* El nombre abre la edición al costado: no hace falta llegar al botón del final de la fila */}
+                        {i === 0 && puedeEditar && c.t !== "url"
+                          ? <Link scroll={false} href={conParam(sinParams(volver, "nuevo", "ok", "error"), "editar", String(r.id))} className="hover:underline"><Celda c={c} r={r} refs={refs} abiertos={ab} /></Link>
+                          : <Celda c={c} r={r} refs={refs} abiertos={ab} />}
                       </td>
                     ))}
                     {puedeEditar && (
