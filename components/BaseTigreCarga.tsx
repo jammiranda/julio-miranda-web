@@ -3,7 +3,7 @@ import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
 /** Carga el CSV curado de la Base Tigre: lo lee en el navegador y lo manda en tandas de 1.500 filas. */
-function parsear(t: string): string[][] {
+function parsear(t: string, sep = ","): string[][] {
   const out: string[][] = []
   let fila: string[] = [], c = "", q = false
   for (let i = 0; i < t.length; i++) {
@@ -11,7 +11,7 @@ function parsear(t: string): string[][] {
     if (q) {
       if (ch === '"') { if (t[i + 1] === '"') { c += '"'; i++ } else q = false } else c += ch
     } else if (ch === '"') q = true
-    else if (ch === ",") { fila.push(c); c = "" }
+    else if (ch === sep) { fila.push(c); c = "" }
     else if (ch === "\n") { fila.push(c.replace(/\r$/, "")); out.push(fila); fila = []; c = "" }
     else c += ch
   }
@@ -32,10 +32,14 @@ export default function BaseTigreCarga() {
     e.target.value = ""
     if (!f) return
     setMsg(null)
-    const t = (await f.text()).replace(/^﻿/, "")
-    const v = parsear(t).filter((r) => r.some((x) => x.trim()))
-    const h = (v[0] ?? []).map((x) => x.trim().toLowerCase())
-    if (h[0] !== "email" || h[3] !== "banda") { setMsg({ ok: false, t: "El archivo no tiene el formato esperado (email, nombre, apellido, banda, edad, confianza, tipo_email)." }); return }
+    const t = (await f.text()).replace(/^\uFEFF/, "")
+    const primera = t.split(/\r?\n/)[0] ?? ""
+    const sep = (primera.match(/;/g)?.length ?? 0) > (primera.match(/,/g)?.length ?? 0) ? ";" : primera.includes("\t") && !primera.includes(",") ? "\t" : ","
+    const v0 = parsear(t, sep).filter((r) => r.some((x) => x.trim()))
+    const h = (v0[0] ?? []).map((x) => x.trim().toLowerCase().replace(/^"|"$/g, ""))
+    const col = ["email", "nombre", "apellido", "banda", "edad", "confianza", "tipo_email"].map((c) => h.indexOf(c))
+    if (col[0] < 0 || col[3] < 0) { setMsg({ ok: false, t: `El archivo no tiene el formato esperado. Tiene que ser tigre_carga_sistema.csv (columnas: email, nombre, apellido, banda, edad, confianza, tipo_email). Este empieza con: ${h.slice(0, 5).join(", ") || "(vacío)"}.` }); return }
+    const v = [v0[0], ...v0.slice(1).map((r) => col.map((i) => (i < 0 ? "" : r[i] ?? "")))]
     setFilas(v.slice(1)); setNombre(f.name)
   }
 
