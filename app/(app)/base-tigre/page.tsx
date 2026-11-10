@@ -1,6 +1,7 @@
 import { requerir } from "@/lib/auth"
 import { Kpis } from "@/components/Kpi"
 import BaseTigreCarga from "@/components/BaseTigreCarga"
+import BaseTigrePasar from "@/components/BaseTigrePasar"
 import { resumen, ENVIOS_POR_DIA, TIPOS_EMAIL } from "@/lib/base-tigre"
 
 export const dynamic = "force-dynamic"
@@ -92,10 +93,19 @@ export default async function BaseTigre() {
             <p className="m-0 text-xs text-[#4A515C]">Cada exportación queda registrada en Auditoría.</p>
           </section>
 
+          <section className="card flex flex-col gap-3">
+            <strong>Primer segmento para emailing: mails corporativos</strong>
+            <p className="m-0 text-sm text-[#4A515C]">{n(tipo("corporativo"))} personas con mail de empresa. Se pasan a Envíos en dos tandas: la primera de {ENVIOS_POR_DIA} (para medir apertura y rebotes) y el resto ({n(Math.max(0, tipo("corporativo") - ENVIOS_POR_DIA))}) a {ENVIOS_POR_DIA} por día. Pasarlas <b>no envía nada</b>: quedan como suscriptores con las etiquetas tigre-corporativo y tigre-tanda-N, y la campaña se lanza aparte desde Email.</p>
+            <div className="flex flex-wrap gap-3 items-start">
+              <BaseTigrePasar tanda={1} cantidad={Math.min(ENVIOS_POR_DIA, tipo("corporativo"))} />
+              <BaseTigrePasar tanda={2} cantidad={Math.max(0, tipo("corporativo") - ENVIOS_POR_DIA)} />
+            </div>
+          </section>
+
           <section className="card flex flex-col gap-2">
             <strong>Cómo se armó</strong>
             <ul className="m-0 pl-5 text-sm text-[#4A515C] flex flex-col gap-1">
-              <li>Partida de 90.580 registros del panel de la app. Se corrigieron mayúsculas y espacios, ~885 mails con errores de tipeo (por ejemplo gmail.con) y se unificaron cuentas repetidas por DNI y nombre.</li>
+              <li>Partida de 90.580 registros del panel de la app. Se corrigieron mayúsculas y espacios, ~1.185 mails con errores de tipeo (por ejemplo gmail.con) y se unificaron cuentas repetidas por DNI y nombre.</li>
               <li>Quedaron afuera: cuentas de prueba, mails inválidos o descartables, menores de 18, personal del municipio, mails sin confirmar y los corregidos que faltan validar.</li>
               <li><b>El DNI no se guarda en el sistema</b>: solo el rango de edad que se deduce de él.</li>
             </ul>
