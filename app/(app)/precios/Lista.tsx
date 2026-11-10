@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import AutoGuardar from "@/components/AutoGuardar"
 
 export type FilaPrecio = {
@@ -13,6 +13,9 @@ const ars = (n: number | null) => (n == null ? "—" : "$ " + Number(n).toLocale
 export default function ListaPrecios({ filas, guardar, editar }: { filas: FilaPrecio[]; guardar: (fd: FormData) => Promise<void>; editar: boolean }) {
   const [sel, setSel] = useState<number | null>(filas[0]?.id ?? null)
   const [b, setB] = useState("")
+  const panel = useRef<HTMLElement>(null)
+  // En el celular el detalle queda debajo de la lista: al elegir una fila se baja solo hasta él
+  const elegir = (v: typeof sel) => { setSel(v); if (window.innerWidth < 1100) requestAnimationFrame(() => panel.current?.scrollIntoView({ behavior: "smooth", block: "start" })) }
   const t = b.trim().toLowerCase()
   const visibles = t ? filas.filter((p) => `${p.producto} ${p.linea} ${p.condicion ?? ""}`.toLowerCase().includes(t)) : filas
   const lineas = Array.from(new Set(visibles.map((p) => p.linea)))
@@ -31,7 +34,7 @@ export default function ListaPrecios({ filas, guardar, editar }: { filas: FilaPr
                 <tbody>
                   {visibles.filter((x) => x.linea === l).map((x) => (
                     <tr key={x.id} aria-selected={sel === x.id} className={x.activo ? "" : "opacity-55"}>
-                      <td className="!p-0"><button type="button" onClick={() => setSel(x.id)} className="lp-fila"><span className="font-semibold block">{x.producto}</span><span className="text-xs text-[var(--gris)]">{x.condicion}{x.activo ? "" : " · oculto"}</span></button></td>
+                      <td className="!p-0"><button type="button" onClick={() => elegir(x.id)} className="lp-fila"><span className="font-semibold block">{x.producto}</span><span className="text-xs text-[var(--gris)]">{x.condicion}{x.activo ? "" : " · oculto"}</span></button></td>
                       <td className="text-right whitespace-nowrap font-semibold tabular-nums">{ars(x.precio)}</td>
                       <td className="text-right whitespace-nowrap tabular-nums">{ars(x.abono)}</td>
                       <td><span className={`chip whitespace-nowrap ${x.pos.c}`}>{x.pos.t}</span></td>
@@ -44,7 +47,7 @@ export default function ListaPrecios({ filas, guardar, editar }: { filas: FilaPr
         ))}
         {!visibles.length && <p className="m-0 text-sm text-[var(--gris)]">Ningún producto coincide con la búsqueda.</p>}
       </div>
-      <aside className="lp-panel card flex flex-col gap-3" aria-label="Detalle del precio">
+      <aside ref={panel} className="lp-panel card flex flex-col gap-3 scroll-mt-36" aria-label="Detalle del precio">
         {!p && <p className="m-0 text-sm text-[var(--gris)]">Elegí un producto de la lista.</p>}
         {p && (
           <>

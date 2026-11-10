@@ -1,5 +1,5 @@
 "use client"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import AutoGuardar from "@/components/AutoGuardar"
 import BotonConfirmar from "@/components/BotonConfirmar"
 
@@ -34,6 +34,9 @@ function Campos({ x }: { x?: Servicio }) {
 export default function ListaServicios({ filas, guardar, eliminar, edita, admin }: { filas: Servicio[]; guardar: Accion; eliminar: Accion; edita: boolean; admin: boolean }) {
   const [sel, setSel] = useState<number | "nuevo" | null>(filas[0]?.id ?? null)
   const [b, setB] = useState("")
+  const panel = useRef<HTMLElement>(null)
+  // En el celular el detalle queda debajo de la lista: al elegir una fila se baja solo hasta él
+  const elegir = (v: typeof sel) => { setSel(v); if (window.innerWidth < 1100) requestAnimationFrame(() => panel.current?.scrollIntoView({ behavior: "smooth", block: "start" })) }
   const visibles = useMemo(() => { const t = b.trim().toLowerCase(); return t ? filas.filter((x) => `${x.nombre} ${x.categoria ?? ""} ${x.descripcion ?? ""}`.toLowerCase().includes(t)) : filas }, [filas, b])
   const x = typeof sel === "number" ? filas.find((f) => f.id === sel) : undefined
   return (
@@ -42,7 +45,7 @@ export default function ListaServicios({ filas, guardar, eliminar, edita, admin 
         <div className="flex flex-wrap gap-2 items-center">
           <label className="sr-only" htmlFor="b-serv">Buscar servicio</label>
           <input id="b-serv" type="search" value={b} onChange={(e) => setB(e.target.value)} placeholder="Buscar servicio" className="inp !w-auto flex-1 min-w-[200px]" />
-          {edita && <button type="button" onClick={() => setSel("nuevo")} className="btn-p">+ Servicio</button>}
+          {edita && <button type="button" onClick={() => elegir("nuevo")} className="btn-p">+ Servicio</button>}
         </div>
         <div className="card p-0 overflow-x-auto">
           <table className="tbl">
@@ -50,7 +53,7 @@ export default function ListaServicios({ filas, guardar, eliminar, edita, admin 
             <tbody>
               {visibles.map((f) => (
                 <tr key={f.id} aria-selected={sel === f.id} className={f.activo ? "" : "opacity-55"}>
-                  <td className="!p-0"><button type="button" onClick={() => setSel(f.id)} className="lp-fila"><span className="font-semibold block">{f.nombre}</span><span className="text-xs text-[var(--gris)]">{f.categoria ?? "Sin categoría"}{f.activo ? "" : " · inactivo"}</span></button></td>
+                  <td className="!p-0"><button type="button" onClick={() => elegir(f.id)} className="lp-fila"><span className="font-semibold block">{f.nombre}</span><span className="text-xs text-[var(--gris)]">{f.categoria ?? "Sin categoría"}{f.activo ? "" : " · inactivo"}</span></button></td>
                   <td className="whitespace-nowrap tabular-nums">{rango(f)}</td>
                   <td className="text-sm">{f.plazo ?? "—"}</td>
                   <td className="text-right tabular-nums">{f.usos}</td>
@@ -61,7 +64,7 @@ export default function ListaServicios({ filas, guardar, eliminar, edita, admin 
           </table>
         </div>
       </div>
-      <aside className="lp-panel card flex flex-col gap-3" aria-label="Detalle del servicio">
+      <aside ref={panel} className="lp-panel card flex flex-col gap-3 scroll-mt-36" aria-label="Detalle del servicio">
         {sel === "nuevo" && edita && (
           <form action={async (fd) => { await guardar(fd); setSel(null) }} className="flex flex-col gap-3">
             <div><div className="eyebrow">Nuevo</div><h2 className="m-0 text-lg">Agregar servicio</h2></div>
