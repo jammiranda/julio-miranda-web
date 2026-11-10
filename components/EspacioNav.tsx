@@ -1,5 +1,6 @@
 "use client"
 
+import Progreso from "@/components/Progreso"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -302,6 +303,7 @@ export function EspacioShell({ espacio, espacios, rol, colapsado: colapsadoInici
 
   return (
     <div data-espacio={espacio} className="app-fondo min-h-screen" style={{ ["--sbw" as string]: colapsado ? "76px" : "256px" }}>
+      <Progreso />
       <a href="#contenido" className="saltar">Saltar al contenido</a>
 
       {/* Sidebar escritorio */}

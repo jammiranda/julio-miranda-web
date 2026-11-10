@@ -59,16 +59,19 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
   const et = ETAPAS.some((e) => e.v === searchParams.etapa) ? searchParams.etapa! : null
   const lista = esClase(searchParams.lista) ? searchParams.lista : null
   const b = (searchParams.b ?? "").trim()
-  const cuentas = await q<{ clase: string | null; n: number }>("select clase, count(*)::int n from db_contactos group by clase")
-  const cuenta = (v: string | null) => cuentas.find((x) => x.clase === v)?.n ?? 0
-  const rows = await q<any>(
+  // Conteos y lista en paralelo (antes, una consulta esperaba a la otra)
+  const [cuentas, rows] = await Promise.all([
+    q<{ clase: string | null; n: number }>("select clase, count(*)::int n from db_contactos group by clase"),
+    q<any>(
     `select c.*, (select count(*)::int from db_proyectos p where p.contacto_id=c.id) proyectos from db_contactos c
      where c.clase is not null and (case when $3::text is null then c.clase<>'descartado' else c.clase=$3 end)
        and ($1::text is null or etapa=$1)
        and ($2='' or nombre ilike '%'||$2||'%' or organizacion ilike '%'||$2||'%' or email ilike '%'||$2||'%' or telefono ilike '%'||$2||'%')
      order by actualizado desc limit 500`,
     [et, b, lista],
-  )
+  ),
+  ])
+  const cuenta = (v: string | null) => cuentas.find((x) => x.clase === v)?.n ?? 0
   const filas = rows.map((c) => ({
     id: c.id, organizacion: c.organizacion, nombre: c.nombre, cargo: c.cargo, email: c.email, telefono: c.telefono,
     etapa: c.etapa, etapaN: etapa(c.etapa).n, etapaC: etapa(c.etapa).c, sector: c.sector, proximo: c.proximo,

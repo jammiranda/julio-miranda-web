@@ -1,3 +1,4 @@
+import Progreso from "@/components/Progreso"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { unstable_cache } from "next/cache"
@@ -77,6 +78,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const av = u ? await avisosMenu().catch(() => ({ crm: 0 })) : { crm: 0 }
   return (
     <>
+      <Progreso />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" />
       <div className="pc">
