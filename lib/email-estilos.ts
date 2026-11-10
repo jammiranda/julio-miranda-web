@@ -30,7 +30,7 @@ export const ESTILOS: Estilo[] = [
     ejemplo: { asunto: "{{nombre}}, ¿cómo vienen con el proyecto?", preheader: "Un mensaje corto de Julio", contenido: "Hola {{nombre}}:\n\nHace un tiempo hablamos sobre ordenar la atención y los procesos de tu organización y quería saber cómo siguió.\n\nEstos meses sumamos varias cosas que te pueden servir: un diagnóstico de madurez digital y asistentes de WhatsApp que atienden las 24 horas.\n\nSi te parece, coordinamos 30 minutos y lo vemos: [elegí un horario](https://sistema.devisebit.com/agendar).\n\nUn abrazo,\n**Julio Miranda**\nDEVISEBIT SRL" } },
   { id: "academia", nombre: "Academia", para: "Cursos, guías y certificados", fondo: "#F1F5F4", papel: "#FFFFFF", texto: "#1B2423", suave: "#4D5B59", acento: "#0F766E", botonTexto: "#FFFFFF", cabecera: "acento", radio: 14, heroColor: "#0F766E", marca: "ACADEMIA DEVISEBIT",
     ejemplo: { asunto: "Nueva guía: 10 automatizaciones con IA", preheader: "Gratis y en castellano", contenido: "# 10 automatizaciones con IA para tu pyme\n\nUna guía práctica, sin tecnicismos, para ahorrar horas de trabajo repetitivo esta misma semana.\n\n- Responder consultas frecuentes\n- Armar reportes solos\n- Ordenar tus contactos\n\n[[Leer la guía gratis|https://academia.devisebit.com/guias]]\n\n¿Querés ir más allá? Mirá los [cursos con certificado](https://academia.devisebit.com/cursos)." } },
-  { id: "institucional", nombre: "Institucional salud y gobierno", para: "Gremios, obras sociales, organismos y salud", fondo: "#F2F6FA", papel: "#FFFFFF", texto: "#1A2433", suave: "#4B5869", acento: "#1D4E89", botonTexto: "#FFFFFF", cabecera: "clara", radio: 8,
+  { id: "institucional", nombre: "Institucional salud y gobierno", para: "Gremios, obras sociales, organismos y salud", fondo: "#F2F6FA", papel: "#FFFFFF", texto: "#1A2433", suave: "#4B5869", acento: "#1D4E89", botonTexto: "#FFFFFF", cabecera: "clara", radio: 8, heroColor: "#12345E",
     ejemplo: { asunto: "Padrón y obra social, en un solo sistema", preheader: "Para gremios, mutuales y obras sociales", contenido: "# Padrón, aportes y obra social en un solo sistema\n\nPara gremios, mutuales y obras sociales que necesitan ordenar la gestión sin desarrollar desde cero.\n\n## Qué incluye\n- Padrón con credencial digital\n- Aportes y estado de cada afiliado\n- Órdenes, autorizaciones y prestadores\n- Tablero para la conducción\n\n[[Pedir una demo|https://www.devisebit.com/comunidad]]\n\nDesarrollo propio, probado en producción." } },
 ]
 
@@ -46,17 +46,20 @@ export function cuerpoHtml(md: string, e: Estilo) {
     .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, `<a href="$2" style="color:${e.acento};font-weight:600">$1</a>`)
   const out: string[] = []
   let lista: string[] = []
-  const cerrar = () => { if (lista.length) { out.push(`<ul style="margin:0 0 16px;padding-left:20px;color:${e.texto}">${lista.map((l) => `<li style="margin:0 0 6px;font-size:16px;line-height:1.55">${inline(l)}</li>`).join("")}</ul>`); lista = [] } }
-  for (const raw of md.replace(/\r/g, "").split(/\n{2,}|\n(?=[#\-!\[])/)) {
+  const tinte = e.id === "evento" ? "#1E2530" : e.fondo
+  const cerrar = () => { if (lista.length) { out.push(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px">${lista.map((l) => `<tr><td style="padding:0 0 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${tinte};border-radius:10px"><tr><td width="40" valign="top" style="padding:13px 0 13px 14px;font-family:Arial,sans-serif;font-size:17px;font-weight:800;color:${e.acento}">&#10003;</td><td style="padding:13px 14px 13px 0;font-family:${f};font-size:16px;line-height:1.5;color:${e.texto}">${inline(l)}</td></tr></table></td></tr>`).join("")}</table>`); lista = [] } }
+  for (const raw of md.replace(/\r/g, "").replace(/^(#{1,2} .+)\n(?!\n)/gm, "$1\n\n").split(/\n{2,}|\n(?=[#\-!\[>])/)) {
     const l = raw.trim()
     if (!l) continue
     if (/^- /.test(l)) { for (const x of l.split("\n")) lista.push(x.replace(/^- /, "")); continue }
     cerrar()
     let m
-    if ((m = l.match(/^## (.+)/))) out.push(`<h2 style="margin:26px 0 8px;font-family:${f};font-size:20px;line-height:1.3;color:${e.texto}">${inline(m[1])}</h2>`)
+    if ((m = l.match(/^## (\d{1,2})\. (.+)/))) out.push(`<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 8px"><tr><td width="44" valign="top"><div style="width:34px;height:34px;line-height:34px;border-radius:50%;background:${e.acento};color:${e.botonTexto};text-align:center;font-family:Arial,sans-serif;font-size:17px;font-weight:800">${m[1]}</div></td><td valign="middle" style="font-family:${f};font-size:21px;line-height:1.3;font-weight:700;color:${e.texto}">${inline(m[2])}</td></tr></table>`)
+    else if ((m = l.match(/^## (.+)/))) out.push(`<h2 style="margin:26px 0 8px;font-family:${f};font-size:21px;line-height:1.3;color:${e.texto}">${inline(m[1])}</h2>`)
+    else if ((m = l.match(/^> (.+)/s))) out.push(`<div style="margin:6px 0 20px;padding:16px 18px;background:${tinte};border-left:5px solid ${e.acento};border-radius:0 10px 10px 0;font-family:${f};font-size:17px;line-height:1.55;font-weight:600;color:${e.texto}">${inline(m[1].replace(/^> ?/gm, ""))}</div>`)
     else if ((m = l.match(/^# (.+)/))) out.push(`<h1 style="margin:0 0 14px;font-family:${f};font-size:28px;line-height:1.2;color:${e.texto}">${inline(m[1])}</h1>`)
     else if ((m = l.match(/^!\[(.*?)\]\((https?:\/\/[^\s)]+)\)/))) out.push(`<img src="${m[2]}" alt="${esc(m[1])}" width="100%" style="display:block;width:100%;max-width:560px;border-radius:${Math.min(e.radio, 14)}px;margin:0 0 16px">`)
-    else if ((m = l.match(/^\[\[(.+?)\|(https?:\/\/[^\]]+)\]\]$/))) out.push(`<p style="margin:10px 0 22px"><a href="${m[2]}" style="display:inline-block;background:${e.acento};color:${e.botonTexto};text-decoration:none;font-weight:700;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;padding:14px 26px;border-radius:${e.id === "promo" ? 999 : Math.max(6, Math.min(e.radio, 12))}px">${esc(m[1])}</a></p>`)
+    else if ((m = l.match(/^\[\[(.+?)\|(https?:\/\/[^\]]+)\]\]$/))) out.push(`<p style="margin:10px 0 22px"><a href="${m[2]}" style="display:inline-block;background:${e.acento};color:${e.botonTexto};text-decoration:none;font-weight:700;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;padding:17px 32px;font-size:17px;border-radius:${e.id === "promo" ? 999 : Math.max(8, Math.min(e.radio, 14))}px">${esc(m[1])} &rarr;</a></p>`)
     else if (l === "---") out.push(`<hr style="border:0;border-top:1px solid ${e.id === "evento" ? "#2A323D" : "#E2E5EA"};margin:24px 0">`)
     else out.push(`<p style="margin:0 0 14px;font-family:${f};font-size:16px;line-height:1.65;color:${e.texto}">${inline(l).replace(/\n/g, "<br>")}</p>`)
   }
@@ -68,7 +71,10 @@ export function cuerpoHtml(md: string, e: Estilo) {
 export function emailConEstilo(md: string, o: { estilo?: string | null; preheader?: string | null; baja?: string | null; nombre?: string | null; portada?: string | null }) {
   const e = estilo(o.estilo)
   const nombre = o.nombre ? esc(o.nombre.split(" ")[0]) : ""
-  const cuerpo = cuerpoHtml(md, e).replace(/\s?\{\{nombre\}\}/g, (m: string) => (!nombre ? "" : m.startsWith("{") ? nombre : " " + nombre))
+  const conHero = e.cabecera !== "ninguna" && !e.serif
+  const mh = conHero ? md.match(/^\s*# (.+)\n?/) : null
+  const hero = mh ? `<tr><td style="background:${e.heroColor && e.cabecera !== "acento" ? e.heroColor : e.cabecera === "acento" ? e.acento : "#0E1116"};padding:12px 28px 34px"><div style="width:56px;height:5px;background:${e.cabecera === "acento" ? "#fff" : e.acento};border-radius:3px;margin:0 0 18px"></div><h1 style="margin:0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;font-size:32px;line-height:1.18;font-weight:800;color:#fff">${esc(mh[1]).replace(/\{\{nombre\}\}/g, "")}</h1></td></tr>` : ""
+  const cuerpo = cuerpoHtml(mh ? md.slice(mh[0].length) : md, e).replace(/\s?\{\{nombre\}\}/g, (m: string) => (!nombre ? "" : m.startsWith("{") ? nombre : " " + nombre))
   const marca = e.marca ?? "DEVISE<span style=\"color:#FF6A63\">BIT</span>"
   const r = e.radio
   const cab =
@@ -88,7 +94,7 @@ ${o.baja ? `Recibís este correo porque estás en contacto con DEVISEBIT. <a hre
 <span style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(o.preheader ?? "")}</span>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${e.fondo}"><tr><td align="center" style="padding:${e.cabecera === "ninguna" ? "12px" : "24px 12px"}">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px">
-${cab}${portada}
+${cab}${portada}${hero}
 <tr><td style="background:${e.papel};padding:30px 28px${e.cabecera === "ninguna" ? ";border-radius:0" : ""}">${cuerpo}</td></tr>
 ${pie}
 </table></td></tr></table></body></html>`
