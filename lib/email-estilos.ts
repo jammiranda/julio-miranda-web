@@ -75,12 +75,13 @@ export function emailConEstilo(md: string, o: { estilo?: string | null; preheade
   const mh = conHero ? md.match(/^\s*# (.+)\n?/) : null
   const hero = mh ? `<tr><td style="background:${e.heroColor && e.cabecera !== "acento" ? e.heroColor : e.cabecera === "acento" ? e.acento : "#0E1116"};padding:12px 28px 34px"><div style="width:56px;height:5px;background:${e.cabecera === "acento" ? "#fff" : e.acento};border-radius:3px;margin:0 0 18px"></div><h1 style="margin:0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;font-size:32px;line-height:1.18;font-weight:800;color:#fff">${esc(mh[1]).replace(/\{\{nombre\}\}/g, "")}</h1></td></tr>` : ""
   const cuerpo = cuerpoHtml(mh ? md.slice(mh[0].length) : md, e).replace(/\s?\{\{nombre\}\}/g, (m: string) => (!nombre ? "" : m.startsWith("{") ? nombre : " " + nombre))
-  const marca = e.marca ?? "DEVISE<span style=\"color:#FF6A63\">BIT</span>"
+  const logo = `<img src="https://sistema.devisebit.com/marca/logo-devisebit.png" width="30" height="34" alt="" style="display:inline-block;vertical-align:middle;margin-right:10px;border:0">`
+  const marca = e.marca ?? `${logo}<span style="vertical-align:middle">DEVISE<span style="color:#FF6A63">BIT</span></span>`
   const r = e.radio
   const cab =
     e.cabecera === "oscura" ? `<tr><td style="background:#0E1116;border-radius:${r}px ${r}px 0 0;padding:22px 28px"><span style="font-family:Inter,Segoe UI,Arial,sans-serif;font-size:20px;font-weight:800;letter-spacing:.04em;color:#fff">${marca}</span></td></tr>`
     : e.cabecera === "acento" ? `<tr><td style="background:${e.heroColor ?? e.acento};border-radius:${r}px ${r}px 0 0;padding:22px 28px"><span style="font-family:Inter,Segoe UI,Arial,sans-serif;font-size:${e.marca ? 14 : 20}px;font-weight:800;letter-spacing:${e.marca ? ".2em" : ".04em"};color:#fff">${e.marca ?? "DEVISEBIT"}</span></td></tr>`
-    : e.cabecera === "clara" ? `<tr><td style="background:${e.papel};border-radius:${r}px ${r}px 0 0;padding:24px 28px 14px;border-bottom:3px solid ${e.acento}"><span style="font-family:${e.serif ? "Georgia,serif" : "Inter,Segoe UI,Arial,sans-serif"};font-size:22px;font-weight:700;color:${e.texto}">DEVISEBIT${e.serif ? " · Novedades" : ""}</span></td></tr>`
+    : e.cabecera === "clara" ? `<tr><td style="background:${e.papel};border-radius:${r}px ${r}px 0 0;padding:24px 28px 14px;border-bottom:3px solid ${e.acento}"><span style="font-family:${e.serif ? "Georgia,serif" : "Inter,Segoe UI,Arial,sans-serif"};font-size:22px;font-weight:700;color:${e.texto}">${logo}<span style="vertical-align:middle">DEVISE<span style="color:${e.acento}">BIT</span>${e.serif ? " · Novedades" : ""}</span></span></td></tr>`
     : ""
   const portada = o.portada ? `<tr><td style="background:${e.papel};padding:0"><img src="${esc(o.portada)}" alt="" width="600" style="display:block;width:100%;max-width:600px;height:auto"></td></tr>` : ""
   const pieColor = e.id === "evento" ? "#9AA6B4" : e.suave
