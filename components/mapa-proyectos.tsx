@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import * as THREE from "three"
+import type * as TRES from "three"
 import { GALAXIAS as GALAXIAS_ES, TOTAL_NODOS as TOTAL_NODOS_ES, type Galaxia, type Nodo } from "@/lib/mapa-datos"
 import { GALAXIAS_EN, TOTAL_NODOS_EN } from "@/lib/mapa-datos-en"
 
@@ -12,6 +12,9 @@ import { GALAXIAS_EN, TOTAL_NODOS_EN } from "@/lib/mapa-datos-en"
  * Sin WebGL, o con "reducir movimiento", queda la vista lista (que además siempre está debajo).
  */
 
+// La librería 3D (unos 140 kB) se descarga aparte, después de que la página ya se ve
+let THREE: typeof TRES
+
 type Motor = {
   enfocarGalaxia: (id: string | null) => void
   seleccionar: (id: string | null) => void
@@ -19,7 +22,7 @@ type Motor = {
 }
 
 const brillo = (() => {
-  let tex: THREE.CanvasTexture | null = null
+  let tex: TRES.CanvasTexture | null = null
   return () => {
     if (tex) return tex
     const c = document.createElement("canvas")
@@ -128,6 +131,12 @@ export default function MapaProyectos({ lang = "es" }: { lang?: "es" | "en" } = 
   }, [])
 
   useEffect(() => {
+    let limpiar: (() => void) | undefined
+    let cancelado = false
+    import("three").then((m) => { if (cancelado) return; THREE = m; limpiar = iniciar() }).catch(() => setSinWebgl(true))
+    return () => { cancelado = true; limpiar?.() }
+
+    function iniciar(): (() => void) | undefined {
     const cont = caja.current
     const cv = lienzo.current
     if (!cont || !cv) return
@@ -162,10 +171,10 @@ export default function MapaProyectos({ lang = "es" }: { lang?: "es" | "en" } = 
     }
 
     // ── Galaxias y nodos
-    const mallasNodo: THREE.Mesh[] = []
-    const posNodo = new Map<string, THREE.Vector3>()
-    const grupoNodo = new Map<string, { malla: THREE.Mesh; halo: THREE.Sprite; base: number }>()
-    const centros = new Map<string, THREE.Vector3>()
+    const mallasNodo: TRES.Mesh[] = []
+    const posNodo = new Map<string, TRES.Vector3>()
+    const grupoNodo = new Map<string, { malla: TRES.Mesh; halo: TRES.Sprite; base: number }>()
+    const centros = new Map<string, TRES.Vector3>()
     const dorada = Math.PI * (3 - Math.sqrt(5))
 
     GALAXIAS.forEach((gx, gi) => {
@@ -197,7 +206,7 @@ export default function MapaProyectos({ lang = "es" }: { lang?: "es" | "en" } = 
 
       // nodos: esfera de Fibonacci achatada + giro
       const total = gx.nodos.length
-      const puntos: THREE.Vector3[] = []
+      const puntos: TRES.Vector3[] = []
       gx.nodos.forEach((nd, i) => {
         const y = total === 1 ? 0 : 1 - (i / (total - 1)) * 2
         const rad = Math.sqrt(1 - y * y)
@@ -460,14 +469,15 @@ export default function MapaProyectos({ lang = "es" }: { lang?: "es" | "en" } = 
       window.removeEventListener("mapa:toque", alToque)
       document.removeEventListener("visibilitychange", visibilidad)
       escena.traverse((o) => {
-        const m = o as THREE.Mesh
+        const m = o as TRES.Mesh
         if (m.geometry) m.geometry.dispose()
-        const mat = m.material as THREE.Material | THREE.Material[] | undefined
+        const mat = m.material as TRES.Material | TRES.Material[] | undefined
         if (Array.isArray(mat)) mat.forEach((x) => x.dispose())
         else mat?.dispose()
       })
       renderer.dispose()
       motor.current = null
+    }
     }
   }, [seleccionar, GALAXIAS])
 
