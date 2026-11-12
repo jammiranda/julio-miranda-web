@@ -10,7 +10,7 @@ import { linkBrief } from "@/lib/brief"
 import { linkAgenda, local } from "@/lib/agenda"
 import { generarPropuesta } from "@/lib/propuesta"
 import Copiar from "@/components/Copiar"
-import { MATERIALES, material } from "@/lib/materiales"
+import { material, materialesPara, lineaDe } from "@/lib/materiales"
 import { enviarTexto } from "@/lib/whatsapp"
 import { borrarConsultas } from "@/lib/consultas-borrar"
 import BotonConfirmar from "@/components/BotonConfirmar"
@@ -163,6 +163,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const ed = puede.editar(u)
   const tel = c.telefono ? String(c.telefono).replace(/\D/g, "") : null
   const correos = ed ? await q<{ ts: string; usuario: string | null; detalle: string | null }>("select ts, usuario, detalle from auditoria where entidad='consulta' and entidad_id=$1 and accion in ('envia_agenda_email','envia_brief_email','envia_material_email') order by ts desc limit 8", [String(id)]) : []
+  const mats = materialesPara(lineaDe(c.motivo, c.mensaje))
   const canalChat = String(c.chat_id ?? "").startsWith("ig:") ? "Instagram" : "WhatsApp"
   const otras = c.telefono ? await q<any>("select id, creado, estado, motivo from consultas where telefono=$1 and id<>$2 and empresa=$3 order by creado desc limit 10", [c.telefono, id, c.empresa]) : []
   return (
@@ -298,7 +299,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
               )}
               <div className="flex flex-col gap-1.5">
                 <span className="text-sm font-semibold">📎 Material</span>
-                <select name="k" aria-label="Material para enviar" className="inp" defaultValue="brochure">{MATERIALES.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</select>
+                <select name="k" aria-label="Material para enviar" className="inp" defaultValue={mats.sugerido}>{mats.grupos.map((g) => <optgroup key={g.t} label={g.t}>{g.items.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</optgroup>)}</select>
                 <div className={`grid gap-2 ${c.chat_id ? "grid-cols-2" : ""}`}>
                   {c.chat_id && <button formAction={mandarMaterial} formNoValidate className="btn-s px-2">Por {canalChat}</button>}
                   <button formAction={mandarEmail.bind(null, "material")} className="btn-s px-2">Por email</button>
