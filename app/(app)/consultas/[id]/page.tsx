@@ -207,7 +207,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
               {ed && (ventana ? (
                 <form action={responder} className="flex flex-col gap-2">
                   <input type="hidden" name="id" value={c.id} />
-                  <textarea name="texto" rows={3} required className="inp" placeholder="Escribí la respuesta: sale por el mismo canal y el bot queda en pausa en este chat" />
+                  <textarea name="texto" rows={3} required aria-label="Respuesta al cliente" className="inp" placeholder="Escribí la respuesta: sale por el mismo canal y el bot queda en pausa en este chat" />
                   <div><button className="btn-p">Enviar{String(waId).startsWith("ig:") ? " por Instagram" : " por WhatsApp"}</button></div>
                 </form>
               ) : (
@@ -263,7 +263,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
             <form action={mandarMaterial} className="card flex flex-col gap-2">
               <h2 className="m-0 text-base">📎 Mandar material</h2>
               <input type="hidden" name="id" value={c.id} />
-              <select name="k" className="inp" defaultValue="brochure">{MATERIALES.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</select>
+              <select name="k" aria-label="Material para enviar" className="inp" defaultValue="brochure">{MATERIALES.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</select>
               <button className="btn-s">Enviar por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button>
               <p className="m-0 text-xs text-[#4A515C]">Sale con un mensaje listo y el bot sigue activo. El bot también los manda solo cuando se los piden.</p>
             </form>

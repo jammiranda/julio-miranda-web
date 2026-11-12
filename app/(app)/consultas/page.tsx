@@ -75,9 +75,9 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
       <div className="card p-0 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-[#E2E5EA]">
           <h2 className="m-0 text-base">{vista ? vista.n : "Todas las consultas"} <span className="text-[#4A515C] font-normal">· {rows.length}</span></h2>
-          <form className="flex gap-2 items-center">
+          <form role="search" className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
             {vista && <input type="hidden" name="v" value={vista.v} />}
-            <input name="b" defaultValue={b} placeholder="Buscar nombre, organización o teléfono" className="inp py-1.5 w-64" />
+            <input name="b" type="search" defaultValue={b} placeholder="Buscar nombre, organización o teléfono" aria-label="Buscar consultas por nombre, organización o teléfono" className="inp py-1.5 w-full sm:w-64" />
             <button className="btn-s py-1.5">Buscar</button>
             {vista && <Link href={`/consultas${qs({ v: "todas" })}`} className="text-sm underline text-[#4A515C] whitespace-nowrap">Ver todas</Link>}
           </form>

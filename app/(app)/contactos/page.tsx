@@ -100,7 +100,7 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
           {ETAPAS.map((e) => <Link key={e.v} href={qs({ lista, etapa: e.v })} className={`chip text-sm px-3 py-1 border ${et === e.v ? "bg-[#0E1116] text-white border-[#0E1116]" : "bg-white border-[#C3C8D1]"}`}>{e.n}</Link>)}
         </div>
         <div className="flex gap-2 items-center">
-          <form className="flex gap-2">{et && <input type="hidden" name="etapa" value={et} />}{lista && <input type="hidden" name="lista" value={lista} />}<input name="b" defaultValue={b} placeholder="Buscar" className="inp py-1.5 w-48" /><button className="btn-s py-1.5">Buscar</button></form>
+          <form className="flex gap-2">{et && <input type="hidden" name="etapa" value={et} />}{lista && <input type="hidden" name="lista" value={lista} />}<input name="b" type="search" defaultValue={b} placeholder="Buscar" aria-label="Buscar contactos" className="inp py-1.5 w-48" /><button className="btn-s py-1.5">Buscar</button></form>
           <Importar ent="contactos" ayuda="Reconozco las columnas por su nombre (Nombre, Email, Organización, Cargo, Teléfono, Sector, Etapa, Notas…). Si el email ya existe, se completa el contacto; si no, se crea. Lo que no traiga etapa queda como «En la base». Lo importado entra en «Por clasificar» para que lo ubiques en su lista." /><a href="/api/crm/contactos?formato=csv" className="btn-s py-1.5">Exportar</a>
           <Link href="/contactos/nuevo" className="btn-p py-1.5">+ Nuevo</Link>
         </div>
