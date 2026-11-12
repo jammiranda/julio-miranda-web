@@ -1,9 +1,12 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { one, q, audit } from "@/lib/db"
 import { requerirCliente } from "@/lib/portal"
 import { turnosLibres, reservar, local, horario } from "@/lib/agenda"
 import { consultaDe } from "@/lib/compras"
 import Enviar from "@/components/Enviar"
+
+export const metadata: Metadata = { title: "Reuniones" }
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60

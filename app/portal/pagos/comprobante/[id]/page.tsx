@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { one } from "@/lib/db"
 import { clienteActual } from "@/lib/portal"
@@ -5,6 +6,8 @@ import { usuarioActual, puede } from "@/lib/auth"
 import { empresa, asegurarRecibo, nroRecibo, enLetras, formatoCuit, type Facturacion } from "@/lib/comprobantes"
 import { plata, tipoCobro } from "@/lib/cobros"
 import Imprimir from "@/components/Imprimir"
+
+export const metadata: Metadata = { title: "Comprobante de pago" }
 
 export const dynamic = "force-dynamic"
 

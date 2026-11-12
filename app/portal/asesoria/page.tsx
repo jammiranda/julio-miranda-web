@@ -1,7 +1,10 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { requerirCliente, proyectosDe } from "@/lib/portal"
 import { asesoriaDe } from "@/lib/asesoria"
 import AsesoriaResumen from "@/components/AsesoriaResumen"
+
+export const metadata: Metadata = { title: "Asesoría" }
 
 export const dynamic = "force-dynamic"
 

@@ -1,8 +1,11 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { requerirCliente } from "@/lib/portal"
 import { nivelesDe, insigniaDe, firmarToken, AGENDA, type Fila } from "@/lib/diagnosticos"
 import { NIVELES, urlNivel, urlInsignia, programasPara, URL_CURSOS, TEXTO_INSIGNIA, type Resultado1, type Resultado2, type Resultado3 } from "@/lib/diagnosticos-datos"
 import { fecha } from "@/lib/util"
+
+export const metadata: Metadata = { title: "Autodiagnósticos" }
 
 export const dynamic = "force-dynamic"
 

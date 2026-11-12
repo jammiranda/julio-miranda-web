@@ -1,8 +1,11 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { q, one, audit } from "@/lib/db"
 import { requerirCliente } from "@/lib/portal"
 import { CONDICIONES_IVA, TIPOS_DOC, cuitValido, pedirFactura, type Facturacion } from "@/lib/comprobantes"
 import Enviar from "@/components/Enviar"
+
+export const metadata: Metadata = { title: "Datos de facturación" }
 
 export const dynamic = "force-dynamic"
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import FuentesEspacio from "@/components/FuentesEspacio"
 
-export const metadata: Metadata = { title: "Mi cuenta", robots: { index: false, follow: false } }
+export const metadata: Metadata = { title: { default: "Mi cuenta", template: "%s · ACADEMIA DEVISEBIT" }, robots: { index: false, follow: false } }
 
 export default function MiCuentaLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
@@ -11,6 +12,8 @@ import FaseBarra from "@/components/FaseBarra"
 import AsesoriaResumen from "@/components/AsesoriaResumen"
 import { asesoriaDe } from "@/lib/asesoria"
 import Enviar from "@/components/Enviar"
+
+export const metadata: Metadata = { title: "Mi proyecto" }
 
 export const dynamic = "force-dynamic"
 

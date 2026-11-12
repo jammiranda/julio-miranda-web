@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { waitUntil } from "@vercel/functions"
 import { q, one, audit } from "@/lib/db"
@@ -6,6 +7,8 @@ import { precios, ars, type Precio } from "@/lib/precios"
 import { comprar, primerPago } from "@/lib/compras"
 import { LANDINGS, urlLanding } from "@/lib/landings"
 import { notificar } from "@/lib/push"
+
+export const metadata: Metadata = { title: "Servicios y productos" }
 
 export const dynamic = "force-dynamic"
 

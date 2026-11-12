@@ -1,8 +1,11 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { requerirCliente } from "@/lib/portal"
 import { aulaDe } from "@/lib/cursos"
 import { AulaCurso } from "@/components/aula/Aula"
 import AvisoAula from "../AvisoAula"
+
+export const metadata: Metadata = { title: "Mi curso" }
 
 export const dynamic = "force-dynamic"
 

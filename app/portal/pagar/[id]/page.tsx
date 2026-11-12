@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { waitUntil } from "@vercel/functions"
@@ -9,6 +10,8 @@ import { PAGO } from "@/lib/precios"
 import { DESCUENTO_TRANSFERENCIA } from "@/lib/compras"
 import { notificar } from "@/lib/push"
 import Enviar from "@/components/Enviar"
+
+export const metadata: Metadata = { title: "Pagar" }
 
 export const dynamic = "force-dynamic"
 

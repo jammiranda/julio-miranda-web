@@ -1,6 +1,9 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { clienteActual, rutaSegura } from "@/lib/portal"
 import { PantallaIngreso, type SPIngreso } from "@/components/aula/Ingreso"
+
+export const metadata: Metadata = { title: "Ingresar" }
 
 export const dynamic = "force-dynamic"
 

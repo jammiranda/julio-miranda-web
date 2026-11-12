@@ -1,9 +1,12 @@
+import type { Metadata } from "next"
 import { q } from "@/lib/db"
 import { requerirCliente } from "@/lib/portal"
 import { misInscripciones, modalidad } from "@/lib/cursos"
 import { URL_ACADEMIA } from "@/lib/academia"
 import { TarjetasCursos, Certificados } from "@/components/aula/Aula"
 import AvisoAula from "./AvisoAula"
+
+export const metadata: Metadata = { title: "Mis cursos" }
 
 export const dynamic = "force-dynamic"
 

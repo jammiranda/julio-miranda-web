@@ -13,7 +13,7 @@ import { tieneAsesoria } from "@/lib/asesoria"
 /** El espacio del alumno dentro de la Academia (misma sesión): cursos, clases y certificados, o los cursos abiertos si todavía no tiene. */
 const MI_ACADEMIA = `${URL_ACADEMIA}/mi-cuenta`
 
-export const metadata: Metadata = { title: "Mi cuenta · DEVISEBIT", robots: { index: false, follow: false } }
+export const metadata: Metadata = { title: { default: "Mi cuenta · DEVISEBIT", template: "%s · Mi cuenta DEVISEBIT" }, robots: { index: false, follow: false } }
 
 async function salir() {
   "use server"

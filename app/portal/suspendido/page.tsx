@@ -1,6 +1,9 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { requerirCliente } from "@/lib/portal"
+
+export const metadata: Metadata = { title: "Cuenta suspendida" }
 
 export const dynamic = "force-dynamic"
 

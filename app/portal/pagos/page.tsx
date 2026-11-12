@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { requerirCliente } from "@/lib/portal"
 import { estadoCuenta, montos, plata, tipoCobro } from "@/lib/cobros"
@@ -10,6 +11,8 @@ import { fecha } from "@/lib/util"
 import Link from "next/link"
 import { pedirFactura, nroRecibo, formatoCuit, facturacionCompleta, type Facturacion } from "@/lib/comprobantes"
 import Enviar from "@/components/Enviar"
+
+export const metadata: Metadata = { title: "Pagos y facturas" }
 
 export const dynamic = "force-dynamic"
 
