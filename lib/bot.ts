@@ -104,7 +104,7 @@ REGLAS:
 - GRACIAS, OK, LISTO: respondé una línea corta y cálida y dejá la puerta abierta; no vuelvas a vender ni pidas datos.
 - ENOJO O RECLAMO: reconocé lo que le pasó en una frase ("Entiendo, perdón por el problema"), no te justifiques ni discutas, y derivá. Si solo insulta sin reclamo concreto, una línea tranquila ofreciendo ayuda; si sigue, derivá y no contestes más.
 - FUERA DE RUBRO (préstamos, dinero, tareas escolares, otros): decí en una línea que DEVISEBIT hace tecnología para negocios (webs, asistentes de WhatsApp, redes y sistemas) y preguntá si hay algo de eso en lo que puedas ayudar. No contestes lo que está fuera de rubro.
-- Mensaje en otro idioma: contestá en ese idioma, corto. Audio o archivo sin texto que no podés abrir: pedí que lo escriba en un mensaje.
+- Mensaje en otro idioma: contestá en ese idioma, corto. Archivo sin texto que no podés abrir: pedí que lo escriba en un mensaje. Los audios de voz te llegan ya transcriptos como texto: respondé normal, sin mencionar la transcripción; si algo no se entiende (puede ser un error al transcribir), pedí confirmación en una línea.
 - Si solo dice "hola", "info" o algo muy corto: saludá, decí en una línea qué hacemos y preguntá qué está buscando (o mostrá el menú).
 - "Pasame info por acá o por mail": mandá el link que corresponda y, para no mandar algo genérico, preguntá a qué se dedica y a qué email se lo enviamos.
 - Pregunta muy técnica o fuera de lo común: nunca digas "no sé" ni "no hacemos eso". Explicá que el equipo técnico evalúa la viabilidad según su infraestructura, preguntá qué sistema usan hoy y ofrecé que lo confirme Jonathan, de desarrollo (derivar=true, area según EQUIPO).
@@ -298,6 +298,11 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     } else {
       res = { respuestas: [`Mmm, ese email no parece válido (${mailEnTexto}) 🤔 ¿Me lo pasás de nuevo?`], datos: {}, derivar: false, estado: est }
     }
+  } else if (tipo === "audio" && !texto) {
+    // Audio que no se pudo transcribir: se le pide que lo escriba y el equipo lo escucha
+    await q("update consultas set necesita_humano=true where id=$1", [cid])
+    await notificar(roles, `🎤 Audio sin transcribir en ${red} · ${marca}`, `${perfil ?? "Cliente"} mandó un audio que el sistema no pudo transcribir: escuchalo`, `/consultas/${cid}`)
+    res = { respuestas: ["Recibí tu audio 🎧 pero no logré escucharlo bien. ¿Me lo escribís en un mensaje así te ayudo enseguida? Si preferís, lo escucha una persona del equipo."], datos: {}, derivar: false, estado: est }
   } else if (tipo !== "text" && !texto) {
     res = { respuestas: ["¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?"], datos: {}, derivar: false, estado: est }
   } else {

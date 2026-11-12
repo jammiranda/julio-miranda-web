@@ -180,7 +180,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
                   const previa = msgs.slice(i + 1).find((x: any) => x.autor === "cliente")
                   return (
                   <div key={i} className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-line ${m.autor === "cliente" ? "self-start bg-white" : m.autor === "bot" ? "self-end bg-[#FFE3E1]" : "self-end bg-[#C8231F] text-white"}`}>
-                    {m.texto ?? `(${m.tipo})`}
+                    {m.tipo === "audio" && m.texto ? `🎤 Audio transcripto: ${m.texto}` : (m.texto ?? `(${m.tipo})`)}
                     <div className={`text-[10px] mt-1 ${m.autor === "equipo" ? "text-white/80" : "text-[#4A515C]"}`}>{m.autor === "cliente" ? (m.autor_nombre ?? "Cliente") : m.autor === "bot" ? "Asistente" : m.autor_nombre} · {fechaHora(m.creado)}</div>
                     {ed && m.autor === "equipo" && m.texto && (
                       <details className="mt-1 text-[#0E1116]">

@@ -4,7 +4,7 @@ import type { Empresa } from "./bots/conocimiento"
 
 export { esJulio }
 
-async function bajarAudio(e: Empresa, mediaId: string): Promise<{ buf: ArrayBuffer; mime: string } | null> {
+export async function bajarAudio(e: Empresa, mediaId: string): Promise<{ buf: ArrayBuffer; mime: string } | null> {
   const { token } = cuenta(e)
   if (!token) return null
   const v = process.env.WA_GRAPH_VERSION ?? "v23.0"
