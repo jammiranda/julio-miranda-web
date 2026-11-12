@@ -19,6 +19,11 @@ export const MODALIDADES = [
   { v: "mixta", n: "Mixta" },
 ] as const
 export const modalidad = (v: string) => MODALIDADES.find((m) => m.v === v)?.n ?? v
+/** "Online en vivo · Marzo 2027". Si la edición repite la modalidad ("Online a tu ritmo" + "A tu ritmo") se muestra una sola vez. */
+export const modalidadYEdicion = (m: string, edicion?: string | null) => {
+  const n = modalidad(m), e = (edicion ?? "").trim()
+  return e && !n.toLowerCase().includes(e.toLowerCase()) ? `${n} · ${e}` : n
+}
 
 export const ESTADOS_INSC = [
   { v: "inscripto", n: "Inscripto", c: "bg-sky-50 text-sky-700" },
