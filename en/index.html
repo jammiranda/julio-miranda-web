@@ -22,7 +22,7 @@
 <title>Julio Miranda · Technology &amp; Digital Transformation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: una columna editorial de 1080px; el héroe une una línea de signos vitales que se vuelve circuito (salud → tecnología). */
 :root{
@@ -39,14 +39,11 @@
   --bg:#0A161A; --surface:#10222A; --ink:#E3EDEF; --muted:#90A7AE; --line:#1E3640;
   --health:#3CC2BE; --tech:#8197FF; --health-soft:#123234; --tech-soft:#1A2347; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);padding-inline:20px;padding-block:0}
 .wrap{max-width:1080px;margin:0 auto}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--tech);outline-offset:3px;border-radius:4px}
-.label{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
-h2{font-size:clamp(1.6rem,3.2vw,2.2rem);font-weight:700}
-h3{font-size:1.12rem;font-weight:700}
+.label{color:var(--muted)}
 p{margin:0}
 section{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:28px}
 .lede{max-width:62ch;color:var(--muted)}
@@ -63,7 +60,6 @@ nav a:hover{color:var(--ink)}
 
 /* hero */
 .hero{display:grid;gap:22px;padding-block:28px 48px}
-.hero h1{font-size:clamp(2.6rem,7vw,5.2rem);font-weight:700;letter-spacing:-.02em}
 .hero h1 .h{color:var(--health)} .hero h1 .t{color:var(--tech)}
 .hero .top{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .avatar{width:112px;height:112px;border-radius:50%;object-fit:cover;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--health);max-width:100%}
@@ -144,6 +140,15 @@ nav a:hover{color:var(--ink)}
 #copied{font-size:.88rem;opacity:.85}
 @media (max-width:420px){.mail code{font-size:3.6vw}}
 footer{padding-block:0 32px;color:var(--muted);font-size:.85rem}
+</style>
+<style id="tipografia">/* Sistema tipográfico único. Este bloque y el pedido de fuentes son idénticos en index, historia y portfolio (ES y EN): si se cambia, se cambia en los seis. */
+:root{--fs-body:16px;--lh-body:1.6;--fs-h1:clamp(2.5rem,7vw,5.2rem);--fs-h2:clamp(1.6rem,3.4vw,2.4rem);--fs-h3:1.15rem;--fs-label:.74rem;--ls-label:.12em}
+body{font-size:var(--fs-body);line-height:var(--lh-body)}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:var(--fs-h1);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+h2{font-size:var(--fs-h2);font-weight:700;line-height:1.1;letter-spacing:-.01em}
+h3{font-size:var(--fs-h3);font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.label,.eyebrow{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase}
 </style>
 
 

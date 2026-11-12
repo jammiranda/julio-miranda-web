@@ -22,7 +22,7 @@
 <title>My story · Julio Miranda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: relato por capítulos con un riel de tiempo fijo a la izquierda; cada capítulo = años gigantes + lugar + texto + hitos. Héroe con red de nodos en canvas. */
 :root{
@@ -42,11 +42,10 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;padding-inline:20px;padding-block:0;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);padding-inline:20px;padding-block:0;overflow-x:hidden}
 .wrap{max-width:1100px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);margin:0;line-height:1.05;text-wrap:balance}
 p{margin:0}
-.label{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.label{color:var(--muted)}
 :focus-visible{outline:2px solid var(--tech);outline-offset:3px;border-radius:4px}
 
 /* progress bar */
@@ -59,7 +58,6 @@ p{margin:0}
 .hero > *:not(canvas){position:relative;z-index:1}
 .hero .who{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .hero img{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--bg);box-shadow:0 0 0 2px var(--tech);max-width:100%}
-.hero h1{font-size:clamp(2.8rem,8.5vw,6.4rem);font-weight:800;letter-spacing:-.03em}
 .hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--tech),var(--health));-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero .lead{font-size:clamp(1.05rem,2vw,1.3rem);max-width:56ch;color:var(--muted)}
 .route{display:flex;gap:8px;flex-wrap:wrap;font-family:var(--mono);font-size:.8rem}
@@ -81,7 +79,6 @@ p{margin:0}
 @media (prefers-reduced-motion:no-preference){.years{transition:color .5s}}
 .place{justify-self:start;font-family:var(--mono);font-size:.76rem;padding:4px 10px;border-radius:999px;border:1px solid var(--c,var(--tech));color:var(--c,var(--tech))}
 .body{display:grid;gap:18px;min-width:0}
-.body h2{font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:700}
 .body p{max-width:62ch}
 .pl{list-style:none;padding:0;margin:4px 0 0;display:grid;gap:10px}
 .pl li{display:grid;gap:2px;padding:12px 14px;border-left:3px solid var(--c);background:var(--surface);border-radius:0 10px 10px 0}
@@ -99,7 +96,7 @@ blockquote{margin:0;padding:14px 18px;border-left:3px solid var(--c,var(--tech))
 
 /* closing */
 .close{padding-block:80px;display:grid;gap:22px;text-align:left}
-.close h2{font-size:clamp(2.2rem,6vw,4.4rem);font-weight:800;letter-spacing:-.02em}
+.close h2{font-size:var(--fs-h1);font-weight:800;line-height:1.05;letter-spacing:-.02em}
 .close h2 em{font-style:normal;color:var(--tech)}
 .threads{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .threads div{border-top:2px solid var(--c);padding-top:12px;display:grid;gap:4px}
@@ -113,6 +110,15 @@ blockquote{margin:0;padding:14px 18px;border-left:3px solid var(--c,var(--tech))
 @media (max-width:360px){.mail code{font-size:.8rem}}
 footer{padding-block:0 40px;color:var(--muted);font-size:.85rem}
 footer a{color:inherit}
+</style>
+<style id="tipografia">/* Sistema tipográfico único. Este bloque y el pedido de fuentes son idénticos en index, historia y portfolio (ES y EN): si se cambia, se cambia en los seis. */
+:root{--fs-body:16px;--lh-body:1.6;--fs-h1:clamp(2.5rem,7vw,5.2rem);--fs-h2:clamp(1.6rem,3.4vw,2.4rem);--fs-h3:1.15rem;--fs-label:.74rem;--ls-label:.12em}
+body{font-size:var(--fs-body);line-height:var(--lh-body)}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:var(--fs-h1);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+h2{font-size:var(--fs-h2);font-weight:700;line-height:1.1;letter-spacing:-.01em}
+h3{font-size:var(--fs-h3);font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.label,.eyebrow{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase}
 </style>
 
 
