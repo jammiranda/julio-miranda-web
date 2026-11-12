@@ -1,0 +1,127 @@
+<!doctype html>
+<!--
+  Alta de cliente · Agente de WhatsApp. Fuente del PDF public/mv-a7c41e9b3f06/alta-agente-whatsapp-devisebit.pdf
+  Para una versión nueva: cambiar el texto y el número de versión de acá, generar el PDF con
+    node scripts/docs/generar-pdf.mjs
+  y subirlo en Sistema → Documentos de la empresa (Biblioteca) como versión nueva de «Alta de cliente · Agente de WhatsApp».
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Alta de cliente · Agente de WhatsApp · DEVISEBIT</title>
+<style>
+  @page { size: A4; margin: 13mm 15mm 13mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif; color: #262C37; font-size: 10pt; line-height: 1.42; }
+  header { background: #0E1116; color: #fff; padding: 18px 22px 20px; border-radius: 12px; }
+  .marca { font-size: 15pt; font-weight: 800; letter-spacing: .04em; }
+  .marca span { color: #FF6A63; }
+  h1 { margin: 10px 0 4px; font-size: 20pt; line-height: 1.15; }
+  header p { margin: 0; color: rgba(255,255,255,.78); font-size: 10pt; }
+  .intro { margin: 14px 0 4px; }
+  h2 { margin: 12px 0 4px; font-size: 12pt; color: #0E1116; break-after: avoid; }
+  h2 b { display: inline-block; min-width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; background: #C8231F; color: #fff; font-size: 9.5pt; margin-right: 6px; }
+  section { break-inside: avoid; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { position: relative; padding: 2px 0 2px 22px; }
+  li::before { content: ""; position: absolute; left: 0; top: 6px; width: 11px; height: 11px; border: 1.4px solid #4A515C; border-radius: 3px; }
+  .nota { font-size: 9.5pt; color: #4A515C; margin: 4px 0 0; }
+  .plan { display: inline-block; font-size: 8.5pt; font-weight: 700; color: #9E1A17; background: #FDECEB; border-radius: 99px; padding: 1px 8px; margin-left: 6px; vertical-align: middle; }
+  .caja { margin-top: 16px; border: 1px solid #E2E5EA; border-radius: 10px; padding: 12px 14px; break-inside: avoid; }
+  .caja h2 { margin-top: 0; }
+  footer { margin-top: 14px; font-size: 8.5pt; color: #4A515C; border-top: 1px solid #E2E5EA; padding-top: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="marca">DEVISE<span>BIT</span></div>
+  <h1>Alta de cliente · Agente de WhatsApp</h1>
+  <p>Lo que necesitamos de tu negocio para entrenar, probar y poner en línea tu agente con IA.</p>
+</header>
+
+<p class="intro">Con esta lista armamos el agente: lo entrenamos con la información de tu negocio, lo probamos con casos reales y difíciles, y recién después lo conectamos a tu número. Mandanos lo que tengas a mano; <strong>lo que no tengas armado, te lo brindamos</strong> y lo completamos juntos.</p>
+
+<section><h2><b>1</b>Datos del negocio</h2><ul>
+  <li>Nombre comercial, razón social y CUIT (para el contrato y la factura).</li>
+  <li>Rubro, dirección y zonas donde atendés o entregás.</li>
+  <li>Web y redes sociales, si tenés.</li>
+  <li>Persona a cargo del proyecto de tu lado: nombre, WhatsApp y email.</li>
+  <li>Plan contratado: Agente Respuestas, Agente Ventas, Agente Turnos o a medida.</li>
+</ul></section>
+
+<section><h2><b>2</b>Horarios</h2><ul>
+  <li>Días y horarios en que atiende tu equipo.</li>
+  <li>Qué tiene que decir el agente fuera de ese horario y en feriados (el agente responde las 24 horas).</li>
+</ul></section>
+
+<section><h2><b>3</b>Servicios o productos y precios</h2><ul>
+  <li>Lista de lo que ofrecés con los precios vigentes (planilla, PDF o foto de la lista).</li>
+  <li>Formas de pago, promociones y condiciones (envíos, señas, cambios).</li>
+  <li>Qué precios o datos <em>no</em> se informan por chat y cómo se responde en ese caso.</li>
+  <li>Quién nos avisa cuando cambia un precio.</li>
+  <li>Link de pago y la planilla o CRM donde se registra cada contacto. <span class="plan">Agente Ventas</span></li>
+  <li>Preguntas para calificar a cada cliente antes de pasarlo a una persona. <span class="plan">Agente Ventas</span></li>
+</ul></section>
+
+<section><h2><b>4</b>Preguntas frecuentes</h2><ul>
+  <li>Las 10 a 20 preguntas que más te hacen, con la respuesta que da hoy tu negocio.</li>
+  <li>Material que el agente puede mandar: catálogo, lista de precios, ubicación, links.</li>
+</ul></section>
+
+<section><h2><b>5</b>Tono y forma de hablar</h2><ul>
+  <li>Cómo le habla tu negocio a sus clientes: de «vos» o de «usted», formal o cercano, con o sin emojis.</li>
+  <li>Nombre del asistente y saludo de bienvenida. Siempre se presenta como asistente con IA: nunca se hace pasar por una persona.</li>
+  <li>Dos o tres mensajes reales tuyos que te gusten como ejemplo.</li>
+</ul></section>
+
+<section><h2><b>6</b>Derivación a una persona</h2><ul>
+  <li>En qué casos el agente tiene que pasar la charla (pedido de hablar con alguien, reclamo, tema delicado, cierre de una venta).</li>
+  <li>A quién deriva cada tipo de caso: nombre, rol y WhatsApp o email de contacto.</li>
+  <li>Qué hace si nadie del equipo está disponible, y qué casos son urgentes.</li>
+</ul></section>
+
+<section><h2><b>7</b>Número de WhatsApp y acceso a Meta Business</h2><ul>
+  <li>El número que va a usar el agente: el actual o uno nuevo. Trabajamos con la API oficial de WhatsApp Business.</li>
+  <li>Cómo se usa hoy ese número (WhatsApp común, WhatsApp Business, otra herramienta) y quién lo tiene en su celular.</li>
+  <li>Acceso de administrador a la cuenta de Meta Business del negocio (o la creamos juntos) y los datos para verificar el negocio.</li>
+  <li>Nombre visible, foto de perfil y descripción del perfil de WhatsApp.</li>
+</ul>
+<p class="nota">Los mensajes que inicie tu negocio con plantillas de WhatsApp tienen el costo que fija Meta, aparte del abono.</p></section>
+
+<section><h2><b>8</b>Ejemplos de chats reales</h2><ul>
+  <li>Entre 10 y 20 conversaciones reales (capturas o chat exportado): consultas comunes, ventas cerradas y casos difíciles.</li>
+  <li>Sin datos sensibles de tus clientes: tapá o borrá documentos, tarjetas y datos de salud.</li>
+</ul></section>
+
+<section><h2><b>9</b>Lo que el agente nunca debe decir</h2><ul>
+  <li>Temas prohibidos o delicados para tu negocio, y qué responder si aparecen.</li>
+  <li>Descuentos, plazos o promesas que solo puede dar una persona.</li>
+  <li>En salud: el agente sirve para turnos, información y derivaciones; nunca da diagnósticos ni consejos médicos.</li>
+</ul></section>
+
+<section><h2><b>10</b>Turnos y agenda <span class="plan">Agente Turnos</span></h2><ul>
+  <li>La cuenta de Google Calendar donde se dan los turnos, y los profesionales, salas o servicios que tiene.</li>
+  <li>Duración de cada turno, días y horarios habilitados, y con cuánta anticipación se puede reservar o reprogramar.</li>
+  <li>Texto de los recordatorios y cuándo se mandan.</li>
+</ul></section>
+
+<section><h2><b>11</b>Datos personales</h2><ul>
+  <li>Qué datos puede pedir el agente (nombre, teléfono, email u otros) y para qué se usan.</li>
+  <li>El aviso de privacidad de tu negocio, si ya tenés uno.</li>
+</ul>
+<p class="nota">Los datos de tus clientes los usamos solo para el servicio, conforme a la Ley 25.326, y guardamos lo mínimo necesario.</p></section>
+
+<section><h2><b>12</b>Aprobación para salir en línea</h2><ul>
+  <li>Quién prueba el agente de tu lado y qué casos quiere probar sí o sí.</li>
+  <li>Visto bueno por escrito (por WhatsApp o email) de las respuestas, el tono y la derivación.</li>
+  <li>Fecha acordada para conectarlo a tu número.</li>
+</ul></section>
+
+<div class="caja">
+  <h2>Cómo mandarnos todo</h2>
+  <p style="margin:0">Respondé el WhatsApp o el correo por el que te llegó este documento, o escribinos a <strong>info@devisebit.com</strong> o al WhatsApp <strong>+54 9 11 7346-6490</strong>. Podés mandar archivos, fotos, links de Google Drive y audios. Atención del equipo: lunes a viernes de 8 a 18 h.</p>
+</div>
+
+<footer>DEVISEBIT SRL · Software e IA. Desde 2009 · www.devisebit.com · Alta de cliente · Agente de WhatsApp · Versión 1 · noviembre de 2026</footer>
+</body>
+</html>

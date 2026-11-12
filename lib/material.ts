@@ -6,6 +6,9 @@ export const MV = "https://www.devisebit.com/mv-8f92ddf28895"
 /** Folleto de asesoría: vive en este sistema (public/mv-a7c41e9b3f06, carpeta no listada). Sin datos sensibles: es para clientes. */
 export const PDF_ASESORIA = `${process.env.SISTEMA_URL ?? "https://sistema.devisebit.com"}/mv-a7c41e9b3f06/asesoria-y-consultoria-devisebit.pdf`
 
+/** Lista de lo que tiene que mandar un cliente nuevo del Agente de WhatsApp (fuente: scripts/docs/alta-agente-whatsapp.html). También está, con versiones, en Documentos de la empresa. */
+export const PDF_ALTA_AGENTE = `${process.env.SISTEMA_URL ?? "https://sistema.devisebit.com"}/mv-a7c41e9b3f06/alta-agente-whatsapp-devisebit.pdf`
+
 export type ItemMaterial = { k: string; titulo: string; detalle?: string; url: string; tipo: "pdf" | "zip" | "png" | "video" | "link"; marca?: "devisebit" | "blanca" }
 export type GrupoMaterial = { t: string; d: string; items: ItemMaterial[] }
 
