@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache"
 import { q, one } from "@/lib/db"
+import { PASO_AL_CRM, GANADA } from "@/lib/consultas"
 import { YT_CANAL_ID, YT_URL, VIDEOS_BASE } from "@/lib/youtube"
 import { guardarPublicaciones } from "@/lib/publicaciones"
 
@@ -184,7 +185,7 @@ export async function panelMetricas() {
     safe(q<{ k: string; c: number }>(`select coalesce(canal,'otro') k, count(*)::int c from consultas where empresa=$1 and creado > now()-interval '30 days' group by 1 order by 2 desc limit 6`, [E])),
     safe(q<{ k: string; c: number }>(`select coalesce(nullif(fuente,''),'sin dato') k, count(*)::int c from consultas where empresa=$1 and creado > now()-interval '30 days' group by 1 order by 2 desc limit 6`, [E])),
     safe(one<{ c: number }>(`select count(*)::int c from consultas where empresa=$1 and (estado='nueva' or (necesita_humano and estado in ('nueva','contactada')))`, [E])),
-    safe(one<{ tot: number; conv: number }>(`select count(*)::int tot, count(*) filter (where estado='convertida')::int conv from consultas where empresa=$1 and creado > now()-interval '90 days'`, [E])),
+    safe(one<{ tot: number; conv: number; crm: number; crmtot: number }>(`select count(*) filter (where k.creado > now()-interval '90 days')::int tot, count(*) filter (where k.creado > now()-interval '90 days' and ${GANADA("k")})::int conv, count(*) filter (where k.creado > now()-interval '90 days' and ${PASO_AL_CRM("k")})::int crm, count(*) filter (where ${PASO_AL_CRM("k")})::int crmtot from consultas k where k.empresa=$1`, [E])),
     safe(q<{ etapa: string; c: number }>(`select etapa, count(*)::int c from db_contactos group by etapa`)),
     safe(one<{ c: number; d30: number }>(`select count(*)::int c, count(*) filter (where creado > now()-interval '30 days')::int d30 from db_contactos`)),
     safe(one<{ act: number; d7: number; d30: number; bajas: number }>(`select count(*) filter (where suscrito_en is not null and email_estado='activo')::int act, count(*) filter (where suscrito_en > now()-interval '7 days')::int d7, count(*) filter (where suscrito_en > now()-interval '30 days')::int d30, count(*) filter (where email_estado='baja')::int bajas from db_contactos`)),
@@ -229,7 +230,7 @@ export async function panelMetricas() {
   return {
       visitas: { dias: visDia ?? [], sitios: visHost ?? [], paginas: visPath ?? [], origenes: visRef ?? [], dispositivos: map(visDisp, "disp", "c") },
       crm: {
-        consultas: { porEstado: map(consEstado, "estado", "c"), d7: consPer?.d7 ?? null, d30: consPer?.d30 ?? null, p30: consPer?.p30 ?? null, porCanal: consCanal ?? [], porFuente: consFuente ?? [], esperanHumano: consHumano?.c ?? null, conversion90: conv90 && conv90.tot ? Math.round((conv90.conv / conv90.tot) * 1000) / 10 : null, total90: conv90?.tot ?? null },
+        consultas: { porEstado: { ...map(consEstado, "estado", "c"), ...(conv90 && consEstado?.length ? { convertida: n(conv90.crmtot) } : {}) }, d7: consPer?.d7 ?? null, d30: consPer?.d30 ?? null, p30: consPer?.p30 ?? null, porCanal: consCanal ?? [], porFuente: consFuente ?? [], esperanHumano: consHumano?.c ?? null, conversion90: conv90 && conv90.tot ? Math.round((conv90.conv / conv90.tot) * 1000) / 10 : null, total90: conv90?.tot ?? null, ganadas90: conv90?.conv ?? null, pasaronCrm90: conv90?.crm ?? null },
         contactos: { porEtapa: map(etapas, "etapa", "c"), total: contTot?.c ?? null, nuevos30: contTot?.d30 ?? null },
         proyectos: { porEstado: Object.fromEntries((proy ?? []).map((r) => [r.estado, { c: n(r.c), monto: n(r.monto) }])), entregas14: entregas?.c ?? null },
         reuniones: { proximas7: reun?.prox ?? null, realizadas30: reun?.real30 ?? null, caidas30: reun?.canc30 ?? null },

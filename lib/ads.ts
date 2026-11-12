@@ -1,4 +1,5 @@
 import { q } from "./db"
+import { PASO_AL_CRM, GANADA } from "./consultas"
 
 /**
  * Anuncios en el Panel: inversión y resultados por día y campaña.
@@ -49,7 +50,7 @@ export async function resumenAds() {
     q<{ plataforma: string; gasto: number; impresiones: number; clics: number; conversiones: number; moneda: string }>(`select plataforma, sum(gasto)::float gasto, sum(impresiones)::int impresiones, sum(clics)::int clics, sum(conversiones)::float conversiones, max(moneda) moneda from ads_diario where fecha > current_date - 30 group by plataforma`),
     q<{ fecha: string; plataforma: string; gasto: number; clics: number }>(`select to_char(fecha,'YYYY-MM-DD') fecha, plataforma, sum(gasto)::float gasto, sum(clics)::int clics from ads_diario where fecha > current_date - 30 group by 1,2 order by 1`),
     q<{ plataforma: string; campania: string; gasto: number; impresiones: number; clics: number; conversiones: number }>(`select plataforma, campania, sum(gasto)::float gasto, sum(impresiones)::int impresiones, sum(clics)::int clics, sum(conversiones)::float conversiones from ads_diario where fecha > current_date - 30 group by 1,2 order by 3 desc limit 20`),
-    q<{ fuente: string; c: number; contactos: number; ganadas: number }>(`select fuente, count(*)::int c, count(*) filter (where estado in ('contactada','convertida') or exists (select 1 from db_contactos d where d.consulta_id=consultas.id))::int contactos, count(*) filter (where estado='convertida')::int ganadas from consultas where creado > now() - interval '30 days' and fuente in ('Google Ads','Meta Ads') group by fuente`),
+    q<{ fuente: string; c: number; contactos: number; crm: number; ganadas: number }>(`select fuente, count(*)::int c, count(*) filter (where estado in ('contactada','convertida') or exists (select 1 from db_contactos d where d.consulta_id=k.id))::int contactos, count(*) filter (where ${PASO_AL_CRM("k")})::int crm, count(*) filter (where ${GANADA("k")})::int ganadas from consultas k where creado > now() - interval '30 days' and fuente in ('Google Ads','Meta Ads') group by fuente`),
     q<{ plataforma: string; u: string }>(`select plataforma, to_char(max(actualizado) at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD HH24:MI') u from ads_diario group by plataforma`),
   ])
   const consultasDe = (p: string) => consultas.find((c) => c.fuente === (p === "google" ? "Google Ads" : "Meta Ads"))
@@ -65,7 +66,7 @@ export async function resumenAds() {
       gasto: x?.gasto ?? 0, impresiones: x?.impresiones ?? 0, clics: x?.clics ?? 0, conversiones: x?.conversiones ?? 0,
       ctr: x && x.impresiones ? Math.round((x.clics / x.impresiones) * 1000) / 10 : null,
       cpc: x && x.clics ? Math.round(x.gasto / x.clics) : null,
-      consultas: c?.c ?? 0, consultasAtendidas: c?.contactos ?? 0, ventas: c?.ganadas ?? 0,
+      consultas: c?.c ?? 0, consultasAtendidas: c?.contactos ?? 0, pasaronCrm: c?.crm ?? 0, ventas: c?.ganadas ?? 0,
       costoPorConsulta: x && c?.c ? Math.round(x.gasto / c.c) : null,
     }
   })

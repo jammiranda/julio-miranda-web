@@ -82,7 +82,7 @@ export default async function Anuncios() {
                 <Kpi k="Impresiones" v={fmt(p.impresiones)} />
                 <Kpi k="Clics" v={fmt(p.clics)} ft={p.ctr != null ? `CTR ${fmt(p.ctr, 1)}%` : ""} />
                 <Kpi k="Costo por clic" v={p.cpc != null ? plata(p.cpc, p.moneda) : null} />
-                <Kpi k="Consultas" v={fmt(p.consultas)} ft={`${fmt(p.consultasAtendidas)} atendidas · ${fmt(p.ventas)} ganadas`} color="var(--ok)" />
+                <Kpi k="Consultas" v={fmt(p.consultas)} ft={`${fmt(p.consultasAtendidas)} atendidas · ${fmt(p.pasaronCrm)} al CRM · ${fmt(p.ventas)} ganadas`} color="var(--ok)" />
                 <Kpi k="Costo por consulta" v={p.costoPorConsulta != null ? plata(p.costoPorConsulta, p.moneda) : null} />
               </div>
             ) : <div className="pc-empty">{p.plataforma === "meta" ? "Meta Ads no se sincroniza solo todavía: la inversión y los resultados de sus campañas están en los controles de la bitácora, arriba." : "Sin inversión registrada en los últimos 30 días."}</div>}

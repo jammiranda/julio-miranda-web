@@ -1,4 +1,5 @@
 import { q } from "./db"
+import { PASO_AL_CRM, GANADA } from "./consultas"
 import { safe } from "./panel"
 import { interacciones, type Publicacion } from "./publicaciones"
 
@@ -100,7 +101,8 @@ export function fbDiario(dias: number) {
 
 export type Negocio = {
   visitas: { dia: string; c: number }[]
-  consultas: { dia: string; c: number; a: number; g: number }[]
+  /** c = entraron · a = atendidas por el equipo · p = pasaron al CRM (tienen contacto comercial) · g = ganadas (contacto en etapa Ganado). */
+  consultas: { dia: string; c: number; a: number; p: number; g: number }[]
   porCanal: { k: string; c: number }[]
   porFuente: { k: string; c: number }[]
   /** Primer día con datos (para saber si hay un período anterior con el que comparar). */
@@ -113,10 +115,11 @@ export async function negocioPeriodo(dias: number): Promise<Negocio | null> {
   const E = "devisebit"
   const [vis, cons, canal, fuente, desde] = await Promise.all([
     safe(q<{ dia: string; c: number }>(`select to_char(dia,'YYYY-MM-DD') dia, sum(n)::int c from pv_visitas where dia > current_date - $1::int group by dia order by dia`, [dias * 2])),
-    safe(q<{ dia: string; c: number; a: number; g: number }>(
+    safe(q<{ dia: string; c: number; a: number; p: number; g: number }>(
       `select to_char(creado at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD') dia, count(*)::int c,
-              count(*) filter (where estado in ('contactada','calificada','convertida'))::int a, count(*) filter (where estado='convertida')::int g
-       from consultas where empresa=$1 and creado > now() - ($2::int || ' days')::interval group by 1 order by 1`, [E, dias * 2])),
+              count(*) filter (where estado in ('contactada','calificada','convertida'))::int a,
+              count(*) filter (where ${PASO_AL_CRM("k")})::int p, count(*) filter (where ${GANADA("k")})::int g
+       from consultas k where empresa=$1 and creado > now() - ($2::int || ' days')::interval group by 1 order by 1`, [E, dias * 2])),
     safe(q<{ k: string; c: number }>(`select coalesce(canal,'otro') k, count(*)::int c from consultas where empresa=$1 and creado > now() - ($2::int || ' days')::interval group by 1 order by 2 desc limit 6`, [E, dias])),
     safe(q<{ k: string; c: number }>(`select coalesce(nullif(fuente,''),'sin dato') k, count(*)::int c from consultas where empresa=$1 and creado > now() - ($2::int || ' days')::interval group by 1 order by 2 desc limit 6`, [E, dias])),
     safe(q<{ v: string | null; c: string | null }>(`select (select to_char(min(dia),'YYYY-MM-DD') from pv_visitas) v, (select to_char(min(creado at time zone 'America/Argentina/Buenos_Aires'),'YYYY-MM-DD') from consultas where empresa=$1) c`, [E])),

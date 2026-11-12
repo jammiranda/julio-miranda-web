@@ -3,7 +3,7 @@ import { acceso, Head, Sec, Kpi, Delta, Barras, SinDatos, fmt, plata } from "../
 
 export const dynamic = "force-dynamic"
 
-const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contactadas", calificada: "Calificadas", convertida: "Ganadas", descartada: "Descartadas" }
+const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contactadas", calificada: "Calificadas", convertida: "Pasaron al CRM", descartada: "Descartadas" }
 const PROY: Record<string, string> = { planificado: "Planificado", en_curso: "En curso", pausado: "Pausado", terminado: "Terminado", cancelado: "Cancelado" }
 const ETAPAS: Record<string, string> = { nuevo: "Nuevo", conversando: "Conversando", reunion: "Reunión", propuesta: "Propuesta", ganado: "Ganado", perdido: "Perdido" }
 const nombre = (s: string) => s.replace(/_/g, " ").replace(/^./, (x) => x.toUpperCase())
@@ -21,7 +21,7 @@ export default async function Crm() {
       <div className="pc-kpis">
         <Kpi k="Consultas (30 días)" v={fmt(c.d30)} delta={<Delta v={c.d30 != null && c.p30 != null ? c.d30 - c.p30 : null} />} ft={`${fmt(c.d7)} en 7 días · ${fmt(c.p30)} los 30 anteriores`} />
         <Kpi k="Esperan una persona" v={fmt(c.esperanHumano)} ft="Sin atender, o que pidieron hablar con una persona" />
-        <Kpi k="Conversión (90 días)" v={c.conversion90 != null ? `${fmt(c.conversion90, 1)}%` : null} ft={c.total90 != null ? `sobre ${fmt(c.total90)} consultas` : ""} color="var(--ok)" />
+        <Kpi k="Ganadas (90 días)" v={c.ganadas90 != null ? fmt(c.ganadas90) : null} ft={c.total90 != null ? `${c.conversion90 != null ? `${fmt(c.conversion90, 1)}% de ` : "sobre "}${fmt(c.total90)} consultas · ${fmt(c.pasaronCrm90)} pasaron al CRM` : ""} color="var(--ok)" />
         <Kpi k="Contactos" v={fmt(contactos.total)} ft={contactos.nuevos30 != null ? `${fmt(contactos.nuevos30)} nuevos en 30 días` : ""} />
         <Kpi k="Proyectos activos" v={fmt(enCurso)} ft={proyectos.entregas14 != null ? `${fmt(proyectos.entregas14)} entregas en 14 días` : ""} />
         <Kpi k="Chats de WhatsApp (30 días)" v={fmt(wa.chats30)} ft={`${fmt(wa.chats7)} en 7 días${wa.horasUltimaRespuestaBot != null ? ` · el bot respondió hace ${fmt(wa.horasUltimaRespuestaBot)} h` : ""}`} color="var(--ok)" />
@@ -29,6 +29,7 @@ export default async function Crm() {
 
       <div className="pc-grid pc-g3">
         <div className="pc-card"><div className="pc-ch"><h2>Consultas por estado</h2><span className="pc-k">histórico</span></div>
+          <p className="pc-sub" style={{ marginBottom: 10 }}>«Pasaron al CRM» son las que ya tienen contacto comercial (pueden seguir además como nuevas o contactadas). Las ganadas se ven en «Contactos por etapa».</p>
           {Object.keys(c.porEstado).length ? <Barras filas={Object.entries(ESTADOS).map(([k, t]) => ({ k: t, v: Number(c.porEstado[k] ?? 0) }))} /> : <div className="pc-empty">Sin consultas registradas.</div>}
         </div>
         <div className="pc-card"><div className="pc-ch"><h2>Por canal</h2><span className="pc-k">30 días</span></div>

@@ -13,7 +13,7 @@ const DIAS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]
 const DIA_LARGO: Record<string, string> = { lun: "lunes", mar: "martes", "mié": "miércoles", jue: "jueves", vie: "viernes", "sáb": "sábados", dom: "domingos" }
 const FRANJAS = ["Mañana", "Mediodía", "Tarde", "Noche", "Madrugada"]
 const FRANJA_TXT: Record<string, string> = { Mañana: "de 6 a 12", Mediodía: "de 12 a 15", Tarde: "de 15 a 19", Noche: "de 19 a 24", Madrugada: "de 0 a 6" }
-const ESTADOS_CONS: Record<string, string> = { nueva: "Nuevas", contactada: "Contactadas", calificada: "Calificadas", convertida: "Ganadas", descartada: "Descartadas" }
+const ESTADOS_CONS: Record<string, string> = { nueva: "Nuevas", contactada: "Contactadas", calificada: "Calificadas", convertida: "Pasaron al CRM", descartada: "Descartadas" }
 const ESTADOS_PROY: Record<string, string> = { propuesta: "Propuesta", planificado: "Planificado", en_curso: "En curso", pausado: "Pausado", entregado: "Entregado", cancelado: "Cancelado" }
 
 function partes(iso: string) {
@@ -122,6 +122,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
   const conP = conCub ? sumaDias(nc, (x) => x.c, dias * 2, dias, AHORA) ?? 0 : null
   const atenA = sumaDias(nc, (x) => x.a, dias, 0, AHORA) ?? 0
   const ganA = sumaDias(nc, (x) => x.g, dias, 0, AHORA) ?? 0
+  const crmA = sumaDias(nc, (x) => x.p, dias, 0, AHORA) ?? 0
   const visSerie = nv.filter((x) => x.dia > diaHace(dias, AHORA)).map((x) => ({ x: x.dia, y: Number(x.c) }))
   const c = m?.crm.consultas
 
@@ -186,7 +187,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
         <Kpi k={`Publicaciones (${dias} días)`} v={fmt(postsT)} href={`${b}/publicaciones`} delta={<Delta v={dif(postsT, postsPrevT)} />} ft={`${fmt(postsT / (dias / 7), 1)} por semana · ${cuentas.filter((x) => x.posts).length} cuentas`} />
         <Kpi k={`Interacciones (${dias} días)`} v={fmt(interT)} href="#que-funciona" delta={<Delta v={dif(interT, interPrevT)} />} ft={postsT ? `${fmt(interT / postsT, 1)} por publicación` : ""} color="var(--ok)" />
         <Kpi k={`Visitas web (${dias} días)`} v={visA != null ? fmt(visA) : null} href="#web" delta={<Delta v={dif(visA, visP)} />} serie={visSerie.map((d) => d.y)} color="var(--info)" ft="todos los sitios" />
-        <Kpi k={`Consultas (${dias} días)`} v={conA != null ? fmt(conA) : null} href={`${b}/crm`} delta={<Delta v={dif(conA, conP)} />} ft={conA ? `${fmt(ganA)} ganada${ganA === 1 ? "" : "s"} · ${fmt(atenA)} atendida${atenA === 1 ? "" : "s"}` : ""} color="var(--warn)" />
+        <Kpi k={`Consultas (${dias} días)`} v={conA != null ? fmt(conA) : null} href={`${b}/crm`} delta={<Delta v={dif(conA, conP)} />} ft={conA ? `${fmt(crmA)} al CRM · ${fmt(ganA)} ganada${ganA === 1 ? "" : "s"} · ${fmt(atenA)} atendida${atenA === 1 ? "" : "s"}` : ""} color="var(--warn)" />
         <Kpi k="Suscriptores Academia" v={fmt(m?.academia.suscriptores?.act)} href={`${b}/academia`} delta={<Delta v={m?.academia.suscriptores?.d30 ?? null} />} ft="activos · altas en 30 días" color="var(--ok)" />
       </div>
       {!histCubre && historiaDesde ? <SinDatos><b>Sin variaciones de publicaciones todavía.</b> El historial empieza el {fechaCorta(historiaDesde)} y no cubre los {dias} días anteriores. Se muestran solas cuando haya datos para comparar.</SinDatos> : null}
@@ -271,7 +272,7 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
 
       <Sec t="Negocio" id="negocio" />
       <div className="pc-card"><div className="pc-ch"><h2>Del visitante a la venta</h2><span className="pc-k">{dias} días · todos los sitios</span></div>
-        {neg ? <Embudo pasos={[{ k: "Visitas web", v: visA }, { k: "Consultas", v: conA }, { k: "Atendidas", v: atenA, nota: "contactadas, calificadas o ganadas" }, { k: "Ganadas", v: ganA }]} /> : <div className="pc-empty">Sin datos de visitas ni de consultas.</div>}
+        {neg ? <Embudo pasos={[{ k: "Visitas web", v: visA }, { k: "Consultas", v: conA }, { k: "Atendidas", v: atenA, nota: "con respuesta del equipo" }, { k: "Ganadas", v: ganA, nota: "contacto en etapa Ganado del CRM" }]} /> : <div className="pc-empty">Sin datos de visitas ni de consultas.</div>}
       </div>
       <div className="pc-grid pc-g3">
         <div className="pc-card"><div className="pc-ch"><h2>Consultas por estado</h2><span className="pc-k">histórico</span><a className="pc-btn" href={`${b}/crm`}>CRM</a></div>

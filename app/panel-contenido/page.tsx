@@ -15,7 +15,7 @@ import { acceso, base, Head, Sec, Kpi, Delta, Barras, SinDatos, Alerta, Embudo, 
 
 export const dynamic = "force-dynamic"
 
-const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contactadas", calificada: "Calificadas", convertida: "Ganadas", descartada: "Descartadas" }
+const ESTADOS: Record<string, string> = { nueva: "Nuevas", contactada: "Contactadas", calificada: "Calificadas", convertida: "Pasaron al CRM", descartada: "Descartadas" }
 
 export default async function Inicio() {
   const u = await acceso()
@@ -93,7 +93,7 @@ export default async function Inicio() {
       {ver("embudo") && <>
       <Sec t="Del visitante a la venta" />
       <div className="pc-card"><div className="pc-ch"><h2>Embudo · 30 días</h2><a className="pc-btn" href={`${b}/analisis#negocio`}>Análisis</a></div>
-        {neg ? <Embudo pasos={[{ k: "Visitas web", v: visA }, { k: "Consultas", v: conA }, { k: "Atendidas", v: atenA }, { k: "Ganadas", v: ganA }]} /> : <div className="pc-empty">Sin datos.</div>}
+        {neg ? <Embudo pasos={[{ k: "Visitas web", v: visA }, { k: "Consultas", v: conA }, { k: "Atendidas", v: atenA, nota: "con respuesta del equipo" }, { k: "Ganadas", v: ganA, nota: "contacto en etapa Ganado del CRM" }]} /> : <div className="pc-empty">Sin datos.</div>}
       </div>
       </>}
 
