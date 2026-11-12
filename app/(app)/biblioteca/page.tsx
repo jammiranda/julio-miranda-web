@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { revalidatePath } from "next/cache"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
@@ -191,7 +192,7 @@ export default async function Biblioteca({ searchParams: sp }: { searchParams: {
                       <span className="ml-auto flex gap-1.5">
                         <a href={`/api/biblioteca/archivo/${v.id}`} target="_blank" rel="noopener noreferrer" className="btn-s !py-1 !px-3 !text-xs">Ver</a>
                         {v.estado !== "vigente" && <form action={publicarV}><input type="hidden" name="id" value={v.id} /><button className="btn-s !py-1 !px-3 !text-xs">Hacer vigente</button></form>}
-                        {v.estado === "borrador" && <form action={descartarV}><input type="hidden" name="id" value={v.id} /><button className="btn-s !py-1 !px-3 !text-xs">Descartar</button></form>}
+                        {v.estado === "borrador" && <form action={descartarV}><input type="hidden" name="id" value={v.id} /><BotonConfirmar clase="btn-s !py-1 !px-3 !text-xs" mensaje={`¿Descartar el borrador v${v.version}? Se borra el archivo subido y no se puede deshacer.`}>Descartar</BotonConfirmar></form>}
                       </span>
                     </li>
                   ))}

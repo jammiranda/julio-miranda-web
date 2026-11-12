@@ -468,7 +468,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
             </div>
             <div className="lg:col-span-3">
               <AsesoriaResumen planes={ase.planes} horas={ase.horas} saldos={ase.saldos} accion={(h) => (
-                <form action={borrarHora}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="hora" value={h.id} /><button className="text-xs underline text-rojo">Borrar</button></form>
+                <form action={borrarHora}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="hora" value={h.id} /><BotonConfirmar clase="text-xs underline text-rojo" mensaje="¿Borrar esta carga de horas? No se puede deshacer.">Borrar</BotonConfirmar></form>
               )} />
             </div>
           </div>

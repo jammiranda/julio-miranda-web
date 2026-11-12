@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache"
 import { q, audit } from "@/lib/db"
 import { instagram } from "@/lib/instagram"
+import BotonConfirmar from "@/components/BotonConfirmar"
 import { acceso, Head, Sec, Barras, Delta, SinDatos, fmt, fechaCorta } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -77,7 +78,7 @@ export default async function Competencia() {
           <Sec t="Historial de cargas" />
           <div className="pc-card">
             <div className="pc-tw"><table><thead><tr><th>Fecha</th><th>Cuenta</th><th>Red</th><th className="n">Seguidores</th><th>Nota</th><th>Cargó</th><th></th></tr></thead>
-              <tbody>{filas.map((f) => <tr key={f.id}><td className="pc-muted" style={{ whiteSpace: "nowrap" }}>{fechaCorta(f.fecha)} {f.fecha.slice(0, 4)}</td><td style={{ overflowWrap: "anywhere" }}>{f.cuenta}</td><td className="pc-muted">{REDES[f.red] ?? f.red}</td><td className="n">{fmt(f.seguidores)}</td><td className="pc-muted">{f.nota ?? ""}</td><td className="pc-muted">{f.creado_por ?? ""}</td><td><form action={borrar}><input type="hidden" name="id" value={f.id} /><button className="pc-x" aria-label={`Borrar el dato de ${f.cuenta} del ${f.fecha}`}>Borrar</button></form></td></tr>)}</tbody>
+              <tbody>{filas.map((f) => <tr key={f.id}><td className="pc-muted" style={{ whiteSpace: "nowrap" }}>{fechaCorta(f.fecha)} {f.fecha.slice(0, 4)}</td><td style={{ overflowWrap: "anywhere" }}>{f.cuenta}</td><td className="pc-muted">{REDES[f.red] ?? f.red}</td><td className="n">{fmt(f.seguidores)}</td><td className="pc-muted">{f.nota ?? ""}</td><td className="pc-muted">{f.creado_por ?? ""}</td><td><form action={borrar}><input type="hidden" name="id" value={f.id} /><BotonConfirmar clase="pc-x" etiqueta={`Borrar el dato de ${f.cuenta} del ${f.fecha}`} mensaje={`¿Borrar el dato de ${f.cuenta} del ${f.fecha}? No se puede deshacer.`}>Borrar</BotonConfirmar></form></td></tr>)}</tbody>
             </table></div>
           </div>
         </>
