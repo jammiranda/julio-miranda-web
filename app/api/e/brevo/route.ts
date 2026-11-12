@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { q } from "@/lib/db"
+import { claveOk } from "@/lib/clave"
 export const dynamic = "force-dynamic"
 
 /**
@@ -9,8 +10,8 @@ export const dynamic = "force-dynamic"
  * Un rebote duro o una queja de spam sacan al contacto de los próximos envíos.
  */
 export async function POST(req: NextRequest) {
-  const clave = process.env.BREVO_WEBHOOK_KEY
-  if (!clave || req.nextUrl.searchParams.get("k") !== clave) return NextResponse.json({ ok: false }, { status: 401 })
+  // Comparación en tiempo constante; sin BREVO_WEBHOOK_KEY cargada no entra nadie
+  if (!claveOk(req.nextUrl.searchParams.get("k"), "BREVO_WEBHOOK_KEY")) return NextResponse.json({ ok: false }, { status: 401 })
   const body = await req.json().catch(() => null)
   const eventos: any[] = Array.isArray(body) ? body : body ? [body] : []
   for (const ev of eventos) {
