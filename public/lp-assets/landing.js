@@ -9,11 +9,26 @@
     add('meta', { name: 'theme-color', content: '#0B0B0D' });
   }
   if (!window.gtag) {
-    var s = add('script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=AW-10953063902' });
+    // Medición (Google Ads, GA4 y Meta): las etiquetas y los eventos quedan en cola desde el primer momento,
+    // pero las librerías (unos 650 kB) se bajan cuando la página ya se ve: al primer toque o scroll,
+    // o 2 segundos después de terminar de cargar. Los eventos en cola se envían cuando llegan.
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { dataLayer.push(arguments); };
     gtag('js', new Date()); gtag('config', 'AW-10953063902'); gtag('config', 'G-DPH6T7Z06S'); gtag('config', 'AW-18556479684'); gtag('event', 'conversion', { send_to: 'AW-18556479684/XsupCIzwlbIdEMTRtZBF', value: 1.0, currency: 'ARS' });
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1597635908717757');fbq('track','PageView');
+    if (!window.fbq) { var n = window.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); }; if (!window._fbq) window._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; }
+    fbq('init','1597635908717757');fbq('track','PageView');
+    var cargada = false, avisos = ['pointerdown', 'touchstart', 'keydown', 'scroll'];
+    var cargar = function () {
+      if (cargada) return; cargada = true;
+      avisos.forEach(function (e) { window.removeEventListener(e, cargar); });
+      add('script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=AW-10953063902' });
+      add('script', { async: '', src: 'https://connect.facebook.net/en_US/fbevents.js' });
+    };
+    avisos.forEach(function (e) { window.addEventListener(e, cargar, { passive: true }); });
+    var luego = function () { setTimeout(cargar, 2000); };
+    if (d.readyState === 'complete') luego(); else window.addEventListener('load', luego);
+    // Si la persona se va antes, las etiquetas se cargan igual para no perder la visita
+    d.addEventListener('visibilitychange', function () { if (d.visibilityState === 'hidden') cargar(); });
   }
 })();
 // WhatsApp de DEVISEBIT: 11 7346-6490
@@ -55,6 +70,17 @@
       // Conversión para Google Ads y Meta (se activa si las etiquetas están instaladas)
       try { if (window.gtag) { gtag('event', 'conversion', { send_to: AW_CONV }); gtag('event', 'contacto_whatsapp', { event_label: msg }); } } catch (e) {}
       try { if (window.fbq) fbq('track', 'Contact'); } catch (e) {}
+    });
+  });
+  // YouTube: el reproductor (más de 1 MB) se carga recién al tocar el recuadro; sin JavaScript, el recuadro abre el canal
+  document.querySelectorAll('a.yt[data-yt]').forEach(function (a) {
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      var c = document.createElement('div'), i = document.createElement('iframe');
+      c.className = 'yt';
+      i.src = a.getAttribute('data-yt') + '&autoplay=1'; i.title = 'Últimos videos de DEVISEBIT en YouTube';
+      i.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share'; i.allowFullscreen = true;
+      c.appendChild(i); a.parentNode.replaceChild(c, a);
     });
   });
   // Animación al hacer scroll
