@@ -29,10 +29,12 @@
 :root[data-theme="light"]{--bg:#f2f5f6;--surface:#ffffff;--raise:#e9eef0;--line:#d3dde1;--ink:#0f1b1f;--muted:#566b72;--accent:#1d67c9;--warm:#b8600f;--health:#13865e;--gov:#6a4fd1;--biz:#b13f6f;color-scheme:light}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:1120px;margin:0 auto;display:grid;gap:64px;padding-block:40px 72px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:64px;padding-block:40px 72px}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
 .eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.hero{display:grid;gap:22px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.back{justify-self:start;font-size:.88rem;font-weight:600;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--ink)}
 .hero h1{font-size:clamp(2.3rem,6.4vw,4.6rem);font-weight:800;line-height:1.02}
 .hero h1 em{font-style:normal;color:var(--accent)}
 .hero p{max-width:62ch;color:var(--muted);margin:0;font-size:1.06rem}
@@ -45,7 +47,7 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.
 .stat b{font-family:var(--display);font-size:2.3rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
 .stat span{color:var(--muted);font-size:.86rem}
 @media (max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
-section{display:grid;gap:22px}
+section{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
 .sh{display:grid;gap:8px}.sh h2{font-size:clamp(1.6rem,3.6vw,2.3rem)}.sh p{margin:0;color:var(--muted);max-width:64ch}
 /* scrubber */
 .scrub{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:12px}
@@ -68,7 +70,7 @@ button,.chip{font:inherit;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .search{flex:1 1 220px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:999px;color:var(--ink);padding:8px 14px;font:inherit;font-size:.9rem}
 /* cases */
-.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:14px}
 .case{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:10px;align-content:start;transition:opacity .3s,transform .3s,border-color .2s;text-align:left;color:inherit}
 .case:hover{border-color:color-mix(in srgb,var(--c) 70%,var(--line));transform:translateY(-2px)}
 .case.dim{opacity:.22}
@@ -104,6 +106,7 @@ footer a{color:var(--accent)}
 <div class="lang-switch" role="group" aria-label="Idioma"><span aria-current="true">ES</span><a href="en/portfolio.html" hreflang="en" lang="en" aria-label="English">EN</a></div>
 <div class="wrap">
 <header class="hero">
+  <a class="back" href="./">← Volver al perfil</a>
   <span class="eyebrow">Julio Miranda · Archivo de proyectos 2009 – 2026</span>
   <h1>Diecisiete años de proyectos <em>que salieron a producción</em>.</h1>
   <p>Del primer diario digital de Catamarca a la gestión tecnológica en salud: portales, apps, plataformas federales, academias online y sistemas de gestión. Cada proyecto cumplió su ciclo y quedó funcionando para quien lo encargó.</p>
