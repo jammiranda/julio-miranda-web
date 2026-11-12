@@ -351,3 +351,23 @@ a.pc-al:hover { border-color: var(--fg); transform: translateX(3px); }
 
 /* Celular: campos de 16px para que iPhone no haga zoom al enfocar */
 @media (max-width: 639.98px) { .pc .pc-inp, .pc input.pc-inp, .pc select.pc-inp, .pc textarea.pc-inp { font-size: 16px !important; } }
+
+/* Tablero diario */
+.tb-dias { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 12px; }
+.tb-pill { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--muted); background: var(--panel); white-space: nowrap; text-decoration: none; min-height: 32px; }
+.tb-pill.on { color: var(--fg); border-color: var(--red); font-weight: 600; }
+.tb-res { margin-bottom: 16px; }
+.tb-sem { font-size: 16px; }
+.tb-p { margin: 8px 0 0; white-space: pre-line; line-height: 1.5; }
+.tb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; align-items: start; }
+.tb-ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.tb-it { display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; font-size: 14px; }
+.tb-it a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.tb-n { flex: none; width: 18px; text-align: center; }
+.tb-h { font-family: var(--mono); font-size: 12px; }
+.tb-d { color: var(--muted); font-size: 13px; }
+.tb-chk { flex: none; width: 24px; height: 24px; border: 1.5px solid var(--line2); border-radius: 7px; background: var(--panel); color: var(--ok); font-weight: 700; cursor: pointer; line-height: 1; }
+.tb-hecho > span { opacity: .5; text-decoration: line-through; }
+.tb-nota { display: grid; gap: 10px; margin-top: 8px; }
+.tb-nota textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font: inherit; background: var(--panel); color: var(--fg); resize: vertical; }
+.tb-btn { justify-self: start; padding: 9px 16px; border-radius: 10px; border: 0; background: var(--red); color: #fff; font-weight: 600; cursor: pointer; }
