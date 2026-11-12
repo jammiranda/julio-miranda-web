@@ -20,18 +20,6 @@
   var slug = (location.pathname.split('/')[1] || '').toLowerCase();
   var w = d.querySelector('#trabajos .work');
   if (w && CASES[slug] && !w.querySelector('.has-img')) w.innerHTML = CASES[slug];
-  if (slug === 'redes') {
-    d.querySelectorAll('.card').forEach(function (c) {
-      var t = c.querySelector('h3');
-      if (!t || t.textContent.indexOf('Anuncios') < 0) return;
-      var pr = c.querySelector('.price'); if (pr) { pr.className = 'price'; pr.innerHTML = '$690.000<small>/mes</small>'; }
-      var tm = c.querySelector('.time'); if (tm) tm.textContent = 'Inversión en anuncios aparte';
-      var li = c.querySelectorAll('li'); if (li[1]) li[1].textContent = 'Anuncios en Instagram y Facebook, con inversión de hasta $800.000 por mes';
-      var b = c.querySelector('.btn'); if (b) { b.textContent = 'Quiero este'; b.setAttribute('data-msg', 'Hola DEVISEBIT, me interesa Redes 360 + Anuncios'); }
-    });
-    var nt = d.querySelector('#planes .note, .note');
-    if (nt && nt.textContent.indexOf('Solo anuncios') < 0) nt.insertAdjacentHTML('afterend', '<p class="note"><b>¿Solo anuncios?</b> Gestión de Meta Ads o Google Ads: armado $120.000 una vez y $150.000 por mes, con hasta $600.000 de inversión incluida. Meta + Google: armado $180.000 y $250.000 por mes. La inversión la pagás vos directo a Meta o Google.</p>');
-  }
 })();
 // WhatsApp de DEVISEBIT: 11 7346-6490
   // Después de enviar un formulario: página de gracias del sitio
