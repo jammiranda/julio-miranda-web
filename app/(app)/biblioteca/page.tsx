@@ -5,7 +5,7 @@ import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { s, fecha } from "@/lib/util"
 import { validarEmail } from "@/lib/demos"
-import { docs, publicar, TROZO, MAX_ARCHIVO, crearEnvio, mandarEnvio, mensajeWA, linkEnvio, peso, type Version, type Envio } from "@/lib/biblioteca"
+import { docs, publicar, guardarVersion, sembrarVersiones, MAX_ARCHIVO, crearEnvio, mandarEnvio, mensajeWA, linkEnvio, peso, type Version, type Envio } from "@/lib/biblioteca"
 import Copiar from "@/components/Copiar"
 import SubirVersion from "@/components/SubirVersion"
 
@@ -61,12 +61,7 @@ async function desdeLink(fd: FormData) {
   }
   if (!buf.length || buf.length > MAX_ARCHIVO || buf.subarray(0, 4).toString() !== "%PDF") vuelta({ err: "El link no es un PDF válido.", doc: docId })
   const nombre = clave ? `${(await one<{ slug: string }>("select slug from bib_docs where id=$1", [docId]))?.slug ?? "documento"}.pdf` : decodeURIComponent(url.pathname.split("/").pop() || "documento.pdf")
-  const partes = Math.ceil(buf.length / TROZO)
-  const v = await one<{ id: number; version: number }>(
-    `insert into bib_versiones(doc_id,version,notas,nombre,mime,tamano,partes,subido_por) values ($1,(select coalesce(max(version),0)+1 from bib_versiones where doc_id=$1),$2,$3,'application/pdf',$4,$5,$6) returning id, version`,
-    [docId, s(fd.get("notas")), nombre, buf.length, partes, u.nombre])
-  for (let n = 0; n < partes; n++) await q("insert into bib_partes(version_id,n,datos) values ($1,$2,$3)", [v!.id, n, buf.subarray(n * TROZO, (n + 1) * TROZO).toString("base64")])
-  await q("update bib_versiones set completo=true where id=$1", [v!.id])
+  const v = await guardarVersion({ docId, buf, nombre, notas: s(fd.get("notas")), por: u.nombre })
   if (fd.get("publicar") === "on") await publicar(v!.id)
   await audit(u, "doc_version_link", "bib_versiones", v!.id, url.toString())
   vuelta({ ok: `Versión ${v!.version} cargada desde el link.`, doc: docId })
@@ -103,6 +98,7 @@ const ESTADO: Record<Version["estado"], string> = { vigente: "bg-emerald-50 text
 
 export default async function Biblioteca({ searchParams: sp }: { searchParams: { ok?: string; err?: string; doc?: string; nuevo?: string } }) {
   await requerir(["gerente", "coordinacion"])
+  await sembrarVersiones()
   const [lista, versiones, envios] = await Promise.all([
     docs(),
     q<Version>("select id, doc_id, version, notas, nombre, mime, tamano, partes, completo, estado, subido_por, creado, publicado from bib_versiones where completo order by version desc"),

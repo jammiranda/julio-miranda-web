@@ -693,6 +693,9 @@ on conflict (slug) do nothing;
 insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
  ('asesoria-consultoria','Asesoría y consultoría · Formatos y valores','Las cinco formas de contratar asesoría en tecnología e IA: horas, bolsas, abonos, plan anual y licencias, con valores. Para mandar a clientes interesados.',false,5)
 on conflict (slug) do nothing;
+insert into bib_docs(slug,titulo,descripcion,confidencial,orden) values
+ ('alta-agente-whatsapp','Alta de cliente · Agente de WhatsApp','Lista de lo que tiene que mandarnos un cliente nuevo del agente de WhatsApp con IA: datos del negocio, horarios, servicios y precios, preguntas frecuentes, tono, derivación, número y acceso a Meta Business, chats reales, lo que el agente nunca debe decir y la aprobación para salir en línea. Para mandar apenas contrata.',false,6)
+on conflict (slug) do nothing;
 create table if not exists diag_respuestas (
   id serial primary key, nivel int not null check (nivel in (1,2,3)),
   contacto_id int not null references db_contactos(id) on delete cascade,

@@ -2,6 +2,7 @@ import { randomBytes } from "crypto"
 import { q, one } from "./db"
 import { enviarBrevo, plantilla } from "./email"
 import { URL_SISTEMA } from "./brief"
+import { PDF_ALTA_AGENTE } from "./material"
 
 /**
  * Documentos de la empresa: manual general, presentación institucional y manuales por rol.
@@ -33,6 +34,35 @@ export async function publicar(versionId: number) {
   await q("update bib_versiones set estado='anterior' where doc_id=$1 and estado='vigente' and id<>$2", [v.doc_id, v.id])
   await q("update bib_versiones set estado='vigente', publicado=now() where id=$1", [v.id])
   return true
+}
+
+/** Guarda un archivo completo como versión nueva (borrador) de un documento, partido en trozos. */
+export async function guardarVersion(o: { docId: number; buf: Buffer; nombre: string; notas?: string | null; por: string; mime?: string }) {
+  const partes = Math.ceil(o.buf.length / TROZO)
+  const v = (await one<{ id: number; version: number }>(
+    `insert into bib_versiones(doc_id,version,notas,nombre,mime,tamano,partes,subido_por) values ($1,(select coalesce(max(version),0)+1 from bib_versiones where doc_id=$1),$2,$3,$4,$5,$6,$7) returning id, version`,
+    [o.docId, o.notas ?? null, o.nombre, o.mime ?? "application/pdf", o.buf.length, partes, o.por]))!
+  for (let n = 0; n < partes; n++) await q("insert into bib_partes(version_id,n,datos) values ($1,$2,$3)", [v.id, n, o.buf.subarray(n * TROZO, (n + 1) * TROZO).toString("base64")])
+  await q("update bib_versiones set completo=true where id=$1", [v.id])
+  return v
+}
+
+/** Documentos que nacen con su versión 1 desde un PDF de este mismo sistema (carpeta public). Las versiones siguientes se suben desde la pantalla. */
+const VERSION_INICIAL = [{ slug: "alta-agente-whatsapp", url: PDF_ALTA_AGENTE, notas: "Versión inicial" }]
+
+/** Carga y publica la versión 1 de esos documentos si todavía no tienen ninguna. Si el PDF no se puede bajar, no hace nada y prueba la próxima vez. */
+export async function sembrarVersiones() {
+  for (const s of VERSION_INICIAL) {
+    const d = await one<{ id: number }>("select d.id from bib_docs d where d.slug=$1 and not exists (select 1 from bib_versiones v where v.doc_id=d.id)", [s.slug]).catch(() => null)
+    if (!d) continue
+    try {
+      const r = await fetch(s.url, { cache: "no-store" })
+      const buf = r.ok ? Buffer.from(await r.arrayBuffer()) : null
+      if (!buf || buf.length > MAX_ARCHIVO || buf.subarray(0, 4).toString() !== "%PDF") continue
+      const v = await guardarVersion({ docId: d.id, buf, nombre: s.url.split("/").pop()!, notas: s.notas, por: "Sistema" })
+      await publicar(v.id)
+    } catch {}
+  }
 }
 
 export const linkEnvio = (e: { token: string }) => `${URL_SISTEMA}/doc/${e.token}`
