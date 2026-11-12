@@ -32,6 +32,17 @@ export function textoSeguimiento(f: Pick<Fila, "nombre" | "mensaje" | "motivo" |
   return `${hola} Te dejo algunos trabajos que hicimos para que veas cómo trabajamos: ${link("casos")}\n\n${cierre}`
 }
 
+const CIERRE = new Set(["no", "gracias", "ok", "okey", "okay", "oka", "listo", "chau", "dale"])
+const RELLENO = new Set(["muchas", "mil", "igual", "bueno", "perfecto", "por", "ahora", "nada", "mas", "esta", "bien", "saludos", "hasta", "luego"])
+/**
+ * ¿El mensaje es solo un cierre ("gracias", "ok", "no, gracias", "listo, muchas gracias")?
+ * Si después del cierre sigue hablando ("dale, pasame precios", "no entiendo", "ok, ¿cuánto sale?") no es un cierre.
+ */
+export function esCierre(t: string | null) {
+  const p = (t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim().split(/\s+/).filter(Boolean)
+  return p.length > 0 && p.length <= 6 && p.some((x) => CIERRE.has(x)) && p.every((x) => CIERRE.has(x) || RELLENO.has(x))
+}
+
 /** Entre las 9 y las 21 de Argentina, todos los días: una consulta de madrugada recibe el seguimiento a la mañana. */
 export function horaDeSeguimiento(d = new Date()) {
   const h = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" })).getHours()
@@ -60,8 +71,8 @@ export async function reenganchar() {
   )
   let enviados = 0
   for (const f of filas) {
-    // Si lo último que dijo fue un cierre ("gracias", "no", "ok"), no se insiste
-    if (/^\s*(no\b|gracias|ok\b|listo|chau|dale\b)/i.test(f.ultimo_cliente ?? "")) continue
+    // Si lo último que dijo fue solo un cierre ("gracias", "no", "ok"), no se insiste
+    if (esCierre(f.ultimo_cliente)) continue
     if ((await modoBot(f.empresa)) === "nunca") continue
     const texto = textoSeguimiento(f)
     const env = await enviarTexto(f.empresa, f.wa_id, texto)
