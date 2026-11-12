@@ -31,4 +31,9 @@ export async function catalogo() {
 export const TIPOS = ["Sitio web institucional", "Tienda online / venta por web", "Sistema de gestión a medida", "App para celular", "Asistente de WhatsApp con IA", "Tablero de indicadores", "Academia / cursos online", "Integración entre sistemas", "Otro"]
 export const FUNCIONES = ["Catálogo de productos", "Pagos online (Mercado Pago, tarjetas)", "Turnos / reservas", "Usuarios y permisos", "Panel para cargar contenido", "Formularios y CRM", "WhatsApp integrado", "Facturación / AFIP", "Reportes y tableros", "Varios idiomas", "Integración con mi sistema actual", "Inteligencia artificial"]
 export const PLAZOS = ["Lo antes posible", "En 1 mes", "En 2 a 3 meses", "Más adelante / evaluando"]
-export const INVERSION = ["Menos de USD 1.000", "USD 1.000 a 3.000", "USD 3.000 a 8.000", "USD 8.000 a 20.000", "Más de USD 20.000", "Prefiero que me orienten"]
+/**
+ * Inversión inicial en pesos, alineada con la lista de precios (lib/precios.ts): hasta $500.000 entran Landing Express, Web PyME y los agentes Respuestas y Ventas;
+ * hasta $1.000.000, Web + Agente, Web Autoadministrable, Agente Turnos y los sistemas de CRM o turnos; hasta $2.500.000, gestión y tableros y las plataformas
+ * para comunidades; más arriba, sistemas a medida. La respuesta se guarda como texto en consultas.brief y nada depende del valor: los briefs viejos (en USD) se siguen viendo tal cual.
+ */
+export const INVERSION = ["Menos de $500.000", "$500.000 a $1.000.000", "$1.000.000 a $2.500.000", "$2.500.000 a $5.000.000", "Más de $5.000.000", "Prefiero que me orienten"]

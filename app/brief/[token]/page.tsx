@@ -118,7 +118,7 @@ export default async function Brief({ params, searchParams }: { params: { token:
           <h2 className="m-0 text-lg">4. Tiempos e inversión</h2>
           <p className="m-0 text-sm font-semibold">¿Para cuándo lo necesitás?</p>
           <div className="flex flex-wrap gap-2">{PLAZOS.map((x) => <Pill key={x} name="plazo" v={x} type="radio" />)}</div>
-          <p className="m-0 text-sm font-semibold">¿Qué inversión tenés pensada? <span className="font-normal text-[var(--gris)]">Nos ayuda a proponerte la mejor opción para tu presupuesto (por ejemplo, arrancar por una primera etapa).</span></p>
+          <p className="m-0 text-sm font-semibold">¿Qué inversión inicial tenés pensada? <span className="font-normal text-[var(--gris)]">En pesos argentinos, sin contar el abono mensual. Nos ayuda a proponerte la mejor opción para tu presupuesto (por ejemplo, arrancar por una primera etapa).</span></p>
           <div className="flex flex-wrap gap-2">{INVERSION.map((x) => <Pill key={x} name="inversion" v={x} type="radio" />)}</div>
           <label className="lbl">¿Algo más que debamos saber?<textarea name="extra" rows={3} className="inp" /></label>
         </section>
