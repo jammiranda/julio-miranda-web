@@ -39,8 +39,9 @@ const base = "absolute pointer-events-none select-none acad-flota"
 export default function Flotantes() {
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden xl:hidden">
-      <Gorro k="a" className={base + " w-[64px] sm:w-[92px] left-[6%] top-[58%] sm:top-[62%]"} style={{ animationDelay: "-1s" }} />
-      <Play k="a" className={base + " w-[56px] sm:w-[84px] right-[5%] top-[10%] sm:top-[14%]"} style={{ animationDelay: "-3s" }} />
+      {/* En celular el gorro y el play caían sobre el texto del formulario: ahí queda solo el chip, junto a las portadas */}
+      <Gorro k="a" className={base + " hidden sm:block sm:w-[92px] left-[6%] sm:top-[62%]"} style={{ animationDelay: "-1s" }} />
+      <Play k="a" className={base + " hidden sm:block sm:w-[84px] right-[5%] sm:top-[14%]"} style={{ animationDelay: "-3s" }} />
       <Certificado k="a" className={base + " w-[58px] sm:w-[86px] left-[44%] top-[3%] hidden sm:block"} style={{ animationDelay: "-5s" }} />
       <ChipIA k="a" className={base + " w-[52px] sm:w-[78px] right-[3%] bottom-[22%] sm:bottom-[26%]"} style={{ animationDelay: "-2s" }} />
     </div>
