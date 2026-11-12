@@ -71,7 +71,7 @@ export default async function Publicaciones({ searchParams }: { searchParams: { 
         <div className="pc-seg" role="group" aria-label="Orden">{ORDEN.map(([k, t]) => <a key={k} href={link({ orden: k })} aria-current={orden === k ? "true" : undefined}>{t}</a>)}</div>
         <form action={`${b}/publicaciones`} className="pc-row" style={{ gap: 6 }}>
           {red && <input type="hidden" name="red" value={red} />}{per[0] !== "90" && <input type="hidden" name="periodo" value={per[0]} />}{orden && <input type="hidden" name="orden" value={orden} />}
-          <input className="pc-inp" name="q" defaultValue={busca} placeholder="Buscar en el texto" style={{ maxWidth: 200 }} />
+          <input className="pc-inp" type="search" name="q" defaultValue={busca} placeholder="Buscar en el texto" aria-label="Buscar en el texto de las publicaciones" style={{ maxWidth: 200 }} />
         </form>
       </div>
 

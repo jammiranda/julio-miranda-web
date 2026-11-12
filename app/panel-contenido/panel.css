@@ -348,3 +348,6 @@ a.pc-al:hover { border-color: var(--fg); transform: translateX(3px); }
   .pc-exp-sg .pc-sp, .pc-exp-sg .pc-plot, .pc-exp-sg .pc-bar, .pc-exp-sg .pc-emb .b { display: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Celular: campos de 16px para que iPhone no haga zoom al enfocar */
+@media (max-width: 639.98px) { .pc .pc-inp, .pc input.pc-inp, .pc select.pc-inp, .pc textarea.pc-inp { font-size: 16px !important; } }
