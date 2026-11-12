@@ -26,7 +26,7 @@ export function textoSeguimiento(f: Pick<Fila, "nombre" | "mensaje" | "motivo" |
   const cierre = f.email
     ? "Si me contás un poco más de lo que necesitás, te armamos una propuesta a medida. ¿Seguimos por acá?"
     : "Si me contás a qué se dedica tu negocio y me dejás un email, te mandamos una propuesta a medida por escrito. ¿A qué email te la enviamos?"
-  if (/\bweb|sitio|p[aá]gina|landing|tienda/.test(tema)) return `${hola} Te dejo el folleto de páginas web, con precios y qué incluye cada una: ${link("brochure")}\n\n${cierre}`
+  if (/\bweb|sitio|p[aá]gina|landing|tienda/.test(tema)) return `${hola} Te dejo el folleto de páginas web, con qué incluye cada una y cómo trabajamos: ${link("brochure")}\n\nY acá están los precios: ${link("webs")}\n\n${cierre}`
   if (/redes|instagram|facebook|anuncio|seguidor|community/.test(tema)) return `${hola} Te dejo los planes de redes y anuncios, con precios y qué incluye cada uno: ${link("redes")}\n\n${cierre}`
   if (/whatsapp|bot|asistente|chatbot/.test(tema)) return `${hola} Te dejo cómo funciona el asistente de WhatsApp con IA y sus precios: ${link("whatsapp")}\n\n${cierre}`
   return `${hola} Te dejo algunos trabajos que hicimos para que veas cómo trabajamos: ${link("casos")}\n\n${cierre}`
