@@ -67,10 +67,51 @@
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: .12 }) : null;
   document.querySelectorAll('.reveal').forEach(function (el) { io ? io.observe(el) : el.classList.add('in'); });
-  // Formulario de inicio: también cuenta como contacto
+  // Formularios: la consulta entra al sistema de DEVISEBIT (CRM) con el origen de la visita, igual que el
+  // formulario del sitio (lib/send-form.ts), y después sigue el envío normal por correo (FormSubmit).
+  var CRM = 'https://sistema.devisebit.com/api/consultas';
+  // Conversión Google Ads de formulario: la misma etiqueta que usa el formulario de contacto del sitio
+  var AW_FORM = 'AW-10953063902/fEQsCN6s7aQdEN776eYo';
+  function origen() {
+    try { var o = JSON.parse(localStorage.getItem('db_origen') || '{}') || {}; return o.t && Date.now() - o.t < 90 * 864e5 ? o : {}; } catch (e) { return {}; }
+  }
+  function oculto(f, n, v) {
+    var i = f.querySelector('input[type="hidden"][name="' + n + '"]');
+    if (!i) { i = document.createElement('input'); i.type = 'hidden'; i.name = n; f.appendChild(i); }
+    i.value = v;
+  }
+  function consulta(f, o) {
+    var v = function (n) { var e = f.elements[n]; return e && typeof e.value === 'string' ? e.value.trim() : ''; };
+    var propios = { Nombre: 1, WhatsApp: 1, email: 1, Negocio: 1, Empresa: 1 }, lineas = [];
+    Array.prototype.forEach.call(f.elements, function (e) {
+      if (!e.name || e.name.charAt(0) === '_' || e.type === 'hidden' || propios[e.name]) return;
+      var x = (e.value || '').trim(); if (x) lineas.push(e.name + ': ' + x);
+    });
+    lineas.push('Página: ' + location.pathname);
+    var c = { canal: 'web', nombre: v('Nombre'), email: v('email'), organizacion: v('Negocio') || v('Empresa'), telefono: v('WhatsApp'), motivo: v('_subject') || 'Consulta', mensaje: lineas.join('\n') };
+    for (var k in o) c[k] = o[k];
+    return c;
+  }
   document.querySelectorAll('form').forEach(function (f) {
-    f.addEventListener('submit', function () {
-      try { if (window.gtag) gtag('event', 'conversion', { send_to: AW_CONV }); } catch (e) {}
+    f.addEventListener('submit', function (ev) {
+      if (f._enviando) { ev.preventDefault(); return; }
+      try { if (window.gtag) gtag('event', 'conversion', { send_to: AW_FORM, value: 1.0, currency: 'ARS' }); } catch (e) {}
       try { if (window.fbq) fbq('track', 'Lead'); } catch (e) {}
+      try {
+        if (f.elements._honey && f.elements._honey.value) return; // trampa para bots: no entra al sistema
+        var o = origen();
+        // El correo también lleva el origen de la visita
+        ['utm_source', 'utm_medium', 'utm_campaign', 'gclid', 'landing', 'referrer'].forEach(function (k) { if (o[k]) oculto(f, k, o[k]); });
+        oculto(f, 'Página', location.pathname);
+        var cuerpo = JSON.stringify(consulta(f, o));
+        // El envío por correo sigue cuando el sistema respondió o, como mucho, en 1,2 segundos; si el sistema falla, sigue igual
+        var hecho = false, seguir = function () { if (hecho) return; hecho = true; HTMLFormElement.prototype.submit.call(f); };
+        var espera = setTimeout(seguir, 1200), fin = function () { clearTimeout(espera); seguir(); };
+        ev.preventDefault(); f._enviando = true;
+        if (window.fetch) fetch(CRM, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: cuerpo, keepalive: true }).then(fin, fin);
+        else { try { navigator.sendBeacon(CRM, new Blob([cuerpo], { type: 'application/json' })); } catch (e) {} fin(); }
+      } catch (e) {}
     });
   });
+  // Al volver atrás desde la página de gracias, el formulario se puede enviar de nuevo
+  window.addEventListener('pageshow', function () { document.querySelectorAll('form').forEach(function (f) { f._enviando = false; }); });
