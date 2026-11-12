@@ -50,8 +50,8 @@ export default async function ListaPrecios() {
                   {p.incluye && <p className="m-0 text-sm text-[#262C37]">{p.incluye}</p>}
                   {p.argumento && <p className="m-0 text-xs text-[#4A515C]">{p.argumento}</p>}
                   <div className="flex gap-3 mt-auto pt-1 text-sm no-print">
-                    <a href={wa(p.producto)} className="font-semibold text-[#C8231F]">Lo quiero →</a>
-                    {p.link && <a href={p.link} className="text-[#4A515C] underline">Ver detalle</a>}
+                    <a href={wa(p.producto)} className="inline-flex items-center min-h-[44px] sm:min-h-0 font-semibold text-[#C8231F]">Lo quiero →</a>
+                    {p.link && <a href={p.link} className="inline-flex items-center min-h-[44px] sm:min-h-0 text-[#4A515C] underline">Ver detalle</a>}
                   </div>
                 </article>
               ))}
