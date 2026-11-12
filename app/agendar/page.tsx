@@ -25,15 +25,14 @@ async function empezar(fd: FormData) {
     `select 1 from diag_respuestas where (email is not null and lower(email)=$1) or ($2::text is not null and regexp_replace(coalesce(telefono,''),'[^0-9+]','','g')=$2)
      union all select 1 from demo_diagnosticos where marca='devisebit' and email is not null and lower(email)=$1 limit 1`, [email ?? "", tel]))
   if (!hizo) redirect("/agendar?x=1")
-  const previa = await one<{ id: number; brief_token: string | null }>(
-    "select id, brief_token from consultas where estado <> 'descartada' and ((telefono is not null and telefono=$1) or (email is not null and lower(email)=$2)) order by creado desc limit 1", [tel, email])
-  const tok = previa?.brief_token ?? randomBytes(9).toString("base64url")
-  if (previa) await q("update consultas set brief_token=coalesce(brief_token,$1), nombre=coalesce(nombre,$2), email=coalesce(email,$3), telefono=coalesce(telefono,$4), actualizado=now() where id=$5", [tok, nombre, email, tel, previa.id])
-  else {
-    await q("insert into consultas(empresa,canal,nombre,telefono,email,organizacion,motivo,mensaje,brief_token) values ('devisebit','web',$1,$2,$3,$4,$5,$6,$7)",
-      [nombre, tel, email, s("organizacion"), s("motivo") ?? "Reunión agendada desde el link general", s("motivo", 1000), tok])
-    await notificar(["gerente", "coordinacion"], "🗓️ Están agendando una reunión", `${nombre}${s("organizacion") ? ` (${s("organizacion")})` : ""} entró al link de agenda`, "/consultas?v=bandeja")
-  }
+  // Siempre una consulta nueva con su propio link: escribir el email o el teléfono de otra persona no da acceso a su ficha ni a su reunión.
+  // Si ya había una consulta con esos datos, queda anotada solo para el equipo.
+  const previa = await one<{ id: number }>(
+    "select id from consultas where estado <> 'descartada' and ((telefono is not null and telefono=$1) or (email is not null and lower(email)=$2)) order by creado desc limit 1", [tel, email]).catch(() => null)
+  const tok = randomBytes(9).toString("base64url")
+  await q("insert into consultas(empresa,canal,nombre,telefono,email,organizacion,motivo,mensaje,brief_token,notas) values ('devisebit','web',$1,$2,$3,$4,$5,$6,$7,$8)",
+    [nombre, tel, email, s("organizacion"), s("motivo") ?? "Reunión agendada desde el link general", s("motivo", 1000), tok, previa ? `Entró por el link general de agenda. Ya había una consulta con el mismo email o teléfono: #${previa.id}` : null])
+  await notificar(["gerente", "coordinacion"], "🗓️ Están agendando una reunión", `${nombre}${s("organizacion") ? ` (${s("organizacion")})` : ""} entró al link de agenda`, "/consultas?v=bandeja")
   redirect(`/agendar/${tok}`)
 }
 
