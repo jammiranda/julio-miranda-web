@@ -39,9 +39,34 @@
   var WA = '5491173466490';
   // Conversión Google Ads «Contacto por WhatsApp»
   var AW_CONV = 'AW-10953063902/pk_YCMaLpaodEN776eYo';
+  // Origen de la visita (igual que el sitio): guarda gclid/utm 90 días y agrega [ref:...] al mensaje,
+  // para que el sistema sepa si la consulta vino de Google Ads, Meta u orgánico y de qué campaña
+  var REF = (function () {
+    var K = 'db_origen', o = {};
+    try { o = JSON.parse(localStorage.getItem(K) || '{}') || {}; if (!(o.t && Date.now() - o.t < 90 * 864e5)) o = {}; } catch (e) { o = {}; }
+    try {
+      var p = new URLSearchParams(location.search), n = {}, hay = false;
+      ['utm_source', 'utm_medium', 'utm_campaign', 'gclid', 'gbraid', 'wbraid', 'fbclid'].forEach(function (k) { var v = p.get(k); if (v) { n[k] = v.slice(0, 200); hay = true; } });
+      if (hay || !o.t) {
+        n.landing = location.pathname;
+        n.referrer = document.referrer && document.referrer.indexOf(location.host) < 0 ? document.referrer.slice(0, 200) : '';
+        n.t = Date.now(); o = n;
+        localStorage.setItem(K, JSON.stringify(o));
+      }
+    } catch (e) {}
+    var s = (o.utm_source || '').toLowerCase(), m = (o.utm_medium || '').toLowerCase();
+    var k = o.gclid || o.gbraid || o.wbraid || (s.indexOf('google') >= 0 && /cpc|ppc|paid|ads/.test(m)) ? 'gads'
+      : (/facebook|instagram|meta/.test(s) && /cpc|paid|ads/.test(m)) ? 'meta'
+      : /facebook|instagram|linkedin|social/.test(s) || o.fbclid ? 'social'
+      : /google|bing/.test(s) || /google\./.test(o.referrer || '') ? 'seo' : '';
+    if (!k) return '';
+    // Sin utm_campaign (etiquetado automático de Google): se usa la landing de entrada, que identifica la campaña
+    var c = o.utm_campaign || ((o.landing || '').split('/')[1] || '');
+    return ' [ref:' + k + (c ? '|' + c.slice(0, 40) : '') + ']';
+  })();
   document.querySelectorAll('.js-wa').forEach(function (a) {
     var msg = a.getAttribute('data-msg') || 'Hola DEVISEBIT';
-    a.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+    a.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg + REF);
     a.target = '_blank'; a.rel = 'noopener';
     a.addEventListener('click', function () {
       // Conversión para Google Ads y Meta (se activa si las etiquetas están instaladas)
