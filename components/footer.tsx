@@ -66,7 +66,7 @@ export default function Footer({ lang = "es" }: { lang?: "es" | "en" } = {}) {
   const cols = en ? COLUMNAS_EN : COLUMNAS
   return (
     <footer className="bg-[#0B0D12] text-[#C3C8D1] border-t border-white/10 text-[15px]">
-      <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-14 pb-8 flex flex-col gap-10">
+      <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-14 pb-20 md:pb-8 flex flex-col gap-10">
         <div className={`grid gap-10 ${en ? "md:grid-cols-[1.3fr_1fr_1fr]" : "md:grid-cols-[1.3fr_1fr_1fr_1fr]"}`}>
           <div className="flex flex-col gap-4">
             <span className="font-tight font-extrabold text-white text-2xl tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> SRL</span>

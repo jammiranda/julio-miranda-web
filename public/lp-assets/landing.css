@@ -72,3 +72,8 @@ form.brief details.mas > p { margin-top:8px; font-size:14px; color:var(--muted);
 form.brief .mas-campos { display:grid; grid-template-columns:1fr 1fr; gap:14px 16px; margin-top:6px; }
 form.brief .mas-campos .full { grid-column:1 / -1; }
 @media (max-width: 520px) { form.brief .mas-campos { grid-template-columns:1fr; } .hero-precio { margin-top:18px; } .hero .hero-precio + .ctas { margin-top:18px; } }
+
+/* Botón flotante de WhatsApp: se esconde mientras se completa un campo y es más chico en celular */
+.wa-float { transition:transform .2s, opacity .2s; }
+body:has(input:focus, select:focus, textarea:focus) .wa-float { opacity:0; pointer-events:none; }
+@media (max-width: 520px) { .wa-float { right:12px; bottom:12px; width:52px; height:52px; } .wa-float svg { width:27px; height:27px; } }
