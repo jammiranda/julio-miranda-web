@@ -11,7 +11,14 @@ const nextConfig = {
   },
   async headers() {
     // Los videos de demos se pueden leer desde otras páginas (subida a YouTube Studio)
-    return [{ source: "/dv-e96893d90d8d/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] }]
+    return [
+      { source: "/dv-e96893d90d8d/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] },
+      // Caché del navegador para archivos de /public (los de /_next/static ya salen con caché de un año).
+      // La fuente no cambia nunca; las imágenes, una semana; el estilo y el script de las landings, una hora.
+      { source: "/lp-assets/:f*.woff2", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/images/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }] },
+      { source: "/lp-assets/:f(landing\\.css|landing\\.js|favicon-32\\.png)", headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }] },
+    ]
   },
   async redirects() {
     return [
