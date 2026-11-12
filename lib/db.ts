@@ -233,6 +233,13 @@ create table if not exists avisos_estado (
 );
 create table if not exists avisos_email (clave text primary key, enviado timestamptz not null default now());
 create table if not exists avisos_telegram (clave text primary key, enviado timestamptz not null default now());
+create table if not exists informe_diario (
+  dia date not null, edicion text not null check (edicion in ('manana','cierre')),
+  semaforo text not null default 'verde', resumen text not null default '', secciones jsonb not null default '[]'::jsonb,
+  creado timestamptz not null default now(), primary key (dia, edicion)
+);
+create table if not exists informe_tildes (dia date not null, clave text not null, hecho boolean not null default true, actualizado timestamptz not null default now(), primary key (dia, clave));
+create table if not exists informe_notas (dia date primary key, texto text not null default '', actualizado timestamptz not null default now());
 create table if not exists pv_visitas (
   dia date not null, host text not null, path text not null, ref text not null default '', disp text not null default '',
   n int not null default 0,

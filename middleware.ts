@@ -44,6 +44,16 @@ export function middleware(req: NextRequest) {
     u.pathname = "/panel-contenido" + (p === "/" ? "" : p)
     return NextResponse.rewrite(u)
   }
+  // tablero.devisebit.com: Tablero diario de Julio (vive en /panel-contenido/tablero) con la misma sesión; la página vuelve a verificar que sea Julio
+  if (host.startsWith("tablero.")) {
+    if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
+    if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
+    if (!req.cookies.get("db_sesion")) return NextResponse.redirect(host.startsWith("tablero.localhost") ? new URL("/login", req.url) : "https://tablero.devisebit.com/login")
+    if (p === "/panel-contenido/tablero") return NextResponse.next()
+    const t = req.nextUrl.clone()
+    t.pathname = "/panel-contenido/tablero"
+    return NextResponse.rewrite(t)
+  }
   // oficina.devisebit.com: Oficina de agentes (vive en /oficina). Solo entra Julio (rol gerente); la ruta lo vuelve a verificar
   if (host.startsWith("oficina.")) {
     if (p.startsWith("/api") || p.startsWith("/_next") || /\.(png|ico|txt|xml|webmanifest|js|jpg|svg)$/.test(p)) return NextResponse.next()
