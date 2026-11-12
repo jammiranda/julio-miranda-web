@@ -17,7 +17,7 @@ async function agregar(fd: FormData) {
   const seguidores = Math.round(Number(String(fd.get("seguidores") ?? "").replace(/\./g, "").replace(",", ".")))
   const fecha = String(fd.get("fecha") ?? "")
   if (cuenta.length < 2 || !REDES[red] || !Number.isFinite(seguidores) || seguidores < 0) return
-  await q(`insert into pc_competencia(cuenta,red,seguidores,fecha,nota,creado_por) values ($1,$2,$3,coalesce(nullif($4,'')::date,current_date),nullif($5,''),$6)`, [cuenta, red, seguidores, /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : "", String(fd.get("nota") ?? "").trim().slice(0, 200), u.usuario])
+  await q(`insert into pc_competencia(cuenta,red,seguidores,fecha,nota,creado_por) values ($1,$2,$3,coalesce(nullif($4,'')::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date),nullif($5,''),$6)`, [cuenta, red, seguidores, /^\d{4}-\d{2}-\d{2}$/.test(fecha) ? fecha : "", String(fd.get("nota") ?? "").trim().slice(0, 200), u.usuario])
   await audit(u, "competencia_carga", "pc_competencia", cuenta)
   revalidatePath("/panel-contenido/competencia")
 }

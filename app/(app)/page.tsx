@@ -55,7 +55,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
       <ParaHoy items={[
         { n: sinPasar.length, t: "Consultas del bot sin atender", d: "Pasalas a contacto o descartalas", href: "/consultas", accion: "Abrir" },
         { n: proximos.filter((c: any) => { const f = iso(c.proximo_fecha); return f && f < hoy }).length, t: "Próximos pasos vencidos", d: "Contactos con una acción atrasada", href: "/contactos", accion: "Ver", tono: "av" },
-        { n: todas.filter((r) => r.ini.toISOString().slice(0, 10) === hoy).length, t: "Reuniones de hoy", d: "Entrá desde la lista de abajo", href: "#reuniones", accion: "Ver", tono: "ok" },
+        { n: todas.filter((r) => local(r.ini).fecha === hoy).length, t: "Reuniones de hoy", d: "Entrá desde la lista de abajo", href: "#reuniones", accion: "Ver", tono: "ok" },
       ]} />
       <Kpis datos={ETAPAS.map((e) => ({ t: e.n, v: n[e.v] ?? 0, href: `/contactos?etapa=${e.v}`, tono: e.v === "ganado" ? "oscuro" as const : undefined }))} min={130} />
 

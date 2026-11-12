@@ -96,7 +96,7 @@ export async function resolverRapido(fd: FormData) {
   if (clave === "prospeccion") {
     await marcarEnviado(id, u.nombre ?? u.usuario)
   } else if (clave === "movimientos") {
-    await q("update g_movimientos set estado='pagado', fecha=coalesce(fecha, current_date), actualizado=now() where id=$1 and estado='pendiente'", [id])
+    await q("update g_movimientos set estado='pagado', fecha=coalesce(fecha, (now() at time zone 'America/Argentina/Buenos_Aires')::date), actualizado=now() where id=$1 and estado='pendiente'", [id])
   } else if (clave === "vencimientos") {
     const v = await one<any>("select * from g_vencimientos where id=$1", [id])
     if (v && v.estado !== "hecho") {
