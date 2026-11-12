@@ -1,6 +1,7 @@
 {
   "headers": [
     { "source": "/og.png", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] },
+    { "source": "/og-en.png", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] },
     { "source": "/docs/CV-Julio-Miranda-Gestion.pdf", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
   ]
 }
