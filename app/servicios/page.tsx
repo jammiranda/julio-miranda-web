@@ -121,7 +121,7 @@ export default function ServiciosPage() {
                     )}
                     <div className="mt-auto pt-3 flex items-center justify-between gap-3">
                       <strong className="font-tight text-lg">{x.price}</strong>
-                      <Link href={x.href} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 font-bold text-white text-[15px] transition-colors">Ver planes →</Link>
+                      <Link href={x.href} className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] shrink-0 whitespace-nowrap px-4 py-2.5 font-bold text-white text-[15px] transition-colors">Ver planes →</Link>
                     </div>
                   </div>
                 </article>
