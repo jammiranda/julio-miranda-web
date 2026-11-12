@@ -1,6 +1,8 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { one } from "@/lib/db"
 export const dynamic = "force-dynamic"
+export const metadata: Metadata = { title: "Tu compra", robots: { index: false, follow: false } }
 export default async function Gracias({ params, searchParams }: { params: { token: string }; searchParams: { e?: string } }) {
   const o = await one<any>(
     `select o.*, coalesce(p.titulo, c.titulo) titulo, coalesce(p.servicio, false) servicio, c.slug curso_slug

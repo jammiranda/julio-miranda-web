@@ -3,7 +3,7 @@ import { ultimosVideos, miniatura, linkVideo, YT_SUSCRIBIR, YT_URL } from "@/lib
 import VideoGaleria from "@/components/VideoGaleria"
 
 export const revalidate = 1800
-export const metadata: Metadata = { title: "Videos", description: "Guías en video, casos reales y tips de inteligencia artificial para pymes e instituciones." }
+export const metadata: Metadata = { title: "Videos", alternates: { canonical: "/videos" }, description: "Guías en video, casos reales y tips de inteligencia artificial para pymes e instituciones." }
 
 export default async function Videos() {
   const videos = await ultimosVideos(60)

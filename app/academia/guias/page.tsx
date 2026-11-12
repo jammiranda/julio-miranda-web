@@ -3,7 +3,7 @@ import { q } from "@/lib/db"
 import { sembrar } from "@/lib/academia"
 import GuiasLista from "./GuiasLista"
 export const dynamic = "force-dynamic"
-export const metadata: Metadata = { title: "Guías", description: "Todas las guías gratis de la ACADEMIA DEVISEBIT: IA, automatización, WhatsApp, datos y seguridad." }
+export const metadata: Metadata = { title: "Guías", alternates: { canonical: "/guias" }, description: "Todas las guías gratis de la ACADEMIA DEVISEBIT: IA, automatización, WhatsApp, datos y seguridad." }
 
 export default async function Guias({ searchParams }: { searchParams: { c?: string } }) {
   await sembrar()

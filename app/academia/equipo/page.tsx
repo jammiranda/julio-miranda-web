@@ -4,7 +4,7 @@ import { EQUIPO } from "@/lib/equipo"
 import Foto from "./_ui/Foto"
 import Revelar from "../_ui/Revelar"
 
-export const metadata: Metadata = { title: "Equipo académico", description: "Quiénes enseñan en la ACADEMIA DEVISEBIT: la dirección académica y los especialistas invitados." }
+export const metadata: Metadata = { title: "Equipo académico", alternates: { canonical: "/equipo" }, description: "Quiénes enseñan en la ACADEMIA DEVISEBIT: la dirección académica y los especialistas invitados." }
 
 const GRUPO = { academica: "Dirección académica", direccion: "DEVISEBIT", especialista: "Especialista" } as const
 const ORDEN = { academica: 0, direccion: 1, especialista: 2 } as const

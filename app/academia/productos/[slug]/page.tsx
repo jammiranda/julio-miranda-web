@@ -13,7 +13,7 @@ const archivoListo = (p: any) => !String(p?.archivo_url ?? "").startsWith("enc:"
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const p = await one<any>("select titulo, bajada from am_productos where slug=$1 and estado<>'oculto'", [params.slug]).catch(() => null)
-  return p ? { title: p.titulo, description: p.bajada } : {}
+  return p ? { title: p.titulo, description: p.bajada, alternates: { canonical: `/productos/${params.slug}` } } : {}
 }
 
 const WA_EXTERIOR = "https://wa.me/5491173466490?text=" + encodeURIComponent("Hola DEVISEBIT, quiero comprar desde el exterior: ")

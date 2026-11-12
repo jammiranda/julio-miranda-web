@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { ultimosVideos, YT_SUSCRIBIR, miniatura, linkVideo } from "@/lib/youtube"
 import VideoGaleria from "@/components/VideoGaleria"
 import Link from "next/link"
@@ -14,6 +15,7 @@ import Flotantes from "./_ui/Flotantes"
 import RutaFlotante from "./_ui/RutaFlotante"
 
 export const dynamic = "force-dynamic"
+export const metadata: Metadata = { alternates: { canonical: "/" } }
 
 const DIAGNOSTICO = "https://www.devisebit.com/diagnostico"
 const WA = "https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20vengo%20de%20la%20Academia"
