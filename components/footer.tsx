@@ -58,6 +58,8 @@ const COLUMNAS_EN = [
 ]
 
 const link = "hover:text-white transition-colors"
+// En las columnas, cada link ocupa más alto para que sea fácil de tocar en el celular
+const linkCol = "inline-block py-1.5 " + link
 
 export default function Footer({ lang = "es" }: { lang?: "es" | "en" } = {}) {
   const en = lang === "en"
@@ -75,13 +77,13 @@ export default function Footer({ lang = "es" }: { lang?: "es" | "en" } = {}) {
           {cols.map((c) => (
             <nav key={c.title} aria-label={c.title} className="flex flex-col gap-3">
               <span className="text-white font-semibold">{c.title}</span>
-              <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
+              <ul className="m-0 p-0 list-none flex flex-col gap-0.5">
                 {c.links.map((l) => (
                   <li key={l.href}>
                     {l.href.startsWith("http") ? (
-                      <a href={l.href} target="_blank" rel="noopener noreferrer" className={link}>{l.label}</a>
+                      <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkCol}>{l.label}</a>
                     ) : (
-                      <Link href={l.href} className={link}>{l.label}</Link>
+                      <Link href={l.href} className={linkCol}>{l.label}</Link>
                     )}
                   </li>
                 ))}
