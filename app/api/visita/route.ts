@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { q } from "@/lib/db"
+import { waitUntil } from "@vercel/functions"
+import { reengancharSiToca } from "@/lib/reenganche"
 
 export const dynamic = "force-dynamic"
 
@@ -45,6 +47,8 @@ export async function POST(req: NextRequest) {
        on conflict (dia,host,path,ref,disp) do update set n=pv_visitas.n+1`,
       [host, path, ref, disp],
     )
+    // Cada visita al sitio sirve de reloj para el seguimiento del bot a quienes no contestaron (como mucho cada 10 minutos)
+    waitUntil(reengancharSiToca())
   } catch {}
   return new NextResponse(null, { status: 204, headers: cors })
 }

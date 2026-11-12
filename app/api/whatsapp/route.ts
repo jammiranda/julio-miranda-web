@@ -6,6 +6,7 @@ import { q } from "@/lib/db"
 import { desdeReferral } from "@/lib/origen"
 import { bajarAudio, esJulio, jefePorWhatsApp } from "@/lib/oficina-wa"
 import { transcribir } from "@/lib/oficina"
+import { reengancharSiToca } from "@/lib/reenganche"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -68,6 +69,8 @@ export async function POST(req: NextRequest) {
       })().catch((err) => console.error("bot", err)))
     }
   }
+  // Seguimiento a quienes no contestaron (como mucho cada 10 minutos)
+  tareas.push(reengancharSiToca())
   waitUntil(Promise.all(tareas))
   return new NextResponse("ok")
 }
