@@ -59,6 +59,8 @@ async function guardar(fd: FormData) {
 const iso = (d: any) => (d ? (typeof d === "string" ? d : new Date(d).toISOString()).slice(0, 10) : "")
 
 export default async function Contacto({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; err?: string; consulta?: string; pok?: string; pinv?: string; perr?: string; email?: string; nombre?: string } }) {
+  // La sesión se valida acá también: el layout no vuelve a ejecutarse en cada pedido de la página
+  await requerir()
   const nuevo = params.id === "nuevo"
   let c: any = {}
   if (!nuevo) {

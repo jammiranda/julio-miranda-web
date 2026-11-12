@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { q } from "@/lib/db"
+import { requerir } from "@/lib/auth"
 import { ETAPAS, etapa, estadoProy } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
 import { local, calendarioConectado } from "@/lib/agenda"
@@ -9,6 +10,8 @@ import { Kpis, ParaHoy } from "@/components/Kpi"
 export const dynamic = "force-dynamic"
 
 export default async function Resumen({ searchParams }: { searchParams: { dias?: string } }) {
+  // La sesión se valida acá también: el layout no vuelve a ejecutarse en cada pedido de la página
+  await requerir()
   const dias = [30, 90, 365].includes(Number(searchParams.dias)) ? Number(searchParams.dias) : 30
   const [cuenta, proximos, activos, sinPasar, fuentes, reuniones] = await Promise.all([
     q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos where clase in ('oportunidad','cliente') group by etapa"),

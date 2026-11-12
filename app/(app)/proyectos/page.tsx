@@ -1,11 +1,14 @@
 import Link from "next/link"
 import { q } from "@/lib/db"
+import { requerir } from "@/lib/auth"
 import { ESTADOS_PROY } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
 
 export const dynamic = "force-dynamic"
 
 export default async function Proyectos({ searchParams }: { searchParams: { cerrados?: string } }) {
+  // La sesión se valida acá también: el layout no vuelve a ejecutarse en cada pedido de la página
+  await requerir()
   const ver = searchParams.cerrados ? ESTADOS_PROY : ESTADOS_PROY.filter((e) => e.v !== "cancelado")
   const rows = await q<any>(
     `select p.*, c.organizacion, c.nombre contacto, s.nombre servicio from db_proyectos p
