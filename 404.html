@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Página no encontrada · Julio Miranda</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#F2F5F6;--ink:#0E2A33;--muted:#566B72;--line:#D5DFE2;--health:#0E7C7B;--tech:#3A55C9;
+  --display:"Bricolage Grotesque","Manrope",system-ui,sans-serif;--body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0A161A;--ink:#E3EDEF;--muted:#90A7AE;--line:#1E3640;--health:#3CC2BE;--tech:#8197FF;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
+main{max-width:1080px;margin:0 auto;min-height:100vh;min-height:100svh;display:grid;align-content:center;gap:22px;padding-block:48px}
+.label{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-size:clamp(2.5rem,7vw,5.2rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;text-wrap:balance;margin:0}
+h1 span{color:var(--tech)}
+p{margin:0;max-width:56ch;color:var(--muted)}
+.pulse{width:100%;height:64px;display:block}
+.pulse path{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.actions{display:flex;gap:12px 24px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;padding:12px 18px;border-radius:999px;font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid var(--ink);background:var(--ink);color:var(--bg)}
+a.txt{color:var(--tech);font-weight:600;font-size:.95rem;text-underline-offset:4px;text-decoration-thickness:1px;display:inline-block;padding-block:6px}
+:focus-visible{outline:2px solid var(--tech);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+  <span class="label" id="who">Julio Miranda · Error 404</span>
+  <h1>Esta página <span>no existe</span>.</h1>
+  <svg class="pulse" viewBox="0 0 1000 64" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 40 H100 V20 H200 V48 H300 V28 H400 V40 H600" stroke="var(--tech)"/>
+    <path d="M600 40 H730 L742 12 L756 58 L770 22 L782 40 H1000" stroke="var(--health)"/>
+  </svg>
+  <p>Puede que el enlace esté mal escrito o que la página se haya movido. <span lang="en">This page does not exist: the link may be wrong or the page may have moved.</span></p>
+  <div class="actions" id="links">
+    <a class="btn" href="/">Volver al perfil</a>
+    <a class="txt" href="/historia.html">Mi historia</a>
+    <a class="txt" href="/portfolio.html">Portfolio</a>
+    <a class="txt" href="/cv.html">CV</a>
+    <a class="txt" href="/en/" lang="en" hreflang="en">English</a>
+  </div>
+</main>
+<script>
+/* Si esta página aparece dentro de otro sitio servido desde el mismo repositorio (carpeta /sanpatricio/ u otro dominio),
+   se muestra neutra: sin el nombre ni los links del perfil. */
+(function(){
+  var h = location.hostname, p = location.pathname;
+  var own = /^julio\./.test(h) || h === 'localhost' || h === '127.0.0.1' || /\.vercel\.app$/.test(h);
+  if (own && p.indexOf('/sanpatricio/') !== 0) return;
+  document.title = 'Página no encontrada';
+  document.getElementById('who').textContent = 'Error 404';
+  var home = p.indexOf('/sanpatricio/') === 0 ? '/sanpatricio/' : '/';
+  document.getElementById('links').innerHTML = '<a class="btn" href="' + home + '">Volver al inicio</a>';
+})();
+</script>
+</body>
+</html>

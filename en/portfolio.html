@@ -35,6 +35,7 @@
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:64px;padding-block:40px 72px}
+main{display:grid;grid-template-columns:minmax(0,1fr);gap:64px}
 .eyebrow{color:var(--muted)}
 .hero{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
 .back{justify-self:start;font-size:.88rem;font-weight:600;color:var(--muted);text-decoration:none}
@@ -112,12 +113,15 @@ h3{font-size:var(--fs-h3);font-weight:700;line-height:1.2;letter-spacing:-.01em}
 <link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/portfolio.html">
 <link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/portfolio.html">
 <style>.lang-switch{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:99;display:flex;gap:2px;font:600 12px/1 Manrope,system-ui,sans-serif;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(14,42,51,.08)}.lang-switch a,.lang-switch span{padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--muted)}.lang-switch a:hover{color:var(--ink)}.lang-switch span{background:var(--ink);color:var(--bg)}</style>
+<style>/* En celular el selector de idioma queda arriba y no acompaña el scroll (no tapa el contenido) */
+@media (max-width:760px){.lang-switch{position:absolute}}</style>
 <style>/* Impresión: fuera los controles fijos e interactivos; las tarjetas no se parten entre páginas */
 @media print{.lang-switch,.progress,#net,.actions,#copy,#cp,.back,.scroll,.filters,body>a[href="./"]{display:none!important}.hero{min-height:0!important}.side{position:static!important}.hero h1 em{background:none!important;color:var(--tech,var(--accent))!important}article,.world,.role-item,.tl li,.plist div,.fig,.hit,.pl li,.stat,.dom,.edu li,.threads div{break-inside:avoid}h2,h3{break-after:avoid}}</style>
 </head>
 <body>
 <div class="lang-switch" role="group" aria-label="Language"><a href="../portfolio.html" hreflang="es" lang="es" aria-label="Español">ES</a><span aria-current="true">EN</span></div>
 <div class="wrap">
+<main>
 <header class="hero">
   <a class="back" href="./">← Back to profile</a>
   <span class="eyebrow">Julio Miranda · Project archive 2009 – 2026</span>
@@ -160,6 +164,7 @@ h3{font-size:var(--fs-h3);font-weight:700;line-height:1.2;letter-spacing:-.01em}
   <div class="wall" id="wall"></div>
   <p class="note">The years of each site come from the studio's email archive, which starts in 2014; earlier projects appear from their first record. The union's projects are shown without its name.</p>
 </section>
+</main>
 
 <footer><span>Julio Miranda · Technology & Digital Transformation · <a href="mailto:mirandajulioadrian@gmail.com">mirandajulioadrian@gmail.com</a> · <a href="https://www.linkedin.com/in/juliomiranda" target="_blank" rel="noopener">LinkedIn</a></span><a href="./">See full profile</a></footer>
 </div>

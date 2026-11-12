@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://julio.devisebit.com/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://julio.devisebit.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/"/>
+  </url>
+  <url>
+    <loc>https://julio.devisebit.com/en/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://julio.devisebit.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/"/>
+  </url>
+  <url>
+    <loc>https://julio.devisebit.com/historia.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://julio.devisebit.com/historia.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/historia.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/historia.html"/>
+  </url>
+  <url>
+    <loc>https://julio.devisebit.com/en/historia.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://julio.devisebit.com/historia.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/historia.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/historia.html"/>
+  </url>
+  <url>
+    <loc>https://julio.devisebit.com/portfolio.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://julio.devisebit.com/portfolio.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/portfolio.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/portfolio.html"/>
+  </url>
+  <url>
+    <loc>https://julio.devisebit.com/en/portfolio.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://julio.devisebit.com/portfolio.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/portfolio.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/portfolio.html"/>
+  </url>
+  <url>
+    <loc>https://julio.devisebit.com/cv.html</loc>
+  </url>
+</urlset>

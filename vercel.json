@@ -2,6 +2,13 @@
   "headers": [
     { "source": "/og.png", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] },
     { "source": "/og-en.png", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] },
-    { "source": "/docs/CV-Julio-Miranda-Gestion.pdf", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+    { "source": "/docs/CV-Julio-Miranda-Gestion.pdf", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+    { "source": "/media/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }] },
+    { "source": "/favicon.svg", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }] },
+    { "source": "/og.png", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] },
+    { "source": "/og-en.png", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] },
+    { "source": "/og-cv.jpg", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] },
+    { "source": "/docs/cv-1.jpg", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] },
+    { "source": "/docs/cv-2.jpg", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }] }
   ]
 }
