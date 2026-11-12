@@ -64,7 +64,7 @@ export default function CasosDeExitoPage() {
             </div>
             <div className="flex flex-col gap-8">
               {CASOS.map((c, i) => (
-                <article key={c.id} id={`caso-${c.id}`} className="scroll-mt-[88px] overflow-hidden rounded-2xl border border-[#262C37] bg-[#161A22] grid lg:grid-cols-[1fr_1.2fr]">
+                <article key={c.id} id={`caso-${c.id}`} className="scroll-mt-[88px] overflow-hidden rounded-2xl border border-[#262C37] bg-[#161A22] grid grid-cols-1 lg:grid-cols-[1fr_1.2fr]">
                   <div className="relative">
                     <Image
                       src={c.image}

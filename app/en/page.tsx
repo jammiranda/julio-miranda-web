@@ -89,7 +89,7 @@ export default function HomeEnPage() {
         {/* Digital transformation (light, to break the dark rhythm) */}
         <section id="transformation" className="relative overflow-hidden bg-[#FFF4F2]">
           <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
-          <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
+          <div className="relative max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-12 items-center">
             <div className="flex flex-col gap-5">
               <p className="m-0 inline-flex self-start items-center gap-2 rounded-full bg-[#C8231F] px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.16em] text-white">Digital Transformation Consulting</p>
               <h2 className="m-0 font-tight text-[36px] md:text-[54px] leading-[1.05] font-extrabold tracking-[-0.02em] text-[#0B0D12]">Your organization, <span className="text-[#C8231F]">one level higher.</span></h2>
@@ -105,7 +105,7 @@ export default function HomeEnPage() {
               </div>
               <p className="m-0 text-[16px] text-[#3B424D]">Prefer a tech team by the hour or by the month? <Link href="/en/advisory" className="font-bold text-[#C8231F] underline underline-offset-4">Technology and AI advisory →</Link></p>
             </div>
-            <div className="rounded-[28px] bg-white border border-[#F0C9C6] shadow-[0_30px_80px_-30px_rgba(200,35,31,.35)] p-6 md:p-8 flex flex-col gap-5">
+            <div className="rounded-[28px] bg-white border border-[#F0C9C6] shadow-[0_30px_80px_-30px_rgba(200,35,31,.35)] p-4 sm:p-6 md:p-8 flex flex-col gap-5">
               <p className="m-0 text-xs font-bold uppercase tracking-[0.16em] text-[#C8231F]">Digital maturity ladder</p>
               <EscaleraMadurez niveles={[["1", "Initial", "28%"], ["2", "Organized", "52%"], ["3", "Integrated", "76%"], ["4", "Optimized", "100%"]]} />
               <ol className="m-0 p-0 list-none grid grid-cols-2 gap-2.5">

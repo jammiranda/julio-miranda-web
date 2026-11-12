@@ -30,13 +30,13 @@ export default function EscaleraMadurez({ niveles }: { niveles: [string, string,
 
   const colores = ["#E7B7B4", "#DB8C88", "#CF5F5A", "#C8231F"]
   return (
-    <div ref={ref} className="flex items-end gap-3 h-[230px]" role="img" aria-label="Cuatro niveles de madurez digital, de inicial a optimizado">
+    <div ref={ref} className="flex items-end gap-1.5 sm:gap-3 h-[230px]" role="img" aria-label="Cuatro niveles de madurez digital, de inicial a optimizado">
       {niveles.map(([n, t, h], i) => {
         const on = activo === i
         return (
-          <div key={n} className="flex-1 flex flex-col justify-end h-full">
+          <div key={n} className="flex-1 min-w-0 flex flex-col justify-end h-full">
             <div
-              className="rounded-t-2xl p-3 flex flex-col justify-between text-white relative"
+              className="rounded-t-2xl px-2 py-3 sm:p-3 flex flex-col justify-between text-white relative"
               style={{
                 height: visto ? h : "6%",
                 background: colores[i] ?? "#C8231F",
@@ -46,7 +46,7 @@ export default function EscaleraMadurez({ niveles }: { niveles: [string, string,
               }}
             >
               <span className="font-tight text-2xl font-extrabold leading-none">{n}</span>
-              <span className="text-[13px] font-bold leading-tight">{t}</span>
+              <span className="text-[11px] sm:text-[13px] font-bold leading-tight">{t}</span>
               {on && <span aria-hidden="true" className="absolute -top-3 left-1/2 -translate-x-1/2 text-[20px]">▲</span>}
             </div>
           </div>
