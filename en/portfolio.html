@@ -98,10 +98,10 @@ footer a{color:var(--accent)}
 <link rel="alternate" hreflang="es" href="https://julio.devisebit.com/portfolio.html">
 <link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/portfolio.html">
 <link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/portfolio.html">
-<style>.lang-switch{position:fixed;top:12px;right:12px;z-index:99;display:flex;gap:2px;font:600 12px/1 Manrope,system-ui,sans-serif;background:rgba(255,255,255,.92);border:1px solid #D5DFE2;border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(14,42,51,.08)}.lang-switch a,.lang-switch span{padding:6px 10px;border-radius:999px;text-decoration:none;color:#566B72}.lang-switch span{background:#0E2A33;color:#fff}</style>
+<style>.lang-switch{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:99;display:flex;gap:2px;font:600 12px/1 Manrope,system-ui,sans-serif;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(14,42,51,.08)}.lang-switch a,.lang-switch span{padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--muted)}.lang-switch a:hover{color:var(--ink)}.lang-switch span{background:var(--ink);color:var(--bg)}</style>
 </head>
 <body>
-<div class="lang-switch" aria-label="Language"><a href="../portfolio.html" hreflang="es">ES</a><span>EN</span></div>
+<div class="lang-switch" role="group" aria-label="Language"><a href="../portfolio.html" hreflang="es" lang="es" aria-label="Español">ES</a><span aria-current="true">EN</span></div>
 <div class="wrap">
 <header class="hero">
   <span class="eyebrow">Julio Miranda · Project archive 2009 – 2026</span>

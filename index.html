@@ -52,6 +52,9 @@ nav .mark{font-family:var(--display);font-weight:700;font-size:1.05rem}
 nav ul{display:flex;gap:20px;list-style:none;margin:0;padding:0;flex-wrap:wrap}
 nav a{text-decoration:none;color:var(--muted);font-size:.92rem}
 nav a:hover{color:var(--ink)}
+/* deja libre la esquina del selector de idioma (fijo arriba a la derecha) */
+@media (max-width:1290px){nav{padding-right:88px}}
+@media (max-width:560px){nav{padding-right:0}nav ul{gap:6px 14px}}
 
 /* hero */
 .hero{display:grid;gap:22px;padding-block:28px 48px}
@@ -135,10 +138,10 @@ footer{padding-block:0 32px;color:var(--muted);font-size:.85rem}
 <link rel="alternate" hreflang="es" href="https://julio.devisebit.com/">
 <link rel="alternate" hreflang="en" href="https://julio.devisebit.com/en/">
 <link rel="alternate" hreflang="x-default" href="https://julio.devisebit.com/">
-<style>.lang-switch{position:fixed;top:12px;right:12px;z-index:99;display:flex;gap:2px;font:600 12px/1 Manrope,system-ui,sans-serif;background:rgba(255,255,255,.92);border:1px solid #D5DFE2;border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(14,42,51,.08)}.lang-switch a,.lang-switch span{padding:6px 10px;border-radius:999px;text-decoration:none;color:#566B72}.lang-switch span{background:#0E2A33;color:#fff}</style>
+<style>.lang-switch{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:99;display:flex;gap:2px;font:600 12px/1 Manrope,system-ui,sans-serif;background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(14,42,51,.08)}.lang-switch a,.lang-switch span{padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--muted)}.lang-switch a:hover{color:var(--ink)}.lang-switch span{background:var(--ink);color:var(--bg)}</style>
 </head>
 <body>
-<div class="lang-switch" aria-label="Language"><span>ES</span><a href="en/" hreflang="en">EN</a></div>
+<div class="lang-switch" role="group" aria-label="Idioma"><span aria-current="true">ES</span><a href="en/" hreflang="en" lang="en" aria-label="English">EN</a></div>
 <div class="wrap">
 <nav aria-label="Secciones">
   <span class="mark">Julio Miranda</span>
