@@ -114,6 +114,8 @@
     return c;
   }
   document.querySelectorAll('form').forEach(function (f) {
+    // Si un campo de «Contanos más» tiene un dato inválido, la sección se abre para que se vea el aviso
+    f.addEventListener('invalid', function (ev) { var m = ev.target.closest && ev.target.closest('details'); if (m) m.open = true; }, true);
     f.addEventListener('submit', function (ev) {
       if (f._enviando) { ev.preventDefault(); return; }
       try { if (window.gtag) gtag('event', 'conversion', { send_to: AW_FORM, value: 1.0, currency: 'ARS' }); } catch (e) {}
