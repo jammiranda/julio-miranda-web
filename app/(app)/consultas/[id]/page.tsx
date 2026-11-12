@@ -14,6 +14,7 @@ import { MATERIALES, material } from "@/lib/materiales"
 import { enviarTexto } from "@/lib/whatsapp"
 import { borrarConsultas } from "@/lib/consultas-borrar"
 import BotonConfirmar from "@/components/BotonConfirmar"
+import { enviarAConsulta, type Envio } from "@/lib/consultas-email"
 
 export const dynamic = "force-dynamic"
 
@@ -113,6 +114,19 @@ async function mandarMaterial(fd: FormData) {
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
 
+/** Lo mismo que los envíos por WhatsApp (agenda, material o brief), pero por email. Si la consulta no tenía email, guarda el que se escribió. */
+async function mandarEmail(que: Envio, fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  if (!["agenda", "brief", "material"].includes(que)) redirect(`/consultas/${id}`)
+  const r = await enviarAConsulta(id, que, { k: String(fd.get("k") ?? ""), emailNuevo: s(fd.get("email")) })
+  // Igual que por WhatsApp: solo queda como atendida si el correo salió
+  if (r.ok) await atendidaPor(id, u.nombre)
+  await audit(u, `envia_${que}_email`, "consulta", id, `${r.ok ? "" : "no salió: "}${r.etiqueta ?? que} → ${r.email ?? "sin email"}${r.ok ? "" : ` (${String(r.error).slice(0, 200)})`}`)
+  redirect(`/consultas/${id}?${r.ok ? `mail=${encodeURIComponent(`${r.etiqueta} → ${r.email}`)}` : "mailerr=" + encodeURIComponent(r.error ?? "error")}`)
+}
+
 async function rehacerPropuesta(fd: FormData) {
   "use server"
   await requerir(["gerente", "coordinacion"])
@@ -133,7 +147,7 @@ async function ensenar(fd: FormData) {
   redirect(`/consultas/${id}?ens=1`)
 }
 
-export default async function Consulta({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; nueva?: string; env?: string; enverr?: string; ens?: string } }) {
+export default async function Consulta({ params, searchParams }: { params: { id: string }; searchParams: { ok?: string; nueva?: string; env?: string; enverr?: string; ens?: string; mail?: string; mailerr?: string } }) {
   const u = await requerir()
   const id = Number(params.id)
   const c = await one<any>("select * from consultas where id=$1", [id])
@@ -148,6 +162,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const est = ESTADOS.find((e) => e.v === c.estado)!
   const ed = puede.editar(u)
   const tel = c.telefono ? String(c.telefono).replace(/\D/g, "") : null
+  const correos = ed ? await q<{ ts: string; usuario: string | null; detalle: string | null }>("select ts, usuario, detalle from auditoria where entidad='consulta' and entidad_id=$1 and accion in ('envia_agenda_email','envia_brief_email','envia_material_email') order by ts desc limit 8", [String(id)]) : []
+  const canalChat = String(c.chat_id ?? "").startsWith("ig:") ? "Instagram" : "WhatsApp"
   const otras = c.telefono ? await q<any>("select id, creado, estado, motivo from consultas where telefono=$1 and id<>$2 and empresa=$3 order by creado desc limit 10", [c.telefono, id, c.empresa]) : []
   return (
     <div className="flex flex-col gap-4">
@@ -160,6 +176,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
         <span className={`chip text-sm px-3 py-1 ${est.c}`}>{est.n}</span>
       </div>
       {(searchParams.ok || searchParams.nueva) && <p className="m-0 text-sm text-[#9E1A17]">Guardado.</p>}
+      {searchParams.mail && <p className="m-0 text-sm text-emerald-700" role="status">Email enviado: {searchParams.mail}</p>}
+      {searchParams.mailerr && <p className="m-0 text-sm text-rojo" role="alert">No se pudo enviar el email: {searchParams.mailerr}</p>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
         <div className="lg:col-span-2 flex flex-col gap-4">
@@ -258,17 +276,54 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           )}
           {reunion ? (
             <section className="card text-sm flex flex-col gap-1 border-2 border-[#C8231F]"><strong className="first-letter:uppercase">📅 {local(new Date(reunion.inicio)).texto}</strong><span>{reunion.modalidad}{reunion.calendar_id ? " · en Google Calendar" : ""}</span>{reunion.link && <a href={reunion.link} target="_blank" rel="noopener noreferrer" className="underline">Entrar a la videollamada</a>}</section>
-          ) : ed && c.chat_id && <form action={mandarAgenda}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📅 Mandarle el link para agendar</button></form>}
-          {ed && c.chat_id && (
-            <form action={mandarMaterial} className="card flex flex-col gap-2">
-              <h2 className="m-0 text-base">📎 Mandar material</h2>
+          ) : null}
+          {ed && (
+            <form className="card flex flex-col gap-3">
+              <h2 className="m-0 text-base">📨 Mandarle al cliente</h2>
               <input type="hidden" name="id" value={c.id} />
-              <select name="k" aria-label="Material para enviar" className="inp" defaultValue="brochure">{MATERIALES.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</select>
-              <button className="btn-s">Enviar por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button>
-              <p className="m-0 text-xs text-[#4A515C]">Sale con un mensaje listo y el bot sigue activo. El bot también los manda solo cuando se los piden.</p>
+              {c.email ? <p className="m-0 text-xs text-[#4A515C] break-all">Por email sale a <strong>{c.email}</strong>.</p> : (
+                <label className="lbl">Email del cliente
+                  <input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} required className="inp" placeholder="nombre@ejemplo.com" />
+                  <span className="text-xs font-normal text-[#4A515C]">Hace falta solo para enviar por email: se guarda en la consulta al enviar.</span>
+                </label>
+              )}
+              {!reunion && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-semibold">📅 El link para agendar</span>
+                  <div className={`grid gap-2 ${c.chat_id ? "grid-cols-2" : ""}`}>
+                    {c.chat_id && <button formAction={mandarAgenda} formNoValidate className="btn-s px-2">Por {canalChat}</button>}
+                    <button formAction={mandarEmail.bind(null, "agenda")} className="btn-s px-2">Por email</button>
+                  </div>
+                </div>
+              )}
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-semibold">📎 Material</span>
+                <select name="k" aria-label="Material para enviar" className="inp" defaultValue="brochure">{MATERIALES.map((m) => <option key={m.k} value={m.k}>{m.n}</option>)}</select>
+                <div className={`grid gap-2 ${c.chat_id ? "grid-cols-2" : ""}`}>
+                  {c.chat_id && <button formAction={mandarMaterial} formNoValidate className="btn-s px-2">Por {canalChat}</button>}
+                  <button formAction={mandarEmail.bind(null, "material")} className="btn-s px-2">Por email</button>
+                </div>
+              </div>
+              {!c.brief && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-semibold">📝 El brief</span>
+                  <div className={`grid gap-2 ${c.chat_id ? "grid-cols-2" : ""}`}>
+                    {c.chat_id && <button formAction={mandarBrief} formNoValidate className="btn-s px-2">Por {canalChat}</button>}
+                    <button formAction={mandarEmail.bind(null, "brief")} className="btn-s px-2">Por email</button>
+                  </div>
+                </div>
+              )}
+              <p className="m-0 text-xs text-[#4A515C]">Sale con un mensaje listo{c.chat_id ? " y el bot sigue activo. El bot también manda el material solo cuando se lo piden" : ""}.</p>
+              {correos.length > 0 && (
+                <div className="border-t border-[#E2E5EA] pt-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">Enviado por email</span>
+                  <ul className="m-0 mt-1 p-0 list-none flex flex-col gap-1 text-xs">
+                    {correos.map((x, i) => <li key={i} className={`break-words ${x.detalle?.startsWith("no salió") ? "text-rojo" : ""}`}>{fechaHora(x.ts)} · {x.detalle}{x.usuario ? ` · ${x.usuario}` : ""}</li>)}
+                  </ul>
+                </div>
+              )}
             </form>
           )}
-          {ed && !c.brief && c.chat_id && <form action={mandarBrief}><input type="hidden" name="id" value={c.id} /><button className="btn-s w-full">📝 Mandarle el brief por {String(c.chat_id).startsWith("ig:") ? "Instagram" : "WhatsApp"}</button></form>}
           {contacto ? <Link href={`/contactos/${contacto.id}`} className="btn-s">Ver contacto en el CRM</Link>
             : ed && <Link href={`/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>}
           {ed ? (
