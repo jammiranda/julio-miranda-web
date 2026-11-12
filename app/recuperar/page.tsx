@@ -5,6 +5,7 @@ import { q, one, audit } from "@/lib/db"
 import { enviarMail } from "@/lib/mail"
 import Marca from "@/components/Marca"
 import { URL_SISTEMA } from "@/lib/brief"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 
@@ -57,8 +58,8 @@ export default function Recuperar({ searchParams }: { searchParams: { enviado?: 
           </>
         ) : (
           <form action={pedir} className="flex flex-col gap-4">
-            <label className="lbl">Tu usuario o email<input name="dato" required autoComplete="username" className="inp" /></label>
-            <button className="btn-p">Enviarme el enlace</button>
+            <label className="lbl">Tu usuario o email<input name="dato" required autoComplete="username" autoCapitalize="none" spellCheck={false} className="inp" /></label>
+            <Enviar>Enviarme el enlace</Enviar>
             <a href="/login" className="text-sm text-[#4A515C] underline text-center">Volver</a>
           </form>
         )}

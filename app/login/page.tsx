@@ -5,6 +5,7 @@ import { one, audit } from "@/lib/db"
 import { crearSesion, usuarioActual, type Usuario } from "@/lib/auth"
 import { MarcaIcono } from "@/components/Marca"
 import Redes from "@/components/Redes"
+import Enviar from "@/components/Enviar"
 
 async function ingresar(fd: FormData) {
   "use server"
@@ -51,9 +52,9 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
             <p className="text-sm text-[var(--gris)] mt-1 mb-0">Ingresá con tu usuario. El acceso queda registrado.</p>
           </div>
           {searchParams.e && <p role="alert" className="m-0 text-sm font-semibold text-red-800 bg-red-50 border border-red-200 rounded-xl px-3 py-2">Usuario o clave incorrectos.</p>}
-          <label className="lbl">Usuario<input name="usuario" required autoComplete="username" autoCapitalize="none" className="inp" /></label>
+          <label className="lbl">Usuario<input name="usuario" required autoComplete="username" autoCapitalize="none" spellCheck={false} className="inp" /></label>
           <label className="lbl">Clave<input name="clave" type="password" required autoComplete="current-password" className="inp" /></label>
-          <button className="btn-p w-full">Ingresar</button>
+          <Enviar className="btn-p w-full" cargando="Ingresando…">Ingresar</Enviar>
           <a href="/recuperar" className="text-sm font-semibold text-[var(--ac-texto)] underline underline-offset-2 text-center py-1">¿Olvidaste tu clave?</a>
           <Redes className="justify-center pt-3 border-t border-[var(--borde-2)]" />
         </form>

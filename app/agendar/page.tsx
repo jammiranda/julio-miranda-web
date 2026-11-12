@@ -6,6 +6,7 @@ import { horario } from "@/lib/agenda"
 import { notificar } from "@/lib/push"
 import Redes from "@/components/Redes"
 import { leerToken } from "@/lib/diagnosticos"
+import Enviar from "@/components/Enviar"
 
 const TEST = "https://www.devisebit.com/diagnostico"
 
@@ -61,12 +62,12 @@ export default async function AgendarGeneral({ searchParams }: { searchParams: {
           <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
           <label className="lbl">Nombre y apellido<input name="nombre" required autoComplete="name" defaultValue={pre?.nombre ?? ""} className="inp" /></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label className="lbl">WhatsApp<input name="telefono" inputMode="tel" autoComplete="tel" placeholder="11 2345 6789" defaultValue={pre?.telefono ?? ""} className="inp" /></label>
-            <label className="lbl">Email<input name="email" type="email" autoComplete="email" defaultValue={pre?.email ?? ""} className="inp" /></label>
+            <label className="lbl">WhatsApp<input name="telefono" type="tel" inputMode="tel" autoComplete="tel" placeholder="11 2345 6789" defaultValue={pre?.telefono ?? ""} className="inp" /></label>
+            <label className="lbl">Email<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" defaultValue={pre?.email ?? ""} className="inp" /></label>
           </div>
-          <label className="lbl">Empresa u organización (opcional)<input name="organizacion" defaultValue={pre?.organizacion ?? ""} className="inp" /></label>
+          <label className="lbl">Empresa u organización (opcional)<input name="organizacion" autoComplete="organization" defaultValue={pre?.organizacion ?? ""} className="inp" /></label>
           <label className="lbl">¿Sobre qué querés hablar?<textarea name="motivo" rows={3} placeholder="Ej.: quiero una página web para mi estudio / un bot de WhatsApp / un sistema para mi gremio" className="inp" /></label>
-          <button className="btn-p self-start">Elegir día y horario →</button>
+          <Enviar className="btn-p self-start" cargando="Un momento…">Elegir día y horario →</Enviar>
           <Redes />
           <p className="m-0 text-xs text-[#4A515C]">Usamos tus datos solo para coordinar la reunión. DEVISEBIT SRL · WhatsApp +54 9 11 7346-6490.</p>
         </form>

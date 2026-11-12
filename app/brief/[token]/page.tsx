@@ -9,6 +9,7 @@ import { notificar } from "@/lib/push"
 import { generarPropuesta } from "@/lib/propuesta"
 import { linkAgenda } from "@/lib/agenda"
 import Redes from "@/components/Redes"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -51,7 +52,7 @@ async function enviar(fd: FormData) {
 const Pill = ({ name, v, type = "checkbox", def = false }: { name: string; v: string; type?: "checkbox" | "radio"; def?: boolean }) => (
   <label className="cursor-pointer">
     <input type={type} name={name} value={v} defaultChecked={def} className="peer sr-only" />
-    <span className="inline-block rounded-full border border-[#C3C8D1] bg-white px-3.5 py-2 text-sm font-medium text-[#262C37] transition-colors peer-checked:border-[#C8231F] peer-checked:bg-[#FDECEB] peer-checked:text-[#9E1A17] peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{v}</span>
+    <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-full border border-[#C3C8D1] bg-white px-3.5 py-2 text-sm font-medium text-[#262C37] transition-colors peer-checked:border-[#C8231F] peer-checked:bg-[#FDECEB] peer-checked:text-[#9E1A17] peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{v}</span>
   </label>
 )
 
@@ -95,10 +96,10 @@ export default async function Brief({ params, searchParams }: { params: { token:
         <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
         <section className="card grid grid-cols-1 sm:grid-cols-2 gap-4">
           <h2 className="m-0 sm:col-span-2 text-lg">1. Sobre vos</h2>
-          <label className="lbl">Nombre<input name="nombre" defaultValue={c.nombre ?? ""} required className="inp" /></label>
-          <label className="lbl">Empresa u organización<input name="organizacion" defaultValue={c.organizacion ?? ""} className="inp" /></label>
+          <label className="lbl">Nombre<input name="nombre" defaultValue={c.nombre ?? ""} required autoComplete="name" className="inp" /></label>
+          <label className="lbl">Empresa u organización<input name="organizacion" autoComplete="organization" defaultValue={c.organizacion ?? ""} className="inp" /></label>
           <label className="lbl">Rubro<input name="rubro" placeholder="Ej.: venta de motos, clínica, gremio…" className="inp" /></label>
-          <label className="lbl">Email para la propuesta<input name="email" type="email" defaultValue={c.email ?? ""} className="inp" /></label>
+          <label className="lbl">Email para la propuesta<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" defaultValue={c.email ?? ""} className="inp" /></label>
         </section>
         <section className="card flex flex-col gap-3">
           <h2 className="m-0 text-lg">2. ¿Qué necesitás?</h2>
@@ -121,7 +122,7 @@ export default async function Brief({ params, searchParams }: { params: { token:
           <div className="flex flex-wrap gap-2">{INVERSION.map((x) => <Pill key={x} name="inversion" v={x} type="radio" />)}</div>
           <label className="lbl">¿Algo más que debamos saber?<textarea name="extra" rows={3} className="inp" /></label>
         </section>
-        <button className="btn-p text-base py-3.5">Enviar y recibir mi propuesta preliminar</button>
+        <Enviar className="btn-p text-base py-3.5" cargando="Enviando tu proyecto…">Enviar y recibir mi propuesta preliminar</Enviar>
         <Redes className="justify-center" />
         <p className="m-0 text-xs text-center text-[#4A515C]">DEVISEBIT SRL · Tus datos se usan solo para responder tu consulta (Ley 25.326).</p>
       </form>

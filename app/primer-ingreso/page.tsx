@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs"
 import { one, q, audit } from "@/lib/db"
 import { crearSesion, type Usuario } from "@/lib/auth"
 import Marca from "@/components/Marca"
+import Enviar from "@/components/Enviar"
 
 async function habilitado() {
   const r = await one<{ n: number }>("select count(*)::int n from usuarios where rol='gerente' and pass_hash is not null")
@@ -35,7 +36,7 @@ export default async function PrimerIngreso({ searchParams }: { searchParams: { 
         {searchParams.e && <p role="alert" className="text-sm text-rojo m-0">La clave debe tener al menos 10 caracteres y coincidir.</p>}
         <label className="lbl">Nueva clave<input name="c1" type="password" required minLength={10} autoComplete="new-password" className="inp" /></label>
         <label className="lbl">Repetir clave<input name="c2" type="password" required minLength={10} autoComplete="new-password" className="inp" /></label>
-        <button className="btn-p">Guardar e ingresar</button>
+        <Enviar cargando="Guardando…">Guardar e ingresar</Enviar>
       </form>
     </main>
   )

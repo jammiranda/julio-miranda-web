@@ -5,6 +5,7 @@ import { one, q, audit } from "@/lib/db"
 import { turnosLibres, reservar, local, horario } from "@/lib/agenda"
 import { enviarTexto } from "@/lib/whatsapp"
 import { alCRM } from "@/lib/bot"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -74,20 +75,20 @@ export default async function Agendar({ params, searchParams }: { params: { toke
               <legend className="text-sm font-bold uppercase tracking-wider text-[#4A515C] mb-1">{d.etiqueta}</legend>
               <div className="flex flex-wrap gap-2">{d.turnos.map((t) => (
                 <label key={t.iso} className="cursor-pointer"><input type="radio" name="turno" value={t.iso} required className="peer sr-only" />
-                  <span className="inline-block rounded-xl border border-[#C3C8D1] bg-white px-3 py-2 text-sm font-semibold tabular-nums peer-checked:border-[#C8231F] peer-checked:bg-[#C8231F] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{t.hora}</span></label>
+                  <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-xl border border-[#C3C8D1] bg-white px-3 py-2 text-sm font-semibold tabular-nums peer-checked:border-[#C8231F] peer-checked:bg-[#C8231F] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{t.hora}</span></label>
               ))}</div>
             </fieldset>
           )) : <p className="m-0">No hay horarios libres en los próximos días. Escribinos por WhatsApp y lo coordinamos.</p>}
         </section>
         <section className="card grid grid-cols-1 sm:grid-cols-2 gap-4">
           <h2 className="m-0 sm:col-span-2 text-lg">2. Tus datos</h2>
-          <label className="lbl">Nombre<input name="nombre" defaultValue={c.nombre ?? ""} required className="inp" /></label>
-          <label className="lbl">Email (te llega la invitación)<input name="email" type="email" defaultValue={c.email ?? ""} className="inp" /></label>
-          <label className="lbl">WhatsApp o teléfono<input name="telefono" defaultValue={c.telefono ?? ""} className="inp" /></label>
+          <label className="lbl">Nombre<input name="nombre" defaultValue={c.nombre ?? ""} required autoComplete="name" className="inp" /></label>
+          <label className="lbl">Email (te llega la invitación)<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" defaultValue={c.email ?? ""} className="inp" /></label>
+          <label className="lbl">WhatsApp o teléfono<input name="telefono" type="tel" inputMode="tel" autoComplete="tel" defaultValue={c.telefono ?? ""} className="inp" /></label>
           <label className="lbl">¿Cómo preferís?<select name="modalidad" className="inp"><option value="videollamada">Videollamada (sin instalar nada)</option><option value="llamada">Llamada telefónica</option></select></label>
           <label className="lbl sm:col-span-2">¿Algo que quieras que preparemos?<textarea name="notas" rows={2} className="inp" /></label>
         </section>
-        <button className="btn-p text-base py-3.5">Confirmar reunión</button>
+        <Enviar className="btn-p text-base py-3.5" cargando="Reservando el horario…">Confirmar reunión</Enviar>
       </form>
     </main>
   )

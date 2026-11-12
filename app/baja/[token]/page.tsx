@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { q, one } from "@/lib/db"
+import Enviar from "@/components/Enviar"
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Suscripción · DEVISEBIT", robots: { index: false, follow: false } }
 
@@ -26,13 +27,13 @@ export default async function Baja({ params, searchParams }: { params: { token: 
           <>
             <h1 className="m-0 text-2xl">Listo, no te vamos a escribir más</h1>
             <p className="m-0 text-[#4A515C]">Dimos de baja <strong>{c.email}</strong> de nuestros correos. Si fue un error, podés volver a suscribirte.</p>
-            <input type="hidden" name="a" value="alta" /><button className="btn-s self-start">Volver a suscribirme</button>
+            <input type="hidden" name="a" value="alta" /><Enviar className="btn-s self-start" cargando="Un momento…">Volver a suscribirme</Enviar>
           </>
         ) : (
           <>
             <h1 className="m-0 text-2xl">{searchParams.h === "alta" ? "¡Bienvenido de nuevo!" : "¿Querés dejar de recibir nuestros correos?"}</h1>
             <p className="m-0 text-[#4A515C]">{searchParams.h === "alta" ? `Vas a seguir recibiendo novedades en ${c.email}.` : `Vamos a dejar de escribirle a ${c.email}. Mandamos poco y solo cosas útiles, pero entendemos.`}</p>
-            {searchParams.h !== "alta" && <><input type="hidden" name="a" value="baja" /><button className="btn-p self-start">Darme de baja</button></>}
+            {searchParams.h !== "alta" && <><input type="hidden" name="a" value="baja" /><Enviar className="btn-p self-start" cargando="Un momento…">Darme de baja</Enviar></>}
           </>
         )}
       </form>
