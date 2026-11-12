@@ -10,6 +10,7 @@ import Avatar from "@/components/Avatar"
 import ActivarAvisos from "@/components/ActivarAvisos"
 import { EspacioShell } from "@/components/EspacioNav"
 import Redes from "@/components/Redes"
+import FuentesEspacio from "@/components/FuentesEspacio"
 
 async function marcar(fd: FormData) {
   "use server"
@@ -108,6 +109,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const acciones = <Suspense fallback={<AccionesCargando nombre={u.nombre} />}><Acciones u={u} espacio={espacio} /></Suspense>
   return (
     <EspacioShell {...ep} rol={u.rol} colapsado={colapsado} acciones={acciones} pie={<Redes />}>
+      <FuentesEspacio />
       {children}
     </EspacioShell>
   )

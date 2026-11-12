@@ -6,6 +6,7 @@ import { crearSesion, usuarioActual, type Usuario } from "@/lib/auth"
 import { MarcaIcono } from "@/components/Marca"
 import Redes from "@/components/Redes"
 import Enviar from "@/components/Enviar"
+import FuentesEspacio from "@/components/FuentesEspacio"
 
 async function ingresar(fd: FormData) {
   "use server"
@@ -27,6 +28,7 @@ export default async function Login({ searchParams }: { searchParams: { e?: stri
   const aca = espacio === "academia"
   return (
     <div data-espacio={espacio} className="min-h-screen grid grid-rows-[auto_1fr] lg:grid-rows-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <FuentesEspacio />
       {/* Panel de identidad: deja claro en qué sistema se entra */}
       <aside className={`login-panel relative overflow-hidden px-6 py-8 sm:px-10 lg:p-14 flex flex-col justify-between gap-8 ${aca ? "login-aca" : "login-com"}`}>
         <div className="relative flex items-center gap-3">

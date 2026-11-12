@@ -18,7 +18,7 @@
   h2 { @apply text-lg font-bold; }
 }
 @layer components {
-  .font-titulo { font-family: "Fraunces", Georgia, "Times New Roman", serif; }
+  .font-titulo { font-family: var(--fuente-titulos); }
   .card { @apply rounded-2xl border p-5; background: var(--sup); border-color: var(--borde); }
   .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors; }
   .btn-p { @apply btn text-white; background: var(--ac); }

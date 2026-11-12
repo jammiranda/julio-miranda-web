@@ -6,6 +6,7 @@ import { clienteActual, cerrarSesionCliente } from "@/lib/portal"
 import { URL_ACADEMIA } from "@/lib/academia"
 import LinksExternos from "@/components/LinksExternos"
 import Redes from "@/components/Redes"
+import FuentesEspacio from "@/components/FuentesEspacio"
 import PortalNav from "./_nav"
 import { tieneAsesoria } from "@/lib/asesoria"
 
@@ -28,6 +29,7 @@ export default async function PortalLayout({ children }: { children: React.React
     : c ? [{ href: "/portal/pagos", t: "Pagos y facturas" }] : []
   return (
     <div data-espacio="portal" className="min-h-screen flex flex-col">
+      <FuentesEspacio />
       <header className="portal-cab">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <Link href="/portal" aria-label="DEVISEBIT Mi cuenta, inicio" className="inline-flex items-center min-h-[44px]"><Marca chico sub="MI CUENTA" /></Link>
