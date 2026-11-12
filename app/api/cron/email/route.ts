@@ -53,5 +53,8 @@ export async function GET(req: NextRequest) {
   const relanzamiento = await lanzarRelanzamientoSiCorresponde().catch((e) => String(e))
   const reenganche = await reenganchar().catch((e) => String(e))
   const r = await procesarCola()
-  return NextResponse.json({ ok: true, ...r, recordatorios, wa, abonos, cobros, clases, revision, anuncios, drive, instagram, relanzamiento, depuracion, diagnosticos, reenganche })
+  const resultado = { ok: true, ...r, recordatorios, wa, abonos, cobros, clases, revision, anuncios, drive, instagram, relanzamiento, depuracion, diagnosticos, reenganche }
+  // Sin CRON_SECRET no se sabe quién llamó: el detalle queda en el registro de Vercel y no se devuelve
+  if (!process.env.CRON_SECRET) { console.log("cron diario", JSON.stringify(resultado)); return NextResponse.json({ ok: true }) }
+  return NextResponse.json(resultado)
 }
