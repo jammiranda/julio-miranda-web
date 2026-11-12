@@ -165,8 +165,11 @@ export async function procesarCola(max = LIMITE_DIARIO) {
     if (vigente && vigente.email_estado !== "activo") { await q("update em_envios set estado='omitido' where id=$1", [x.id]); continue }
     const baja = x.email_token ? `${URL_SISTEMA}/baja/${x.email_token}` : null
     const html = conSeguimiento(emailConEstilo(x.contenido, { estilo: x.estilo, portada: x.portada, preheader: x.preheader, baja, nombre: x.nombre }), x.id, x.campania_id)
+    // Se toma el envío antes de mandarlo: si la cola corre dos veces a la vez (cron y botón, o doble clic), solo una lo manda
+    const mio = await q("update em_envios set estado='enviado', enviado_en=now() where id=$1 and estado='pendiente' returning id", [x.id])
+    if (!mio.length) continue
     const r = await enviarBrevo({ email: x.email, name: x.nombre }, conNombre(x.asunto, x.nombre ? x.nombre.split(" ")[0] : "").replace(/^[,\s]+/, "").trim(), html, baja)
-    await q("update em_envios set estado=$1, error=$2, proveedor_id=$3, enviado_en=case when $1='enviado' then now() else enviado_en end where id=$4", [r.ok ? "enviado" : "error", r.ok ? null : r.error, r.ok ? r.id ?? null : null, x.id])
+    await q("update em_envios set estado=$1, error=$2, proveedor_id=$3, enviado_en=case when $1='enviado' then now() else null end where id=$4", [r.ok ? "enviado" : "error", r.ok ? null : r.error, r.ok ? r.id ?? null : null, x.id])
     if (r.ok) enviados++
     else if (/key|unauthorized|forbidden|limit|quota|sender|not valid|activat|blocked|suspend/i.test(r.error ?? "")) break
   }
