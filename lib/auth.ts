@@ -53,7 +53,9 @@ export const usuarioActual = cache(async (): Promise<Usuario | null> => {
   if (!t) return null
   try {
     const { payload } = await jwtVerify(t, await secret())
-    return await cargarUsuario(payload.uid as number)
+    // La misma clave firma otros enlaces (Mi cuenta, autodiagnósticos): acá solo vale una sesión del equipo, que es la que trae `uid`
+    if (typeof payload.uid !== "number") return null
+    return await cargarUsuario(payload.uid)
   } catch {
     return null
   }
