@@ -128,7 +128,7 @@ export const CASOS = [
     service:
       "Sistema web administrativo multi-módulo, app de afiliados, Academia USL con cursos y certificados, landing y marketing digital en redes. UX/UI. Scrum Agile.",
     achievements: "Más de 1.000 inscriptos en la academia en un año. Tableros en tiempo real. Afiliados, beneficios y prestaciones en un solo panel.",
-    image: "https://julio.devisebit.com/media/trabajos/plataforma-academia.jpg",
+    image: "/images/case-comunidad-usl.webp",
     technologies: ["Plataforma web", "App móvil", "Academia online", "Tableros", "Marketing digital"],
   },
 ]

@@ -109,7 +109,7 @@ export const CASOS_EN = [
     challenge: "Bring the academy, the member registry, benefits and health plan administration onto a single platform, and put services within easy reach of every member.",
     service: "Multi-module web administration system, member app, USL Academy with courses and certificates, landing page and social media marketing. UX/UI. Agile Scrum.",
     achievements: "1,000+ students enrolled in the academy in one year. Real-time dashboards. Members, benefits and services in a single panel.",
-    image: "https://julio.devisebit.com/media/trabajos/plataforma-academia.jpg",
+    image: "/images/case-comunidad-usl.webp",
     technologies: ["Web platform", "Mobile app", "Online academy", "Dashboards", "Digital marketing"],
   },
 ]

@@ -19,3 +19,27 @@ form.brief .check a { display:inline-block; padding:8px 0; }
 /* En iPhone, un campo con letra menor a 16px hace zoom al tocarlo */
 @media (max-width: 920px) { form.brief input, form.brief select, form.brief textarea { font-size:16px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .typing::after { animation:none; } .btn, .card, .wa-float { transition:none; } }
+
+/* Casos con imagen o maqueta (antes los armaba landing.js) */
+.work-item.has-img{padding:0;background:#0E0E10;container-type:inline-size}
+.work-item.has-img::before,.work-item.has-img::after{display:none}
+.work-item.has-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .5s ease}
+.work-item.has-img:hover img,.work-item.has-img:hover .mk{transform:scale(1.04)}
+.work-item.has-img span{position:absolute;left:0;right:0;bottom:0;padding:44px 16px 14px;background:linear-gradient(transparent,rgba(8,8,10,.94) 55%)}
+.mk{position:absolute;inset:0;font-size:2.5cqw;background:radial-gradient(circle at 75% 15%,#3a0d10,#0B0B0D 62%);overflow:hidden;transition:transform .5s ease;font-family:inherit}
+.mk-wa em{position:absolute;left:1.6em;top:1.4em;font-style:normal;font-weight:700;font-size:1em;letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.mk-wa em i{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#E11D2A;margin-right:.5em}
+.mk-wa .ph{position:absolute;left:50%;top:3.6em;width:20em;margin-left:-10em;bottom:-2em;background:#0b141a;border:.4em solid #1d1d22;border-radius:1.8em;padding:0 .8em;box-shadow:0 1.5em 4em rgba(0,0,0,.6)}
+.mk-wa .hd{display:flex;gap:.6em;align-items:center;background:#202c33;margin:0 -.8em .7em;padding:.8em;color:#e9edef;font-weight:700;font-size:1.05em}
+.mk-wa .hd b{width:2em;height:2em;border-radius:50%;background:#E11D2A;display:flex;align-items:center;justify-content:center;color:#fff}
+.mk-wa .hd small{display:block;color:#8696a0;font-weight:400;font-size:.75em}
+.mk-wa p{margin:0 0 .5em;max-width:80%;padding:.45em .7em;border-radius:.6em;font-size:1em;line-height:1.3;color:#e9edef}
+.mk-wa p.in{background:#202c33}
+.mk-wa p.out{background:#005c4b;margin-left:auto}
+.mk-rs .pst{position:absolute;left:3.5em;top:2.4em;width:15em;height:18.75em;border-radius:1em;padding:1.4em;box-sizing:border-box;transform:rotate(-5deg);box-shadow:0 1.2em 3em rgba(0,0,0,.55);z-index:2;border-bottom:.45em solid var(--acc)}
+.mk-rs .pst.p2{left:15.5em;top:3.4em;transform:rotate(4deg);background:var(--acc);color:#fff;z-index:1;border:0}
+.mk-rs u{display:inline-block;text-decoration:none;background:var(--acc);color:#fff;font-size:.8em;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.35em .65em;border-radius:.4em}
+.mk-rs .p2 u{background:#0B0B0D}
+.mk-rs h5{font-size:2em;line-height:1.02;margin:1.1em 0 0;font-weight:900;letter-spacing:-.02em}
+.mk-rs .pst small{position:absolute;left:1.4em;bottom:1.2em;font-weight:800;font-size:1em}
+.mk-rs .rl{position:absolute;right:2em;top:11em;width:6em;height:10.6em;border-radius:.8em;background:var(--acc);color:#fff;padding:.8em;box-sizing:border-box;font-weight:800;font-size:1.05em;box-shadow:0 1em 2em rgba(0,0,0,.5);z-index:3}
