@@ -66,8 +66,10 @@ nav a:hover{color:var(--ink)}
 .hero .seek{font-size:clamp(1.15rem,2.1vw,1.4rem);font-weight:600;line-height:1.4;max-width:62ch;text-wrap:balance}
 .hero .role{font-size:1.08rem;font-weight:500;max-width:70ch}
 .more{display:flex;flex-wrap:wrap;gap:10px 24px;list-style:none;margin:0;padding:0;font-weight:600;font-size:.95rem}
-.more a{color:var(--tech);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;display:inline-block;padding-block:6px}
-.more a:hover{text-decoration-thickness:2px}
+.actions{align-items:center}
+.more a,.cvlink{color:var(--tech);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;display:inline-block;padding-block:6px}
+.more a:hover,.cvlink:hover{text-decoration-thickness:2px}
+.cvlink{font-weight:600;font-size:.95rem;margin-left:4px}
 @media print{.more{display:none}}
 .pulse{width:100%;height:64px;display:block}
 .pulse path{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -180,6 +182,7 @@ h3{font-size:var(--fs-h3);font-weight:700;line-height:1.2;letter-spacing:-.01em}
   <div class="actions">
     <a class="btn" href="#contacto">Let's talk</a>
     <a class="btn ghost" href="../docs/CV-Julio-Miranda-EN.pdf" target="_blank" rel="noopener">Download CV</a>
+    <a class="cvlink" href="../cv.html" hreflang="es">View CV online (in Spanish)</a>
   </div>
   <svg class="pulse" viewBox="0 0 1000 64" preserveAspectRatio="none" aria-hidden="true">
     <path d="M0 40 H100 V20 H200 V48 H300 V28 H400 V40 H600" stroke="var(--tech)"/>
