@@ -261,7 +261,9 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
     q<any>("select id, nombre, organizacion from db_contactos order by coalesce(organizacion,nombre)"),
     q<any>("select id, nombre from db_servicios where activo or id=$1 order by nombre", [p.servicio_id ?? 0]),
   ])
-  const cobros = nuevo || !p.contacto_id ? [] : (await cobrosDe(p.contacto_id, true)).filter((c) => c.proyecto_id === p.id)
+  // Montos y cobros: solo Dirección y Comercial (los roles que pueden guardar el proyecto y administrar los cobros)
+  const verMontos = puede.verMontos(await requerir())
+  const cobros = nuevo || !p.contacto_id || !verMontos ? [] : (await cobrosDe(p.contacto_id, true)).filter((c) => c.proyecto_id === p.id)
   const sumar = (est: string) => cobros.filter((c) => c.estado === est).reduce<Record<string, number>>((a, c) => ((a[c.moneda] = (a[c.moneda] ?? 0) + Number(c.monto)), a), {})
   const tot = (m: Record<string, number>) => Object.entries(m).map(([k, v]) => plata(v, k)).join(" + ") || "—"
   const [hitos, cliente] = nuevo ? [[], null] : await Promise.all([
@@ -294,7 +296,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
         <label className="lbl">Responsable<input name="responsable" defaultValue={p.responsable ?? ""} className="inp" /></label>
         <label className="lbl">Inicio<input name="inicio" type="date" defaultValue={iso(p.inicio)} className="inp" /></label>
         <label className="lbl">Entrega<input name="entrega" type="date" defaultValue={iso(p.entrega)} className="inp" /></label>
-        <label className="lbl">Monto acordado<span className="flex gap-2"><select name="moneda_proy" defaultValue={p.moneda ?? "USD"} className="inp w-24" aria-label="Moneda"><option>USD</option><option>ARS</option></select><input name="monto" inputMode="decimal" defaultValue={p.monto ?? ""} className="inp" /></span></label>
+        {verMontos && <label className="lbl">Monto acordado<span className="flex gap-2"><select name="moneda_proy" defaultValue={p.moneda ?? "USD"} className="inp w-24" aria-label="Moneda"><option>USD</option><option>ARS</option></select><input name="monto" inputMode="decimal" defaultValue={p.monto ?? ""} className="inp" /></span></label>}
         <label className="lbl">Tablero de Trello (URL)<input name="trello_url" type="url" defaultValue={p.trello_url ?? ""} placeholder="https://trello.com/b/…" className="inp" /></label>
         <label className="lbl md:col-span-2">Alcance y notas<textarea name="notas" rows={6} defaultValue={p.notas ?? ""} className="inp" /></label>
         <div className="md:col-span-2 flex flex-wrap items-center gap-2"><button className="btn-p">Guardar</button>{!nuevo && puede.admin(await requerir()) && <BotonConfirmar chico accion={eliminar} mensaje="¿Eliminar este proyecto con sus hitos, plan y horas? Los cobros quedan sin proyecto asociado. No se puede deshacer.">Eliminar proyecto</BotonConfirmar>}</div>
@@ -332,7 +334,7 @@ export default async function Proyecto({ params, searchParams }: { params: { id:
         </aside>
       )}
 
-      {!nuevo && (
+      {!nuevo && verMontos && (
         <section id="cobros" aria-labelledby="t-cobros" className="card lg:col-span-3 flex flex-col gap-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="t-cobros" className="m-0 text-base">Cobros y abono</h2>

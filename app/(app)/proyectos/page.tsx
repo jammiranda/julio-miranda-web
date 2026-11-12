@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { q } from "@/lib/db"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
 import { ESTADOS_PROY } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"
 
 export default async function Proyectos({ searchParams }: { searchParams: { cerrados?: string } }) {
   // La sesión se valida acá también: el layout no vuelve a ejecutarse en cada pedido de la página
-  await requerir()
+  const verMontos = puede.verMontos(await requerir())
   const ver = searchParams.cerrados ? ESTADOS_PROY : ESTADOS_PROY.filter((e) => e.v !== "cancelado")
   const rows = await q<any>(
     `select p.*, c.organizacion, c.nombre contacto, s.nombre servicio from db_proyectos p
@@ -40,7 +40,7 @@ export default async function Proyectos({ searchParams }: { searchParams: { cerr
                     <span className="text-xs text-[#4A515C]">{p.organizacion ?? p.contacto ?? "Sin cliente"}{p.servicio ? ` · ${p.servicio}` : ""}</span>
                     <span className="flex flex-wrap gap-2 text-xs">
                       {f && <span className={tarde ? "text-rojo font-semibold" : "text-[#4A515C]"}>Entrega {fecha(f)}</span>}
-                      {p.monto && <span className="text-[#4A515C]">{pesos(p.monto)}</span>}
+                      {verMontos && p.monto && <span className="text-[#4A515C]">{pesos(p.monto)}</span>}
                       {p.trello_url && <span className="text-sky-700">Trello</span>}
                     </span>
                   </Link>

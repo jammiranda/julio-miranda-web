@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { q } from "@/lib/db"
-import { requerir } from "@/lib/auth"
+import { requerir, puede } from "@/lib/auth"
 import { ETAPAS, etapa, estadoProy } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
 import { local, calendarioConectado } from "@/lib/agenda"
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic"
 
 export default async function Resumen({ searchParams }: { searchParams: { dias?: string } }) {
   // La sesión se valida acá también: el layout no vuelve a ejecutarse en cada pedido de la página
-  await requerir()
+  const verMontos = puede.verMontos(await requerir())
   const dias = [30, 90, 365].includes(Number(searchParams.dias)) ? Number(searchParams.dias) : 30
   const [cuenta, proximos, activos, sinPasar, fuentes, reuniones] = await Promise.all([
     q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos where clase in ('oportunidad','cliente') group by etapa"),
@@ -119,7 +119,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
             <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">
               {activos.map((p) => (
                 <li key={p.id} className="py-2 flex items-start justify-between gap-3">
-                  <div><Link href={`/proyectos/${p.id}`} className="font-semibold hover:underline">{p.nombre}</Link><div className="text-sm text-[#4A515C]">{p.organizacion ?? p.contacto ?? "Sin cliente"}{p.monto ? ` · ${pesos(p.monto)}` : ""}</div></div>
+                  <div><Link href={`/proyectos/${p.id}`} className="font-semibold hover:underline">{p.nombre}</Link><div className="text-sm text-[#4A515C]">{p.organizacion ?? p.contacto ?? "Sin cliente"}{verMontos && p.monto ? ` · ${pesos(p.monto)}` : ""}</div></div>
                   <div className="text-right shrink-0"><span className={`chip ${estadoProy(p.estado).c}`}>{estadoProy(p.estado).n}</span>{p.entrega && <div className="text-xs mt-1 text-[#4A515C]">Entrega {fecha(iso(p.entrega))}</div>}</div>
                 </li>
               ))}

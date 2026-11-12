@@ -16,7 +16,7 @@ export default async function Comprobante({ params }: { params: { id: string } }
   if (!Number.isInteger(id) || id <= 0) notFound()
   const [cli, u] = await Promise.all([clienteActual(), usuarioActual()])
   if (!cli && !u) redirect("/portal/entrar")
-  const equipo = !!u && (puede.verFinanzas(u) || puede.editar(u))
+  const equipo = !!u && puede.verMontos(u)
   if (!equipo && !cli) notFound()
   // Primero se verifica que el cobro sea de quien lo pide: recién entonces se le asigna número de recibo
   const mio = await one("select 1 from db_cobros where id=$1 and estado='pagado'" + (equipo ? "" : " and contacto_id=$2"), equipo ? [id] : [id, cli!.id])

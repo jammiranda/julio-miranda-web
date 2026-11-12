@@ -68,6 +68,8 @@ export async function requerir(roles?: Rol[]): Promise<Usuario> {
 
 export const puede = {
   verFinanzas: (u: Usuario) => u.rol === "gerente",
+  /** Montos de proyectos, cobros y comprobantes: los mismos roles que ya entran a Finanzas y administran los cobros. */
+  verMontos: (u: Usuario) => u.rol === "gerente" || u.rol === "coordinacion",
   editar: (u: Usuario) => u.rol === "gerente" || u.rol === "coordinacion",
   registrarVisita: (u: Usuario) => u.rol !== "consulta",
   admin: (u: Usuario) => u.rol === "gerente",
