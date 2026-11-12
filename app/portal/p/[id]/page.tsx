@@ -10,6 +10,7 @@ import { fecha } from "@/lib/util"
 import FaseBarra from "@/components/FaseBarra"
 import AsesoriaResumen from "@/components/AsesoriaResumen"
 import { asesoriaDe } from "@/lib/asesoria"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 
@@ -80,7 +81,7 @@ export default async function ProyectoCliente({ params, searchParams }: { params
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/portal" className="text-sm underline text-[#4A515C] self-start">← Mis proyectos</Link>
+      <Link href="/portal" className="text-sm underline text-[#4A515C] self-start inline-flex items-center min-h-[44px] sm:min-h-0">← Mis proyectos</Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h1 className="m-0">{p.nombre}</h1>{p.servicio && <p className="m-0 text-[#4A515C]">{p.servicio}</p>}</div>
         <span className={`chip ${e.c}`}>{e.n}</span>
@@ -168,7 +169,7 @@ export default async function ProyectoCliente({ params, searchParams }: { params
               <input type="hidden" name="pid" value={p.id} />
               <label className="lbl">Tipo<select name="asunto" className="inp" defaultValue="Consulta"><option>Consulta</option><option>Pedido de cambio</option><option>Problema o error</option><option>Nueva idea</option></select></label>
               <label className="lbl">Mensaje<textarea name="texto" required rows={4} className="inp" /></label>
-              <button className="btn-p">Enviar</button>
+              <Enviar>Enviar</Enviar>
               <p className="m-0 text-xs text-[#4A515C]">Queda guardado en el historial del proyecto y le llega al equipo al instante.</p>
             </form>
           </section>

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { q, one, audit } from "@/lib/db"
 import { requerirCliente } from "@/lib/portal"
 import { CONDICIONES_IVA, TIPOS_DOC, cuitValido, pedirFactura, type Facturacion } from "@/lib/comprobantes"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 
@@ -44,7 +45,7 @@ export default async function DatosFacturacion({ searchParams }: { searchParams:
   const pend = cobro ? await one<{ concepto: string }>("select concepto from db_cobros where id=$1 and contacto_id=$2", [cobro, c.id]) : null
   return (
     <div className="flex flex-col gap-4 max-w-2xl">
-      <a href="/portal/pagos" className="text-sm underline text-[#4A515C] self-start">← Pagos y facturas</a>
+      <a href="/portal/pagos" className="text-sm underline text-[#4A515C] self-start inline-flex items-center min-h-[44px] sm:min-h-0">← Pagos y facturas</a>
       <div>
         <h1 className="m-0">Datos de facturación</h1>
         <p className="m-0 mt-1 text-[#4A515C]">{pend ? <>Para emitir la factura de <strong>{pend.concepto}</strong> necesitamos estos datos. Se guardan para las próximas.</> : "Los usamos para tus facturas. Podés cambiarlos cuando quieras; las facturas ya emitidas no cambian."}</p>
@@ -57,8 +58,8 @@ export default async function DatosFacturacion({ searchParams }: { searchParams:
         <label className="lbl">Número *<input name="doc" required inputMode="numeric" defaultValue={f.doc ?? ""} className="inp" placeholder="30-12345678-9" /></label>
         <label className="lbl sm:col-span-2">Condición frente al IVA *<select name="iva" required defaultValue={f.iva ?? ""} className="inp"><option value="" disabled>Elegí una opción</option>{CONDICIONES_IVA.map((x) => <option key={x}>{x}</option>)}</select></label>
         <label className="lbl sm:col-span-2">Domicilio fiscal *<input name="domicilio" required defaultValue={f.domicilio ?? ""} className="inp" placeholder="Calle 123, Localidad, Provincia" autoComplete="street-address" /></label>
-        <label className="lbl sm:col-span-2">Email para recibir facturas<input name="email" type="email" defaultValue={f.email ?? ""} placeholder={k?.email ?? ""} className="inp" /><span className="text-xs font-normal text-[#4A515C]">Si lo dejás vacío, usamos {k?.email ?? "tu email"}.</span></label>
-        <div className="sm:col-span-2"><button className="btn-p">{pend ? "Guardar y pedir la factura" : "Guardar datos"}</button></div>
+        <label className="lbl sm:col-span-2">Email para recibir facturas<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" defaultValue={f.email ?? ""} placeholder={k?.email ?? ""} className="inp" /><span className="text-xs font-normal text-[#4A515C]">Si lo dejás vacío, usamos {k?.email ?? "tu email"}.</span></label>
+        <div className="sm:col-span-2"><Enviar cargando="Guardando…">{pend ? "Guardar y pedir la factura" : "Guardar datos"}</Enviar></div>
       </form>
     </div>
   )

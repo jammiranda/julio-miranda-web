@@ -6,6 +6,7 @@ import { clienteActual, cerrarSesionCliente } from "@/lib/portal"
 import { URL_ACADEMIA } from "@/lib/academia"
 import LinksExternos from "@/components/LinksExternos"
 import Redes from "@/components/Redes"
+import PortalNav from "./_nav"
 import { tieneAsesoria } from "@/lib/asesoria"
 
 /** El espacio del alumno dentro de la Academia (misma sesión): cursos, clases y certificados, o los cursos abiertos si todavía no tiene. */
@@ -29,8 +30,8 @@ export default async function PortalLayout({ children }: { children: React.React
     <div data-espacio="portal" className="min-h-screen flex flex-col">
       <header className="portal-cab">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <Link href="/portal" aria-label="DEVISEBIT Mi cuenta, inicio"><Marca chico sub="MI CUENTA" /></Link>
-          {!c && <a href={MI_ACADEMIA} className="text-sm font-semibold text-[var(--ac-texto)] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
+          <Link href="/portal" aria-label="DEVISEBIT Mi cuenta, inicio" className="inline-flex items-center min-h-[44px]"><Marca chico sub="MI CUENTA" /></Link>
+          {!c && <a href={MI_ACADEMIA} className="inline-flex items-center min-h-[44px] text-sm font-semibold text-[var(--ac-texto)] hover:underline">Ir a ACADEMIA DEVISEBIT ↗</a>}
           {c && (
             <div className="flex items-center gap-3 text-sm">
               <span className="hidden sm:flex flex-col leading-tight text-right"><span className="font-semibold">{c.nombre}</span>{c.organizacion && <span className="text-xs text-[#4A515C]">{c.organizacion}</span>}</span>
@@ -39,10 +40,7 @@ export default async function PortalLayout({ children }: { children: React.React
           )}
         </div>
         {c && (
-          <nav aria-label="Mi cuenta" className="portal-nav max-w-5xl mx-auto px-4 pb-2 flex gap-1 overflow-x-auto">
-            {items.map((i) => <Link key={i.href} href={i.href} >{i.t}</Link>)}
-            <a href={MI_ACADEMIA} title="Tus cursos, clases y certificados. Entrás con esta misma cuenta" >ACADEMIA DEVISEBIT ↗</a>
-          </nav>
+          <PortalNav items={items} academia={MI_ACADEMIA} />
         )}
       </header>
       <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6">{children}</main>

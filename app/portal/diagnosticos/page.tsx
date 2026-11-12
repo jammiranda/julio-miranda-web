@@ -60,7 +60,7 @@ export default async function Diagnosticos() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <p className="m-0"><Link href="/portal" className="text-sm text-[#4A515C] hover:underline">← Inicio</Link></p>
+        <p className="m-0"><Link href="/portal" className="text-sm text-[#4A515C] hover:underline inline-flex items-center min-h-[44px] sm:min-h-0">← Inicio</Link></p>
         <h1 className="m-0 mt-1">Mis autodiagnósticos</h1>
         <p className="m-0 mt-1 text-[#4A515C]">Tres niveles gratis: cada uno destraba el siguiente y te recomienda por dónde avanzar.</p>
       </div>

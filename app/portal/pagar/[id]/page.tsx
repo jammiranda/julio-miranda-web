@@ -8,6 +8,7 @@ import { linkPagoCobro, mpActivo, datosTransferencia } from "@/lib/pagos"
 import { PAGO } from "@/lib/precios"
 import { DESCUENTO_TRANSFERENCIA } from "@/lib/compras"
 import { notificar } from "@/lib/push"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 
@@ -45,7 +46,7 @@ export default async function Pagar({ params, searchParams }: { params: { id: st
   const mp = mpActivo() && x.moneda === "ARS"
   return (
     <div className="flex flex-col gap-5 max-w-3xl">
-      <Link href="/portal/servicios" className="text-sm underline text-[#4A515C]">← Servicios y productos</Link>
+      <Link href="/portal/servicios" className="text-sm underline text-[#4A515C] self-start inline-flex items-center min-h-[44px] sm:min-h-0">← Servicios y productos</Link>
       <div>
         <h1 className="m-0">Pagar</h1>
         <p className="m-0 mt-1 text-[#4A515C]">Elegí cómo pagar. Apenas se acredita, te llega el comprobante y el equipo arranca.</p>
@@ -64,7 +65,7 @@ export default async function Pagar({ params, searchParams }: { params: { id: st
           <p className="m-0 text-sm text-[#4A515C]">Tarjeta de crédito o débito, dinero en cuenta. Hasta 3 cuotas sin interés.</p>
           <strong className="text-xl">{plata(monto, x.moneda)}</strong>
           {mp ? (
-            <form action={pagarMP} className="mt-auto"><input type="hidden" name="cobro" value={x.id} /><button className="btn-p w-full">Pagar con Mercado Pago</button></form>
+            <form action={pagarMP} className="mt-auto"><input type="hidden" name="cobro" value={x.id} /><Enviar className="btn-p w-full" cargando="Abriendo Mercado Pago…">Pagar con Mercado Pago</Enviar></form>
           ) : <p className="m-0 mt-auto text-sm text-[#4A515C]">Este cobro se paga por transferencia.</p>}
         </section>
         <section className="card flex flex-col gap-3" aria-labelledby="t-tr">
@@ -73,8 +74,8 @@ export default async function Pagar({ params, searchParams }: { params: { id: st
           <p className="m-0 text-sm whitespace-pre-line rounded-lg bg-[#F5F6F8] p-3 font-mono">{transf}</p>
           <form action={transferi} className="mt-auto flex flex-col gap-2">
             <input type="hidden" name="cobro" value={x.id} />
-            <label className="lbl font-normal text-xs">Número de operación o comentario (opcional)<input name="detalle" className="inp text-sm" /></label>
-            <button className="btn-s">Ya transferí</button>
+            <label className="lbl font-normal text-xs">Número de operación o comentario (opcional)<input name="detalle" className="inp sm:text-sm" /></label>
+            <Enviar className="btn-s">Ya transferí</Enviar>
           </form>
         </section>
       </div>

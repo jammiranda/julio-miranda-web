@@ -35,7 +35,7 @@ export default async function Comprobante({ params }: { params: { id: string } }
   return (
     <div className="flex flex-col gap-4">
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
-        <a href="/portal/pagos" className="text-sm underline text-[#4A515C]">← Pagos y facturas</a>
+        <a href="/portal/pagos" className="text-sm underline text-[#4A515C] inline-flex items-center min-h-[44px] sm:min-h-0">← Pagos y facturas</a>
         <Imprimir />
       </div>
       <article className="card !p-0 overflow-hidden bg-white max-w-3xl w-full mx-auto print:border-0" aria-label={`Comprobante de pago ${nro}`}>

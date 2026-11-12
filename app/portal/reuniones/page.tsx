@@ -3,6 +3,7 @@ import { one, q, audit } from "@/lib/db"
 import { requerirCliente } from "@/lib/portal"
 import { turnosLibres, reservar, local, horario } from "@/lib/agenda"
 import { consultaDe } from "@/lib/compras"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -71,17 +72,17 @@ export default async function Reuniones({ searchParams }: { searchParams: { ok?:
             <legend className="text-xs font-bold uppercase tracking-wider text-[#4A515C] mb-1">{d.etiqueta}</legend>
             <div className="flex flex-wrap gap-2">{d.turnos.map((t) => (
               <label key={t.iso} className="cursor-pointer"><input type="radio" name="turno" value={t.iso} required className="peer sr-only" />
-                <span className="inline-block rounded-xl border border-[#C3C8D1] bg-white px-3 py-2 text-sm font-semibold tabular-nums peer-checked:border-[#C8231F] peer-checked:bg-[#C8231F] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{t.hora}</span></label>
+                <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-xl border border-[#C3C8D1] bg-white px-3 py-2 text-sm font-semibold tabular-nums peer-checked:border-[#C8231F] peer-checked:bg-[#C8231F] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{t.hora}</span></label>
             ))}</div>
           </fieldset>
         )) : <p className="m-0 text-sm">No hay horarios libres en los próximos días. Escribinos por WhatsApp y lo coordinamos.</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="lbl">Tema<select name="motivo" className="inp">{MOTIVOS.map((m) => <option key={m}>{m}</option>)}</select></label>
           <label className="lbl">¿Cómo preferís?<select name="modalidad" className="inp"><option value="videollamada">Videollamada (sin instalar nada)</option><option value="llamada">Llamada telefónica</option></select></label>
-          <label className="lbl">WhatsApp o teléfono<input name="telefono" defaultValue={k?.telefono ?? ""} inputMode="tel" className="inp" /></label>
+          <label className="lbl">WhatsApp o teléfono<input name="telefono" defaultValue={k?.telefono ?? ""} type="tel" inputMode="tel" autoComplete="tel" className="inp" /></label>
           <label className="lbl">¿Algo que quieras que preparemos?<input name="notas" className="inp" /></label>
         </div>
-        {dias.length > 0 && <button className="btn-p self-start">Confirmar reunión</button>}
+        {dias.length > 0 && <Enviar className="btn-p self-start" cargando="Reservando el horario…">Confirmar reunión</Enviar>}
       </form>
 
       {pasadas.length > 0 && (

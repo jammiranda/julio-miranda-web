@@ -9,6 +9,7 @@ import { waitUntil } from "@vercel/functions"
 import { fecha } from "@/lib/util"
 import Link from "next/link"
 import { pedirFactura, nroRecibo, formatoCuit, facturacionCompleta, type Facturacion } from "@/lib/comprobantes"
+import Enviar from "@/components/Enviar"
 
 export const dynamic = "force-dynamic"
 
@@ -60,7 +61,7 @@ export default async function Pagos({ searchParams }: { searchParams: { mp?: str
         </div>
         <strong className="text-sm">{plata(x.monto, x.moneda)}</strong>
         {x.estado === "pendiente" && mp && x.moneda === "ARS" && (
-          <form action={pagar}><input type="hidden" name="cobro" value={x.id} /><button className={venc ? "btn-p py-1.5" : "btn-s py-1.5"}>Pagar con Mercado Pago</button></form>
+          <form action={pagar}><input type="hidden" name="cobro" value={x.id} /><Enviar className={venc ? "btn-p py-1.5" : "btn-s py-1.5"} cargando="Abriendo Mercado Pago…">Pagar con Mercado Pago</Enviar></form>
         )}
         {x.estado === "pagado" && <span className="chip bg-emerald-50 text-emerald-700">Pagado</span>}
         <div className="w-full flex flex-wrap items-center gap-2 text-sm">
@@ -68,18 +69,18 @@ export default async function Pagos({ searchParams }: { searchParams: { mp?: str
           {x.factura_estado === "emitida" && x.factura_url && <a href={x.factura_url} target="_blank" rel="noopener noreferrer" className="btn-s py-1 text-xs">Descargar factura {x.factura_tipo ?? ""} {x.factura_nro} ↗</a>}
           {x.factura_estado === "pedida" && <span className="chip bg-sky-50 text-sky-700">Factura {x.factura_tipo ?? ""} pedida · la estamos preparando</span>}
           {!x.factura_estado && (
-            <form action={factura}><input type="hidden" name="cobro" value={x.id} /><button className="text-xs underline text-[#4A515C] hover:text-[#C8231F]">Necesito factura</button></form>
+            <form action={factura}><input type="hidden" name="cobro" value={x.id} /><button className="inline-flex items-center min-h-[44px] sm:min-h-0 text-sm sm:text-xs underline text-[#4A515C] hover:text-[#C8231F]">Necesito factura</button></form>
           )}
         </div>
         {x.estado === "pendiente" && x.informado_en && <span className="chip bg-sky-50 text-sky-700">Pago informado · lo estamos confirmando</span>}
         {x.estado === "pendiente" && !x.informado_en && (
           <details className="w-full">
-            <summary className="cursor-pointer text-sm underline text-[#4A515C]">Ya pagué: informar el pago</summary>
+            <summary className="cursor-pointer py-2.5 sm:py-0 text-sm underline text-[#4A515C]">Ya pagué: informar el pago</summary>
             <form action={informar} className="mt-2 flex flex-wrap gap-2 items-end">
               <input type="hidden" name="cobro" value={x.id} />
               <label className="lbl">Medio<select name="medio" className="inp py-1.5"><option>Transferencia</option><option>Depósito</option><option>Efectivo</option><option>Otro</option></select></label>
               <label className="lbl flex-1 min-w-[200px]">Fecha, número de operación o link al comprobante<input name="detalle" required maxLength={500} className="inp py-1.5" /></label>
-              <button className="btn-s py-1.5">Informar</button>
+              <Enviar className="btn-s py-1.5">Informar</Enviar>
             </form>
           </details>
         )}
