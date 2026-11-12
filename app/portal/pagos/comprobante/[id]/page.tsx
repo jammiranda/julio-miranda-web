@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { one } from "@/lib/db"
 import { clienteActual } from "@/lib/portal"
-import { usuarioActual } from "@/lib/auth"
+import { usuarioActual, puede } from "@/lib/auth"
 import { empresa, asegurarRecibo, nroRecibo, enLetras, formatoCuit, type Facturacion } from "@/lib/comprobantes"
 import { plata, tipoCobro } from "@/lib/cobros"
 import Imprimir from "@/components/Imprimir"
@@ -10,11 +10,17 @@ export const dynamic = "force-dynamic"
 
 const dia = (d: any) => new Date(d).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Argentina/Buenos_Aires" })
 
-/** Comprobante de pago (recibo no fiscal, numerado). Lo ve el cliente dueño del cobro o el equipo con sesión. */
+/** Comprobante de pago (recibo no fiscal, numerado). Lo ve el cliente dueño del cobro, o del equipo quien ve finanzas o administra los cobros (Dirección y Comercial). */
 export default async function Comprobante({ params }: { params: { id: string } }) {
   const id = Number(params.id)
-  const [cli, equipo] = await Promise.all([clienteActual(), usuarioActual()])
-  if (!cli && !equipo) redirect("/portal/entrar")
+  if (!Number.isInteger(id) || id <= 0) notFound()
+  const [cli, u] = await Promise.all([clienteActual(), usuarioActual()])
+  if (!cli && !u) redirect("/portal/entrar")
+  const equipo = !!u && (puede.verFinanzas(u) || puede.editar(u))
+  if (!equipo && !cli) notFound()
+  // Primero se verifica que el cobro sea de quien lo pide: recién entonces se le asigna número de recibo
+  const mio = await one("select 1 from db_cobros where id=$1 and estado='pagado'" + (equipo ? "" : " and contacto_id=$2"), equipo ? [id] : [id, cli!.id])
+  if (!mio) notFound()
   await asegurarRecibo(id)
   const c = await one<any>(
     `select c.*, p.nombre proyecto, k.nombre cliente, k.organizacion, k.email, k.fact
