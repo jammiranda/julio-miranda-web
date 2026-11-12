@@ -8,6 +8,7 @@ import { estadoCuenta, montos, plata } from "@/lib/cobros"
 import { misInscripciones } from "@/lib/cursos"
 import { URL_ACADEMIA } from "@/lib/academia"
 import { NIVELES } from "@/lib/diagnosticos-datos"
+import { local } from "@/lib/agenda"
 
 export const dynamic = "force-dynamic"
 
@@ -20,7 +21,6 @@ const PRIMEROS_PASOS = [
   { i: "✉", t: "Escribinos por WhatsApp", d: "Contanos qué necesitás y te respondemos en el día.", href: WA, externo: true },
 ]
 
-const fh = (d: any) => new Date(d).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })
 
 /** "1 activo", "2 activos" */
 const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`
@@ -138,8 +138,8 @@ export default async function Portal() {
           {!reuniones.length && <p className="m-0 text-sm text-[#4A515C]">No hay reuniones agendadas.</p>}
           {reuniones.map((r, i) => (
             <div key={i} className="text-sm">
-              <strong className="block">{fh(r.inicio)}</strong>
-              <span className="text-[#4A515C]">{r.modalidad}</span>
+              <strong className="block first-letter:uppercase">{local(new Date(r.inicio)).texto}</strong>
+              <span className="text-[#4A515C] inline-block first-letter:uppercase">{r.modalidad}</span>
               {r.link && <> · <a href={r.link} target="_blank" rel="noopener noreferrer" className="underline text-[#C8231F]">Unirme</a></>}
             </div>
           ))}
