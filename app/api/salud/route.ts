@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
+import { conDetalle } from "@/lib/salud"
 import { one, q } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
 import { diagnosticoBrevo } from "@/lib/email"
@@ -9,9 +10,15 @@ import { diagnosticoGoogle } from "@/lib/integraciones"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-/** Estado del sistema para la revisión semanal automática (sin datos personales). */
-export async function GET() {
+/**
+ * Estado del sistema para la revisión semanal automática (sin datos personales).
+ * Sin clave responde solo si el sistema y la base están en pie ({ ok: true }): no llama a servicios externos ni muestra errores internos.
+ */
+export async function GET(req: NextRequest) {
   const t0 = Date.now()
+  if (!(await conDetalle(req))) {
+    try { await one("select 1"); return NextResponse.json({ ok: true }) } catch { return NextResponse.json({ ok: false }, { status: 503 }) }
+  }
   try {
     const r = await one<{ h: number | null }>("select extract(epoch from now() - max(creado))/3600 h from wa_mensajes where autor='cliente'")
     const b = await one<{ h: number | null }>("select extract(epoch from now() - max(creado))/3600 h from wa_mensajes where autor='bot'")
