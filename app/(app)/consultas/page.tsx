@@ -12,7 +12,7 @@ import BorrarSeleccion from "@/components/BorrarSeleccion"
 export const dynamic = "force-dynamic"
 
 const VISTAS = [
-  { v: "bandeja", n: "Sin atender", d: "Entraron y nadie respondió todavía", estados: ["nueva"], c: "border-red-300", t: "text-rojo" },
+  { v: "bandeja", n: "Sin atender", d: "Nadie del equipo respondió todavía", estados: ["nueva"], c: "border-red-300", t: "text-rojo" },
   { v: "seguimiento", n: "En seguimiento", d: "En conversación o calificadas", estados: ["contactada", "calificada"], c: "border-amber-300", t: "text-amber-700" },
   { v: "convertida", n: "Pasaron al CRM", d: "Ya son contactos comerciales", estados: ["convertida"], c: "border-emerald-300", t: "text-emerald-700" },
   { v: "descartada", n: "Descartadas", d: "No avanzaron", estados: ["descartada"], c: "border-slate-300", t: "text-slate-600" },
@@ -38,7 +38,8 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
   const vista = VISTAS.find((x) => x.v === searchParams.v) ?? (searchParams.v === "todas" ? null : total(["nueva"]) ? VISTAS[0] : VISTAS[1])
   const b = (searchParams.b ?? "").trim()
   const rows = await q<any>(
-    `select * from consultas
+    `select k.*, (select m.autor from wa_mensajes m where m.empresa=k.empresa and m.wa_id=coalesce(k.chat_id, regexp_replace(coalesce(k.telefono,''),'[^0-9]','','g')) and m.autor<>'cliente' order by m.creado desc limit 1) respondio
+     from consultas k
      where empresa=$3 and ($1::text[] is null or estado = any($1))
        and ($2 = '' or nombre ilike '%'||$2||'%' or organizacion ilike '%'||$2||'%' or email ilike '%'||$2||'%' or telefono ilike '%'||$2||'%' or mensaje ilike '%'||$2||'%')
      order by creado desc limit 300`,
@@ -94,7 +95,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
                   <tr key={c.id} className={`hover:bg-[#F8F9FB] ${c.estado === "nueva" ? "font-semibold" : ""}`}>
                     {adm && <td><input type="checkbox" name="ids" value={c.id} form="f-eliminar" className="sel-fila" aria-label="Marcar" /></td>}
                     <td className="whitespace-nowrap">{fechaHora(c.creado)}<div className={`text-xs font-normal ${demora ? "text-rojo font-semibold" : "text-[#4A515C]"}`}>{hace(c.creado)}</div></td>
-                    <td><span className={`chip whitespace-nowrap ${est.c}`}>{est.n}</span>{c.necesita_humano && c.estado !== "descartada" && <div><span className="chip whitespace-nowrap bg-red-600 text-white mt-1">Quiere una persona</span></div>}</td>
+                    <td><span className={`chip whitespace-nowrap ${est.c}`}>{est.n}</span>{c.estado === "nueva" && c.respondio && <div className="text-xs font-normal text-[#4A515C] mt-1 whitespace-nowrap">{c.respondio === "bot" ? "El bot ya respondió" : "El equipo ya escribió"}</div>}{c.necesita_humano && c.estado !== "descartada" && <div><span className="chip whitespace-nowrap bg-red-600 text-white mt-1">Quiere una persona</span></div>}</td>
                     <td><Link href={`/consultas/${c.id}`} className="hover:underline">{c.nombre ?? "Sin nombre"}</Link><div className="text-xs font-normal text-[#4A515C]">{c.telefono ?? ""}</div></td>
                     <td>{c.organizacion ?? "—"}<div className="text-xs font-normal text-[#4A515C]">{c.email ?? ""}</div></td>
                     <td className="font-normal">{c.motivo ?? "—"}</td>

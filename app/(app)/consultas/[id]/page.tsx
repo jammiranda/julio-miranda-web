@@ -45,10 +45,15 @@ async function responder(fd: FormData) {
   const texto = s(fd.get("texto"))
   if (!c || !texto) redirect(`/consultas/${id}`)
   const r = await responderDesdeCRM(c.empresa as Empresa, c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto!, u.nombre)
-  await q("update consultas set necesita_humano=false, asignado=coalesce(asignado,$1), estado=case when estado='nueva' then 'contactada' else estado end, actualizado=now() where id=$2", [u.nombre, id])
-  await audit(u, "responde_whatsapp", "consulta", id)
+  // Solo queda como atendida si el mensaje salió: si falló el envío, sigue en «Sin atender» y con el pedido de una persona
+  if (r.ok) await q("update consultas set necesita_humano=false, asignado=coalesce(asignado,$1), estado=case when estado='nueva' then 'contactada' else estado end, actualizado=now() where id=$2", [u.nombre, id])
+  await audit(u, "responde_whatsapp", "consulta", id, r.ok ? undefined : `no salió: ${String(r.error ?? "error").slice(0, 200)}`)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
+
+/** Alguien del equipo le escribió al cliente (brief, agenda o material): la consulta deja de figurar como «Sin atender». */
+const atendidaPor = (id: number, nombre: string) =>
+  q("update consultas set asignado=coalesce(asignado,$1), estado=case when estado='nueva' then 'contactada' else estado end, actualizado=now() where id=$2", [nombre, id])
 
 async function bot(fd: FormData) {
   "use server"
@@ -72,6 +77,7 @@ async function mandarBrief(fd: FormData) {
   const link = await linkBrief(id)
   const texto = `${c.nombre ? `${c.nombre.split(" ")[0]}, ` : ""}para armarte una *propuesta preliminar con alcance, plazo e inversión en 48 h hábiles*, completá este brief de 3 minutos: ${link}`
   const r = await responderDesdeCRM("devisebit", c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto, u.nombre)
+  if (r.ok) await atendidaPor(id, u.nombre)
   await audit(u, "envia_brief", "consulta", id)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
@@ -86,6 +92,7 @@ async function mandarAgenda(fd: FormData) {
   const tok = (await one<{ brief_token: string }>("select brief_token from consultas where id=$1", [id]))!.brief_token
   const texto = `${c.nombre ? `${c.nombre.split(" ")[0]}, ` : ""}elegí acá el día y horario para la videollamada de 30 minutos (sin costo): ${linkAgenda(tok)}`
   const r = await responderDesdeCRM("devisebit", c.chat_id ?? String(c.telefono).replace(/\D/g, ""), texto, u.nombre)
+  if (r.ok) await atendidaPor(id, u.nombre)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
 
@@ -101,6 +108,7 @@ async function mandarMaterial(fd: FormData) {
   const texto = m!.texto(c.nombre)
   const r = await enviarTexto("devisebit", waId, texto)
   if (r.ok) await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ('devisebit',$1,'equipo',$2,$3,$4)", [waId, texto, r.id ?? null, u.nombre])
+  if (r.ok) await atendidaPor(id, u.nombre)
   await audit(u, "envia_material", "consulta", id, m!.k)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
 }
