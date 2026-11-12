@@ -3,7 +3,7 @@ import { alCRM } from "./bot"
 
 /**
  * Pasa varias consultas al CRM de una vez, con la misma función que usan el bot, el brief y la agenda (alCRM):
- * crea el contacto como oportunidad o, si ya había uno con ese email, lo vincula. No toca el estado de la consulta.
+ * crea el contacto como oportunidad o, si ya había uno con ese email, lo vincula. No toca el estado de la consulta: «pasó al CRM» se define por tener el contacto vinculado (PASO_AL_CRM en lib/consultas.ts).
  * Devuelve cuántas pasaron, cuántas ya estaban y cuántas no tienen datos suficientes (sin nombre ni teléfono, o sin nada más que eso).
  */
 export async function pasarAlCRM(ids: number[]) {

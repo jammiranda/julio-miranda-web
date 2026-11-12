@@ -5,6 +5,13 @@ export const ESTADOS = [
   { v: "convertida", n: "Pasó al CRM", c: "bg-emerald-50 text-emerald-700" },
   { v: "descartada", n: "Descartada", c: "bg-slate-100 text-slate-600" },
 ]
+/**
+ * Una consulta «pasó al CRM» cuando tiene un contacto comercial vinculado (lo cree una persona, el bot, el brief, la agenda o el formulario web)
+ * o cuando alguien la marcó a mano como «Pasó al CRM». Las descartadas no cuentan. No es una venta. `k` es el alias de la tabla consultas.
+ */
+export const PASO_AL_CRM = (k = "k") => `(${k}.estado <> 'descartada' and (${k}.estado = 'convertida' or exists (select 1 from db_contactos pc where pc.consulta_id = ${k}.id)))`
+/** «Ganada» es solo la consulta cuyo contacto del CRM llegó a la etapa Ganado (la misma definición que usa el Resumen comercial). */
+export const GANADA = (k = "k") => `exists (select 1 from db_contactos pg where pg.consulta_id = ${k}.id and pg.etapa = 'ganado')`
 export const CANAL: Record<string, string> = { whatsapp: "WhatsApp", instagram: "Instagram", web: "Web", telefono: "Teléfono", email: "Email", linkedin: "LinkedIn", referido: "Referido", otro: "Otro" }
 export const MOTIVOS = ["Sistema o app a medida", "Sitio web", "Asistente de WhatsApp con IA", "Tableros e indicadores", "Producto listo", "Presupuesto", "Trabajar con nosotros", "Otro"]
 export function hace(d: string | Date) {

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { requerir, puede } from "@/lib/auth"
 import { q } from "@/lib/db"
-import { ESTADOS, CANAL, hace, fechaHora } from "@/lib/consultas"
+import { ESTADOS, CANAL, PASO_AL_CRM, hace, fechaHora } from "@/lib/consultas"
 import { borrarConsultas } from "@/lib/consultas-borrar"
 import { audit } from "@/lib/db"
 import { redirect } from "next/navigation"
@@ -12,10 +12,11 @@ import AccionesSeleccion from "@/components/AccionesSeleccion"
 
 export const dynamic = "force-dynamic"
 
-const VISTAS = [
+/** «Pasaron al CRM» no es un estado: son las que tienen contacto comercial (PASO_AL_CRM). Una conversación puede estar ahí y, a la vez, en «Sin atender» o «En seguimiento». */
+const VISTAS: { v: string; n: string; d: string; estados: string[]; crm?: boolean; c: string; t: string }[] = [
   { v: "bandeja", n: "Sin atender", d: "Nadie del equipo respondió todavía", estados: ["nueva"], c: "border-red-300", t: "text-rojo" },
   { v: "seguimiento", n: "En seguimiento", d: "En conversación o calificadas", estados: ["contactada", "calificada"], c: "border-amber-300", t: "text-amber-700" },
-  { v: "convertida", n: "Pasaron al CRM", d: "Ya son contactos comerciales", estados: ["convertida"], c: "border-emerald-300", t: "text-emerald-700" },
+  { v: "convertida", n: "Pasaron al CRM", d: "Ya son contactos comerciales. No quiere decir ganadas", estados: ["convertida"], crm: true, c: "border-emerald-300", t: "text-emerald-700" },
   { v: "descartada", n: "Descartadas", d: "No avanzaron", estados: ["descartada"], c: "border-slate-300", t: "text-slate-600" },
 ]
 
@@ -70,18 +71,22 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
   const u = await requerir()
   const emp = "devisebit"
   const qs = (x: Record<string, string>) => "?" + new URLSearchParams(x).toString()
-  const cuenta = await q<{ estado: string; n: number }>("select estado, count(*)::int n from consultas where empresa=$1 group by estado", [emp])
+  const [cuenta, enCRM] = await Promise.all([
+    q<{ estado: string; n: number }>("select estado, count(*)::int n from consultas where empresa=$1 group by estado", [emp]),
+    q<{ n: number }>(`select count(*)::int n from consultas k where k.empresa=$1 and ${PASO_AL_CRM("k")}`, [emp]),
+  ])
   const n = Object.fromEntries(cuenta.map((c) => [c.estado, c.n]))
   const total = (est: string[]) => est.reduce((a, e) => a + (n[e] ?? 0), 0)
+  const cuantas = (x: (typeof VISTAS)[number]) => (x.crm ? enCRM[0]?.n ?? 0 : total(x.estados))
   const vista = VISTAS.find((x) => x.v === searchParams.v) ?? (searchParams.v === "todas" ? null : total(["nueva"]) ? VISTAS[0] : VISTAS[1])
   const b = (searchParams.b ?? "").trim()
   const rows = await q<any>(
     `select k.*, (select d.id from db_contactos d where d.consulta_id=k.id limit 1) contacto_id, (select m.autor from wa_mensajes m where m.empresa=k.empresa and m.wa_id=coalesce(k.chat_id, regexp_replace(coalesce(k.telefono,''),'[^0-9]','','g')) and m.autor<>'cliente' order by m.creado desc limit 1) respondio
      from consultas k
-     where empresa=$3 and ($1::text[] is null or estado = any($1))
+     where empresa=$3 and ${vista?.crm ? `($1::text[] is null and ${PASO_AL_CRM("k")})` : "($1::text[] is null or estado = any($1))"}
        and ($2 = '' or nombre ilike '%'||$2||'%' or organizacion ilike '%'||$2||'%' or email ilike '%'||$2||'%' or telefono ilike '%'||$2||'%' or mensaje ilike '%'||$2||'%')
      order by creado desc limit 300`,
-    [vista ? vista.estados : null, b, emp],
+    [vista && !vista.crm ? vista.estados : null, b, emp],
   )
   const ed = puede.editar(u)
   const adm = puede.admin(u)
@@ -106,12 +111,13 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
           return (
             <Link key={x.v} href={`/consultas${qs({ v: x.v })}`} className={`card flex flex-col gap-0.5 border-2 transition-colors ${activa ? x.c + " shadow-sm" : "border-transparent hover:border-[#C3C8D1]"}`}>
               <span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">{x.n}</span>
-              <span className={`text-3xl font-extrabold ${x.t}`}>{total(x.estados)}</span>
+              <span className={`text-3xl font-extrabold ${x.t}`}>{cuantas(x)}</span>
               <span className="text-xs text-[#4A515C]">{x.d}</span>
             </Link>
           )
         })}
       </div>
+      <p className="m-0 -mt-2 text-xs text-[#4A515C]">«Pasaron al CRM» cuenta las que ya tienen un contacto comercial, lo haya creado una persona o el bot. Si todavía esperan respuesta, siguen además en «Sin atender» o «En seguimiento». «Ganada» es otra cosa: es el contacto que llega a la etapa Ganado en el CRM.</p>
 
       <div className="card p-0 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-[#E2E5EA]">

@@ -86,7 +86,7 @@ const SECCIONES: Sec[] = [
     id: "conversaciones", t: "Conversaciones (bot de WhatsApp e Instagram)", para: ["gerente", "coordinacion"], en: ["comercial"], link: "/consultas", ir: "Conversaciones",
     pasos: [
       "Todo lo que entra por WhatsApp, Instagram y el formulario de devisebit.com aparece acá. Bit responde solo y va tomando nombre, organización, necesidad y email.",
-      "Las tarjetas de arriba filtran: *Sin atender*, *En seguimiento*, *Pasaron al CRM* y *Descartadas*. El chip rojo *Quiere una persona* marca a quien pidió hablar con alguien.",
+      "Las tarjetas de arriba filtran: *Sin atender*, *En seguimiento*, *Pasaron al CRM* y *Descartadas*. *Pasaron al CRM* son las que ya tienen contacto comercial, lo haya creado el bot o una persona: si todavía esperan respuesta siguen además en *Sin atender* o *En seguimiento*. No quiere decir que estén ganadas: *Ganada* es solo el contacto que llega a la etapa *Ganado* en el CRM. El chip rojo *Quiere una persona* marca a quien pidió hablar con alguien.",
       "Para responder vos, escribí en la caja de la conversación: sale por el mismo canal y el bot queda en pausa 24 h en ese chat. Podés reactivarlo con un botón.",
       "Si una respuesta tuya sirve para el futuro, tocá *Enseñar al bot* debajo del mensaje.",
       "Cuando el bot ya tiene nombre y necesidad, crea solo el contacto en el CRM. Si no, usá *Pasar a contacto del CRM*.",
