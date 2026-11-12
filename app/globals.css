@@ -51,6 +51,11 @@
   :where([data-espacio="academia"]) .chip { border-radius: 8px; }
   /* Academia pública: etiquetas un poco más grandes en celular */
   :where(.acad) .lbl { font-size: 15px; }
+  /* Celular: campos de 16px (con menos, iPhone hace zoom al enfocar) y botones de 44px de alto para el dedo */
+  @media (max-width: 639.98px) {
+    .inp, :where([data-espacio]) .inp { font-size: 16px; min-height: 44px; }
+    .btn, :where([data-espacio]) .btn { min-height: 44px; }
+  }
 }
 @media print { header:not(.ficha-head), nav, footer, .no-print { display: none !important; } body { background: #fff; } main:not(.ficha) .card { border: 0; padding: 0; } .ficha .card { break-inside: avoid; } @page { margin: 12mm; } }
 .prosa { @apply text-[17px] leading-[1.75] text-[#262C37]; }
@@ -418,8 +423,11 @@ a.kpi:hover { border-color: var(--borde-fuerte); transform: translateY(-2px); bo
 [data-espacio="portal"] main { font-size: 16px; }
 [data-espacio="portal"] .btn, [data-espacio="portal"] .inp { min-height: 44px; }
 [data-espacio="portal"] .portal-cab { background: var(--sup); border-bottom: 1px solid var(--borde); }
-[data-espacio="portal"] .portal-nav a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 99px; font-weight: 600; font-size: 14px; color: var(--gris); text-decoration: none; white-space: nowrap; }
+[data-espacio="portal"] .portal-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 99px; font-weight: 600; font-size: 14px; color: var(--gris); text-decoration: none; white-space: nowrap; }
 [data-espacio="portal"] .portal-nav a:hover { background: var(--borde-2); color: var(--tinta); }
+[data-espacio="portal"] .portal-nav a[aria-current="page"] { background: var(--ac-suave); color: var(--ac-texto); }
+[data-espacio="portal"] .portal-nav { scrollbar-width: none; }
+[data-espacio="portal"] .portal-nav::-webkit-scrollbar { display: none; }
 
 /* Buscador Ctrl+K */
 .buscar-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--borde-fuerte); background: var(--sup); color: var(--gris); font-size: 14px; font-weight: 600; }

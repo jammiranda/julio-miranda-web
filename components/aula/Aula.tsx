@@ -179,7 +179,7 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
   const moduloActual = siguiente ? (siguiente.modulo || "Contenido") : null
   return (
     <div className="flex flex-col gap-6">
-      <Link href={volver.href} className="text-sm no-underline text-[#4A515C] hover:text-[var(--ac-texto)] self-start">← {volver.t}</Link>
+      <Link href={volver.href} className="text-sm no-underline text-[#4A515C] hover:text-[var(--ac-texto)] self-start inline-flex items-center min-h-[44px] sm:min-h-0">← {volver.t}</Link>
 
       <section className="aula-hero" aria-labelledby="t-curso">
         <div className="flex flex-wrap items-center justify-between gap-6">
@@ -315,7 +315,7 @@ function MarcoLeccion({ base, i, lecciones, k, children }: { base: BaseAula; i: 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-        <Link href={`${base}/${i.id}`} className="text-sm no-underline text-[#4A515C] hover:text-[var(--ac-texto)]">← {i.titulo}</Link>
+        <Link href={`${base}/${i.id}`} className="text-sm no-underline text-[#4A515C] hover:text-[var(--ac-texto)] inline-flex items-center min-h-[44px] sm:min-h-0">← {i.titulo}</Link>
         <div className="w-full sm:w-64"><Barra pct={pct} label={`Tu avance: ${hechas} de ${lecciones.length}`} /></div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6 items-start">
@@ -404,7 +404,7 @@ export function AulaLeccion({ base, i, lecciones, k, quiz }: { base: BaseAula; i
         <div className="aula-barra flex flex-wrap items-center justify-between gap-3">
           {ant ? <Link href={`${base}/${i.id}/l/${ant.id}`} className="btn-s">← Anterior</Link> : <span />}
           {l.completada
-            ? <span className="flex flex-wrap items-center gap-3"><span className="text-sm text-emerald-700 font-semibold flex items-center gap-1"><Tilde className="w-4 h-4" /> Vista</span><button name="op" value="deshacer" className="text-xs underline text-[#4A515C] bg-transparent border-0 cursor-pointer">Desmarcar</button>{sig && <Link href={`${base}/${i.id}/l/${sig.id}`} className="btn-p">Siguiente →</Link>}</span>
+            ? <span className="flex flex-wrap items-center gap-3"><span className="text-sm text-emerald-700 font-semibold flex items-center gap-1"><Tilde className="w-4 h-4" /> Vista</span><button name="op" value="deshacer" className="inline-flex items-center min-h-[44px] sm:min-h-0 px-1 text-sm sm:text-xs underline text-[#4A515C] bg-transparent border-0 cursor-pointer">Desmarcar</button>{sig && <Link href={`${base}/${i.id}/l/${sig.id}`} className="btn-p">Siguiente →</Link>}</span>
             : <button name="op" value="completar" className="btn-p">{preguntas.length ? "Enviar respuestas y marcar como vista" : sig ? "Marcar como vista y seguir →" : "Marcar como vista"}</button>}
         </div>
       </form>

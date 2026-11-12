@@ -16,7 +16,7 @@ export default function Redes({ oscuro = false, conTexto = false, className = ""
           <a
             href={r.href} target="_blank" rel="noopener noreferrer"
             aria-label={`${r.nombre} de DEVISEBIT (se abre en otra pestaña)`} title={`${r.nombre} · ${r.usuario}`}
-            className={`${conTexto ? "px-3 gap-2" : "w-9 justify-center"} h-9 rounded-xl border inline-flex items-center transition-colors ${oscuro ? "border-white/15 text-white/75 hover:border-[#FF6A63] hover:text-white" : "border-[#C3C8D1] bg-white text-[#262C37] hover:border-[#C8231F] hover:text-[#C8231F]"}`}
+            className={`${conTexto ? "px-3 gap-2" : "w-11 sm:w-9 justify-center"} h-11 sm:h-9 rounded-xl border inline-flex items-center transition-colors ${oscuro ? "border-white/15 text-white/75 hover:border-[#FF6A63] hover:text-white" : "border-[#C3C8D1] bg-white text-[#262C37] hover:border-[#C8231F] hover:text-[#C8231F]"}`}
           >
             {ICONO[r.id]}
             {conTexto && <span className="text-xs font-semibold">{r.nombre}</span>}
