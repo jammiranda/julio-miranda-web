@@ -12,13 +12,33 @@ import { registrarSeguidores } from "@/lib/instagram"
 import { lanzarRelanzamientoSiCorresponde } from "@/lib/campania-relanzamiento"
 import { depurarBase } from "@/lib/depuracion"
 import { seguimientoDiagnosticos } from "@/lib/diagnosticos"
-import { reenganchar } from "@/lib/reenganche"
+import { reenganchar, reengancharSiToca } from "@/lib/reenganche"
+import { claveOk } from "@/lib/clave"
+import { one } from "@/lib/db"
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
 /** Lo llama Vercel Cron a las 8 de Argentina: recordatorios de reuniones, abonos del mes, avisos de pago, recordatorios de clases, perfil de WhatsApp, los seguidores de Instagram del día, la tanda diaria de campañas, el recordatorio de los autodiagnósticos (a los 3 días, si no siguió con el nivel siguiente) y, los viernes, la revisión semanal del bot. */
 export async function GET(req: NextRequest) {
-  const s = process.env.CRON_SECRET
-  if (s && req.headers.get("authorization") !== `Bearer ${s}`) return NextResponse.json({ ok: false }, { status: 401 })
+  if (process.env.CRON_SECRET) {
+    // Con CRON_SECRET cargado en Vercel, solo entra quien lo trae (Vercel Cron lo manda solo)
+    const a = req.headers.get("authorization") ?? ""
+    if (!a.startsWith("Bearer ") || !claveOk(a.slice(7), "CRON_SECRET")) return NextResponse.json({ ok: false }, { status: 401 })
+  } else {
+    // Sin CRON_SECRET la URL es pública: el trabajo completo corre como mucho una vez cada 20 horas y solo en la franja
+    // en la que lo llama Vercel Cron (11 a 13 UTC). El candado es atómico en la base, así que llamarla de más no repite nada.
+    const h = new Date().getUTCHours()
+    const toca = h >= 11 && h < 13 ? await one(
+      `insert into config(clave,valor) values ('cron_diario_ultimo', now()::text)
+       on conflict (clave) do update set valor=excluded.valor
+         where config.valor::timestamptz < now() - interval '20 hours'
+       returning 1`,
+    ).catch((e) => { console.error("cron: candado", e); return null }) : null
+    if (!toca) {
+      // El seguimiento a quienes no contestaron tiene su propio candado (cada 10 minutos)
+      await reengancharSiToca()
+      return NextResponse.json({ ok: true, omitido: true })
+    }
+  }
   const recordatorios = await recordatoriosDelDia().catch((e) => String(e))
   const wa = await asegurarPerfil().catch((e) => String(e))
   const abonos = await generarAbonos().catch((e) => String(e))
