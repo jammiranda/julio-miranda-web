@@ -302,7 +302,10 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     // Audio que no se pudo transcribir: se le pide que lo escriba y el equipo lo escucha
     await q("update consultas set necesita_humano=true where id=$1", [cid])
     await notificar(roles, `🎤 Audio sin transcribir en ${red} · ${marca}`, `${perfil ?? "Cliente"} mandó un audio que el sistema no pudo transcribir: escuchalo`, `/consultas/${cid}`)
-    res = { respuestas: ["Recibí tu audio 🎧 pero no logré escucharlo bien. ¿Me lo escribís en un mensaje así te ayudo enseguida? Si preferís, lo escucha una persona del equipo."], datos: {}, derivar: false, estado: est }
+    // Texto indicado por Julio (11/11/2026): si la consulta es por una web, se pregunta rubro y qué web; si no, qué necesita
+    const motivo = (await one<{ mensaje: string | null }>("select mensaje from consultas where id=$1", [cid]))?.mensaje ?? ""
+    const pregunta = /\bweb|sitio|p[aá]gina/i.test(motivo) ? "¿Nos contás por escrito a qué se dedica tu negocio y qué web necesitás?" : "¿Nos contás por escrito qué necesitás?"
+    res = { respuestas: [`Hola, recibimos tu audio pero no pudimos escucharlo bien. ${pregunta}`], datos: {}, derivar: false, estado: est }
   } else if (tipo !== "text" && !texto) {
     res = { respuestas: ["¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?"], datos: {}, derivar: false, estado: est }
   } else {
