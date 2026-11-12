@@ -2,6 +2,7 @@ import { randomBytes } from "crypto"
 import { q, one, audit } from "./db"
 import { aHtml, plantilla, enviarBrevo } from "./email"
 import { notificar } from "./push"
+import { primeraVez } from "./telegram"
 import { URL_ACADEMIA } from "./academia"
 import { crearAcceso } from "./portal"
 
@@ -286,12 +287,14 @@ export const textoGratis = (n: number) => (n > 1 ? `Módulos 1 a ${n} gratis` : 
 /** Recordatorio por email de las clases de hoy (cron de las 8). */
 export async function recordatoriosClases() {
   const l = await q<any>(
-    `select k.nombre, k.email, c.titulo, cl.fecha, cl.tema, coalesce(cl.link, e.link) link, e.lugar, i.id iid
+    `select k.nombre, k.email, c.titulo, cl.id clase_id, cl.fecha, cl.tema, coalesce(cl.link, e.link) link, e.lugar, i.id iid
      from am_clases cl join am_ediciones e on e.id=cl.edicion_id join am_cursos c on c.id=e.curso_id
      join am_inscripciones i on i.edicion_id=e.id and i.estado in ('inscripto','cursando') join db_contactos k on k.id=i.contacto_id
      where k.email is not null and (cl.fecha at time zone 'America/Argentina/Buenos_Aires')::date = (now() at time zone 'America/Argentina/Buenos_Aires')::date`)
   let n = 0
   for (const x of l) {
+    // Un solo recordatorio por clase y alumno en el día, aunque el cron corra dos veces
+    if (!(await primeraVez(`clase:${x.clase_id}:${x.iid}`, 1200))) continue
     const hora = new Date(x.fecha).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })
     const md = `# Hoy tenés clase\n\nHola {{nombre}}, hoy a las **${hora}** es la clase de **${x.titulo}**${x.tema ? `: ${x.tema}` : ""}.${x.lugar ? `\n\nLugar: ${x.lugar}` : ""}\n\n${x.link ? `[[Entrar a la clase|${x.link}]]` : `[[Ver el curso|${URL_ACADEMIA}/mi-cuenta/cursos/${x.iid}]]`}`
     const r = await enviarBrevo({ email: x.email, name: x.nombre }, `Hoy ${hora} · ${x.titulo}`, plantilla(aHtml(md), { nombre: x.nombre, preheader: x.tema ?? "Recordatorio de clase" })).catch(() => ({ ok: false }))

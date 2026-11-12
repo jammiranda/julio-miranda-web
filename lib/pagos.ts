@@ -1,6 +1,7 @@
 import { q, one, audit } from "./db"
 import { aHtml, plantilla, enviarBrevo } from "./email"
 import { notificar } from "./push"
+import { primeraVez } from "./telegram"
 import { urlPortal, registrarHito } from "./portal"
 import { plata, config } from "./cobros"
 
@@ -64,6 +65,8 @@ export async function recordatoriosCobro() {
   )
   let n = 0
   for (const c of l) {
+    // Un solo aviso por cobro y por fecha: si el cron corre dos veces el mismo día, el cliente no lo recibe repetido
+    if (!(await primeraVez(`cobro:${c.id}:${c.dias}`, 2880))) continue
     const venc = Number(c.dias) > 0
     const md = venc
       ? `# Tenés un pago vencido\n\nHola {{nombre}}, el pago **${c.concepto}** de **${plata(c.monto, c.moneda)}** venció el ${c.vence_txt}.\n\nPodés pagarlo desde tu portal o, si ya lo hiciste, respondé este correo con el comprobante.\n\n[[Pagar ahora|${urlPortal("/pagos")}]]`
