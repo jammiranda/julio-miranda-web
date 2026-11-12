@@ -113,7 +113,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           ...(edita ? [{ href: "/biblioteca", t: "De la empresa", i: "carpeta" }, { href: "/material", t: "Material de venta", i: "guia" }, { href: "/legales", t: "Legales", i: "balanza" }] : []),
         ] },
         { t: "Gestión", items: edita ? [{ href: "/finanzas", t: "Finanzas", i: "dinero" }, { href: "/activos", t: "Activos digitales", i: "servidor" }] : [] },
-        { t: "Ajustes", items: [...(edita ? [{ href: "/integraciones", t: "Integraciones", i: "enchufe" }] : []), ...(gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : []), { href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
+        { t: "Ajustes", items: [...(edita ? [{ href: "/integraciones", t: "Integraciones", i: "enchufe" }] : []), ...(gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : []), { href: "/versiones", t: "Versiones", i: "escudo" }, { href: "/ayuda", t: "Ayuda", i: "ayuda" }] },
       ]
   return s.filter((x) => x.items.length)
 }
