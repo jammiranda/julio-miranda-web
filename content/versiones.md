@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 12/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (423 cambios publicados desde el 17 de octubre).
+Última actualización: 12/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (424 cambios publicados desde el 17 de octubre).
 
 Este documento responde una sola pregunta: **en qué versión está cada cosa y qué cambió en cada versión**. Hasta hoy nada tenía número; acá se le pone número a todo, hacia atrás, y queda la regla para seguir.
 
@@ -12,7 +12,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|---|---|
 | Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Juego de videos para redes sin precios: 17 verticales, 4 para LinkedIn, 4 carruseles y portadas |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.1.0** | 12/11/2026 | «Pasaron al CRM» y «Ganadas» son dos cosas distintas, con la misma cuenta en todas las pantallas |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.1.0** | 12/11/2026 | Pantalla nueva «Versiones» en Ajustes, con este documento dentro del Sistema |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
@@ -31,16 +31,16 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|
 | Sitio web DEVISEBIT | 85 | 9 |
 | Landings de anuncios | 11 | 4 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 141 | 12 |
+| Sistema (CRM y gestión) | 142 | 12 |
 | Bot de WhatsApp (Bit) | 21 | 8 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
 | Panel de Contenido | 30 | 7 |
 | Oficina | 20 | 2 |
 | Sitio personal de Julio | 61 | 6 |
-| **Total** | **423** | **59** |
+| **Total** | **424** | **59** |
 
-Los 423 se reparten así: 96 en el código del sitio web (85 + 11), 266 en el código del Sistema (141 + 21 + 40 + 14 + 30 + 20) y 61 en el sitio personal.
+Los 424 se reparten así: 96 en el código del sitio web (85 + 11), 267 en el código del Sistema (142 + 21 + 40 + 14 + 30 + 20) y 61 en el sitio personal.
 
 ---
 
@@ -97,11 +97,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-141 cambios · 12 versiones · versión actual **3.1.0**
+142 cambios · 12 versiones · versión actual **3.1.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
-| **3.1.0** | 12/11/2026 | • En Conversaciones se pueden marcar varias consultas y pasarlas al CRM o descartarlas de una vez<br>• El link de agenda, el material y el brief también se mandan por email desde la misma ventana, y el email queda guardado en la consulta<br>• «Pasaron al CRM» cuenta las consultas que ya tienen un contacto comercial; «Ganadas» es solo el contacto que llega a la etapa Ganado. La misma cuenta en Conversaciones y en el Resumen comercial<br>• El brief pregunta la inversión en pesos, con rangos alineados a la lista de precios<br>• Nuevo documento en la Biblioteca: «Alta de cliente · Agente de WhatsApp», versión 1, con la lista de lo que tiene que mandar el cliente | Novedad | `2abf7b8..cebce06` (9) |
+| **3.1.0** | 12/11/2026 | • En Conversaciones se pueden marcar varias consultas y pasarlas al CRM o descartarlas de una vez<br>• El link de agenda, el material y el brief también se mandan por email desde la misma ventana, y el email queda guardado en la consulta<br>• «Pasaron al CRM» cuenta las consultas que ya tienen un contacto comercial; «Ganadas» es solo el contacto que llega a la etapa Ganado. La misma cuenta en Conversaciones y en el Resumen comercial<br>• El brief pregunta la inversión en pesos, con rangos alineados a la lista de precios<br>• Nuevo documento en la Biblioteca: «Alta de cliente · Agente de WhatsApp», versión 1, con la lista de lo que tiene que mandar el cliente<br>• Pantalla nueva «Versiones» en Ajustes: este documento, dentro del Sistema | Novedad | `2abf7b8..dfd8805` (10) |
 | **3.0.1** | 12/11/2026 | • 🔒 **Seguridad (10 arreglos):** tres pantallas (Resumen, Proyectos y ficha de contacto) ahora verifican bien que quien entra sea del equipo; los montos de proyectos y cobros solo los ven Dirección y Comercial; el link general de agenda ya no puede mostrar la consulta de otra persona; recuperar la clave tiene límite de pedidos; las tareas automáticas ya no se pueden disparar desde afuera<br>• Se corrigió que los correos podían salir duplicados, y que los recordatorios de pago y de clase podían repetirse<br>• La baja en un clic de Gmail y Yahoo ahora da de baja de verdad<br>• «Sin atender» en Conversaciones ya no engaña; fechas en hora de Argentina; confirmación antes de borrar; pantalla de error con «Reintentar» | 🔒 Seguridad + Corrección | `ed6dbad..4a18588` (25) |
 | **3.0.0** | 10/11/2026 | • **Rediseño 2026:** menú de 7 áreas con pestañas y edición al costado, sin saltar de página<br>• Todo abre más rápido: los avisos ya no frenan cada pantalla y hay barra de progreso al instante<br>• Módulo aparte para la base de usuarios de la app Soy Tigre, por rango de edad<br>• Correos con mejor diseño: portada con título, secciones numeradas, botón grande y logo | Novedad (rediseño) | `e6eea29..0309058` (13) |
 | **2.5.0** | 08/11/2026 | • Un solo estilo para Comercial, Gestión, Academia y Portal; buscador con Ctrl+K<br>• «Para hoy» e indicadores en el Resumen comercial y en el Tablero de dirección<br>• Prospección: registro con historia de cada contacto y seguimiento a los 7 días<br>• Avisos por Telegram de todo lo que entra | Novedad | `f422747..d0859fb` (7) |
@@ -261,8 +261,8 @@ git fetch origin
 git log --date=short --format='%h %ad %s' --reverse origin/devisebit-sistema
 
 # Cambios desde una versión: usar el último código de su rastro.
-# Ejemplo: todo lo posterior a Sistema 3.1.0 (rastro 2abf7b8..cebce06)
-git log --date=short --format='%h %ad %s' --reverse cebce06..origin/devisebit-sistema
+# Ejemplo: todo lo posterior a Sistema 3.1.0 (rastro 2abf7b8..dfd8805)
+git log --date=short --format='%h %ad %s' --reverse dfd8805..origin/devisebit-sistema
 
 # Lo mismo, filtrado por producto dentro de devisebit-sistema
 git log --date=short --format='%h %ad %s' --reverse 0c7bd9a..origin/devisebit-sistema -- app/academia 'lib/academia*'
@@ -291,10 +291,10 @@ git show --stat <código>
 
 ## 7. Último cambio revisado de cada rama
 
-Lo usa la actualización diaria para saber desde dónde seguir.
+Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que solo actualizan este documento (título «Versiones: actualización…») no se cuentan.
 
 | Rama | Último cambio incluido |
 |---|---|
-| `devisebit-sistema` | `63ee348` |
+| `devisebit-sistema` | `dfd8805` |
 | `devisebit-web` | `35e2cd0` |
 | `main` | `3e6a2dc` |
