@@ -2,6 +2,8 @@ import { REDES } from "./redes"
 import { q, one } from "./db"
 import { URL_SISTEMA } from "./brief"
 import { emailConEstilo } from "./email-estilos"
+import { createHmac, timingSafeEqual } from "crypto"
+import { secret } from "./auth"
 
 /** Email marketing: plantilla con la marca, segmentos, cola diaria y envío por Brevo. */
 export const LIMITE_DIARIO = Number(process.env.EMAIL_LIMITE_DIARIO ?? 300)
@@ -64,11 +66,24 @@ export function conUtm(u: string, campaniaId: number | string) {
   } catch { return u }
 }
 
-/** Envuelve los links para medir clics y agrega el píxel de apertura. */
-export function conSeguimiento(html: string, envioId: number | string, campaniaId?: number | string) {
+/** Firma del destino de un link medido (misma clave que firma las sesiones): /api/e/c solo redirige a destinos que salieron de un envío nuestro. */
+export function firmaLink(envioId: number | string, url: string, clave: Uint8Array) {
+  return createHmac("sha256", clave).update(`${envioId}\n${url}`).digest("hex").slice(0, 24)
+}
+export function firmaLinkOk(envioId: number | string, url: string, firma: string, clave: Uint8Array) {
+  const a = Buffer.from(firmaLink(envioId, url, clave)), b = Buffer.from(firma)
+  return a.length === b.length && timingSafeEqual(a, b)
+}
+
+/** Envuelve los links para medir clics y agrega el píxel de apertura. Con `clave`, cada link lleva la firma de su destino (/c/<envío>-<firma>). */
+export function conSeguimiento(html: string, envioId: number | string, campaniaId?: number | string, clave?: Uint8Array | null) {
   const base = `${URL_SISTEMA}/api/e`
   return html
-    .replace(/href="(https?:\/\/[^"]+)"/g, (_m, u: string) => (u.includes("/baja/") ? `href="${u}"` : `href="${base}/c/${envioId}?u=${encodeURIComponent(campaniaId ? conUtm(u.replace(/&amp;/g, "&"), campaniaId) : u)}"`))
+    .replace(/href="(https?:\/\/[^"]+)"/g, (_m, u: string) => {
+      if (u.includes("/baja/")) return `href="${u}"`
+      const destino = campaniaId ? conUtm(u.replace(/&amp;/g, "&"), campaniaId) : u
+      return `href="${base}/c/${envioId}${clave ? `-${firmaLink(envioId, destino, clave)}` : ""}?u=${encodeURIComponent(destino)}"`
+    })
     .replace("</body>", `<img src="${base}/o/${envioId}" width="1" height="1" alt="" style="display:block;width:1px;height:1px"></body>`)
 }
 
@@ -161,11 +176,13 @@ export async function procesarCola(max = LIMITE_DIARIO) {
      from em_envios e join em_campanias k on k.id=e.campania_id left join db_contactos ct on ct.id=e.contacto_id
      where e.estado='pendiente' and k.estado='enviando' order by e.campania_id, e.id limit $1`, [cupo])
   let enviados = 0
+  // Clave para firmar el destino de cada link; si no se pudiera leer, los links salen sin firma (y el clic los valida contra el contenido del envío)
+  const clave = await secret().catch(() => null)
   for (const x of lote) {
     const vigente = await one<{ email_estado: string }>("select email_estado from db_contactos where lower(email)=lower($1)", [x.email])
     if (vigente && vigente.email_estado !== "activo") { await q("update em_envios set estado='omitido' where id=$1", [x.id]); continue }
     const baja = x.email_token ? `${URL_SISTEMA}/baja/${x.email_token}` : null
-    const html = conSeguimiento(emailConEstilo(x.contenido, { estilo: x.estilo, portada: x.portada, preheader: x.preheader, baja, nombre: x.nombre }), x.id, x.campania_id)
+    const html = conSeguimiento(emailConEstilo(x.contenido, { estilo: x.estilo, portada: x.portada, preheader: x.preheader, baja, nombre: x.nombre }), x.id, x.campania_id, clave)
     // Se toma el envío antes de mandarlo: si la cola corre dos veces a la vez (cron y botón, o doble clic), solo una lo manda
     const mio = await q("update em_envios set estado='enviado', enviado_en=now() where id=$1 and estado='pendiente' returning id", [x.id])
     if (!mio.length) continue
