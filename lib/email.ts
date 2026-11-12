@@ -82,7 +82,8 @@ export async function enviarBrevo(to: { email: string; name?: string | null }, a
       body: JSON.stringify({
         sender: REMITENTE, replyTo: { email: RESPONDER_A }, to: [{ email: to.email, ...(to.name ? { name: to.name } : {}) }], subject: asunto, htmlContent: html,
         ...(adjuntos?.length ? { attachment: adjuntos } : {}),
-        ...(baja ? { headers: { "List-Unsubscribe": `<${baja}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}),
+        // La baja en un clic de Gmail/Yahoo es un POST: va a /api/e/baja/<token> (la página /baja/<token> solo atiende a quien la abre)
+        ...(baja ? { headers: { "List-Unsubscribe": `<${baja.replace("/baja/", "/api/e/baja/")}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}),
       }),
     })
     const j = await r.json().catch(() => ({}))
