@@ -96,8 +96,8 @@ export default function ServicesPage() {
                 <p className="m-0 mt-auto pt-2 text-sm text-[#4A515C]"><span className="font-bold text-[#0E1116]">Real project:</span> {s.caso}</p>
                 {(s.ver.length > 0 || s.productos.length > 0) && (
                   <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#E2E5EA]">
-                    {s.ver.map((v) => <Link key={v.href} href={v.href} className="rounded-full bg-[#FDECEB] text-[#9E1A17] px-3 py-1 text-[13px] font-semibold hover:bg-[#C8231F] hover:text-white transition-colors">{v.t} →</Link>)}
-                    {s.productos.map((p) => <Link key={p} href={`/en/products#${p}`} className="rounded-full border border-[#C3C8D1] px-3 py-1 text-[13px] font-semibold hover:border-[#C8231F]">{PRODUCT_NAME[p]}</Link>)}
+                    {s.ver.map((v) => <Link key={v.href} href={v.href} className="inline-flex items-center min-h-11 rounded-full bg-[#FDECEB] text-[#9E1A17] px-4 py-1 text-[13px] font-semibold hover:bg-[#C8231F] hover:text-white transition-colors">{v.t} →</Link>)}
+                    {s.productos.map((p) => <Link key={p} href={`/en/products#${p}`} className="inline-flex items-center min-h-11 rounded-full border border-[#C3C8D1] px-4 py-1 text-[13px] font-semibold hover:border-[#C8231F]">{PRODUCT_NAME[p]}</Link>)}
                   </div>
                 )}
               </article>

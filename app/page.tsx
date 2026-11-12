@@ -155,7 +155,7 @@ export default function HomePage() {
                 <p className={kicker + " text-[#C8231F]"}>Casos de éxito</p>
                 <h2 className={h2}>Más de 150 proyectos en producción.</h2>
               </div>
-              <Link href="/casos-de-exito" className="font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver todos los casos →</Link>
+              <Link href="/casos-de-exito" className="inline-flex items-center min-h-11 font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver todos los casos →</Link>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
               {CASES.map((c) => (

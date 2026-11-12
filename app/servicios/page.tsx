@@ -83,9 +83,9 @@ export default function ServiciosPage() {
             <h1 className="m-0 font-tight text-[38px] md:text-[52px] leading-[1.08] font-extrabold max-w-[900px]">Todo lo que necesitás para digitalizar tu organización, en un solo equipo.</h1>
             <p className="m-0 text-lg md:text-[19px] leading-relaxed text-[#C3C8D1] max-w-[760px]">Empezá por una solución con precio publicado o armemos juntos un servicio a medida. Cada solución tiene su página con planes, y se apoya en productos que ya funcionan en producción.</p>
             <nav aria-label="Servicios" className="flex flex-wrap gap-2 mt-4">
-              <a href="#soluciones" className="rounded-full bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 text-sm font-semibold text-white transition-colors">Soluciones con precio</a>
+              <a href="#soluciones" className="inline-flex items-center min-h-11 rounded-full bg-[#C8231F] hover:bg-[#9E1A17] px-4 py-2.5 text-sm font-semibold text-white transition-colors">Soluciones con precio</a>
               {SERVICES.map((s) => (
-                <a key={s.id} href={`#${s.id}`} className="rounded-full border border-white/15 hover:border-[#FF6A63] px-4 py-2.5 text-sm font-semibold text-[#D3D7DE] hover:text-white transition-colors">{s.title}</a>
+                <a key={s.id} href={`#${s.id}`} className="inline-flex items-center min-h-11 rounded-full border border-white/15 hover:border-[#FF6A63] px-4 py-2.5 text-sm font-semibold text-[#D3D7DE] hover:text-white transition-colors">{s.title}</a>
               ))}
             </nav>
           </div>
@@ -154,8 +154,8 @@ export default function ServiciosPage() {
                 <p className="m-0 mt-auto pt-2 text-sm text-[#4A515C]"><span className="font-bold text-[#0E1116]">Caso real:</span> {s.caso}</p>
                 {(s.ver.length > 0 || s.productos.length > 0) && (
                   <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#E2E5EA]">
-                    {s.ver.map((v) => <Link key={v.href} href={v.href} className="rounded-full bg-[#FDECEB] text-[#9E1A17] px-3 py-1 text-[13px] font-semibold hover:bg-[#C8231F] hover:text-white transition-colors">{v.t} →</Link>)}
-                    {s.productos.map((p) => <Link key={p} href={`/productos#${p}`} className="rounded-full border border-[#C3C8D1] px-3 py-1 text-[13px] font-semibold hover:border-[#C8231F]">{NOMBRE_PRODUCTO[p]}</Link>)}
+                    {s.ver.map((v) => <Link key={v.href} href={v.href} className="inline-flex items-center min-h-11 rounded-full bg-[#FDECEB] text-[#9E1A17] px-4 py-1 text-[13px] font-semibold hover:bg-[#C8231F] hover:text-white transition-colors">{v.t} →</Link>)}
+                    {s.productos.map((p) => <Link key={p} href={`/productos#${p}`} className="inline-flex items-center min-h-11 rounded-full border border-[#C3C8D1] px-4 py-1 text-[13px] font-semibold hover:border-[#C8231F]">{NOMBRE_PRODUCTO[p]}</Link>)}
                   </div>
                 )}
               </article>

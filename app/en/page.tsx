@@ -155,7 +155,7 @@ export default function HomeEnPage() {
                 <p className={kicker + " text-[#C8231F]"}>Success stories</p>
                 <h2 className={h2}>150+ projects in production.</h2>
               </div>
-              <Link href="/en/success-stories" className="font-bold text-[#C8231F] hover:text-[#9E1A17]">See all stories →</Link>
+              <Link href="/en/success-stories" className="inline-flex items-center min-h-11 font-bold text-[#C8231F] hover:text-[#9E1A17]">See all stories →</Link>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
               {CASES.map((c) => (
