@@ -44,7 +44,7 @@ export default async function Academia() {
   const abanico = cursos.map((c) => ({ ...c, img: portada(c) })).filter((c) => c.img).slice(0, 3)
 
   const puertas = [
-    { href: "#cursos", t: "Cursos", d: `${n.cursos} cursos a tu ritmo, con certificado`, cls: "bg-[#C8231F] text-white", sub: "text-white/85" },
+    { href: "#cursos", t: "Cursos", d: `${n.cursos} cursos a tu ritmo, con certificado`, cls: "bg-[var(--ac)] text-white", sub: "text-white/85" },
     { href: "#diagnostico", t: "Diagnóstico", d: "Autodiagnóstico gratis en 5 minutos", cls: "bg-[#2347C5] text-white", sub: "text-white/85" },
     { href: "#programas", t: "Programas", d: "Ejecutivos, desde noviembre", cls: "bg-[#7C5CFC] text-white", sub: "text-white/80" },
     { href: "#guias", t: "Guías", d: `${n.guias} guías prácticas gratis`, cls: "bg-[#0B7462] text-white", sub: "text-white/85" },
@@ -55,7 +55,7 @@ export default async function Academia() {
       <Revelar />
       <RutaFlotante />
       {/* ── Hero ───────────────────────────────────────────── */}
-      <section className="ficha-head bg-[#0E1116] text-white relative overflow-hidden">
+      <section className="ficha-head bg-[var(--tinta)] text-white relative overflow-hidden">
         <Cinta etiqueta="Ahora en la Academia" items={[...cursos.slice(0, 5).map((c: any): [string, string] => ["Curso", c.titulo]), ...guias.slice(0, 5).map((g: any): [string, string] => ["Guía", g.titulo])]} />
         <Flotantes />
         <svg aria-hidden="true" className="absolute inset-0 w-full h-full opacity-[.35]" preserveAspectRatio="none"><defs><pattern id="trama" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="rgba(255,255,255,.18)" /></pattern></defs><rect width="100%" height="100%" fill="url(#trama)" /></svg>
@@ -75,7 +75,7 @@ export default async function Academia() {
             <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[400px] lg:max-w-[440px] pb-6 lg:pb-0">
               <div className="abanico grid [&>*]:[grid-area:1/1]">
                 {abanico.map((c) => (
-                  <Link key={c.slug} href={`/cursos/${c.slug}`} className="block rounded-2xl overflow-hidden ring-1 ring-white/15 shadow-[0_24px_50px_rgba(0,0,0,.45)] bg-[#0E1116]" aria-label={`Curso: ${c.titulo}`}>
+                  <Link key={c.slug} href={`/cursos/${c.slug}`} className="block rounded-2xl overflow-hidden ring-1 ring-white/15 shadow-[0_24px_50px_rgba(0,0,0,.45)] bg-[var(--tinta)]" aria-label={`Curso: ${c.titulo}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={c.img!} alt="" width={1200} height={675} className="block w-full h-auto" />
                   </Link>
@@ -107,16 +107,16 @@ export default async function Academia() {
         <section id="cursos" aria-labelledby="t-cursos" className="max-w-6xl mx-auto px-4 pt-14 sm:pt-20 scroll-mt-20">
           <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3" data-revelar>
             <div className="max-w-2xl">
-              <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[#C8231F]" />
+              <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[var(--ac)]" />
               <h2 id="t-cursos" className="acad-h2 m-0 mt-4 font-extrabold tracking-tight">Cursos a tu ritmo, con certificado</h2>
-              <p className="m-0 mt-2 text-[17px] text-[#4A515C]">Empezás cuando quieras, y en varios el módulo 1 es gratis. Los pagos son tuyos de por vida: apunte y cuaderno en PDF, plantillas, certificado y una videollamada de 30 minutos.</p>
+              <p className="m-0 mt-2 text-[17px] text-[var(--gris)]">Empezás cuando quieras, y en varios el módulo 1 es gratis. Los pagos son tuyos de por vida: apunte y cuaderno en PDF, plantillas, certificado y una videollamada de 30 minutos.</p>
             </div>
-            <Link href="/cursos" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[#B91F1B] hover:underline">Ver los {n.cursos} cursos <Flecha /></Link>
+            <Link href="/cursos" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[var(--ac-texto)] hover:underline">Ver los {n.cursos} cursos <Flecha /></Link>
           </div>
           <ul className="m-0 mt-7 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" aria-label="Cursos">
             {cursos.map((c, i) => <li key={c.slug} className={i > 2 ? "hidden sm:block" : ""}><TarjetaCurso c={c} i={i} /></li>)}
           </ul>
-          {cursos.length > 3 && <Link href="/cursos" className="sm:hidden mt-5 flex items-center justify-center gap-2 min-h-[52px] rounded-xl bg-[#C8231F] text-white font-bold no-underline">Ver los {n.cursos} cursos <Flecha /></Link>}
+          {cursos.length > 3 && <Link href="/cursos" className="sm:hidden mt-5 flex items-center justify-center gap-2 min-h-[52px] rounded-xl bg-[var(--ac)] text-white font-bold no-underline">Ver los {n.cursos} cursos <Flecha /></Link>}
         </section>
       )}
 
@@ -149,7 +149,7 @@ export default async function Academia() {
       </section>
 
       {/* ── Programas (oscuro + ámbar) ────────────────────── */}
-      <section id="programas" aria-labelledby="t-programas" className="mt-14 sm:mt-20 bg-[#0E1116] text-white scroll-mt-16">
+      <section id="programas" aria-labelledby="t-programas" className="mt-14 sm:mt-20 bg-[var(--tinta)] text-white scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 py-14 sm:py-20">
           <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3" data-revelar>
             <div className="max-w-2xl">
@@ -171,7 +171,7 @@ export default async function Academia() {
                     <span className="text-sm font-semibold text-white/70">{p.tipo}</span>
                     <span className="text-lg sm:text-xl font-bold leading-snug group-hover:text-[#A78BFA] transition-colors">{p.titulo}</span>
                   </span>
-                  <span className="mt-2 md:mt-0 inline-flex items-center justify-center gap-1.5 self-start md:self-center rounded-xl border border-[#A78BFA]/60 text-[#A78BFA] px-4 min-h-[44px] text-sm font-bold group-hover:bg-[#A78BFA] group-hover:text-[#0E1116] transition-colors whitespace-nowrap">Quiero que me avisen</span>
+                  <span className="mt-2 md:mt-0 inline-flex items-center justify-center gap-1.5 self-start md:self-center rounded-xl border border-[#A78BFA]/60 text-[#A78BFA] px-4 min-h-[44px] text-sm font-bold group-hover:bg-[#A78BFA] group-hover:text-[var(--tinta)] transition-colors whitespace-nowrap">Quiero que me avisen</span>
                 </Link>
               </li>
             ))}
@@ -202,7 +202,7 @@ export default async function Academia() {
               <ul className="m-0 p-0 list-none rounded-[24px] bg-white border border-[#C9E6DD] divide-y divide-[#E3F3EE] overflow-hidden">
                 {resto.map((g, i) => (
                   <li key={g.slug} data-revelar style={{ ["--i" as string]: i }}>
-                    <Link href={`/guias/${g.slug}`} className="group flex items-center gap-4 px-4 sm:px-6 py-4 min-h-[72px] no-underline text-[#0E1116] hover:bg-[#F3FAF7] transition-colors">
+                    <Link href={`/guias/${g.slug}`} className="group flex items-center gap-4 px-4 sm:px-6 py-4 min-h-[72px] no-underline text-[var(--tinta)] hover:bg-[#F3FAF7] transition-colors">
                       <span className="flex-1 min-w-0 flex flex-col gap-1.5">
                         <span className="self-start rounded-md bg-[#E3F3EE] text-[#0B5D50] px-2 py-0.5 text-xs font-bold">{g.categoria}</span>
                         <span className="r2 font-bold">{g.titulo}</span>
@@ -221,25 +221,25 @@ export default async function Academia() {
       <section id="videos" className="max-w-6xl mx-auto px-4 py-14 sm:py-20 scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 mb-5" data-revelar>
           <div className="max-w-2xl">
-            <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[#0E1116]" />
+            <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[var(--tinta)]" />
             <h2 className="acad-h2 m-0 mt-4 font-extrabold tracking-tight">Videos</h2>
-            <p className="m-0 mt-2 text-[17px] text-[#4A515C]">Guías en video, casos reales y tips rápidos de IA para tu organización.</p>
+            <p className="m-0 mt-2 text-[17px] text-[var(--gris)]">Guías en video, casos reales y tips rápidos de IA para tu organización.</p>
           </div>
-          <a href={YT_SUSCRIBIR} target="_blank" rel="noopener noreferrer" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] min-h-[48px] w-full sm:w-auto"><span aria-hidden="true">▶</span> Suscribirme al canal</a>
+          <a href={YT_SUSCRIBIR} target="_blank" rel="noopener noreferrer" className="btn bg-[var(--ac)] text-white hover:bg-[var(--ac-hover)] min-h-[48px] w-full sm:w-auto"><span aria-hidden="true">▶</span> Suscribirme al canal</a>
         </div>
         <VideoGaleria limite={{ largos: 3, cortos: 5 }} videos={videos.map((v) => ({ ...v, mini: miniatura(v), link: linkVideo(v) }))} />
-        <p className="m-0 mt-3"><a href="/videos" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[#B91F1B] hover:underline">Ver todos los videos <Flecha /></a></p>
+        <p className="m-0 mt-3"><a href="/videos" className="inline-flex items-center gap-1.5 min-h-[44px] font-bold text-[var(--ac-texto)] hover:underline">Ver todos los videos <Flecha /></a></p>
       </section>
 
       {/* ── Cierre ────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 pb-14 sm:pb-20">
-        <div data-revelar className="rounded-[28px] bg-[#C8231F] text-white p-6 sm:p-10 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center relative overflow-hidden">
+        <div data-revelar className="rounded-[28px] bg-[var(--ac)] text-white p-6 sm:p-10 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center relative overflow-hidden">
           <div aria-hidden="true" className="absolute -right-20 -top-24 w-80 h-80 rounded-full border-[40px] border-white/10" />
           <div className="relative">
             <h2 className="acad-h2 m-0 font-extrabold tracking-tight text-white">¿Preferís que lo hagamos con vos?</h2>
             <p className="m-0 mt-2 text-[17px] text-white/90 max-w-2xl">Somos DEVISEBIT: desde 2009 hacemos software e IA en producción. Te armamos la solución con alcance, fecha y precio fijo.</p>
           </div>
-          <a href={WA} className="relative btn bg-white text-[#9E1A17] hover:bg-[#FDECEB] min-h-[52px] text-base px-6 no-underline">Hablemos por WhatsApp <Flecha /></a>
+          <a href={WA} className="relative btn bg-white text-[var(--ac-hover)] hover:bg-[var(--ac-suave)] min-h-[52px] text-base px-6 no-underline">Hablemos por WhatsApp <Flecha /></a>
         </div>
       </section>
     </main>

@@ -36,14 +36,14 @@ export default function BarraAccion({ destino, precio, etiqueta, detalle, desde 
       {/* Reserva lugar para que la barra no tape el final de la página */}
       <div aria-hidden="true" className={`${ocultarEn} h-20`} />
       <div
-        className={`acad-barra ${ocultarEn} fixed inset-x-0 bottom-0 z-30 bg-white/95 backdrop-blur border-t border-[#E2E5EA] shadow-[0_-6px_20px_rgba(14,17,22,.08)] transition-transform duration-200 ${oculta ? "translate-y-full" : ""}`}
+        className={`acad-barra ${ocultarEn} fixed inset-x-0 bottom-0 z-30 bg-white/95 backdrop-blur border-t border-[var(--borde)] shadow-[0_-6px_20px_rgba(14,17,22,.08)] transition-transform duration-200 ${oculta ? "translate-y-full" : ""}`}
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-hidden={oculta}
       >
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
           <div className="flex flex-col min-w-0">
-            <span className="text-xl font-extrabold leading-none text-[#0E1116]">{precio}</span>
-            {detalle && <span className="text-sm text-[#4A515C] truncate">{detalle}</span>}
+            <span className="text-xl font-extrabold leading-none text-[var(--tinta)]">{precio}</span>
+            {detalle && <span className="text-sm text-[var(--gris)] truncate">{detalle}</span>}
           </div>
           <a href={`#${destino}`} onClick={ir} tabIndex={oculta ? -1 : 0} className="btn-p ml-auto min-h-[48px] px-5 text-base whitespace-nowrap">{etiqueta}</a>
         </div>

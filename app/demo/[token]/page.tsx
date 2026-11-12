@@ -18,10 +18,10 @@ export default async function MisDemos({ params }: { params: { token: string } }
 
   if (!vigente) {
     return (
-      <main className="min-h-screen bg-[#F5F6F8] flex items-center justify-center px-4 py-12">
+      <main className="min-h-screen bg-[var(--fondo)] flex items-center justify-center px-4 py-12">
         <div className="card max-w-md w-full flex flex-col gap-3 text-center">
           <h1 className="m-0 text-2xl">{a ? "Este link ya venció" : "Link no válido"}</h1>
-          <p className="m-0 text-[#4A515C]">Los links de demo son personales y duran unos días.{blanca ? " Pedile uno nuevo a tu asesor." : " Pedí uno nuevo y te llega al instante a tu correo."}</p>
+          <p className="m-0 text-[var(--gris)]">Los links de demo son personales y duran unos días.{blanca ? " Pedile uno nuevo a tu asesor." : " Pedí uno nuevo y te llega al instante a tu correo."}</p>
           {!blanca && (
             <div className="flex flex-col gap-2 mt-2">
               <a href="https://www.devisebit.com/demos#pedir" className="btn-p">Pedir un link nuevo</a>
@@ -37,7 +37,7 @@ export default async function MisDemos({ params }: { params: { token: string } }
   const vence = new Date(a!.expira).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "long" })
   const q = blanca ? "?marca=blanca" : ""
   return (
-    <main className="min-h-screen bg-[#F5F6F8]">
+    <main className="min-h-screen bg-[var(--fondo)]">
       <header className="bg-[#0B0D12] text-white">
         <div className="max-w-6xl mx-auto px-4 pt-8 pb-10 sm:pt-12 sm:pb-14 flex flex-col gap-3">
           {blanca ? <span className="text-sm font-semibold tracking-[0.2em] text-white/70">TU MARCA</span> : <span className="text-xl font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>}
@@ -49,11 +49,11 @@ export default async function MisDemos({ params }: { params: { token: string } }
         {lista.map((d) => (
           <li key={d.slug} className="card flex flex-col gap-3">
             <h2 className="m-0 text-xl">{d.titulo}</h2>
-            <p className="m-0 text-[15px] text-[#4A515C]">{d.texto}</p>
+            <p className="m-0 text-[15px] text-[var(--gris)]">{d.texto}</p>
             <div className="mt-auto flex flex-col gap-2 pt-2">
               <a href={`/demo/${params.token}/${d.slug}${q}`} className="btn-p text-center" style={{ background: acento }}>Probar la demo</a>
               <a href={`/demo/${params.token}/${d.slug}${q ? q + "&" : "?"}tour=1`} className="btn-s text-center">Recorrido guiado</a>
-              <details className="rounded-xl border border-[#E2E5EA]">
+              <details className="rounded-xl border border-[var(--borde)]">
                 <summary className="cursor-pointer px-4 py-2.5 text-sm font-semibold text-center">▶ Ver el video (1 min)</summary>
                 <video src={videoDe(d.slug, blanca)} controls preload="none" playsInline className="w-full rounded-b-xl bg-black aspect-video" />
               </details>
@@ -64,7 +64,7 @@ export default async function MisDemos({ params }: { params: { token: string } }
       {!blanca && (
         <section className="max-w-6xl mx-auto px-4 pb-14">
           <div className="card flex flex-wrap items-center justify-between gap-4">
-            <div><h2 className="m-0 text-xl">¿Lo vemos con tus datos?</h2><p className="m-0 text-[#4A515C]">En 30 minutos te mostramos el sistema completo, adaptado a tu organización.</p></div>
+            <div><h2 className="m-0 text-xl">¿Lo vemos con tus datos?</h2><p className="m-0 text-[var(--gris)]">En 30 minutos te mostramos el sistema completo, adaptado a tu organización.</p></div>
             <div className="flex flex-wrap gap-2"><a href="https://sistema.devisebit.com/agendar" className="btn-p">Agendar una reunión</a><a href={WA} className="btn-s">WhatsApp</a></div>
           </div>
         </section>

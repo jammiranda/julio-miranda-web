@@ -19,7 +19,7 @@ export default function BotonEnviar({ children, cargando = "Un momento…", clas
     <button type="submit" formAction={formAction} onClick={() => setTocado(true)} disabled={pending} aria-busy={mio} className={`${secundario ? "btn-s" : "btn-p"} min-h-[52px] text-base disabled:opacity-70 disabled:cursor-wait ${className}`}>
       {mio ? (
         <>
-          <span aria-hidden="true" className={`acad-spin inline-block w-4 h-4 rounded-full border-2 ${secundario ? "border-[#0E1116]/25 border-t-[#0E1116]" : "border-white/40 border-t-white"}`} />
+          <span aria-hidden="true" className={`acad-spin inline-block w-4 h-4 rounded-full border-2 ${secundario ? "border-[#0E1116]/25 border-t-[var(--tinta)]" : "border-white/40 border-t-white"}`} />
           {cargando}
         </>
       ) : children}

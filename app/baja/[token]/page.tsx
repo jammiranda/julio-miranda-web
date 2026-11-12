@@ -19,20 +19,20 @@ export default async function Baja({ params, searchParams }: { params: { token: 
   if (!c) notFound()
   const baja = c.email_estado === "baja"
   return (
-    <main className="min-h-screen bg-[#F5F6F8] flex items-center justify-center p-4">
+    <main className="min-h-screen bg-[var(--fondo)] flex items-center justify-center p-4">
       <form action={cambiar} className="card max-w-md w-full flex flex-col gap-4">
-        <div className="text-xl font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#C8231F]">BIT</span></div>
+        <div className="text-xl font-extrabold tracking-[0.04em]">DEVISE<span className="text-[var(--ac)]">BIT</span></div>
         <input type="hidden" name="tok" value={params.token} />
         {baja ? (
           <>
             <h1 className="m-0 text-2xl">Listo, no te vamos a escribir más</h1>
-            <p className="m-0 text-[#4A515C]">Dimos de baja <strong>{c.email}</strong> de nuestros correos. Si fue un error, podés volver a suscribirte.</p>
+            <p className="m-0 text-[var(--gris)]">Dimos de baja <strong>{c.email}</strong> de nuestros correos. Si fue un error, podés volver a suscribirte.</p>
             <input type="hidden" name="a" value="alta" /><Enviar className="btn-s self-start" cargando="Un momento…">Volver a suscribirme</Enviar>
           </>
         ) : (
           <>
             <h1 className="m-0 text-2xl">{searchParams.h === "alta" ? "¡Bienvenido de nuevo!" : "¿Querés dejar de recibir nuestros correos?"}</h1>
-            <p className="m-0 text-[#4A515C]">{searchParams.h === "alta" ? `Vas a seguir recibiendo novedades en ${c.email}.` : `Vamos a dejar de escribirle a ${c.email}. Mandamos poco y solo cosas útiles, pero entendemos.`}</p>
+            <p className="m-0 text-[var(--gris)]">{searchParams.h === "alta" ? `Vas a seguir recibiendo novedades en ${c.email}.` : `Vamos a dejar de escribirle a ${c.email}. Mandamos poco y solo cosas útiles, pero entendemos.`}</p>
             {searchParams.h !== "alta" && <><input type="hidden" name="a" value="baja" /><Enviar className="btn-p self-start" cargando="Un momento…">Darme de baja</Enviar></>}
           </>
         )}

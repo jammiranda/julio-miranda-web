@@ -12,7 +12,7 @@ export default async function Guias({ searchParams }: { searchParams: { c?: stri
     <main className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
       <span aria-hidden="true" className="block w-12 h-1.5 rounded-full bg-[#0B7462]" />
       <h1 className="acad-h1-m m-0 mt-4 font-extrabold tracking-tight">Guías</h1>
-      <p className="acad-lead m-0 mt-2 text-[#4A515C] max-w-2xl">Prácticas, cortas y en castellano. Buscá por palabra o elegí un tema.</p>
+      <p className="acad-lead m-0 mt-2 text-[var(--gris)] max-w-2xl">Prácticas, cortas y en castellano. Buscá por palabra o elegí un tema.</p>
       <GuiasLista guias={todas} inicial={searchParams.c} />
     </main>
   )

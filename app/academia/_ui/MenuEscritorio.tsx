@@ -64,13 +64,13 @@ function Desplegable({ label, hijos, ruta }: { label: string; hijos: ItemMenu[];
         {label}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true" className={`transition-transform motion-reduce:transition-none ${abierto ? "rotate-180" : ""}`}><path d="M6 9l6 6 6-6" /></svg>
       </button>
-      <div id={id} hidden={!abierto} className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl bg-white text-[#0E1116] shadow-[0_18px_50px_rgba(14,17,22,.25)] border border-[#E2E5EA] p-2 whitespace-normal">
+      <div id={id} hidden={!abierto} className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl bg-white text-[var(--tinta)] shadow-[0_18px_50px_rgba(14,17,22,.25)] border border-[var(--borde)] p-2 whitespace-normal">
         <ul className="m-0 p-0 list-none flex flex-col">
           {hijos.map((h) => (
             <li key={h.href}>
-              <Link data-item href={h.href} onClick={() => setAbierto(false)} aria-current={activo(ruta, h.href) ? "page" : undefined} className="flex flex-col gap-0.5 rounded-xl px-3 py-2.5 min-h-[44px] no-underline text-[#0E1116] hover:bg-[#FDECEB] focus-visible:bg-[#FDECEB] aria-[current=page]:bg-[#F5F6F8]">
+              <Link data-item href={h.href} onClick={() => setAbierto(false)} aria-current={activo(ruta, h.href) ? "page" : undefined} className="flex flex-col gap-0.5 rounded-xl px-3 py-2.5 min-h-[44px] no-underline text-[var(--tinta)] hover:bg-[var(--ac-suave)] focus-visible:bg-[var(--ac-suave)] aria-[current=page]:bg-[var(--fondo)]">
                 <span className="font-bold">{h.label}</span>
-                {h.detalle && <span className="text-[13px] text-[#4A515C]">{h.detalle}</span>}
+                {h.detalle && <span className="text-[13px] text-[var(--gris)]">{h.detalle}</span>}
               </Link>
             </li>
           ))}

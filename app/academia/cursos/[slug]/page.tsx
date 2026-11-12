@@ -139,11 +139,11 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
   const formCompra = (principal: string) => (
     <>
       {venta && <BotonEnviar formAction={comprarMp} secundario={principal !== "mp"} cargando={modoPrueba() ? "Procesando…" : "Abriendo Mercado Pago…"}>{principal === "mp" ? (modoPrueba() ? `Desbloquear (modo prueba) ${precioTxt}` : `Desbloquear por ${precioTxt} con Mercado Pago`) : modoPrueba() ? `Comprar el curso completo (modo prueba)` : `Comprar el curso completo · ${precioTxt}`}</BotonEnviar>}
-      {venta && <p className="m-0 text-sm text-[#4A515C]">Desde Argentina: tarjeta, débito o dinero en cuenta{c.cuotas > 1 ? `, hasta ${c.cuotas} cuotas sin interés` : ""}.</p>}
+      {venta && <p className="m-0 text-sm text-[var(--gris)]">Desde Argentina: tarjeta, débito o dinero en cuenta{c.cuotas > 1 ? `, hasta ${c.cuotas} cuotas sin interés` : ""}.</p>}
       {conPayPal && (
-        <div className="flex flex-col gap-2 border-t border-[#E2E5EA] pt-3">
-          <button type="submit" formAction={comprarPayPal} className="btn min-h-[48px] w-full bg-[#FFC439] text-[#0E1116] hover:bg-[#F2BA36] font-bold">Pagar {dolares(c.precio_usd)} con PayPal o tarjeta internacional</button>
-          <p className="m-0 text-sm text-[#4A515C]">¿Estás fuera de Argentina? Pagás en dólares, sin crear cuenta.</p>
+        <div className="flex flex-col gap-2 border-t border-[var(--borde)] pt-3">
+          <button type="submit" formAction={comprarPayPal} className="btn min-h-[48px] w-full bg-[#FFC439] text-[var(--tinta)] hover:bg-[#F2BA36] font-bold">Pagar {dolares(c.precio_usd)} con PayPal o tarjeta internacional</button>
+          <p className="m-0 text-sm text-[var(--gris)]">¿Estás fuera de Argentina? Pagás en dólares, sin crear cuenta.</p>
         </div>
       )}
       {!venta && !conPayPal && <a href={`https://wa.me/5491173466490?text=${encodeURIComponent(`Hola DEVISEBIT, quiero comprar el curso ${c.titulo}`)}`} className="btn-s min-h-[52px] text-base">Comprar el curso completo por WhatsApp</a>}
@@ -151,7 +151,7 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
   )
   return (
     <main>
-      <section className="ficha-head bg-[#0E1116] text-white">
+      <section className="ficha-head bg-[var(--tinta)] text-white">
         <div className="max-w-6xl mx-auto px-4 pt-4 pb-10 sm:pt-8 sm:pb-16 grid grid-cols-1 md:grid-cols-5 gap-6 lg:gap-8 items-center">
           <div className="md:col-span-3">
             <nav aria-label="Ruta"><Link href="/cursos" className="inline-flex items-center min-h-[44px] -ml-1 px-1 text-sm text-white/70 hover:text-white">← Cursos</Link></nav>
@@ -160,7 +160,7 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
             {c.bajada && <p className="acad-lead m-0 mt-4 text-white/80">{c.bajada}</p>}
             {c.docente && <p className="m-0 mt-4 text-[15px] text-white/75">{firmaCurso(c.docente_slug, doc.length || 1)} {doc.length ? doc.map((d: any, k: number) => <span key={d.slug}>{k ? " y " : ""}<Link href={`/equipo/${d.slug}`} className="font-bold text-white underline decoration-white/30 hover:decoration-white">{d.nombre}</Link></span>) : <strong className="text-white">{c.docente}</strong>}</p>}
             <ul className="m-0 mt-5 p-0 list-none flex flex-wrap gap-2 text-sm">
-              {c.nuevo && <li className="chip bg-[#C8231F] text-white">Nuevo</li>}
+              {c.nuevo && <li className="chip bg-[var(--ac)] text-white">Nuevo</li>}
               {freemium && <li className="chip bg-white text-[#0B6B3A]">{textoGratis(gratisMod)}</li>}
               {c.modalidad === "online" && <li className="chip bg-white/10 text-white">Empezás cuando quieras</li>}
               {c.certifica && <li className="chip bg-white/10 text-white">Certificado verificable</li>}
@@ -177,23 +177,23 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
           {tuyo.length > 0 && (
             <section aria-labelledby="t-tuyo">
               <h2 id="t-tuyo" className="m-0 text-2xl font-extrabold">Te lo quedás</h2>
-              <p className="m-0 mt-1 text-[15px] text-[#4A515C]">Pagás una vez y es tuyo{freemium ? `. Y antes de comprar, probás gratis ${gratisMod > 1 ? `los módulos 1 a ${gratisMod}` : "el módulo 1"} completo.` : "."}</p>
+              <p className="m-0 mt-1 text-[15px] text-[var(--gris)]">Pagás una vez y es tuyo{freemium ? `. Y antes de comprar, probás gratis ${gratisMod > 1 ? `los módulos 1 a ${gratisMod}` : "el módulo 1"} completo.` : "."}</p>
               <ul className="m-0 mt-3 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {tuyo.map(([t, d]) => (
-                  <li key={t} className="flex gap-3 items-start bg-white rounded-2xl border border-[#E2E5EA] p-4"><span className="w-8 h-8 shrink-0 rounded-full bg-[#FDECEB] text-[#C8231F] flex items-center justify-center text-sm font-bold" aria-hidden="true">✓</span><span className="flex flex-col gap-0.5"><strong className="text-[15px] leading-snug">{t}</strong><span className="text-sm text-[#4A515C]">{d}</span></span></li>
+                  <li key={t} className="flex gap-3 items-start bg-white rounded-2xl border border-[var(--borde)] p-4"><span className="w-8 h-8 shrink-0 rounded-full bg-[var(--ac-suave)] text-[var(--ac)] flex items-center justify-center text-sm font-bold" aria-hidden="true">✓</span><span className="flex flex-col gap-0.5"><strong className="text-[15px] leading-snug">{t}</strong><span className="text-sm text-[var(--gris)]">{d}</span></span></li>
                 ))}
               </ul>
             </section>
           )}
           {lecciones.length > 0 && (
             <section aria-labelledby="t-prog">
-              <h2 id="t-prog" className="m-0 text-2xl font-extrabold">Programa <span className="text-base font-semibold text-[#4A515C]">· {lecciones.length} lecciones</span></h2>
+              <h2 id="t-prog" className="m-0 text-2xl font-extrabold">Programa <span className="text-base font-semibold text-[var(--gris)]">· {lecciones.length} lecciones</span></h2>
               {modulos.map((m, nm) => (
                 <div key={m} className="mt-4">
-                  <h3 className="m-0 text-sm font-bold uppercase tracking-wider text-[#4A515C]">{m}{nm < gratisMod && <span className="ml-2 chip normal-case tracking-normal bg-emerald-50 text-emerald-700">Gratis</span>}</h3>
-                  <ol className="m-0 mt-2 p-0 list-none bg-white rounded-2xl border border-[#E2E5EA] flex flex-col overflow-hidden">
+                  <h3 className="m-0 text-sm font-bold uppercase tracking-wider text-[var(--gris)]">{m}{nm < gratisMod && <span className="ml-2 chip normal-case tracking-normal bg-emerald-50 text-emerald-700">Gratis</span>}</h3>
+                  <ol className="m-0 mt-2 p-0 list-none bg-white rounded-2xl border border-[var(--borde)] flex flex-col overflow-hidden">
                     {lecciones.filter((l) => (l.modulo || "Contenido") === m).map((l, k) => (
-                      <li key={k} className="flex items-center gap-3 px-4 py-3 min-h-[52px] text-[15px] leading-snug border-b border-[#EEF0F3] last:border-0"><span className="w-8 h-8 shrink-0 rounded-full bg-[#FDECEB] text-[#C8231F] flex items-center justify-center text-sm" aria-hidden="true">{tipoLeccion(l.tipo).i}</span><span className="flex-1 min-w-0">{l.titulo}</span>{l.duracion_min && <span className="shrink-0 text-sm text-[#4A515C] tabular-nums">{l.duracion_min} min</span>}</li>
+                      <li key={k} className="flex items-center gap-3 px-4 py-3 min-h-[52px] text-[15px] leading-snug border-b border-[var(--borde-2)] last:border-0"><span className="w-8 h-8 shrink-0 rounded-full bg-[var(--ac-suave)] text-[var(--ac)] flex items-center justify-center text-sm" aria-hidden="true">{tipoLeccion(l.tipo).i}</span><span className="flex-1 min-w-0">{l.titulo}</span>{l.duracion_min && <span className="shrink-0 text-sm text-[var(--gris)] tabular-nums">{l.duracion_min} min</span>}</li>
                     ))}
                   </ol>
                 </div>
@@ -205,8 +205,8 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
         <aside id="inscripcion" aria-label="Inscripción" className="flex flex-col gap-4 scroll-mt-20 order-2">
           <div className="card flex flex-col gap-3 [@media(min-width:768px)_and_(min-height:900px)]:sticky md:top-24 shadow-[0_8px_30px_rgba(14,17,22,.06)]">
             <div className="flex flex-col gap-1">
-              <p className="m-0 text-3xl font-extrabold leading-none">{precioTxt}{pago && <span className="text-sm font-semibold text-[#4A515C]"> ARS</span>}</p>
-              {pago && c.precio_usd && <p className="m-0 text-base font-bold text-[#262C37]">{dolares(c.precio_usd)} <span className="text-sm font-semibold text-[#4A515C]">desde el exterior</span></p>}
+              <p className="m-0 text-3xl font-extrabold leading-none">{precioTxt}{pago && <span className="text-sm font-semibold text-[var(--gris)]"> ARS</span>}</p>
+              {pago && c.precio_usd && <p className="m-0 text-base font-bold text-[#262C37]">{dolares(c.precio_usd)} <span className="text-sm font-semibold text-[var(--gris)]">desde el exterior</span></p>}
               {pago && c.cuotas > 1 && <p className="m-0 text-sm font-semibold text-emerald-700">{textoCuotas(c.precio, c.cuotas)}</p>}
             </div>
             {searchParams.ok ? (
@@ -237,13 +237,13 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
                   <>
                     <label className="lbl">Nombre y apellido (para el certificado)<input name="nombre" required autoComplete="name" autoCapitalize="words" enterKeyHint="next" className="inp" /></label>
                     <label className="lbl">Email (ahí te llega el acceso al aula)<input name="email" type="email" inputMode="email" required autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" className="inp" /></label>
-                    <label className="flex gap-3 items-start text-sm leading-snug text-[#4A515C] py-1 cursor-pointer"><input type="checkbox" name="acepto" value="1" className="mt-0.5" /> Acepto recibir el acceso, recordatorios y novedades de la Academia por email (me puedo dar de baja cuando quiera).</label>
+                    <label className="flex gap-3 items-start text-sm leading-snug text-[var(--gris)] py-1 cursor-pointer"><input type="checkbox" name="acepto" value="1" className="mt-0.5" /> Acepto recibir el acceso, recordatorios y novedades de la Academia por email (me puedo dar de baja cuando quiera).</label>
                   </>
                 )}
                 <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
                 <BotonEnviar cargando="Abriendo tu acceso…">Empezá gratis el módulo 1</BotonEnviar>
-                <p className="m-0 text-sm text-[#4A515C]">Sin tarjeta: entrás con tu email y cursás {gratisMod > 1 ? `los módulos 1 a ${gratisMod}` : "el módulo 1"} completo, con sus autoevaluaciones.</p>
-                <div className="flex flex-col gap-2 border-t border-[#E2E5EA] pt-3">{formCompra("s")}</div>
+                <p className="m-0 text-sm text-[var(--gris)]">Sin tarjeta: entrás con tu email y cursás {gratisMod > 1 ? `los módulos 1 a ${gratisMod}` : "el módulo 1"} completo, con sus autoevaluaciones.</p>
+                <div className="flex flex-col gap-2 border-t border-[var(--borde)] pt-3">{formCompra("s")}</div>
               </form>
             ) : pago ? (
               venta || conPayPal ? (
@@ -254,22 +254,22 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
                   <label className="lbl">Email (ahí te llega el acceso al aula)<input name="email" type="email" inputMode="email" required defaultValue={yo?.email ?? ""} autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" className="inp" /></label>
                   <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
                   {venta && <BotonEnviar cargando={modoPrueba() ? "Procesando…" : "Abriendo Mercado Pago…"}>{modoPrueba() ? `Comprar (modo prueba) ${precioTxt}` : `Pagar ${precioTxt} con Mercado Pago`}</BotonEnviar>}
-                  {venta && <p className="m-0 text-sm text-[#4A515C]">Desde Argentina: tarjeta, débito o dinero en cuenta{c.cuotas > 1 ? `, hasta ${c.cuotas} cuotas sin interés` : ""}. Al acreditarse el pago quedás inscripto y te llega el acceso.</p>}
+                  {venta && <p className="m-0 text-sm text-[var(--gris)]">Desde Argentina: tarjeta, débito o dinero en cuenta{c.cuotas > 1 ? `, hasta ${c.cuotas} cuotas sin interés` : ""}. Al acreditarse el pago quedás inscripto y te llega el acceso.</p>}
                   {conPayPal && (
-                    <div className="flex flex-col gap-2 border-t border-[#E2E5EA] pt-3">
-                      <button type="submit" name="pasarela" value="paypal" className="btn min-h-[48px] w-full bg-[#FFC439] text-[#0E1116] hover:bg-[#F2BA36] font-bold">Pagar {dolares(c.precio_usd)} con PayPal o tarjeta internacional</button>
-                      <p className="m-0 text-sm text-[#4A515C]">¿Estás fuera de Argentina? Pagás en dólares, sin crear cuenta.</p>
+                    <div className="flex flex-col gap-2 border-t border-[var(--borde)] pt-3">
+                      <button type="submit" name="pasarela" value="paypal" className="btn min-h-[48px] w-full bg-[#FFC439] text-[var(--tinta)] hover:bg-[#F2BA36] font-bold">Pagar {dolares(c.precio_usd)} con PayPal o tarjeta internacional</button>
+                      <p className="m-0 text-sm text-[var(--gris)]">¿Estás fuera de Argentina? Pagás en dólares, sin crear cuenta.</p>
                     </div>
                   )}
                 </form>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <p className="m-0 text-sm text-[#4A515C]">El pago online se está activando. Escribinos y te mandamos el link de pago.</p>
+                  <p className="m-0 text-sm text-[var(--gris)]">El pago online se está activando. Escribinos y te mandamos el link de pago.</p>
                   <a href={`https://wa.me/5491173466490?text=${encodeURIComponent(`Hola DEVISEBIT, quiero comprar el curso ${c.titulo}`)}`} className="btn-p min-h-[52px] text-base">Comprar por WhatsApp</a>
                 </div>
               )
             ) : !abiertas.length ? (
-              <p className="m-0 text-sm text-[#4A515C]">No hay ediciones con inscripción abierta. Suscribite a la newsletter desde la portada y te avisamos.</p>
+              <p className="m-0 text-sm text-[var(--gris)]">No hay ediciones con inscripción abierta. Suscribite a la newsletter desde la portada y te avisamos.</p>
             ) : (
               <form action={anotarme} className="flex flex-col gap-3">
                 <input type="hidden" name="slug" value={c.slug} />
@@ -277,9 +277,9 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
                 {abiertas.length === 1 && !abiertas[0].inicio ? <input type="hidden" name="edicion" value={abiertas[0].id} /> : <fieldset className="flex flex-col gap-2 m-0 p-0 border-0">
                   <legend className="text-sm font-semibold mb-1">Edición</legend>
                   {abiertas.map((e, k) => (
-                    <label key={e.id} className="flex gap-3 items-start text-[15px] rounded-xl border border-[#E2E5EA] p-3 min-h-[52px] cursor-pointer has-[:checked]:border-[#C8231F] has-[:checked]:bg-[#FDECEB]">
+                    <label key={e.id} className="flex gap-3 items-start text-[15px] rounded-xl border border-[var(--borde)] p-3 min-h-[52px] cursor-pointer has-[:checked]:border-[var(--ac)] has-[:checked]:bg-[var(--ac-suave)]">
                       <input type="radio" name="edicion" value={e.id} defaultChecked={k === 0} className="mt-0.5" />
-                      <span><strong className="block">{e.nombre}</strong><span className="text-sm text-[#4A515C]">{e.inicio ? `Desde ${fecha(e.inicio)}` : "Empezás cuando quieras"}{e.horario ? ` · ${e.horario}` : ""}{e.lugar ? ` · ${e.lugar}` : ""}{e.cupo ? ` · Quedan ${e.cupo - e.inscriptos} lugares` : ""}</span></span>
+                      <span><strong className="block">{e.nombre}</strong><span className="text-sm text-[var(--gris)]">{e.inicio ? `Desde ${fecha(e.inicio)}` : "Empezás cuando quieras"}{e.horario ? ` · ${e.horario}` : ""}{e.lugar ? ` · ${e.lugar}` : ""}{e.cupo ? ` · Quedan ${e.cupo - e.inscriptos} lugares` : ""}</span></span>
                     </label>
                   ))}
                 </fieldset>}
@@ -291,14 +291,14 @@ export default async function Curso({ params, searchParams }: { params: { slug: 
                     <label className="lbl">Email<input name="email" type="email" inputMode="email" required autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="next" className="inp" /></label>
                     <label className="lbl">WhatsApp (opcional)<input name="telefono" type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="next" className="inp" /></label>
                     <label className="lbl">Organización (opcional)<input name="organizacion" autoComplete="organization" enterKeyHint="done" className="inp" /></label>
-                    <label className="flex gap-3 items-start text-sm leading-snug text-[#4A515C] py-1 cursor-pointer"><input type="checkbox" name="acepto" value="1" required className="mt-0.5" /> Acepto recibir el acceso, recordatorios y novedades de la Academia por email (me puedo dar de baja cuando quiera).</label>
+                    <label className="flex gap-3 items-start text-sm leading-snug text-[var(--gris)] py-1 cursor-pointer"><input type="checkbox" name="acepto" value="1" required className="mt-0.5" /> Acepto recibir el acceso, recordatorios y novedades de la Academia por email (me puedo dar de baja cuando quiera).</label>
                   </>
                 )}
                 <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
                 <BotonEnviar cargando="Inscribiendo…">{c.precio ? "Reservar mi lugar" : "Inscribirme gratis"}</BotonEnviar>
               </form>
             )}
-            <ul className="m-0 p-0 list-none text-sm text-[#4A515C] flex flex-col gap-1 border-t border-[#EEF0F3] pt-3">
+            <ul className="m-0 p-0 list-none text-sm text-[var(--gris)] flex flex-col gap-1 border-t border-[var(--borde-2)] pt-3">
               <li>✓ {pago ? "Acceso de por vida, desde tu cuenta y sin contraseñas" : "Acceso desde tu cuenta, sin contraseñas"}</li>
               {freemium && <li>✓ {textoGratis(gratisMod)} para probar antes de comprar</li>}
               {pago && pdfs && <li>✓ Apunte y cuaderno de trabajo en PDF, tuyos</li>}

@@ -52,7 +52,7 @@ async function enviar(fd: FormData) {
 const Pill = ({ name, v, type = "checkbox", def = false }: { name: string; v: string; type?: "checkbox" | "radio"; def?: boolean }) => (
   <label className="cursor-pointer">
     <input type={type} name={name} value={v} defaultChecked={def} className="peer sr-only" />
-    <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-full border border-[#C3C8D1] bg-white px-3.5 py-2 text-sm font-medium text-[#262C37] transition-colors peer-checked:border-[#C8231F] peer-checked:bg-[#FDECEB] peer-checked:text-[#9E1A17] peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{v}</span>
+    <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-full border border-[var(--borde-fuerte)] bg-white px-3.5 py-2 text-sm font-medium text-[#262C37] transition-colors peer-checked:border-[var(--ac)] peer-checked:bg-[var(--ac-suave)] peer-checked:text-[var(--ac-hover)] peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[var(--ac)]">{v}</span>
   </label>
 )
 
@@ -61,7 +61,7 @@ export default async function Brief({ params, searchParams }: { params: { token:
   if (!c) notFound()
   const agenda = linkAgenda(params.token)
   const Encabezado = (
-    <header className="bg-[#0E1116] text-white">
+    <header className="bg-[var(--tinta)] text-white">
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="text-xl font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></div>
         <h1 className="m-0 mt-4 text-3xl text-white">{searchParams.ok || c.brief_en ? "¡Gracias! Ya tenemos tu brief" : "Contanos tu proyecto"}</h1>
@@ -71,7 +71,7 @@ export default async function Brief({ params, searchParams }: { params: { token:
   )
   if (searchParams.ok || c.brief_en) {
     return (
-      <main className="min-h-screen bg-[#F5F6F8]">
+      <main className="min-h-screen bg-[var(--fondo)]">
         {Encabezado}
         <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-4">
           <section className="card flex flex-col gap-3">
@@ -81,15 +81,15 @@ export default async function Brief({ params, searchParams }: { params: { token:
           </section>
           <section className="card flex flex-col gap-2">
             <h2 className="m-0 text-base">Mientras tanto</h2>
-            <a href="https://www.devisebit.com/trabajos" className="underline text-[#9E1A17]">Mirá proyectos que hicimos →</a>
-            <a href="https://www.devisebit.com/productos" className="underline text-[#9E1A17]">Conocé nuestros productos listos para implementar →</a>
+            <a href="https://www.devisebit.com/trabajos" className="underline text-[var(--ac-hover)]">Mirá proyectos que hicimos →</a>
+            <a href="https://www.devisebit.com/productos" className="underline text-[var(--ac-hover)]">Conocé nuestros productos listos para implementar →</a>
           </section>
         </div>
       </main>
     )
   }
   return (
-    <main className="min-h-screen bg-[#F5F6F8]">
+    <main className="min-h-screen bg-[var(--fondo)]">
       {Encabezado}
       <form action={enviar} className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-5">
         <input type="hidden" name="tok" value={params.token} />
@@ -118,13 +118,13 @@ export default async function Brief({ params, searchParams }: { params: { token:
           <h2 className="m-0 text-lg">4. Tiempos e inversión</h2>
           <p className="m-0 text-sm font-semibold">¿Para cuándo lo necesitás?</p>
           <div className="flex flex-wrap gap-2">{PLAZOS.map((x) => <Pill key={x} name="plazo" v={x} type="radio" />)}</div>
-          <p className="m-0 text-sm font-semibold">¿Qué inversión tenés pensada? <span className="font-normal text-[#4A515C]">Nos ayuda a proponerte la mejor opción para tu presupuesto (por ejemplo, arrancar por una primera etapa).</span></p>
+          <p className="m-0 text-sm font-semibold">¿Qué inversión tenés pensada? <span className="font-normal text-[var(--gris)]">Nos ayuda a proponerte la mejor opción para tu presupuesto (por ejemplo, arrancar por una primera etapa).</span></p>
           <div className="flex flex-wrap gap-2">{INVERSION.map((x) => <Pill key={x} name="inversion" v={x} type="radio" />)}</div>
           <label className="lbl">¿Algo más que debamos saber?<textarea name="extra" rows={3} className="inp" /></label>
         </section>
         <Enviar className="btn-p text-base py-3.5" cargando="Enviando tu proyecto…">Enviar y recibir mi propuesta preliminar</Enviar>
         <Redes className="justify-center" />
-        <p className="m-0 text-xs text-center text-[#4A515C]">DEVISEBIT SRL · Tus datos se usan solo para responder tu consulta (Ley 25.326).</p>
+        <p className="m-0 text-xs text-center text-[var(--gris)]">DEVISEBIT SRL · Tus datos se usan solo para responder tu consulta (Ley 25.326).</p>
       </form>
     </main>
   )

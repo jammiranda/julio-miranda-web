@@ -42,23 +42,23 @@ export default async function AgendarGeneral({ searchParams }: { searchParams: {
   const cid = await leerToken(searchParams.t)
   const pre = cid ? await one<{ nombre: string | null; email: string | null; telefono: string | null; organizacion: string | null }>("select nombre, email, telefono, organizacion from diag_respuestas where contacto_id=$1 order by creado desc limit 1", [cid]) : null
   return (
-    <main className="min-h-screen bg-[#F5F6F8]">
-      <header className="bg-[#0E1116] text-white"><div className="max-w-3xl mx-auto px-4 py-8">
+    <main className="min-h-screen bg-[var(--fondo)]">
+      <header className="bg-[var(--tinta)] text-white"><div className="max-w-3xl mx-auto px-4 py-8">
         <a href="https://www.devisebit.com" className="text-xl font-extrabold tracking-[0.04em] text-white no-underline">DEVISE<span className="text-[#FF6A63]">BIT</span></a>
         <h1 className="m-0 mt-4 text-3xl text-white">Agendá una reunión</h1>
         <p className="m-0 mt-2 text-white/75">{h.duracion} minutos, sin costo, por videollamada o teléfono. La reunión es para quienes ya hicieron el autodiagnóstico gratis: así llegamos con tu resultado y la aprovechamos mejor.</p>
       </div></header>
       <div className="max-w-3xl mx-auto px-4 py-8">
         {searchParams.x && (
-          <section role="alert" className="card flex flex-col gap-3 mb-4 border-l-4 border-[#C8231F]">
+          <section role="alert" className="card flex flex-col gap-3 mb-4 border-l-4 border-[var(--ac)]">
             <h2 className="m-0 text-lg">Primero el autodiagnóstico (5 minutos, gratis)</h2>
-            <p className="m-0 text-[#4A515C]">No encontramos un autodiagnóstico hecho con ese email o WhatsApp. Hacelo primero: con tu resultado agendamos la reunión sin costo. Si ya lo hiciste, ingresá el mismo email o teléfono que usaste.</p>
+            <p className="m-0 text-[var(--gris)]">No encontramos un autodiagnóstico hecho con ese email o WhatsApp. Hacelo primero: con tu resultado agendamos la reunión sin costo. Si ya lo hiciste, ingresá el mismo email o teléfono que usaste.</p>
             <a href={TEST} className="btn-p self-start">Hacer el autodiagnóstico gratis</a>
           </section>
         )}
         <form action={empezar} className="card flex flex-col gap-3">
           <input type="hidden" name="t" value={searchParams.t ?? ""} />
-          {searchParams.e && <p role="alert" className="m-0 text-sm font-semibold text-[#C8231F]">{searchParams.e}</p>}
+          {searchParams.e && <p role="alert" className="m-0 text-sm font-semibold text-[var(--ac)]">{searchParams.e}</p>}
           <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
           <label className="lbl">Nombre y apellido<input name="nombre" required autoComplete="name" defaultValue={pre?.nombre ?? ""} className="inp" /></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -69,7 +69,7 @@ export default async function AgendarGeneral({ searchParams }: { searchParams: {
           <label className="lbl">¿Sobre qué querés hablar?<textarea name="motivo" rows={3} placeholder="Ej.: quiero una página web para mi estudio / un bot de WhatsApp / un sistema para mi gremio" className="inp" /></label>
           <Enviar className="btn-p self-start" cargando="Un momento…">Elegir día y horario →</Enviar>
           <Redes />
-          <p className="m-0 text-xs text-[#4A515C]">Usamos tus datos solo para coordinar la reunión. DEVISEBIT SRL · WhatsApp +54 9 11 7346-6490.</p>
+          <p className="m-0 text-xs text-[var(--gris)]">Usamos tus datos solo para coordinar la reunión. DEVISEBIT SRL · WhatsApp +54 9 11 7346-6490.</p>
         </form>
       </div>
     </main>

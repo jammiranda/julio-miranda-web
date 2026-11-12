@@ -30,7 +30,7 @@ const iniciales = (c: Yo["cuenta"]) => {
 }
 
 const Avatar = ({ c, grande = false }: { c: Yo["cuenta"]; grande?: boolean }) => (
-  <span aria-hidden="true" className={`${grande ? "w-10 h-10 text-sm" : "w-8 h-8 text-[13px]"} shrink-0 rounded-full bg-[#C8231F] text-white font-extrabold tracking-wide flex items-center justify-center ring-2 ring-white/20`}>{iniciales(c)}</span>
+  <span aria-hidden="true" className={`${grande ? "w-10 h-10 text-sm" : "w-8 h-8 text-[13px]"} shrink-0 rounded-full bg-[var(--ac)] text-white font-extrabold tracking-wide flex items-center justify-center ring-2 ring-white/20`}>{iniciales(c)}</span>
 )
 
 /** Opciones de la cuenta (desplegable de escritorio y grupo del menú móvil). */
@@ -63,13 +63,13 @@ export default function CuentaHeader({ movil = false, menu = false }: { movil?: 
         <Avatar c={yo.cuenta} />
       </Link>
     )
-    return <Link href="/mi-cuenta" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] no-underline min-h-[40px] px-3">Mi cuenta</Link>
+    return <Link href="/mi-cuenta" className="btn bg-[var(--ac)] text-white hover:bg-[var(--ac-hover)] no-underline min-h-[40px] px-3">Mi cuenta</Link>
   }
 
   if (!yo?.cuenta) return (
     <div className="flex items-center gap-1">
       {yo?.sistema && <a href="/sistema" className="px-2.5 py-3 rounded-lg text-[#FF6A63] hover:text-white hover:bg-white/10 no-underline font-semibold">Sistema Academia</a>}
-      <Link href="/mi-cuenta" title="Tus cursos, clases y certificados" className="btn bg-[#C8231F] text-white hover:bg-[#9E1A17] no-underline ml-1 min-h-[44px]">Mi cuenta</Link>
+      <Link href="/mi-cuenta" title="Tus cursos, clases y certificados" className="btn bg-[var(--ac)] text-white hover:bg-[var(--ac-hover)] no-underline ml-1 min-h-[44px]">Mi cuenta</Link>
     </div>
   )
   return <MenuCuenta yo={yo} />
@@ -99,7 +99,7 @@ function MenuCuenta({ yo }: { yo: Yo }) {
     items[(k + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus()
   }
   const op = opciones(yo)
-  const item = "flex flex-col gap-0.5 w-full text-left rounded-xl px-3 py-2.5 min-h-[44px] no-underline text-[#0E1116] hover:bg-[#FDECEB] focus-visible:bg-[#FDECEB] bg-transparent border-0 cursor-pointer font-[inherit]"
+  const item = "flex flex-col gap-0.5 w-full text-left rounded-xl px-3 py-2.5 min-h-[44px] no-underline text-[var(--tinta)] hover:bg-[var(--ac-suave)] focus-visible:bg-[var(--ac-suave)] bg-transparent border-0 cursor-pointer font-[inherit]"
   return (
     <div ref={caja} className="relative ml-1" onKeyDown={mover} onBlur={(e) => { if (!caja.current?.contains(e.relatedTarget as Node)) setAbierto(false) }}>
       <button
@@ -115,21 +115,21 @@ function MenuCuenta({ yo }: { yo: Yo }) {
         <span className="max-w-[9rem] truncate font-semibold">{primerNombre(yo.cuenta)}</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true" className={`transition-transform motion-reduce:transition-none ${abierto ? "rotate-180" : ""}`}><path d="M6 9l6 6 6-6" /></svg>
       </button>
-      <div id={id} hidden={!abierto} className="absolute right-0 top-full z-50 mt-2 w-72 rounded-2xl bg-white text-[#0E1116] shadow-[0_18px_50px_rgba(14,17,22,.25)] border border-[#E2E5EA] p-2 whitespace-normal">
-        <div className="flex items-center gap-3 px-3 pt-2 pb-3 border-b border-[#EEF0F3] mb-1">
+      <div id={id} hidden={!abierto} className="absolute right-0 top-full z-50 mt-2 w-72 rounded-2xl bg-white text-[var(--tinta)] shadow-[0_18px_50px_rgba(14,17,22,.25)] border border-[var(--borde)] p-2 whitespace-normal">
+        <div className="flex items-center gap-3 px-3 pt-2 pb-3 border-b border-[var(--borde-2)] mb-1">
           <Avatar c={yo.cuenta} grande />
-          <span className="min-w-0"><strong className="block truncate">{yo.cuenta!.nombre}</strong><span className="block text-xs text-[#4A515C] truncate">Alumno de ACADEMIA DEVISEBIT</span></span>
+          <span className="min-w-0"><strong className="block truncate">{yo.cuenta!.nombre}</strong><span className="block text-xs text-[var(--gris)] truncate">Alumno de ACADEMIA DEVISEBIT</span></span>
         </div>
         <ul className="m-0 p-0 list-none flex flex-col">
           {op.map((o) => (
-            <li key={o.href} className={o.secundario ? "border-t border-[#EEF0F3] mt-1 pt-1" : ""}>
+            <li key={o.href} className={o.secundario ? "border-t border-[var(--borde-2)] mt-1 pt-1" : ""}>
               {o.href.startsWith("http") || o.equipo
-                ? <a data-item href={o.href} className={item}><span className={`font-bold ${o.equipo ? "text-[#C8231F]" : o.secundario ? "text-[#262C37] font-semibold" : ""}`}>{o.t}</span><span className="text-[13px] text-[#4A515C]">{o.d}</span></a>
-                : <Link data-item href={o.href} onClick={() => setAbierto(false)} className={item}><span className="font-bold">{o.t}</span><span className="text-[13px] text-[#4A515C]">{o.d}</span></Link>}
+                ? <a data-item href={o.href} className={item}><span className={`font-bold ${o.equipo ? "text-[var(--ac)]" : o.secundario ? "text-[#262C37] font-semibold" : ""}`}>{o.t}</span><span className="text-[13px] text-[var(--gris)]">{o.d}</span></a>
+                : <Link data-item href={o.href} onClick={() => setAbierto(false)} className={item}><span className="font-bold">{o.t}</span><span className="text-[13px] text-[var(--gris)]">{o.d}</span></Link>}
             </li>
           ))}
-          <li className="border-t border-[#EEF0F3] mt-1 pt-1">
-            <form action={salirCuenta}><input type="hidden" name="sitio" value="academia" /><button data-item className={`${item} !flex-row items-center`}><span className="font-semibold text-[#4A515C]">Salir</span></button></form>
+          <li className="border-t border-[var(--borde-2)] mt-1 pt-1">
+            <form action={salirCuenta}><input type="hidden" name="sitio" value="academia" /><button data-item className={`${item} !flex-row items-center`}><span className="font-semibold text-[var(--gris)]">Salir</span></button></form>
           </li>
         </ul>
       </div>

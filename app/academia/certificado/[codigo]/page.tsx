@@ -19,7 +19,7 @@ export default async function Certificado({ params }: { params: { codigo: string
       <main className="max-w-xl mx-auto px-4 py-20">
         <div className="card text-center flex flex-col gap-2">
           <h1 className="m-0">Certificado no válido</h1>
-          <p className="m-0 text-[#4A515C]">No encontramos un certificado vigente con el código <strong>{cod}</strong>. Revisá que esté bien escrito o escribinos a info@devisebit.com.</p>
+          <p className="m-0 text-[var(--gris)]">No encontramos un certificado vigente con el código <strong>{cod}</strong>. Revisá que esté bien escrito o escribinos a info@devisebit.com.</p>
         </div>
       </main>
     )
@@ -34,34 +34,34 @@ export default async function Certificado({ params }: { params: { codigo: string
       </div>
       <section className="cert relative bg-white rounded-2xl shadow-xl overflow-hidden" style={{ aspectRatio: "297 / 210" }} aria-label="Certificado">
         <div aria-hidden="true" className="absolute inset-0" style={{ background: "radial-gradient(circle at 92% 8%, rgba(200,35,31,.16), transparent 40%), radial-gradient(circle at 4% 100%, rgba(14,17,22,.08), transparent 45%)" }} />
-        <div aria-hidden="true" className="absolute inset-[3%] border-2 border-[#0E1116] rounded-xl" />
+        <div aria-hidden="true" className="absolute inset-[3%] border-2 border-[var(--tinta)] rounded-xl" />
         <div aria-hidden="true" className="absolute inset-[4%] border border-[#C8231F]/50 rounded-lg" />
         <div className="relative h-full flex flex-col items-center justify-between text-center px-[9%] py-[7%]">
           <div className="flex flex-col items-center gap-1">
-            <span className="ct-26 font-extrabold tracking-[0.06em] text-[#0E1116]">DEVISE<span className="text-[#C8231F]">BIT</span></span>
-            <span className="ct-11 font-semibold tracking-[0.35em] text-[#4A515C]">ACADEMIA</span>
+            <span className="ct-26 font-extrabold tracking-[0.06em] text-[var(--tinta)]">DEVISE<span className="text-[var(--ac)]">BIT</span></span>
+            <span className="ct-11 font-semibold tracking-[0.35em] text-[var(--gris)]">ACADEMIA</span>
           </div>
           <div className="flex flex-col items-center gap-[1.4vw] max-w-[85%]">
-            <span className="ct-14 font-bold tracking-[0.3em] text-[#C8231F]">CERTIFICADO DE APROBACIÓN</span>
+            <span className="ct-14 font-bold tracking-[0.3em] text-[var(--ac)]">CERTIFICADO DE APROBACIÓN</span>
             <span className="ct-16 text-[#262C37]">Se certifica que</span>
-            <span className="ct-46 font-extrabold leading-tight text-[#0E1116] border-b-2 border-[#0E1116]/20 pb-[0.6vw] px-6">{c.nombre}</span>
+            <span className="ct-46 font-extrabold leading-tight text-[var(--tinta)] border-b-2 border-[#0E1116]/20 pb-[0.6vw] px-6">{c.nombre}</span>
             <span className="ct-16 text-[#262C37]">aprobó el curso</span>
-            <span className="ct-28 font-bold leading-snug text-[#0E1116]">{c.curso}</span>
-            <span className="ct-13 text-[#4A515C]">{[modalidadYEdicion(c.modalidad, c.edicion), c.horas ? `${Number(c.horas)} horas` : null].filter(Boolean).join(" · ")}</span>
+            <span className="ct-28 font-bold leading-snug text-[var(--tinta)]">{c.curso}</span>
+            <span className="ct-13 text-[var(--gris)]">{[modalidadYEdicion(c.modalidad, c.edicion), c.horas ? `${Number(c.horas)} horas` : null].filter(Boolean).join(" · ")}</span>
           </div>
           <div className="w-full flex items-end justify-between gap-4 text-left">
-            <div className="ct-11 text-[#4A515C] leading-relaxed">Emitido el {dia}<br />Código de verificación: <strong className="text-[#0E1116]">{c.codigo}</strong><br />Verificalo en academia.devisebit.com/certificado/{c.codigo}</div>
-            <div className="text-center ct-11 text-[#4A515C]"><div className="border-t border-[#0E1116]/40 pt-1 px-6">{c.docente ? (firmaCertificado(c.docente_slug) === "Creado por" ? <>Creado por<br /><strong className="text-[#0E1116]">{c.docente}</strong></> : <><strong className="text-[#0E1116]">{c.docente}</strong><br />{firmaCertificado(c.docente_slug)}</>) : <><strong className="text-[#0E1116]">DEVISEBIT SRL</strong><br />Academia</>}</div></div>
+            <div className="ct-11 text-[var(--gris)] leading-relaxed">Emitido el {dia}<br />Código de verificación: <strong className="text-[var(--tinta)]">{c.codigo}</strong><br />Verificalo en academia.devisebit.com/certificado/{c.codigo}</div>
+            <div className="text-center ct-11 text-[var(--gris)]"><div className="border-t border-[#0E1116]/40 pt-1 px-6">{c.docente ? (firmaCertificado(c.docente_slug) === "Creado por" ? <>Creado por<br /><strong className="text-[var(--tinta)]">{c.docente}</strong></> : <><strong className="text-[var(--tinta)]">{c.docente}</strong><br />{firmaCertificado(c.docente_slug)}</>) : <><strong className="text-[var(--tinta)]">DEVISEBIT SRL</strong><br />Academia</>}</div></div>
           </div>
         </div>
       </section>
       <dl className="no-print sm:hidden m-0 card grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-[15px]">
-        <dt className="text-[#4A515C]">Alumno</dt><dd className="m-0 font-semibold">{c.nombre}</dd>
-        <dt className="text-[#4A515C]">Curso</dt><dd className="m-0 font-semibold">{c.curso}</dd>
-        <dt className="text-[#4A515C]">Emitido</dt><dd className="m-0">{dia}</dd>
-        <dt className="text-[#4A515C]">Código</dt><dd className="m-0 font-mono">{c.codigo}</dd>
+        <dt className="text-[var(--gris)]">Alumno</dt><dd className="m-0 font-semibold">{c.nombre}</dd>
+        <dt className="text-[var(--gris)]">Curso</dt><dd className="m-0 font-semibold">{c.curso}</dd>
+        <dt className="text-[var(--gris)]">Emitido</dt><dd className="m-0">{dia}</dd>
+        <dt className="text-[var(--gris)]">Código</dt><dd className="m-0 font-mono">{c.codigo}</dd>
       </dl>
-      <p className="no-print m-0 text-sm text-[#4A515C] text-center">Para guardarlo en PDF: “Imprimir” y elegí “Guardar como PDF”, en horizontal.</p>
+      <p className="no-print m-0 text-sm text-[var(--gris)] text-center">Para guardarlo en PDF: “Imprimir” y elegí “Guardar como PDF”, en horizontal.</p>
     </main>
   )
 }

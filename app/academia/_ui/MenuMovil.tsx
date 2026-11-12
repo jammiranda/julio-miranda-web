@@ -45,7 +45,7 @@ export default function MenuMovil({ cuenta = false }: { cuenta?: boolean }) {
         id="acad-menu"
         ref={panel}
         hidden={!abierto}
-        className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-[#0E1116] border-t border-white/10 overflow-y-auto overscroll-contain"
+        className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-[var(--tinta)] border-t border-white/10 overflow-y-auto overscroll-contain"
         style={{ top: "calc(3.5rem + env(safe-area-inset-top))", paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
       >
         <nav aria-label="Menú de la Academia" className="px-4 pt-2 flex flex-col">

@@ -10,7 +10,7 @@ export default function Cabecera({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("scroll", f)
   }, [])
   return (
-    <header className={"ficha-head text-white sticky top-0 z-40 lg:pointer-events-none lg:transition-colors " + (arriba ? "bg-[#0E1116]" : "bg-[#0E1116] lg:bg-transparent")} style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <header className={"ficha-head text-white sticky top-0 z-40 lg:pointer-events-none lg:transition-colors " + (arriba ? "bg-[var(--tinta)]" : "bg-[var(--tinta)] lg:bg-transparent")} style={{ paddingTop: "env(safe-area-inset-top)" }}>
       {children}
     </header>
   )

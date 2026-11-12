@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function AcademiaLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="acad min-h-screen bg-[#F5F6F8] flex flex-col">
+    <div className="acad min-h-screen bg-[var(--fondo)] flex flex-col">
       <a href="#contenido" className="acad-saltar">Saltar al contenido</a>
       <Cabecera>
         <div className="pildora max-w-6xl mx-auto h-14 md:h-16 flex items-center justify-between gap-3" style={{ paddingLeft: "max(1rem, env(safe-area-inset-left))", paddingRight: "max(1rem, env(safe-area-inset-right))" }}>

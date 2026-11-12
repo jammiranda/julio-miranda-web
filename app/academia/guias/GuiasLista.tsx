@@ -40,22 +40,22 @@ export default function GuiasLista({ guias, inicial }: { guias: Guia[]; inicial?
         </label>
 
         <label className="lg:hidden flex flex-col gap-1">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#4A515C]">Tema</span>
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--gris)]">Tema</span>
           <select value={tema} onChange={(e) => elegir(e.target.value)} className="inp !min-h-[48px] bg-white">
             <option value="">Todos los temas ({guias.length})</option>
             {temas.map(([t, n]) => <option key={t} value={t}>{t} ({n})</option>)}
           </select>
         </label>
 
-        <nav aria-label="Temas" className="hidden lg:flex flex-col gap-0.5 rounded-2xl bg-white border border-[#E2E5EA] p-2">
-          <p className="m-0 px-3 pt-2 pb-1 text-xs font-bold uppercase tracking-[0.14em] text-[#4A515C]">Temas</p>
+        <nav aria-label="Temas" className="hidden lg:flex flex-col gap-0.5 rounded-2xl bg-white border border-[var(--borde)] p-2">
+          <p className="m-0 px-3 pt-2 pb-1 text-xs font-bold uppercase tracking-[0.14em] text-[var(--gris)]">Temas</p>
           {[["", guias.length] as [string, number], ...temas].map(([t, n]) => {
             const activo = tema === t
             return (
               <button key={t || "todos"} type="button" onClick={() => elegir(t)} aria-pressed={activo}
-                className={`flex items-center justify-between gap-2 rounded-xl px-3 min-h-[44px] text-left text-[15px] transition-colors ${activo ? "bg-[#0B7462] text-white font-semibold" : "text-[#262C37] hover:bg-[#F5F6F8]"}`}>
+                className={`flex items-center justify-between gap-2 rounded-xl px-3 min-h-[44px] text-left text-[15px] transition-colors ${activo ? "bg-[#0B7462] text-white font-semibold" : "text-[#262C37] hover:bg-[var(--fondo)]"}`}>
                 <span>{t || "Todas las guías"}</span>
-                <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${activo ? "bg-white/15 text-white" : "bg-[#F5F6F8] text-[#4A515C]"}`}>{n}</span>
+                <span className={`text-xs font-bold rounded-full px-2 py-0.5 ${activo ? "bg-white/15 text-white" : "bg-[var(--fondo)] text-[var(--gris)]"}`}>{n}</span>
               </button>
             )
           })}
@@ -64,19 +64,19 @@ export default function GuiasLista({ guias, inicial }: { guias: Guia[]; inicial?
 
       <section aria-live="polite" aria-label="Resultados">
         <div className="flex items-center justify-between gap-3 min-h-[32px]">
-          <p className="m-0 text-sm text-[#4A515C]">{lista.length === guias.length ? `${guias.length} guías` : `${lista.length} de ${guias.length} guías`}{tema ? <> en <strong className="text-[#0E1116]">{tema}</strong></> : null}</p>
+          <p className="m-0 text-sm text-[var(--gris)]">{lista.length === guias.length ? `${guias.length} guías` : `${lista.length} de ${guias.length} guías`}{tema ? <> en <strong className="text-[var(--tinta)]">{tema}</strong></> : null}</p>
           {hayFiltro && <button type="button" onClick={() => { setBusca(""); elegir("") }} className="text-sm font-semibold text-[#0B6657] underline underline-offset-2 min-h-[44px] px-1">Ver todas</button>}
         </div>
         {lista.length ? (
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {lista.map((g) => (
-              <Link key={g.slug} href={`/guias/${g.slug}`} className="levanta card group h-full flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#0B7462]">
+              <Link key={g.slug} href={`/guias/${g.slug}`} className="levanta card group h-full flex flex-col gap-2 no-underline text-[var(--tinta)] hover:border-[#0B7462]">
                 <span className="flex items-center gap-1.5 min-w-0">
                   {g.categoria && <span className="truncate rounded-md bg-[#E3F3EE] text-[#0B5D50] px-2 py-0.5 text-xs font-bold">{g.categoria}</span>}
-                  {g.exclusiva && <span className="shrink-0 rounded-md bg-[#0E1116] text-white px-2 py-0.5 text-xs font-semibold">Suscriptores</span>}
+                  {g.exclusiva && <span className="shrink-0 rounded-md bg-[var(--tinta)] text-white px-2 py-0.5 text-xs font-semibold">Suscriptores</span>}
                 </span>
                 <span className="t2 text-lg font-extrabold tracking-tight">{g.titulo}</span>
-                <span className="b3 text-[15px] text-[#4A515C]">{g.bajada}</span>
+                <span className="b3 text-[15px] text-[var(--gris)]">{g.bajada}</span>
                 <span className="mt-auto pt-2 text-sm font-bold text-[#0B6657] group-hover:underline">Leer la guía →</span>
               </Link>
             ))}
@@ -84,7 +84,7 @@ export default function GuiasLista({ guias, inicial }: { guias: Guia[]; inicial?
         ) : (
           <div className="card mt-3 flex flex-col items-start gap-2">
             <p className="m-0 font-bold">No encontramos guías con “{busca}”.</p>
-            <p className="m-0 text-[15px] text-[#4A515C]">Probá con otra palabra o pedinos la guía que te falta: la escribimos.</p>
+            <p className="m-0 text-[15px] text-[var(--gris)]">Probá con otra palabra o pedinos la guía que te falta: la escribimos.</p>
             <button type="button" onClick={() => { setBusca(""); elegir("") }} className="btn-s">Ver todas las guías</button>
           </div>
         )}

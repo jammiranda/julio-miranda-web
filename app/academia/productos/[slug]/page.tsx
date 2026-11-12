@@ -48,8 +48,8 @@ export default async function Producto({ params, searchParams }: { params: { slu
   const conPayPal = !!usd && paypalConfigurado() && archivoListo(p)
   return (
     <main>
-      <header className="ficha-head bg-[#0E1116] text-white"><div className="max-w-5xl mx-auto px-4 pt-8 pb-10 sm:py-14">
-        <span className="chip bg-[#C8231F] text-white">{venta ? "Disponible" : "Próximamente"}</span>
+      <header className="ficha-head bg-[var(--tinta)] text-white"><div className="max-w-5xl mx-auto px-4 pt-8 pb-10 sm:py-14">
+        <span className="chip bg-[var(--ac)] text-white">{venta ? "Disponible" : "Próximamente"}</span>
         <h1 className="acad-h1-m m-0 mt-4 font-extrabold text-white">{p.titulo}</h1>
         <p className="acad-lead m-0 mt-4 text-white/80 max-w-2xl">{p.bajada}</p>
         {venta && (
@@ -65,30 +65,30 @@ export default async function Producto({ params, searchParams }: { params: { slu
           {venta ? (
             <form action={comprar} className="flex flex-col gap-3">
               <div className="flex items-end justify-between gap-3 flex-wrap">
-                {conMP ? <p className="m-0 text-3xl font-extrabold leading-none">{precio} <span className="text-sm font-semibold text-[#4A515C]">ARS</span></p> : <p className="m-0 text-3xl font-extrabold leading-none">{usd}</p>}
-                {conMP && usd && <p className="m-0 text-lg font-bold text-[#262C37] leading-none">{usd} <span className="text-sm font-semibold text-[#4A515C]">desde el exterior</span></p>}
+                {conMP ? <p className="m-0 text-3xl font-extrabold leading-none">{precio} <span className="text-sm font-semibold text-[var(--gris)]">ARS</span></p> : <p className="m-0 text-3xl font-extrabold leading-none">{usd}</p>}
+                {conMP && usd && <p className="m-0 text-lg font-bold text-[#262C37] leading-none">{usd} <span className="text-sm font-semibold text-[var(--gris)]">desde el exterior</span></p>}
               </div>
               <input type="hidden" name="slug" value={p.slug} />
               <label className="lbl">Nombre<input name="nombre" autoComplete="name" autoCapitalize="words" enterKeyHint="next" className="inp" /></label>
               <label className="lbl">{p.servicio ? "Email (te escribimos para coordinar)" : "Email (te llega la descarga)"}<input name="email" type="email" inputMode="email" autoComplete="email" autoCapitalize="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" required className="inp" /></label>
               {conMP && <>
               <BotonEnviar cargando="Abriendo Mercado Pago…">Pagar {precio} con Mercado Pago</BotonEnviar>
-              <p className="m-0 text-sm text-[#4A515C]">Desde Argentina: tarjeta, débito o dinero en cuenta. {p.servicio ? "Después del pago coordinamos la fecha con vos. ¿Preferís transferencia o factura A? Escribinos por WhatsApp." : "Descarga inmediata."}</p>
+              <p className="m-0 text-sm text-[var(--gris)]">Desde Argentina: tarjeta, débito o dinero en cuenta. {p.servicio ? "Después del pago coordinamos la fecha con vos. ¿Preferís transferencia o factura A? Escribinos por WhatsApp." : "Descarga inmediata."}</p>
               </>}
               {usd && (conPayPal ? (
-                <div className="flex flex-col gap-2 border-t border-[#E2E5EA] pt-3">
-                  <button type="submit" name="pasarela" value="paypal" className="btn min-h-[48px] w-full bg-[#FFC439] text-[#0E1116] hover:bg-[#F2BA36] font-bold">Pagar {usd} con PayPal o tarjeta internacional</button>
-                  <p className="m-0 text-sm text-[#4A515C]">¿Estás fuera de Argentina? Pagás en dólares con PayPal o cualquier tarjeta, sin crear cuenta.</p>
+                <div className="flex flex-col gap-2 border-t border-[var(--borde)] pt-3">
+                  <button type="submit" name="pasarela" value="paypal" className="btn min-h-[48px] w-full bg-[#FFC439] text-[var(--tinta)] hover:bg-[#F2BA36] font-bold">Pagar {usd} con PayPal o tarjeta internacional</button>
+                  <p className="m-0 text-sm text-[var(--gris)]">¿Estás fuera de Argentina? Pagás en dólares con PayPal o cualquier tarjeta, sin crear cuenta.</p>
                 </div>
               ) : (
-                <p className="m-0 text-sm text-[#4A515C] border-t border-[#E2E5EA] pt-3">¿Estás fuera de Argentina? Sale {usd}. <a href={WA_EXTERIOR + p.titulo} className="font-semibold text-[#C8231F] underline">Escribinos por WhatsApp</a> y te mandamos el link de pago.</p>
+                <p className="m-0 text-sm text-[var(--gris)] border-t border-[var(--borde)] pt-3">¿Estás fuera de Argentina? Sale {usd}. <a href={WA_EXTERIOR + p.titulo} className="font-semibold text-[var(--ac)] underline">Escribinos por WhatsApp</a> y te mandamos el link de pago.</p>
               ))}
               {searchParams.e && <p role="alert" className="m-0 text-sm text-rojo">No pudimos iniciar el pago. Revisá el email o probá de nuevo.</p>}
             </form>
           ) : (
             <>
               <p className="m-0 text-lg font-extrabold">Anotate y te avisamos primero</p>
-              <p className="m-0 text-sm text-[#4A515C]">Los primeros de la lista lo reciben con descuento de lanzamiento.</p>
+              <p className="m-0 text-sm text-[var(--gris)]">Los primeros de la lista lo reciben con descuento de lanzamiento.</p>
               <Suscribir tag={`espera-${p.slug}`.slice(0, 40)} boton="Anotarme" />
             </>
           )}

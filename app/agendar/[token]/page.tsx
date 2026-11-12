@@ -35,7 +35,7 @@ export default async function Agendar({ params, searchParams }: { params: { toke
   if (!c) notFound()
   const prox = await one<any>("select * from db_reuniones where consulta_id=$1 and estado='confirmada' and inicio > now() order by inicio limit 1", [c.id])
   const head = (titulo: string, sub: string) => (
-    <header className="bg-[#0E1116] text-white"><div className="max-w-3xl mx-auto px-4 py-8">
+    <header className="bg-[var(--tinta)] text-white"><div className="max-w-3xl mx-auto px-4 py-8">
       <div className="text-xl font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></div>
       <h1 className="m-0 mt-4 text-3xl text-white">{titulo}</h1><p className="m-0 mt-2 text-white/75">{sub}</p>
     </div></header>
@@ -44,17 +44,17 @@ export default async function Agendar({ params, searchParams }: { params: { toke
     const l = local(new Date(prox.inicio))
     const g = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Reunión con DEVISEBIT")}&dates=${new Date(prox.inicio).toISOString().replace(/[-:]|\.\d{3}/g, "")}/${new Date(prox.fin).toISOString().replace(/[-:]|\.\d{3}/g, "")}&details=${encodeURIComponent(prox.link ? `Videollamada: ${prox.link}` : "Llamada telefónica")}`
     return (
-      <main className="min-h-screen bg-[#F5F6F8]">
+      <main className="min-h-screen bg-[var(--fondo)]">
         {head(searchParams.ok ? "¡Reunión agendada!" : "Ya tenés una reunión agendada", `${prox.modalidad === "llamada" ? "Llamada" : "Videollamada"} de ${Math.round((new Date(prox.fin).getTime() - new Date(prox.inicio).getTime()) / 60e3)} minutos, sin costo.`)}
         <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-4">
           <section className="card flex flex-col gap-3">
-            <p className="m-0 text-2xl font-extrabold text-[#0E1116] first-letter:uppercase">{l.texto}</p>
+            <p className="m-0 text-2xl font-extrabold text-[var(--tinta)] first-letter:uppercase">{l.texto}</p>
             {prox.link ? <a href={prox.link} className="btn-p self-start" target="_blank" rel="noopener noreferrer">Entrar a la videollamada</a> : <p className="m-0">Te llamamos al {prox.telefono}.</p>}
             <div className="flex flex-wrap gap-2">
               <a href={`/agendar/${params.token}/ics`} className="btn-s">Agregar a mi calendario (Outlook, Apple, otros)</a>
               <a href={g} target="_blank" rel="noopener noreferrer" className="btn-s">Agregar a Google Calendar</a>
             </div>
-            <p className="m-0 text-sm text-[#4A515C]">¿Necesitás cambiarla? Escribinos por WhatsApp al +54 9 11 7346-6490.</p>
+            <p className="m-0 text-sm text-[var(--gris)]">¿Necesitás cambiarla? Escribinos por WhatsApp al +54 9 11 7346-6490.</p>
           </section>
         </div>
       </main>
@@ -62,7 +62,7 @@ export default async function Agendar({ params, searchParams }: { params: { toke
   }
   const dias = await turnosLibres(10)
   return (
-    <main className="min-h-screen bg-[#F5F6F8]">
+    <main className="min-h-screen bg-[var(--fondo)]">
       {head("Agendá tu reunión", `${(await horario()).duracion} minutos, sin costo. Elegí el día y el horario que te quede mejor (hora de Argentina).`)}
       <form action={agendar} className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-5">
         <input type="hidden" name="tok" value={params.token} />
@@ -72,10 +72,10 @@ export default async function Agendar({ params, searchParams }: { params: { toke
           <h2 className="m-0 text-lg">1. Día y horario</h2>
           {dias.length ? dias.map((d) => (
             <fieldset key={d.fecha} className="m-0 p-0 border-0 flex flex-col gap-2">
-              <legend className="text-sm font-bold uppercase tracking-wider text-[#4A515C] mb-1">{d.etiqueta}</legend>
+              <legend className="text-sm font-bold uppercase tracking-wider text-[var(--gris)] mb-1">{d.etiqueta}</legend>
               <div className="flex flex-wrap gap-2">{d.turnos.map((t) => (
                 <label key={t.iso} className="cursor-pointer"><input type="radio" name="turno" value={t.iso} required className="peer sr-only" />
-                  <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-xl border border-[#C3C8D1] bg-white px-3 py-2 text-sm font-semibold tabular-nums peer-checked:border-[#C8231F] peer-checked:bg-[#C8231F] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[#C8231F]">{t.hora}</span></label>
+                  <span className="inline-flex items-center min-h-[44px] sm:min-h-0 rounded-xl border border-[var(--borde-fuerte)] bg-white px-3 py-2 text-sm font-semibold tabular-nums peer-checked:border-[var(--ac)] peer-checked:bg-[var(--ac)] peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#C8231F]/40 hover:border-[var(--ac)]">{t.hora}</span></label>
               ))}</div>
             </fieldset>
           )) : <p className="m-0">No hay horarios libres en los próximos días. Escribinos por WhatsApp y lo coordinamos.</p>}

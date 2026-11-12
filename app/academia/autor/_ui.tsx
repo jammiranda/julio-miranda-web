@@ -14,19 +14,19 @@ export function CabeceraAutor({ a, activa, titulo, bajada }: { a: Autor; activa:
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[#C8231F]">ACADEMIA DEVISEBIT · Panel de autor</p>
+          <p className="m-0 text-xs font-bold uppercase tracking-[0.25em] text-[var(--ac)]">ACADEMIA DEVISEBIT · Panel de autor</p>
           <h1 className="acad-h1-m m-0 mt-2 font-extrabold">{titulo}</h1>
-          {bajada && <p className="acad-lead m-0 mt-2 text-[#4A515C]">{bajada}</p>}
+          {bajada && <p className="acad-lead m-0 mt-2 text-[var(--gris)]">{bajada}</p>}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-[#4A515C]">{a.nombre}</span>
+          <span className="text-sm text-[var(--gris)]">{a.nombre}</span>
           <form action={salirCuenta}><input type="hidden" name="sitio" value="academia" /><button className="btn-s">Salir</button></form>
         </div>
       </div>
-      <nav aria-label="Panel de autor" className="flex flex-wrap gap-1 border-b border-[#E2E5EA]">
+      <nav aria-label="Panel de autor" className="flex flex-wrap gap-1 border-b border-[var(--borde)]">
         {PESTANAS.map((p) => (
           <Link key={p.k} href={p.href} aria-current={activa === p.k ? "page" : undefined}
-            className={`px-4 min-h-[44px] inline-flex items-center no-underline font-semibold border-b-2 -mb-px ${activa === p.k ? "border-[#C8231F] text-[#0E1116]" : "border-transparent text-[#4A515C] hover:text-[#0E1116]"}`}>
+            className={`px-4 min-h-[44px] inline-flex items-center no-underline font-semibold border-b-2 -mb-px ${activa === p.k ? "border-[var(--ac)] text-[var(--tinta)]" : "border-transparent text-[var(--gris)] hover:text-[var(--tinta)]"}`}>
             {p.t}
           </Link>
         ))}

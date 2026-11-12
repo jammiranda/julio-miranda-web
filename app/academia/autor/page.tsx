@@ -19,13 +19,13 @@ export default async function MisCursosAutor() {
         {cursos.map((c) => {
           const e = ESTADO_CURSO[c.estado] ?? ESTADO_CURSO.borrador
           return (
-            <Link key={c.id} href={`/autor/cursos/${c.id}`} className="card flex flex-col gap-2 no-underline text-[#0E1116] hover:border-[#C8231F]">
+            <Link key={c.id} href={`/autor/cursos/${c.id}`} className="card flex flex-col gap-2 no-underline text-[var(--tinta)] hover:border-[var(--ac)]">
               <div className="flex items-start justify-between gap-2">
                 <strong className="text-[17px]">{c.titulo}</strong>
                 <Chip c={e.c}>{e.n}</Chip>
               </div>
-              {c.bajada && <span className="text-sm text-[#4A515C]">{c.bajada}</span>}
-              <span className="text-xs text-[#4A515C]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} h` : ""} · {c.visibles}/{c.lecciones} lecciones visibles</span>
+              {c.bajada && <span className="text-sm text-[var(--gris)]">{c.bajada}</span>}
+              <span className="text-xs text-[var(--gris)]">{modalidad(c.modalidad)}{c.horas ? ` · ${Number(c.horas)} h` : ""} · {c.visibles}/{c.lecciones} lecciones visibles</span>
               <span className="text-sm mt-auto pt-2 flex flex-wrap gap-x-4 gap-y-1">
                 <span><strong>{c.alumnos}</strong> {c.alumnos === 1 ? "alumno" : "alumnos"}</span><span><strong>{c.aprobados}</strong> {c.aprobados === 1 ? "aprobado" : "aprobados"}</span><span><strong>{c.videollamadas}</strong> {c.videollamadas === 1 ? "videollamada" : "videollamadas"}</span>
               </span>
@@ -36,7 +36,7 @@ export default async function MisCursosAutor() {
           )
         })}
       </div>
-      <p className="m-0 text-sm text-[#4A515C] border-t border-[#E2E5EA] pt-4">
+      <p className="m-0 text-sm text-[var(--gris)] border-t border-[var(--borde)] pt-4">
         Podés editar textos, lecciones, quiz y materiales. El precio, los docentes y la publicación del curso los maneja Dirección: si necesitás publicar o archivar un curso, pedilo desde el curso.
       </p>
     </div>

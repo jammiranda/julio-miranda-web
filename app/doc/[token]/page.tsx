@@ -16,10 +16,10 @@ export default async function DocCompartido({ params }: { params: { token: strin
   const ok = e && !e.revocado && new Date(e.expira) > new Date()
   if (!ok) {
     return (
-      <main className="min-h-screen bg-[#F5F6F8] flex items-center justify-center px-4 py-12">
+      <main className="min-h-screen bg-[var(--fondo)] flex items-center justify-center px-4 py-12">
         <div className="card max-w-md w-full flex flex-col gap-3 text-center">
           <h1 className="m-0 text-2xl">{e ? "Este link ya no está disponible" : "Link no válido"}</h1>
-          <p className="m-0 text-[#4A515C]">Los links a documentos son personales y vencen. Pedile uno nuevo a quien te lo mandó o escribinos.</p>
+          <p className="m-0 text-[var(--gris)]">Los links a documentos son personales y vencen. Pedile uno nuevo a quien te lo mandó o escribinos.</p>
           <a href={WA} className="btn-p mt-2">Escribir por WhatsApp</a>
         </div>
       </main>
@@ -31,7 +31,7 @@ export default async function DocCompartido({ params }: { params: { token: strin
   const vence = new Date(e!.expira).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "long" })
   const fechaV = v ? new Date(v.publicado ?? v.creado).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "long", year: "numeric" }) : ""
   return (
-    <main className="min-h-screen bg-[#F5F6F8]">
+    <main className="min-h-screen bg-[var(--fondo)]">
       <header className="bg-[#0B0D12] text-white">
         <div className="max-w-3xl mx-auto px-4 pt-8 pb-10 sm:pt-12 sm:pb-14 flex flex-col gap-3">
           <span className="text-xl font-extrabold tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
@@ -43,17 +43,17 @@ export default async function DocCompartido({ params }: { params: { token: strin
         <div className="card flex flex-col gap-3">
           {v ? (
             <>
-              <p className="m-0 text-sm text-[#4A515C]">Versión {v.version} · {fechaV} · PDF de {peso(v.tamano)}</p>
+              <p className="m-0 text-sm text-[var(--gris)]">Versión {v.version} · {fechaV} · PDF de {peso(v.tamano)}</p>
               <div className="flex flex-wrap gap-2">
                 <a href={`/doc/${params.token}/archivo`} target="_blank" rel="noopener noreferrer" className="btn-p">Ver el documento</a>
                 <a href={`/doc/${params.token}/archivo?descargar=1`} className="btn-s">Descargar</a>
               </div>
             </>
           ) : <p className="m-0">El documento se está actualizando. Probá de nuevo en unos minutos.</p>}
-          <p className="m-0 text-xs text-[#4A515C]">Link personal{e!.nombre ? ` para ${e!.nombre}` : ""}, válido hasta el {vence}. Siempre abre la versión más reciente.{e!.confidencial ? " Documento de uso interno y confidencial: no lo reenvíes." : ""}</p>
+          <p className="m-0 text-xs text-[var(--gris)]">Link personal{e!.nombre ? ` para ${e!.nombre}` : ""}, válido hasta el {vence}. Siempre abre la versión más reciente.{e!.confidencial ? " Documento de uso interno y confidencial: no lo reenvíes." : ""}</p>
         </div>
         <div className="card flex flex-wrap items-center justify-between gap-3">
-          <div><h2 className="m-0 text-lg">¿Querés hablar con nosotros?</h2><p className="m-0 text-sm text-[#4A515C]">Software e IA. Desde 2009.</p></div>
+          <div><h2 className="m-0 text-lg">¿Querés hablar con nosotros?</h2><p className="m-0 text-sm text-[var(--gris)]">Software e IA. Desde 2009.</p></div>
           <div className="flex flex-wrap gap-2"><a href="https://sistema.devisebit.com/agendar" className="btn-p">Agendar una reunión</a><a href={WA} className="btn-s">WhatsApp</a></div>
         </div>
       </section>

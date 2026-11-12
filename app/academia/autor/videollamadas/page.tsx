@@ -28,13 +28,13 @@ export default async function VideollamadasAutor({ searchParams }: { searchParam
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <strong className="block">{v.nombre}</strong>
-                  <span className="text-sm text-[#4A515C]">{v.titulo} · <a href={`mailto:${v.email}`} className="underline">{v.email}</a></span>
+                  <span className="text-sm text-[var(--gris)]">{v.titulo} · <a href={`mailto:${v.email}`} className="underline">{v.email}</a></span>
                 </div>
                 <Chip c={e.c}>{e.n}</Chip>
               </div>
               <div className="text-sm flex flex-col gap-1">
                 <span>Pedida el {fecha(v.videollamada_en)}.{v.inicio ? <> Turno: <strong className="first-letter:uppercase">{fh(v.inicio)}</strong> ({v.modalidad === "llamada" ? "llamada telefónica: la coordina el equipo" : "videollamada"}).</> : " El alumno todavía no eligió día y horario en la agenda."}</span>
-                {tema && <span><span className="text-[#4A515C]">Quiere hablar de:</span> {tema}</span>}
+                {tema && <span><span className="text-[var(--gris)]">Quiere hablar de:</span> {tema}</span>}
               </div>
               <div className="flex flex-wrap gap-2 items-center">
                 {v.link && ["agendada", "pasada"].includes(k) && <a href={v.link} target="_blank" rel="noopener noreferrer" className="btn-p py-1.5">Entrar a la videollamada</a>}
@@ -56,7 +56,7 @@ export default async function VideollamadasAutor({ searchParams }: { searchParam
           )
         })}
       </ul>
-      <p className="m-0 text-xs text-[#4A515C] border-t border-[#E2E5EA] pt-4">Si necesitás cambiar el día u horario de un turno, avisale a Dirección: la agenda la maneja el equipo.</p>
+      <p className="m-0 text-xs text-[var(--gris)] border-t border-[var(--borde)] pt-4">Si necesitás cambiar el día u horario de un turno, avisale a Dirección: la agenda la maneja el equipo.</p>
     </div>
   )
 }

@@ -53,14 +53,14 @@ const IC = {
 export default function Pie() {
   const externo = (h: string) => h.startsWith("http")
   return (
-    <footer className="ficha-head acad-pie bg-[#0B0D12] text-[#C3C8D1] border-t border-white/10 text-[15px]" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+    <footer className="ficha-head acad-pie bg-[#0B0D12] text-[var(--borde-fuerte)] border-t border-white/10 text-[15px]" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
       <div className="max-w-6xl mx-auto px-4 pt-14 pb-8 flex flex-col gap-10">
         <div className="grid gap-10 grid-cols-2 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
           <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
             <span className="font-extrabold text-white text-2xl tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span> <span className="text-base font-semibold tracking-[0.18em] text-white/70">ACADEMIA</span></span>
             <span className="text-sm leading-relaxed max-w-[320px]">Software e IA. Desde 2009 · IA y tecnología aplicada, explicada simple, por quienes la ponen en producción en salud, gobierno, universidades, gremios y empresas.</span>
             <Redes oscuro />
-            <Link href="/cursos" className="self-start inline-flex items-center rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 min-h-[48px] font-bold text-white transition-colors no-underline">Empezá un curso</Link>
+            <Link href="/cursos" className="self-start inline-flex items-center rounded-xl bg-[var(--ac)] hover:bg-[var(--ac-hover)] px-5 min-h-[48px] font-bold text-white transition-colors no-underline">Empezá un curso</Link>
           </div>
           {COLUMNAS.map((c) => (
             <nav key={c.title} aria-label={c.title} className="flex flex-col gap-3">
