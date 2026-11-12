@@ -976,7 +976,12 @@ create index if not exists g_documentos_cat on g_documentos(categoria, actualiza
 alter table wa_mensajes add column if not exists meta_unico text;
 create unique index if not exists wa_mensajes_meta_unico on wa_mensajes(meta_unico);
 alter table wa_mensajes add column if not exists atendido_en timestamptz;
-alter table wa_chats add column if not exists turno_hasta timestamptz
+alter table wa_chats add column if not exists turno_hasta timestamptz;
+create index if not exists wa_mensajes_meta on wa_mensajes(meta_id);
+create index if not exists em_envios_contacto on em_envios(contacto_id);
+create index if not exists em_clics_envio on em_clics(envio_id, creado);
+create index if not exists db_contactos_consulta on db_contactos(consulta_id);
+create index if not exists db_reuniones_consulta on db_reuniones(consulta_id)
 `
 
 let ready: Promise<void> | null = null
