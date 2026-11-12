@@ -234,15 +234,58 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, 
   return { respuestas: [`Perdón, no llegué a entenderte 🙏 Elegí una opción escribiendo el número:\n${menuCorto}${n >= 2 ? "\n\nO contame con tus palabras qué necesitás y te ayudo." : ""}`], datos: d, derivar: false, estado: { ...est, datos: d, noEntendi: n } }
 }
 
-/** Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat). */
-export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp", origen: Origen | null = null) {
+const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+/**
+ * Turno del chat: un solo mensaje del mismo chat se responde a la vez. Si la persona manda dos o tres mensajes seguidos,
+ * cada webhook espera a que termine el anterior en vez de contestar todos en paralelo con lo mismo.
+ * El turno vence solo a los 60 s (lo que dura como máximo una ejecución). Si no se consigue en 25 s, o si la base
+ * da error, se sigue igual sin turno: el mensaje nunca queda sin atender.
+ */
+async function tomarTurno(e: Empresa, waId: string) {
+  try {
+    const hasta = Date.now() + 25000
+    for (;;) {
+      const mio = await one("update wa_chats set turno_hasta=now() + interval '60 seconds' where empresa=$1 and wa_id=$2 and (turno_hasta is null or turno_hasta < now()) returning 1", [e, waId])
+      if (mio) return true
+      if (Date.now() >= hasta) return false
+      await dormir(800)
+    }
+  } catch (err) {
+    console.error("bot: turno", err)
+    return false
+  }
+}
+
+/**
+ * Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat).
+ * Lo primero es guardar el mensaje; `opc.transcribir` (audios) corre después, con el mensaje, el chat y la consulta ya guardados.
+ */
+export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp", origen: Origen | null = null, opc: { transcribir?: () => Promise<string | null> } = {}) {
   const og = origen ?? desdeTexto(texto) ?? { fuente: canal === "instagram" ? "Instagram directo" : "WhatsApp directo" }
   texto = limpiarRef(texto)
   const roles = ["gerente", "coordinacion"]
   const marca = "DEVISEBIT"
   const red = canal === "instagram" ? "Instagram" : "WhatsApp"
-  if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return // reintento de Meta
-  await q("insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre) values ($1,$2,'cliente',$3,$4,$5,$6)", [e, waId, texto, tipo, metaId, perfil])
+  // El guardado es a la vez el control de reintentos de Meta: si el mensaje ya está, no se inserta y se corta acá
+  let mid: string
+  try {
+    const ins = await one<{ id: string }>(
+      `insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre,meta_unico)
+       select $1::text, $2::text, 'cliente', $3::text, $4::text, $5::text, $6::text, $5::text
+       where not exists (select 1 from wa_mensajes where meta_id=$5::text)
+       on conflict (meta_unico) do nothing
+       returning id`,
+      [e, waId, texto, tipo, metaId, perfil],
+    )
+    if (!ins) return // reintento de Meta
+    mid = String(ins.id)
+  } catch (err) {
+    // Respaldo: si esa sentencia fallara, se guarda como antes para no perder el mensaje
+    console.error("bot: guardado con control de duplicados", err)
+    if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return
+    mid = String((await one<{ id: string }>("insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre) values ($1,$2,'cliente',$3,$4,$5,$6) returning id", [e, waId, texto, tipo, metaId, perfil]))!.id)
+  }
   const chat = await one<{ consulta_id: number | null; bot_pausado_hasta: string | null; pausa_motivo: string | null; estado: Estado | null; ultimo_entrante: string | null }>(
     `insert into wa_chats(empresa,wa_id,nombre,ultimo_entrante) values ($1,$2,$3,now())
      on conflict (empresa,wa_id) do update set nombre=coalesce(excluded.nombre,wa_chats.nombre), actualizado=now()
@@ -250,24 +293,76 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
     [e, waId, perfil],
   )
   await q("update wa_chats set ultimo_entrante=now() where empresa=$1 and wa_id=$2", [e, waId])
-  const primero = !chat?.ultimo_entrante || Date.now() - new Date(chat.ultimo_entrante).getTime() > 12 * 3600e3
-  let est: Estado = primero ? {} : (chat?.estado ?? {})
 
   // Consulta en el CRM: la abierta de este chat, o una nueva
   let cid = chat?.consulta_id ?? null
+  const anterior = cid
   if (cid) {
     const c = await one<{ estado: string }>("select estado from consultas where id=$1", [cid])
-    if (!c || c.estado === "descartada") { cid = null; est = {} }
+    if (!c || c.estado === "descartada") cid = null
   }
+  let nueva = false
   if (!cid) {
     const n = await one<{ id: number }>("insert into consultas(empresa,canal,nombre,telefono,mensaje,chat_id,fuente,campania,origen_detalle) values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", [e, canal, perfil, canal === "whatsapp" ? "+" + waId : null, texto ?? `(${tipo})`, waId, og.fuente, og.campania ?? null, og.detalle ? JSON.stringify(og.detalle) : null])
-    cid = n!.id
+    // El chat toma la consulta solo si nadie se la puso mientras tanto: con dos o tres mensajes seguidos, una sola corrida gana y las demás usan la de ella
+    const gane = await one("update wa_chats set consulta_id=$1, estado=case when $4::int is null then estado else '{}'::jsonb end where empresa=$2 and wa_id=$3 and consulta_id is not distinct from $4::int returning 1", [n!.id, e, waId, anterior])
+    const actual = gane ? null : await one<{ consulta_id: number | null }>("select consulta_id from wa_chats where empresa=$1 and wa_id=$2", [e, waId])
+    if (!gane && actual?.consulta_id && actual.consulta_id !== n!.id && actual.consulta_id !== anterior) {
+      cid = actual.consulta_id
+      await q("delete from consultas where id=$1", [n!.id]).catch((err) => console.error("bot: consulta repetida sin borrar", n!.id, err))
+    } else {
+      cid = n!.id
+      nueva = true
+      if (!gane) await q("update wa_chats set consulta_id=$1 where empresa=$2 and wa_id=$3", [cid, e, waId])
+    }
+  }
+
+  // Audios: se transcriben recién ahora, con el mensaje ya guardado (si la transcripción falla o se corta, el mensaje y la consulta quedan igual)
+  if (opc.transcribir && !texto) {
+    const t = await opc.transcribir().catch((err) => { console.error("audio cliente", err); return null })
+    if (t) {
+      texto = t
+      await q("update wa_mensajes set texto=$1 where id=$2", [t, mid]).catch((err) => console.error("bot: transcripción sin guardar", err))
+      if (nueva) await q("update consultas set mensaje=$1 where id=$2 and mensaje=$3", [t, cid, `(${tipo})`]).catch(() => {})
+    }
+  }
+
+  if (nueva) {
     await notificar(roles, `💬 Nueva consulta por ${red} · ${marca}`, `${perfil ?? (canal === "whatsapp" ? "+" + waId : "Instagram")}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
-    await q("update wa_chats set consulta_id=$1 where empresa=$2 and wa_id=$3", [cid, e, waId])
   } else {
     await q("update consultas set actualizado=now() where id=$1", [cid])
     if (origen) await q("update consultas set fuente=$1, campania=coalesce($2,campania), origen_detalle=coalesce($3,origen_detalle) where id=$4 and coalesce(fuente,'') not in ('Google Ads','Meta Ads')", [og.fuente, og.campania ?? null, og.detalle ? JSON.stringify(og.detalle) : null, cid])
   }
+
+  const conTurno = await tomarTurno(e, waId)
+  try {
+    await responder(e, waId, perfil, texto, tipo, mid, canal, cid!, chat, anterior !== null && nueva)
+  } finally {
+    if (conTurno) await q("update wa_chats set turno_hasta=null where empresa=$1 and wa_id=$2", [e, waId]).catch(() => {})
+  }
+}
+
+type ChatBot = { consulta_id: number | null; bot_pausado_hasta: string | null; pausa_motivo: string | null; estado: Estado | null; ultimo_entrante: string | null }
+
+/** Segunda mitad de procesar(): decide si responde el bot y manda la respuesta. Corre con el turno del chat tomado. */
+async function responder(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, mid: string, canal: "whatsapp" | "instagram", cid: number, chat0: ChatBot | null, reinicio: boolean) {
+  const roles = ["gerente", "coordinacion"]
+  const marca = "DEVISEBIT"
+  const red = canal === "instagram" ? "Instagram" : "WhatsApp"
+  // Estado del chat leído con el turno tomado (otra corrida pudo cambiarlo mientras se esperaba). `visto`: una respuesta de la IA ya incluyó este mensaje.
+  const vivo = await one<ChatBot & { visto: boolean; primero: boolean }>(
+    `select c.consulta_id, c.bot_pausado_hasta, c.pausa_motivo, c.estado, c.ultimo_entrante,
+            (m.atendido_en is not null) visto,
+            not exists (select 1 from wa_mensajes x where x.empresa=c.empresa and x.wa_id=c.wa_id and x.autor='cliente' and x.id < m.id and x.creado > now() - interval '12 hours') primero
+       from wa_chats c join wa_mensajes m on m.id=$3
+      where c.empresa=$1 and c.wa_id=$2`,
+    [e, waId, mid],
+  ).catch((err) => { console.error("bot: estado del chat", err); return null })
+  const chat = vivo ?? chat0
+  // Primer mensaje en 12 horas: la conversación arranca de cero
+  const primero = vivo ? vivo.primero : !chat0?.ultimo_entrante || Date.now() - new Date(chat0.ultimo_entrante).getTime() > 12 * 3600e3
+  let est: Estado = primero || (reinicio && !vivo) ? {} : (chat?.estado ?? {})
+  if (vivo?.consulta_id) cid = vivo.consulta_id
 
   // Si una persona del equipo tomó el chat, el bot no interviene
   const pausado = chat?.bot_pausado_hasta && new Date(chat.bot_pausado_hasta).getTime() > Date.now() && chat.pausa_motivo === "equipo"
@@ -284,6 +379,8 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
   }
 
   let res: Resultado
+  // Mensajes del cliente que quedan respondidos con esta respuesta (este, y con la IA también los seguidos que leyó)
+  let atendidos: string[] = [mid]
   // Recursos con palabra clave (ej.: alguien escribe "GUIAS" desde un posteo): link al instante y se pide el email
   const rec = await recursoEnMensaje(texto).catch(() => null)
   const mailEnTexto = texto?.match(/[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}/i)?.[0] ?? null
@@ -311,7 +408,22 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
   } else if (tipo !== "text" && !texto) {
     res = { respuestas: ["¡Recibido! 📎 Lo revisa el equipo. ¿Me contás en un mensaje qué necesitás?"], datos: {}, derivar: false, estado: est }
   } else {
-    const hist = await q<{ autor: string; texto: string | null }>("select autor, texto from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '3 days' order by creado desc limit 30", [e, waId])
+    // Mensajes seguidos: si la respuesta que acaba de salir ya incluyó este mensaje, no se contesta dos veces lo mismo
+    if (vivo?.visto) return
+    // `pendiente`: mensajes del cliente todavía sin responder y recién llegados (este y los que entraron mientras se respondía otro).
+    // Van al final de la conversación que lee la IA, después de la última respuesta, para que los conteste juntos.
+    const hist = await q<{ id: string; autor: string; texto: string | null; tipo: string; pendiente: boolean }>(
+      `select id, autor, texto, tipo, (autor='cliente' and atendido_en is null and creado > now() - interval '90 seconds') pendiente
+         from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '3 days' order by creado desc, id desc limit 30`, [e, waId],
+    ).catch(async (err) => {
+      console.error("bot: historial", err)
+      return (await q<{ autor: string; texto: string | null }>("select autor, texto from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '3 days' order by creado desc limit 30", [e, waId])).map((m) => ({ ...m, id: "", tipo: "text", pendiente: false }))
+    })
+    hist.reverse()
+    const esPendiente = (m: { id: string; pendiente: boolean }) => m.pendiente || String(m.id) === mid
+    // Un audio de otro mensaje que todavía se está transcribiendo no entra: lo contesta su propia corrida cuando tenga el texto
+    const enEspera = (m: { id: string; pendiente: boolean; tipo: string; texto: string | null }) => m.pendiente && m.tipo === "audio" && !m.texto && String(m.id) !== mid
+    const conversacion = [...hist.filter((m) => !esPendiente(m)), ...hist.filter((m) => esPendiente(m) && !enEspera(m))]
     const brief = await linkBrief(cid).catch(() => null)
     const ya = await one<{ brief_en: string | null }>("select brief_en from consultas where id=$1", [cid])
     const cat = await catalogo().catch(() => [])
@@ -326,7 +438,10 @@ ${cat.map((s) => `- ${s.nombre}${s.rango ? `: ${s.rango}` : ""}${s.plazo ? ` · 
 Casos y trabajos: www.devisebit.com/trabajos · Productos: www.devisebit.com/productos
 ${yaReunion ? `Esta persona YA tiene una reunión agendada (${new Date(yaReunion.inicio).toISOString()}): no ofrezcas otra salvo que pida cambiarla.` : `HORARIOS LIBRES (clave → cómo decirlo): ${libres.map((s) => `${s.clave} → ${s.texto}`).join(" | ")}${agenda ? `\nLink de agenda de ESTA persona (para que elija otro horario): ${agenda}` : ""}`}
 ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; confirmale que la propuesta preliminar llega en 48 h hábiles y ofrecé la videollamada." : brief ? `Link del brief de ESTA persona (usalo tal cual): ${brief}` : ""}`
-    res = (await conIA(e, hist.reverse(), ctx)) ?? sinIA(e, texto ?? "", primero, est, brief, agenda)
+    const ia = await conIA(e, conversacion, ctx)
+    // Los mensajes que la IA leyó y contesta en esta respuesta (los audios todavía sin transcribir no cuentan)
+    if (ia) atendidos = [...new Set([mid, ...hist.filter((m) => m.id && esPendiente(m) && !(m.tipo === "audio" && !m.texto)).map((m) => String(m.id))])]
+    res = ia ?? sinIA(e, texto ?? "", primero, est, brief, agenda)
     if (res.reunion && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(res.reunion)) {
       const [f, h] = res.reunion.split("T")
       const rv = await reservar(cid, deLocal(f, h), { nombre: res.datos?.nombre ?? null, email: res.datos?.email ?? null }).catch(() => null)
@@ -364,10 +479,14 @@ ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; c
     if (resp) await q("update consultas set asignado=coalesce(asignado,$1) where id=$2", [resp.nombre, cid])
     await notificar(roles, res.pedidoHumano ? `🙋 Pide hablar con una persona · ${marca}` : `✅ Consulta lista para seguir · ${marca}`, `${resp ? `Para ${resp.nombre} · ` : ""}${quien}${v("motivo") ? ` — ${v("motivo")}` : ""}${v("organizacion") ? ` (${v("organizacion")})` : ""}`, `/consultas/${cid}`)
   }
+  let enviados = 0
   for (const r of res.respuestas) {
     const env = await enviarTexto(e, waId, r)
     await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ($1,$2,'bot',$3,$4,'Bit (asistente IA)')", [e, waId, env.ok ? r : `[no enviado: ${env.error}] ${r}`, env.ok ? env.id ?? null : null])
+    if (env.ok) enviados++
   }
+  // Quedan marcados los mensajes del cliente que esta respuesta contestó: los seguidos que ya entraron en ella no se vuelven a contestar
+  if (enviados) await q("update wa_mensajes set atendido_en=now() where id = any($1::bigint[]) and atendido_en is null", [atendidos]).catch((err) => console.error("bot: atendido", err))
 }
 
 /** Respuesta de una persona del equipo desde el CRM: el bot queda en pausa en ese chat. */

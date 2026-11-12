@@ -972,7 +972,11 @@ create index if not exists db_contactos_etapa on db_contactos(etapa, actualizado
 create index if not exists db_proyectos_estado on db_proyectos(estado, entrega);
 create index if not exists db_proyectos_contacto on db_proyectos(contacto_id);
 create index if not exists auditoria_ts on auditoria(ts desc);
-create index if not exists g_documentos_cat on g_documentos(categoria, actualizado desc)
+create index if not exists g_documentos_cat on g_documentos(categoria, actualizado desc);
+alter table wa_mensajes add column if not exists meta_unico text;
+create unique index if not exists wa_mensajes_meta_unico on wa_mensajes(meta_unico);
+alter table wa_mensajes add column if not exists atendido_en timestamptz;
+alter table wa_chats add column if not exists turno_hasta timestamptz
 `
 
 let ready: Promise<void> | null = null

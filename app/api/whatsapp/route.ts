@@ -59,14 +59,10 @@ export async function POST(req: NextRequest) {
       tareas.push(marcarLeido(e, m.id))
       // Julio (OFICINA_WA_NUMERO) le habla al jefe de gabinete: ordenes, audios y OK/NO a las propuestas. El resto sigue con Bit.
       if (esJulio(String(m.from ?? ""))) { tareas.push(jefePorWhatsApp(e, m).catch((err) => console.error("jefe wa", err))); continue }
-      tareas.push((async () => {
-        // Audios de clientes: se transcriben antes de pasar al bot (si falla, procesar() le pide que escriba y avisa al equipo)
-        let t: string | null = texto ?? null
-        if (m.type === "audio" && m.audio?.id) {
-          t = await bajarAudio(e, m.audio.id).then((au) => (au ? transcribir(au.buf, au.mime) : null)).catch((err) => { console.error("audio cliente", err); return null })
-        }
-        await procesar(e, m.from, perfiles[m.from] ?? null, t, m.type === "interactive" || m.type === "button" ? "text" : m.type, m.id, "whatsapp", desdeReferral(m.referral, "whatsapp"))
-      })().catch((err) => console.error("bot", err)))
+      // Audios de clientes: primero se guarda el mensaje (dentro de procesar) y después se transcribe; así, si la transcripción falla o se corta,
+      // el mensaje y la consulta ya quedaron guardados (procesar() le pide que escriba y avisa al equipo)
+      const transcribirAudio = m.type === "audio" && m.audio?.id ? () => bajarAudio(e, m.audio.id).then((au) => (au ? transcribir(au.buf, au.mime) : null)) : undefined
+      tareas.push(procesar(e, m.from, perfiles[m.from] ?? null, texto ?? null, m.type === "interactive" || m.type === "button" ? "text" : m.type, m.id, "whatsapp", desdeReferral(m.referral, "whatsapp"), { transcribir: transcribirAudio }).catch((err) => console.error("bot", err)))
     }
   }
   // Seguimiento a quienes no contestaron (como mucho cada 10 minutos)
