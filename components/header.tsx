@@ -95,7 +95,7 @@ export default function Header({ lang = "es" }: { lang?: Lang } = {}) {
     <header className={"fixed top-0 inset-x-0 z-50 bg-[#0B0D12]/95 backdrop-blur border-b border-white/10 lg:top-0 lg:pt-3 lg:h-[72px] lg:backdrop-blur-none lg:border-0 lg:pointer-events-none transition-colors " + (arriba ? "lg:bg-[#0B0D12]" : "lg:bg-transparent")}>
       <div className="max-w-[1240px] mx-auto px-4 md:px-8 h-[72px] flex items-center gap-4 xl:gap-6 lg:h-[58px] lg:w-fit lg:max-w-[calc(100vw-24px)] lg:rounded-full lg:border lg:border-white/15 lg:bg-[#0B0D12]/85 lg:backdrop-blur-xl lg:shadow-[0_14px_40px_rgba(0,0,0,.35)] lg:pl-5 lg:pr-2 lg:pointer-events-auto">
         <Link href={homeHref} className="flex items-center gap-2.5 text-white shrink-0" aria-label={L.home}>
-          <Image src="/images/devisebit-icon-transparent.png" alt="" width={32} height={32} className="w-8 h-8" />
+          <Image src="/images/devisebit-icon-96.png" alt="" width={32} height={32} className="w-8 h-8" />
           <span className="font-tight font-extrabold text-[22px] tracking-[0.04em]">DEVISE<span className="text-[#FF6A63]">BIT</span></span>
         </Link>
 
