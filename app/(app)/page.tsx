@@ -3,6 +3,7 @@ import { q } from "@/lib/db"
 import { requerir, puede } from "@/lib/auth"
 import { ETAPAS, etapa, estadoProy } from "@/lib/crm"
 import { fecha, hoyISO, pesos } from "@/lib/util"
+import { PASO_AL_CRM, GANADA } from "@/lib/consultas"
 import { local, calendarioConectado } from "@/lib/agenda"
 import { eventosCalendario, contactosPorEmail } from "@/lib/integraciones"
 import { Kpis, ParaHoy } from "@/components/Kpi"
@@ -25,10 +26,10 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
     q<{ fuente: string; leads: number; atendidas: number; contactos: number; ganados: number; campanias: string | null }>(
       `select coalesce(k.fuente,'Sin dato') fuente, count(*)::int leads,
               count(*) filter (where k.estado <> 'nueva')::int atendidas,
-              count(c.id)::int contactos,
-              count(c.id) filter (where c.etapa='ganado')::int ganados,
+              count(*) filter (where ${PASO_AL_CRM("k")})::int contactos,
+              count(*) filter (where ${GANADA("k")})::int ganados,
               string_agg(distinct k.campania, ' · ') campanias
-       from consultas k left join db_contactos c on c.consulta_id=k.id
+       from consultas k
        where k.creado > now() - make_interval(days => $1)
        group by 1 order by leads desc`, [dias]),
     q<any>("select r.*, k.organizacion from db_reuniones r left join consultas k on k.id=r.consulta_id where r.estado='confirmada' and r.fin > now() order by r.inicio limit 10"),
@@ -73,13 +74,13 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
 
       <section className="card flex flex-col gap-3" aria-label="De dónde llegan los clientes">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div><h2 className="m-0 text-base">De dónde llegan</h2><p className="m-0 text-xs text-[#4A515C]">Consultas por origen: publicidad (Google Ads, Meta Ads), orgánico y directo.</p></div>
+          <div><h2 className="m-0 text-base">De dónde llegan</h2><p className="m-0 text-xs text-[#4A515C]">Consultas por origen: publicidad (Google Ads, Meta Ads), orgánico y directo. «Pasaron al CRM» son las que ya tienen contacto comercial; «Ganadas», solo las que llegaron a la etapa Ganado.</p></div>
           <div className="flex gap-1">{[30, 90, 365].map((d) => <Link key={d} href={`/?dias=${d}`} className={`chip text-xs px-3 py-1 border ${dias === d ? "bg-[#0E1116] text-white border-[#0E1116]" : "bg-white border-[#C3C8D1]"}`}>{d === 365 ? "12 meses" : `${d} días`}</Link>)}</div>
         </div>
         {fuentes.length ? (
           <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
             <table className="tbl">
-              <thead><tr><th>Origen</th><th className="text-right">Consultas</th><th>Participación</th><th className="text-right">Atendidas</th><th className="text-right">Al CRM</th><th className="text-right">Ganadas</th><th>Campañas</th></tr></thead>
+              <thead><tr><th>Origen</th><th className="text-right">Consultas</th><th>Participación</th><th className="text-right">Atendidas</th><th className="text-right">Pasaron al CRM</th><th className="text-right">Ganadas</th><th>Campañas</th></tr></thead>
               <tbody>{fuentes.map((f) => (
                 <tr key={f.fuente}>
                   <td className={`font-semibold ${/Ads/.test(f.fuente) ? "text-[#C8231F]" : ""}`}>{f.fuente}</td>
