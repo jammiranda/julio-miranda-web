@@ -22,6 +22,9 @@ const PRIMEROS_PASOS = [
 
 const fh = (d: any) => new Date(d).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })
 
+/** "1 activo", "2 activos" */
+const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`
+
 export default async function Portal() {
   const c = await requerirCliente()
   const proyectos = await proyectosDe(c.id)
@@ -71,13 +74,13 @@ export default async function Portal() {
           </Link>
           <Link href="/portal/cursos" className="card hover:border-[#C8231F]">
             <span className="text-xs text-[#4A515C]">Cursos</span>
-            <strong className="block text-lg">{enCurso.length ? `${enCurso.length} en curso` : cursos.length ? `${cursos.length} completados` : "Ninguno"}</strong>
-            <span className="text-xs text-[#4A515C]">{cursos.filter((x) => x.certificado).length} certificados</span>
+            <strong className="block text-lg">{enCurso.length ? `${enCurso.length} en curso` : cursos.length ? `${cursos.length} ${cursos.length === 1 ? "completado" : "completados"}` : "Ninguno"}</strong>
+            <span className="text-xs text-[#4A515C]">{plural(cursos.filter((x) => x.certificado).length, "certificado", "certificados")}</span>
           </Link>
           <a href="#t-proy" className="card hover:border-[#C8231F]">
             <span className="text-xs text-[#4A515C]">Proyectos</span>
-            <strong className="block text-lg">{proyectos.filter((p) => p.estado !== "terminado").length} activos</strong>
-            <span className="text-xs text-[#4A515C]">{proyectos.filter((p) => p.estado === "terminado").length} entregados</span>
+            <strong className="block text-lg">{plural(proyectos.filter((p) => p.estado !== "terminado").length, "activo", "activos")}</strong>
+            <span className="text-xs text-[#4A515C]">{plural(proyectos.filter((p) => p.estado === "terminado").length, "entregado", "entregados")}</span>
           </a>
         </div>
       )}

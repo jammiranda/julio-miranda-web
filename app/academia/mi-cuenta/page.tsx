@@ -41,7 +41,7 @@ export default async function MiCuentaAcademia() {
         </div>
         {ins.length > 0 && (
           <dl className="m-0 mt-6 grid grid-cols-3 gap-3 max-w-lg">
-            {[[enCurso.length, "en curso"], [ins.filter((x) => x.certificado).length, "certificados"], [clases.length, "clases próximas"]].map(([n, t]) => (
+            {[[enCurso.length, "en curso"], [ins.filter((x) => x.certificado).length, ins.filter((x) => x.certificado).length === 1 ? "certificado" : "certificados"], [clases.length, clases.length === 1 ? "clase próxima" : "clases próximas"]].map(([n, t]) => (
               <div key={t as string} className="rounded-2xl bg-white/12 px-3 py-2.5"><dd className="m-0 text-2xl font-bold leading-none" style={{ fontFamily: "var(--fuente-titulos)" }}>{n}</dd><dt className="text-xs text-white/80 mt-1">{t}</dt></div>
             ))}
           </dl>

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { estadoInsc, modalidad, tipoLeccion, urlCertificado, embedVideo, descargaAula, quizDe, pesos, dolares, textoCuotas, textoGratis, type BaseAula, type Avance } from "@/lib/cursos"
+import { estadoInsc, modalidad, modalidadYEdicion, tipoLeccion, urlCertificado, embedVideo, descargaAula, quizDe, pesos, dolares, textoCuotas, textoGratis, type BaseAula, type Avance } from "@/lib/cursos"
 import { mdWeb, URL_ACADEMIA } from "@/lib/academia"
 import { firmaCurso } from "@/lib/portadas"
 import { completarLeccion, pedirVideollamada } from "@/lib/aula-acciones"
@@ -90,7 +90,7 @@ export function TarjetasCursos({ ins, base }: { ins: any[]; base: BaseAula }) {
               {x.av.lecciones > 0 ? <Anillo pct={x.av.pctLecciones} size={58} /> : <span className="w-[58px] h-[58px] shrink-0 rounded-full bg-[var(--ac-suave)] text-[var(--ac-texto)] flex items-center justify-center"><Tilde className="w-6 h-6" /></span>}
               <div className="min-w-0">
                 <strong className="block text-[17px] leading-snug" style={TIT}>{x.titulo}</strong>
-                <span className="text-sm text-[#4A515C]">{modalidad(x.modalidad)} · {x.edicion}</span>
+                <span className="text-sm text-[#4A515C]">{modalidadYEdicion(x.modalidad, x.edicion)}</span>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -184,7 +184,7 @@ export function AulaCurso({ base, i, lecciones, av, clases, volver, aprobadoReci
       <section className="aula-hero" aria-labelledby="t-curso">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex-1 min-w-[15rem] flex flex-col gap-3">
-            <p className="m-0 aula-eyebrow">{modalidad(i.modalidad)} · {i.edicion}</p>
+            <p className="m-0 aula-eyebrow">{modalidadYEdicion(i.modalidad, i.edicion)}</p>
             <h1 id="t-curso" className="m-0">{i.titulo}</h1>
             {i.docente && <p className="m-0 text-[15px] text-white/80">{firmaCurso(i.docente_slug)} {i.docente}</p>}
             <div className="flex flex-wrap items-center gap-3 pt-1">
