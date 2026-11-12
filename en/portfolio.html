@@ -124,7 +124,7 @@ footer a{color:var(--accent)}
   <div class="stat" role="listitem"><b data-n="17">17</b><span>years building technology</span></div>
   <div class="stat" role="listitem"><b data-n="31">31</b><span>featured cases</span></div>
   <div class="stat" role="listitem"><b data-n="123">123</b><span>sites and platforms in the archive</span></div>
-  <div class="stat" role="listitem"><b data-n="8">8</b><span>sectors, from healthcare to government</span></div>
+  <div class="stat" role="listitem"><b data-n="7" id="nsec">7</b><span>sectors, from healthcare to government</span></div>
 </div>
 
 <section aria-labelledby="t-tl">
@@ -201,6 +201,8 @@ $("play").onclick=()=>{if(timer){stop();return}year=Y0;render();$("play").textCo
 $("all").onclick=()=>{stop();year=null;sec="All";q="";$("q").value="";document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c.textContent==="All"));render()};
 $("q").addEventListener("input",e=>{q=norm(e.target.value.trim());render()});
 render();
+// la cantidad de sectores sale de los datos, no de un número escrito a mano
+{const n=new Set([...CASES,...WALL].map(it=>it.s)).size;$("nsec").dataset.n=n;$("nsec").textContent=n}
 // typing terminal
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(!reduce){const doms=["catamarcagrande.com","datamarca.com","catamarcaexporta.gob.ar","iplido.org.ar","urologiauba.com","elsuizoturismo.com.ar","red-federal-monitoreo-ambiental","academia-ba-emprende","expo-uba-posgrados","centro-sagrado-corazon"];let i=0;
