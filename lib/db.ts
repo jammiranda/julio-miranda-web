@@ -1184,7 +1184,16 @@ update g_movimientos set categoria='Abonos y mantenimiento', nota=coalesce(nota|
  where tipo='ingreso' and concepto='CONSULTORA SN' and monto=4000000 and not exists (select 1 from config where clave='seed_clientes_abonos_2026_11');
 update g_movimientos set categoria='Abonos y mantenimiento', nota=coalesce(nota||' · ','')||'Abono mensual de noviembre.'
  where tipo='ingreso' and concepto='App Soy Tigre' and monto=1400000 and not exists (select 1 from config where clave='seed_clientes_abonos_2026_11');
-insert into config(clave,valor) values ('seed_clientes_abonos_2026_11','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_clientes_abonos_2026_11','ok') on conflict (clave) do nothing;
+insert into db_cobros(contacto_id,proyecto_id,tipo,concepto,monto,moneda,vence,periodo,estado,pagado_en,nota,creado_por)
+select p.contacto_id,p.id,'abono','Abono mensual 2026-10 · '||p.nombre,v.monto::numeric,'ARS','2026-10-10','2026-10',v.estado,v.pagado::timestamptz,v.nota,'finanzas'
+from (values
+ ('App Soy Tigre · abono mensual','1400000','pagado','2026-10-10 12:00-03','Cobrado en octubre (fecha aproximada).'),
+ ('Consultora SN · abono mensual','3000000','pendiente',null,'Octubre no se cobró.')
+) v(nombre,monto,estado,pagado,nota) join db_proyectos p on p.nombre=v.nombre
+where not exists (select 1 from config where clave='seed_cobros_octubre_2026')
+on conflict (proyecto_id, periodo) where tipo='abono' and estado<>'anulado' do nothing;
+insert into config(clave,valor) values ('seed_cobros_octubre_2026','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
