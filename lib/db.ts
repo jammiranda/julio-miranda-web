@@ -1147,7 +1147,16 @@ select 'egreso',v.concepto,v.categoria,v.monto::numeric,'ARS',v.estado,v.fecha::
 ) v(concepto,categoria,monto,estado,fecha,vence,medio,externo_id,prov,nota,ambito,origen)
 where not exists (select 1 from config where clave='seed_finanzas_mp_nov_2026')
 on conflict (externo_id) where externo_id is not null do nothing;
-insert into config(clave,valor) values ('seed_finanzas_mp_nov_2026','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_finanzas_mp_nov_2026','ok') on conflict (clave) do nothing;
+update g_movimientos set estado='anulado', nota='Unificado en un solo gasto de $400.000 (el estudio cobra todo junto).', actualizado=now()
+ where externo_id in ('pre:2026-11:mg-personal','pre:2026-12:mg-personal') and not exists (select 1 from config where clave='seed_finanzas_mg_unico');
+update g_movimientos set monto=400000, ambito='laboral', concepto=replace(concepto,'(parte DEVISEBIT)','(DEVISEBIT, Julio y Georgina)'),
+  nota='Honorarios mensuales del estudio por DEVISEBIT, Julio y Georgina. Se paga todo junto como un solo gasto.', actualizado=now()
+ where externo_id in ('pre:2026-11:mg-devisebit','pre:2026-12:mg-devisebit') and not exists (select 1 from config where clave='seed_finanzas_mg_unico');
+update g_movimientos set nota='Oficina en Gd Work SA. Pago único de noviembre por Mercado Pago ($416.000).', actualizado=now()
+ where externo_id='mp:act:2026-11-10:gdwork:416000' and not exists (select 1 from config where clave='seed_finanzas_mg_unico');
+update g_proveedores set notas='Mari Godoy. $400.000 por mes, todo junto (DEVISEBIT, Julio y Georgina).' where nombre='Estudio contable MG' and not exists (select 1 from config where clave='seed_finanzas_mg_unico');
+insert into config(clave,valor) values ('seed_finanzas_mg_unico','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
