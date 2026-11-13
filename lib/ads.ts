@@ -64,13 +64,13 @@ export async function resumenAds() {
     q<{ plataforma: string; u: string }>(`select plataforma, to_char(max(actualizado) at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD HH24:MI') u from ads_diario group by plataforma`),
   ])
   const cuentasG = await q<{ cuenta: string; gasto: number; ultimo_dia: string; actualizado: string }>(
-    `select case when campania_id like '%:%' then split_part(campania_id,':',1) else '' end cuenta, sum(gasto) filter (where fecha > current_date - 30)::float gasto,
+    `select case when campania_id like '%:%' then split_part(campania_id,':',1) else '5013353550' end cuenta, sum(gasto) filter (where fecha > current_date - 30)::float gasto,
             to_char(max(fecha),'YYYY-MM-DD') ultimo_dia, to_char(max(actualizado) at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD HH24:MI') actualizado
      from ads_diario where plataforma='google' group by 1`,
   ).catch(() => [])
   const hoy = new Date().toISOString().slice(0, 10)
   const diasDesde = (d: string | null | undefined) => (d ? Math.round((Date.parse(hoy) - Date.parse(d)) / 864e5) : null)
-  // Qué cuentas de Google están mandando datos. Las filas viejas sin cuenta se muestran aparte.
+  // Qué cuentas de Google están mandando datos. Las filas viejas sin cuenta son todas de la cuenta 1 (la cuenta 2 no tenía script hasta el 13/11).
   const cuentasGoogle = [
     ...Object.entries(CUENTAS_GOOGLE).map(([id, nombre]) => {
       const c = cuentasG.find((x) => x.cuenta === id)
@@ -95,6 +95,6 @@ export async function resumenAds() {
       costoPorConsulta: x && c?.c ? Math.round(x.gasto / c.c) : null,
     }
   })
-  const campanias = camp.map((c) => ({ ...c, cuenta: c.plataforma === "google" ? (CUENTAS_GOOGLE[String((c as any).campania_id ?? "").split(":")[0]] ?? null) : null }))
+  const campanias = camp.map((c) => ({ ...c, cuenta: c.plataforma === "google" ? (CUENTAS_GOOGLE[String((c as any).campania_id ?? "").includes(":") ? String((c as any).campania_id).split(":")[0] : "5013353550"] ?? null) : null }))
   return { periodo: "30 días", plataformas, dias, campanias, cuentasGoogle, metaConClaves: !!(process.env.META_ADS_TOKEN && process.env.META_AD_ACCOUNT_ID), nota: "Inversión y clics vienen de cada plataforma; las consultas son las que entraron al sistema marcadas como Google Ads o Meta Ads." }
 }

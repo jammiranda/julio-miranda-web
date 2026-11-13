@@ -1,4 +1,5 @@
-import { resumenAds } from "@/lib/ads"
+import { resumenAds, sincronizarMeta } from "@/lib/ads"
+import { one } from "@/lib/db"
 import { seguimientos } from "@/lib/ads-seguimiento"
 import { safe } from "@/lib/panel"
 import { acceso, Head, Kpi, Columnas, SinDatos, fmt, plata, fechaCorta, fechaHora } from "../_ui"
@@ -63,6 +64,13 @@ export const dynamic = "force-dynamic"
 
 export default async function Anuncios() {
   if (!(await acceso())) return null
+  // Meta se sincroniza con el cron diario (8 h). Si ya hay claves pero todavía no hay datos de Meta, se trae al abrir la pantalla
+  // (una sola vez: después ya hay filas) y si Meta devuelve un error se muestra en la tarjeta.
+  let avisoMeta: string | null = null
+  if (process.env.META_ADS_TOKEN && process.env.META_AD_ACCOUNT_ID) {
+    const hay = await one("select 1 from ads_diario where plataforma='meta' and fecha > current_date - 30 limit 1").catch(() => ({}))
+    if (!hay) { const r = await sincronizarMeta().catch((e) => String(e)); if (!/^meta: \d+ filas$/.test(r)) avisoMeta = r }
+  }
   const a = await safe(resumenAds())
   if (!a) return (<><Head t="Anuncios" /><SinDatos>No se pudieron leer los datos de anuncios.</SinDatos></>)
   const hay = a.plataformas.some((p) => p.gasto > 0 || p.impresiones > 0)
@@ -85,7 +93,7 @@ export default async function Anuncios() {
                 <Kpi k="Consultas" v={fmt(p.consultas)} ft={`${fmt(p.consultasAtendidas)} atendidas · ${fmt(p.pasaronCrm)} al CRM · ${fmt(p.ventas)} ganadas`} color="var(--ok)" />
                 <Kpi k="Costo por consulta" v={p.costoPorConsulta != null ? plata(p.costoPorConsulta, p.moneda) : null} />
               </div>
-            ) : <div className="pc-empty">{p.plataforma === "meta" ? (a.metaConClaves ? "Meta Ads está conectado pero no informó inversión en los últimos 30 días." : "Meta Ads todavía no está conectado: faltan las claves META_ADS_TOKEN y META_AD_ACCOUNT_ID en Vercel. Hasta que se carguen, la inversión de Meta solo aparece en los controles de la bitácora, arriba, y puede estar desactualizada.") : "Sin inversión registrada en los últimos 30 días."}</div>}
+            ) : <div className="pc-empty">{p.plataforma === "meta" ? (a.metaConClaves ? (avisoMeta ? `Meta Ads tiene las claves cargadas pero no se pudieron traer los datos (${avisoMeta}).` : "Meta Ads está conectado pero no informó inversión en los últimos 30 días.") : "Meta Ads todavía no está conectado: faltan las claves META_ADS_TOKEN y META_AD_ACCOUNT_ID en Vercel. Hasta que se carguen, la inversión de Meta solo aparece en los controles de la bitácora, arriba, y puede estar desactualizada.") : "Sin inversión registrada en los últimos 30 días."}</div>}
             {p.plataforma === "google" && (
               <div className="pc-list" style={{ marginTop: 10 }}>
                 {a.cuentasGoogle.map((c) => (

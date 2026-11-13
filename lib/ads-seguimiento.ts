@@ -82,7 +82,9 @@ export async function seguimientos() {
     const ult = controles[controles.length - 1]?.datos ?? null
     const usosHoy = await usosPalabra(s.base_palabra)
     const ahora = Date.now()
-    const ini = s.inicio ? new Date(s.inicio).getTime() : null, fin = s.fin ? new Date(s.fin).getTime() : null
+    // to_char con OF da "-03" sin minutos y new Date() no lo entiende (NaN): se completa a "-03:00".
+    const ms = (x: string | null) => { if (!x) return null; const t = new Date(x.replace(/([+-]\d\d)$/, "$1:00")).getTime(); return Number.isNaN(t) ? null : t }
+    const ini = ms(s.inicio), fin = ms(s.fin)
     const diasTotal = ini && fin ? Math.max(1, Math.round((fin - ini) / 864e5)) : null
     const diasCorridos = ini ? Math.min(diasTotal ?? Infinity, Math.max(0, Math.floor((ahora - ini) / 864e5))) : null
     // Una campaña cuya fecha de fin ya pasó se muestra como terminada aunque nadie haya cambiado el estado a mano,
