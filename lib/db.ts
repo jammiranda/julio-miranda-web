@@ -992,7 +992,52 @@ create index if not exists wa_mensajes_meta on wa_mensajes(meta_id);
 create index if not exists em_envios_contacto on em_envios(contacto_id);
 create index if not exists em_clics_envio on em_clics(envio_id, creado);
 create index if not exists db_contactos_consulta on db_contactos(consulta_id);
-create index if not exists db_reuniones_consulta on db_reuniones(consulta_id)
+create index if not exists db_reuniones_consulta on db_reuniones(consulta_id);
+alter table g_movimientos add column if not exists ambito text;
+alter table g_movimientos add column if not exists origen text;
+create table if not exists g_reglas (
+  id serial primary key, patron text not null unique, categoria text, ambito text not null default 'laboral',
+  proveedor text, nota text, creado timestamptz not null default now()
+);
+insert into g_reglas(patron,categoria,ambito,proveedor,nota) values
+ ('google ads','Publicidad','laboral','Google Ads','Cuenta 1 (501-335-3550) prepago y cuenta 2 (346-016-2490) con Mastercard Galicia'),
+ ('google*ads','Publicidad','laboral','Google Ads',null),
+ ('google *ads','Publicidad','laboral','Google Ads',null),
+ ('facebk','Publicidad','laboral','Meta (Facebook e Instagram)',null),
+ ('facebook','Publicidad','laboral','Meta (Facebook e Instagram)',null),
+ ('meta platforms','Publicidad','laboral','Meta (Facebook e Instagram)',null),
+ ('vercel','Software y servicios','laboral','Vercel',null),
+ ('anthropic','Software y servicios','laboral','Anthropic (Claude)',null),
+ ('claude.ai','Software y servicios','laboral','Anthropic (Claude)',null),
+ ('donweb','Hosting y dominios','laboral','Donweb',null),
+ ('dattatec','Hosting y dominios','laboral','Donweb',null)
+on conflict (patron) do nothing;
+insert into g_proveedores(nombre,rubro,condicion_iva,notas,creado_por)
+select v.nombre,v.rubro,v.iva,v.notas,'finanzas' from (values
+ ('Google Ads','Publicidad','Exterior','Cuenta 1 (501-335-3550): prepago. Cuenta 2 (346-016-2490): Mastercard Galicia terminada en 9827, cobra cada $20.000.'),
+ ('Meta (Facebook e Instagram)','Publicidad','Exterior','Anuncios de DEVISEBIT con tarjeta.'),
+ ('Vercel','Infraestructura y hosting de sistemas','Exterior','Plan Pro, se cobra en dólares.'),
+ ('Anthropic (Claude)','Software e IA','Exterior','Suscripción y uso de la API.')
+) v(nombre,rubro,iva,notas)
+where not exists (select 1 from g_proveedores p where p.nombre=v.nombre);
+update g_movimientos set ambito='laboral' where ambito is null and creado_por='donweb';
+insert into g_movimientos(tipo,concepto,categoria,monto,moneda,estado,fecha,vence,medio,externo_id,proveedor_id,nota,ambito,origen,creado_por)
+select v.tipo,v.concepto,v.categoria,v.monto::numeric,v.moneda,v.estado,v.fecha::date,v.vence::date,v.medio,v.externo_id,(select id from g_proveedores where nombre=v.prov limit 1),v.nota,'laboral','precarga','finanzas' from (values
+  ('egreso','Google Ads cuenta 1 · consumo del prepago (al 13/11)','Publicidad','138867','ARS','pagado','2026-11-13',null,'Prepago Google Ads','pre:2026-11:gads1-consumo','Google Ads','PREPAGO. Sale de los $250.000 cargados el 30/10 (ese pago es de octubre). Quedan $111.133 y alcanzan hasta cerca del 23/11 a unos $10.700 por día. Actualizar el monto al cierre del mes.'),
+  ('egreso','Google Ads cuenta 2 · cobros con Mastercard Galicia','Publicidad','55000','ARS','pagado','2026-11-13',null,'Mastercard Galicia','pre:2026-11:gads2-cobrado','Google Ads','TARJETA Mastercard Galicia terminada en 9827. Google cobra cada $20.000. Gastado en noviembre al 13/11: $60.482.'),
+  ('egreso','Google Ads cuenta 2 · saldo a cobrar en la tarjeta','Publicidad','5482','ARS','pendiente',null,'2026-12-01','Mastercard Galicia','pre:2026-11:gads2-pendiente','Google Ads','TARJETA. Se cobra el 1/12 o antes si llega a $20.000. Crece con el gasto del mes.'),
+  ('egreso','Meta Ads · gasto de anuncios (a confirmar en la tarjeta)','Publicidad','20400','ARS','pendiente',null,'2026-11-30','Tarjeta','pre:2026-11:meta','Meta (Facebook e Instagram)','Gasto de los últimos 30 días. Falta ver cuánto ya se cobró en la tarjeta y cuánto queda.'),
+  ('egreso','Vercel · factura pendiente (pago rechazado)','Software y servicios','58.13','USD','pendiente',null,'2026-11-15','Tarjeta','pre:2026-11:vercel','Vercel','El cobro de US$ 58,13 falló el 2, 5, 7 y 11/11. Hay pedido de revisión a Vercel.'),
+  ('egreso','Donweb · plan revendedor de noviembre','Hosting y dominios','47218','ARS','pendiente',null,'2026-11-21','Tarjeta','pre:2026-11:donweb','Donweb','Factura mensual. En octubre se cobró el 21.'),
+  ('egreso','Google Ads cuenta 1 · prepago de diciembre (estimado)','Publicidad','250000','ARS','pendiente',null,'2026-11-23','Prepago Google Ads','pre:2026-12:gads1-recarga','Google Ads','ESTIMADO. Recarga del prepago si se sigue con la cuenta 1. El saldo actual se termina cerca del 23/11. Confirmar monto antes de cargar.'),
+  ('egreso','Google Ads cuenta 2 · tarjeta de diciembre (estimado)','Publicidad','60000','ARS','pendiente',null,'2026-12-31','Mastercard Galicia','pre:2026-12:gads2','Google Ads','ESTIMADO con el ritmo de noviembre. Se cobra de a $20.000.'),
+  ('egreso','Meta Ads · diciembre (estimado)','Publicidad','20400','ARS','pendiente',null,'2026-12-31','Tarjeta','pre:2026-12:meta','Meta (Facebook e Instagram)','ESTIMADO con el gasto de los últimos 30 días.'),
+  ('egreso','Vercel · plan Pro de diciembre (estimado)','Software y servicios','58.13','USD','pendiente',null,'2026-12-02','Tarjeta','pre:2026-12:vercel','Vercel','ESTIMADO con la factura anterior. El monto real depende del uso.'),
+  ('egreso','Donweb · plan revendedor de diciembre','Hosting y dominios','47218','ARS','pendiente',null,'2026-12-21','Tarjeta','pre:2026-12:donweb','Donweb','Factura mensual.')
+) v(tipo,concepto,categoria,monto,moneda,estado,fecha,vence,medio,externo_id,prov,nota)
+where not exists (select 1 from config where clave='seed_finanzas_nov_dic_2026')
+on conflict (externo_id) where externo_id is not null do nothing;
+insert into config(clave,valor) values ('seed_finanzas_nov_dic_2026','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
