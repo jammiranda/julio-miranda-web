@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 
 type Item = { id: string; t: string }
 
@@ -84,7 +85,7 @@ export default function Indice({ sel = "h2", filtra, placeholder = "Buscar en es
           </ul>
         ))}
       </nav>
-      {arriba && <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="indice-arriba no-print" aria-label="Volver arriba">↑ Arriba</button>}
+      {arriba && createPortal(<button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="indice-arriba no-print" aria-label="Volver arriba">↑ Arriba</button>, document.body)}
     </>
   )
 }
