@@ -2,6 +2,8 @@
 
 Última actualización: 13/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (431 cambios publicados desde el 17 de octubre).
 
+**Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
+
 Este documento responde una sola pregunta: **en qué versión está cada cosa y qué cambió en cada versión**. Hasta hoy nada tenía número; acá se le pone número a todo, hacia atrás, y queda la regla para seguir.
 
 ---
@@ -12,7 +14,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|---|---|
 | Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Página interna para bajar los 17 videos al celular y copiar el texto de TikTok |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.7.0** | 13/11/2026 | Menú reorganizado: Documentos en tres estantes, Base Tigre junto a Envíos, piezas de redes en un solo lugar |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.8.0** | 13/11/2026 | Centro de ayuda nuevo, «Próximos envíos» y calendario de vencimientos para Google Calendar |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
@@ -31,7 +33,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|
 | Sitio web DEVISEBIT | 86 | 9 |
 | Landings de anuncios | 11 | 4 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 152 | 19 |
+| Sistema (CRM y gestión) | 153 | 20 |
 | Bot de WhatsApp (Bit) | 21 | 8 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
@@ -97,10 +99,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-152 cambios · 19 versiones · versión actual **3.7.0**
+153 cambios · 20 versiones · versión actual **3.8.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **3.8.0** | 13/11/2026 | • Ayuda pasa a ser un Centro de ayuda: buscador, accesos por tarea y guías paso a paso que se abren de a una<br>• Envíos de email: bloque «Próximos envíos» con lo que está saliendo y lo que está preparado<br>• Activos digitales: link de calendario para que los vencimientos aparezcan solos en Google Calendar, con aviso 7 días antes | Novedad | `96bfdde..96bfdde` (1) |
 | **3.7.0** | 13/11/2026 | • Documentos queda en tres estantes: «Para clientes», «De la empresa» y «Contratos y legales»; el «Archivo de Drive» pasa al final<br>• «Envíos · Base Tigre» va al lado de Envíos de email<br>• «Correo» sale del menú hasta que vuelva a leer Gmail<br>• Piezas para redes: galería con buscador que suma las placas por producto (ya no están mezcladas con el material de venta)<br>• Finanzas: un movimiento pagado sin fecha cuenta en el mes en que se cargó | Mejora | `4950768..1696554` (2) |
 | **3.6.1** | 13/11/2026 | • «Para hoy»: los avisos ya no se cortan con la ventana angosta<br>• Los números grandes (Finanzas) entran en su tarjeta<br>• Contactos y Conversaciones en el celular: cada fila es una ficha<br>• Finanzas: botón Exportar con todos los movimientos<br>• Contratos: pie con línea roja y DEVISEBIT SRL<br>• Envíos de email: el cartel de la campaña destacada solo aparece mientras está en curso<br>• Documentos: el error de permisos de Drive se explica en castellano | Corrección | `4790668..5b79804` (2) |
 | **3.6.0** | 13/11/2026 | • Barra fija nueva en las pantallas largas (Material, Precios, Documentos de la empresa, Bot, Versiones, Tablero de dirección, Resumen comercial): índice de secciones, buscador que filtra al instante y botón para volver arriba<br>• Buscador al instante también en Prospección y Auditoría<br>• Resumen comercial: «Para hoy» suma los avisos de Prospección (respondieron, mensajes para enviar hoy, seguimientos) y los contactos por clasificar<br>• Contactos: 100 por página con el total a la vista; abre más rápido<br>• Tablero de dirección: ya no se sale del ancho de la pantalla<br>• Accesibilidad: el foco del teclado se ve en todos los botones y links | Mejora | `b20bf0f..09dd371` (2) |
