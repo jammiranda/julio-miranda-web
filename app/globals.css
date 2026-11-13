@@ -476,3 +476,9 @@ tr[aria-selected="true"], li[aria-selected="true"] { background: var(--ac-suave)
 .progreso { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100; background: var(--ac); transform-origin: left; animation: progreso 8s cubic-bezier(.1, .7, .1, 1) forwards; }
 @keyframes progreso { from { transform: scaleX(0); } 20% { transform: scaleX(.6); } to { transform: scaleX(.95); } }
 @media (prefers-reduced-motion: reduce) { .progreso { animation: none; transform: scaleX(.8); } }
+
+/* Tablas anchas: la última columna, cuando tiene los botones de la fila, queda fija a la derecha.
+   Así las acciones se alcanzan sin mover la barra horizontal. */
+:where([data-espacio] .tbl tbody tr) { background: var(--sup); }
+[data-espacio] .tbl :where(td:last-child:has(.btn-s, .btn-p, button)) { position: sticky; right: 0; background: inherit; box-shadow: -10px 0 12px -12px rgba(14, 17, 22, .28); }
+

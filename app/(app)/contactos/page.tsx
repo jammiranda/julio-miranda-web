@@ -10,6 +10,18 @@ import ContactosTabla from "@/components/ContactosTabla"
 
 export const dynamic = "force-dynamic"
 
+// Con qué dato se puede contactar a cada uno. El perfil de LinkedIn se guarda en las notas al importar la red.
+const TIENE_EMAIL = "(c.email ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$')"
+const TIENE_TEL = "(length(regexp_replace(coalesce(c.telefono,''), '[^0-9]', '', 'g')) >= 8)"
+const TIENE_LI = "(coalesce(c.notas,'') ilike '%linkedin.com/in/%')"
+const DATOS = [
+  { v: "", n: "Todos", d: "Sin filtrar por dato de contacto" },
+  { v: "email", n: "Con email", d: "Sirven para campañas de email" },
+  { v: "telefono", n: "Con teléfono", d: "Sirven para mensajes y llamados" },
+  { v: "linkedin", n: "Solo LinkedIn", d: "Sin email ni teléfono, pero con perfil de LinkedIn: se les escribe por privado" },
+  { v: "nada", n: "Sin datos", d: "Sin email, teléfono ni perfil: no hay cómo contactarlos" },
+]
+
 /** Cambios en lote: editar etapa, sector o próximo paso, o eliminar varios contactos. */
 async function masivo(fd: FormData) {
   "use server"
@@ -54,7 +66,7 @@ async function masivo(fd: FormData) {
   redirect("/contactos")
 }
 
-export default async function Contactos({ searchParams }: { searchParams: { etapa?: string; b?: string; msg?: string; n?: string; lista?: string; canal?: string } }) {
+export default async function Contactos({ searchParams }: { searchParams: { etapa?: string; b?: string; msg?: string; n?: string; lista?: string; canal?: string; datos?: string } }) {
   const u = await requerir()
   const et = ETAPAS.some((e) => e.v === searchParams.etapa) ? searchParams.etapa! : null
   const lista = esClase(searchParams.lista) ? searchParams.lista : null
@@ -62,20 +74,29 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
   // Por defecto los contactos que llegaron por redes van aparte (pedido de Julio, 13/11/2026): no se mezclan con los directos.
   const canal = esCanal(searchParams.canal) ? searchParams.canal : "directos"
   const canalSQL = canal === "redes" ? `and ${SQL_DE_REDES}` : canal === "directos" ? `and not ${SQL_DE_REDES}` : ""
+  // Con qué se lo puede contactar (pedido de Julio, 12/11/2026): email, teléfono, solo perfil de LinkedIn o nada.
+  const datos = DATOS.some((x) => x.v === searchParams.datos) ? searchParams.datos! : ""
+  const datosSQL = datos === "email" ? `and ${TIENE_EMAIL}` : datos === "telefono" ? `and ${TIENE_TEL}` : datos === "linkedin" ? `and not ${TIENE_EMAIL} and not ${TIENE_TEL} and ${TIENE_LI}` : datos === "nada" ? `and not ${TIENE_EMAIL} and not ${TIENE_TEL} and not ${TIENE_LI}` : ""
   // Conteos y lista en paralelo (antes, una consulta esperaba a la otra)
-  const [cuentas, rows, porCanal, sinClas] = await Promise.all([
+  const [cuentas, rows, porCanal, sinClas, porDatos] = await Promise.all([
     q<{ clase: string | null; n: number }>(`select clase, count(*)::int n from db_contactos c where true ${canalSQL} group by clase`),
     q<any>(
     `select c.*, (select count(*)::int from db_proyectos p where p.contacto_id=c.id) proyectos from db_contactos c
      where c.clase is not null and (case when $3::text is null then c.clase<>'descartado' else c.clase=$3 end)
-       and ($1::text is null or etapa=$1) ${canalSQL}
+       and ($1::text is null or etapa=$1) ${canalSQL} ${datosSQL}
        and ($2='' or nombre ilike '%'||$2||'%' or organizacion ilike '%'||$2||'%' or email ilike '%'||$2||'%' or telefono ilike '%'||$2||'%')
      order by actualizado desc limit 500`,
     [et, b, lista],
   ),
     q<{ redes: boolean; n: number }>(`select ${SQL_DE_REDES} redes, count(*)::int n from db_contactos c where c.clase is not null and (case when $1::text is null then c.clase<>'descartado' else c.clase=$1 end) group by 1`, [lista]),
     q<{ n: number }>("select count(*)::int n from db_contactos where clase is null"),
+    q<{ todos: number; email: number; telefono: number; linkedin: number; nada: number }>(
+      `select count(*)::int todos, count(*) filter (where ${TIENE_EMAIL})::int email, count(*) filter (where ${TIENE_TEL})::int telefono,
+         count(*) filter (where not ${TIENE_EMAIL} and not ${TIENE_TEL} and ${TIENE_LI})::int linkedin,
+         count(*) filter (where not ${TIENE_EMAIL} and not ${TIENE_TEL} and not ${TIENE_LI})::int nada
+       from db_contactos c where c.clase is not null and (case when $2::text is null then c.clase<>'descartado' else c.clase=$2 end) and ($1::text is null or etapa=$1) ${canalSQL}`, [et, lista]),
   ])
+  const nDatos = (v: string) => (porDatos[0] as any)?.[v || "todos"] ?? 0
   const nCanal = (v: string) => porCanal.filter((x) => v === "todos" || x.redes === (v === "redes")).reduce((a, x) => a + x.n, 0)
   const cuenta = (v: string | null) => cuentas.find((x) => x.clase === v)?.n ?? 0
   const filas = rows.map((c) => ({
@@ -83,8 +104,9 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
     etapa: c.etapa, etapaN: etapa(c.etapa).n, etapaC: etapa(c.etapa).c, sector: c.sector, proximo: c.proximo,
     proximoF: c.proximo_fecha ? fecha(c.proximo_fecha) : null, proyectos: c.proyectos,
     claseN: lista ? null : claseDe(c.clase)?.n ?? null, claseC: claseDe(c.clase)?.c ?? null,
+    linkedin: (String(c.notas ?? "").match(/https?:\/\/[a-z.]*linkedin\.com\/in\/[^\s·]+/i) ?? [null])[0],
   }))
-  const qs = (o: Record<string, string | null>) => { const p = new URLSearchParams(); const t0 = { canal: canal === "directos" ? null : canal, ...o }; for (const [k, v] of Object.entries(t0)) if (v) p.set(k, v); const t = p.toString(); return `/contactos${t ? `?${t}` : ""}` }
+  const qs = (o: Record<string, string | null>) => { const p = new URLSearchParams(); const t0 = { canal: canal === "directos" ? null : canal, datos: datos || null, ...o }; for (const [k, v] of Object.entries(t0)) if (v) p.set(k, v); const t = p.toString(); return `/contactos${t ? `?${t}` : ""}` }
   const sinClasificar = sinClas[0]?.n ?? 0
   const n = Number(searchParams.n ?? 0)
   const aviso = searchParams.msg === "eliminados" ? `Se eliminaron ${n} contacto${n === 1 ? "" : "s"}.` : searchParams.msg === "editados" ? `Se actualizaron ${n} contacto${n === 1 ? "" : "s"}.` : null
@@ -102,6 +124,10 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
         <span className="text-xs font-semibold text-[#4A515C] mr-1">Canal:</span>
         {CANALES.map((x) => <Link key={x.v} href={qs({ canal: x.v === "directos" ? null : x.v, lista, b: b || null })} aria-current={canal === x.v ? "page" : undefined} title={x.d} className={`chip text-xs px-2.5 py-1 border ${canal === x.v ? "bg-[#C8231F] text-white border-[#C8231F]" : "bg-white border-[#C3C8D1]"}`}>{x.n} · {nCanal(x.v)}</Link>)}
       </nav>
+      <nav aria-label="Datos de contacto" className="flex flex-wrap items-center gap-1.5">
+        <span className="text-xs font-semibold text-[#4A515C] mr-1">Se lo contacta por:</span>
+        {DATOS.map((x) => <Link key={x.v} href={qs({ datos: x.v || null, lista, etapa: et, b: b || null })} aria-current={datos === x.v ? "page" : undefined} title={x.d} className={`chip text-xs px-2.5 py-1 border ${datos === x.v ? "bg-[#0E1116] text-white border-[#0E1116]" : "bg-white border-[#C3C8D1]"}`}>{x.n} · {nDatos(x.v)}</Link>)}
+      </nav>
       {aviso && <p role="status" className="m-0 text-sm font-semibold text-[#C8231F]">{aviso}</p>}
       <div className="card p-0 overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-[#E2E5EA]">
@@ -110,7 +136,7 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
           {ETAPAS.map((e) => <Link key={e.v} href={qs({ lista, etapa: e.v })} className={`chip text-sm px-3 py-1 border ${et === e.v ? "bg-[#0E1116] text-white border-[#0E1116]" : "bg-white border-[#C3C8D1]"}`}>{e.n}</Link>)}
         </div>
         <div className="flex gap-2 items-center">
-          <form className="flex gap-2">{et && <input type="hidden" name="etapa" value={et} />}{lista && <input type="hidden" name="lista" value={lista} />}{canal !== "directos" && <input type="hidden" name="canal" value={canal} />}<input name="b" type="search" defaultValue={b} placeholder="Buscar" aria-label="Buscar contactos" className="inp py-1.5 w-48" /><button className="btn-s py-1.5">Buscar</button></form>
+          <form className="flex gap-2">{et && <input type="hidden" name="etapa" value={et} />}{lista && <input type="hidden" name="lista" value={lista} />}{canal !== "directos" && <input type="hidden" name="canal" value={canal} />}{datos && <input type="hidden" name="datos" value={datos} />}<input name="b" type="search" defaultValue={b} placeholder="Buscar" aria-label="Buscar contactos" className="inp py-1.5 w-48" /><button className="btn-s py-1.5">Buscar</button></form>
           <Importar ent="contactos" ayuda="Reconozco las columnas por su nombre (Nombre, Email, Organización, Cargo, Teléfono, Sector, Etapa, Notas…). Si el email ya existe, se completa el contacto; si no, se crea. Lo que no traiga etapa queda como «En la base». Lo importado entra en «Por clasificar» para que lo ubiques en su lista." /><a href="/api/crm/contactos?formato=csv" className="btn-s py-1.5">Exportar</a>
           <Link href="/contactos/nuevo" className="btn-p py-1.5">+ Nuevo</Link>
         </div>

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 type Fila = {
   id: number; organizacion: string | null; nombre: string; cargo: string | null; email: string | null; telefono: string | null
   etapa: string; etapaN: string; etapaC: string; sector: string | null; proximo: string | null; proximoF: string | null; proyectos: number
-  claseN?: string | null; claseC?: string | null
+  claseN?: string | null; claseC?: string | null; linkedin?: string | null
 }
 
 /** Tabla de contactos con selección múltiple: cambiar etapa, sector o próximo paso, o eliminar varios a la vez. */
@@ -66,26 +66,37 @@ export default function ContactosTabla({ filas, etapas, sectores, editar, accion
           <button type="button" onClick={() => setSel(new Set())} className="text-sm underline text-[#4A515C] self-center">Cancelar</button>
         </form>
       )}
-      <div className="overflow-x-auto">
-        <table className="tbl">
+      <div>
+        <table className="tbl table-fixed">
+          <colgroup>{editar && <col className="w-11" />}<col /><col className="w-[27%]" /><col className="w-[15%]" /><col className="w-[21%]" /></colgroup>
           <thead><tr>
-            {editar && <th className="w-10"><input ref={todo} type="checkbox" checked={todos} onChange={alternarTodos} aria-label="Seleccionar todos los contactos de la lista" className="w-4 h-4 accent-[#C8231F]" /></th>}
-            <th>Organización</th><th>Contacto</th><th>Etapa</th><th>Sector</th><th>Próximo paso</th><th>Proyectos</th><th></th>
+            {editar && <th><input ref={todo} type="checkbox" checked={todos} onChange={alternarTodos} aria-label="Seleccionar todos los contactos de la lista" className="w-4 h-4 accent-[#C8231F]" /></th>}
+            <th>Contacto</th><th>Cómo contactarlo</th><th>Etapa</th><th>Próximo paso</th>
           </tr></thead>
           <tbody>
-            {filas.map((c) => (
-              <tr key={c.id} className={sel.has(c.id) ? "bg-[#FDF3F2]" : "hover:bg-[#F8F9FB]"}>
-                {editar && <td><input type="checkbox" checked={sel.has(c.id)} onChange={() => alternar(c.id)} aria-label={`Seleccionar ${c.organizacion ?? c.nombre}`} className="w-4 h-4 accent-[#C8231F]" /></td>}
-                <td className="font-semibold"><Link href={`/contactos/${c.id}`} className="hover:underline">{c.organizacion ?? "—"}</Link></td>
-                <td>{c.nombre}<div className="text-xs text-[#4A515C]">{[c.cargo, c.email, c.telefono].filter(Boolean).join(" · ")}</div></td>
-                <td><span className={`chip ${c.etapaC}`}>{c.etapaN}</span>{c.claseN && <span className={`chip ${c.claseC} block w-fit mt-1`}>{c.claseN}</span>}</td>
-                <td>{c.sector ?? "—"}</td>
-                <td>{c.proximo ?? "—"}{c.proximoF && <div className="text-xs text-[#4A515C]">{c.proximoF}</div>}</td>
-                <td>{c.proyectos || "—"}</td>
-                <td><Link href={`/contactos/${c.id}`} className="btn-s py-1 px-3 text-xs">Abrir</Link></td>
-              </tr>
-            ))}
-            {!filas.length && <tr><td colSpan={editar ? 8 : 7} className="text-center text-[#4A515C] py-6">No hay contactos con ese filtro.</td></tr>}
+            {filas.map((c) => {
+              const sub = [c.cargo, c.organizacion && c.organizacion !== c.nombre ? c.organizacion : null].filter(Boolean).join(" · ")
+              const extra = [c.sector, c.proyectos ? `${c.proyectos} proyecto${c.proyectos === 1 ? "" : "s"}` : null].filter(Boolean).join(" · ")
+              return (
+                <tr key={c.id} className={sel.has(c.id) ? "bg-[#FDF3F2]" : "hover:bg-[#F8F9FB]"}>
+                  {editar && <td><input type="checkbox" checked={sel.has(c.id)} onChange={() => alternar(c.id)} aria-label={`Seleccionar ${c.nombre}`} className="w-4 h-4 accent-[#C8231F]" /></td>}
+                  <td className="break-words">
+                    <Link href={`/contactos/${c.id}`} className="font-semibold hover:underline">{c.nombre || c.organizacion || "Sin nombre"}</Link>
+                    {sub && <div className="text-xs text-[#4A515C]">{sub}</div>}
+                    {extra && <div className="text-xs text-[#4A515C]">{extra}</div>}
+                  </td>
+                  <td className="break-all text-[13px]">
+                    {c.email && <a href={`mailto:${c.email}`} className="block hover:underline">{c.email}</a>}
+                    {c.telefono && <a href={`https://wa.me/${c.telefono.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="block hover:underline">{c.telefono}</a>}
+                    {c.linkedin && <a href={c.linkedin} target="_blank" rel="noopener noreferrer" className="block font-semibold text-[var(--ac-texto,#C8231F)] hover:underline break-normal">Perfil de LinkedIn ↗</a>}
+                    {!c.email && !c.telefono && !c.linkedin && <span className="text-[#4A515C]">Sin datos</span>}
+                  </td>
+                  <td><span className={`chip ${c.etapaC}`}>{c.etapaN}</span>{c.claseN && <span className={`chip ${c.claseC} block w-fit mt-1`}>{c.claseN}</span>}</td>
+                  <td className="break-words">{c.proximo ?? <span className="text-[#4A515C]">—</span>}{c.proximoF && <div className="text-xs text-[#4A515C]">{c.proximoF}</div>}</td>
+                </tr>
+              )
+            })}
+            {!filas.length && <tr><td colSpan={editar ? 5 : 4} className="text-center text-[#4A515C] py-6">No hay contactos con ese filtro.</td></tr>}
           </tbody>
         </table>
       </div>
