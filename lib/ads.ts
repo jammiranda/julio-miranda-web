@@ -6,12 +6,22 @@ import { PASO_AL_CRM, GANADA } from "./consultas"
  * - Meta Ads: se trae solo todos los días con META_ADS_TOKEN + META_AD_ACCOUNT_ID (los carga Julio en Vercel).
  * - Google Ads: un script de Google Ads manda los datos a /api/ads/ingesta con la clave ADS_INGESTA_KEY.
  */
-export type FilaAds = { fecha: string; campania: string; campania_id?: string; gasto: number; moneda?: string; impresiones?: number; clics?: number; conversiones?: number }
+/** Cuentas de Google Ads de DEVISEBIT (para mostrar de cuál viene cada campaña y avisar si una deja de mandar datos). */
+export const CUENTAS_GOOGLE: Record<string, string> = { "5013353550": "Cuenta 1 · Búsqueda (501-335-3550)", "3460162490": "Cuenta 2 · Máximo rendimiento (346-016-2490)" }
+const sinGuiones = (c: unknown) => String(c ?? "").replace(/\D/g, "")
+
+export type FilaAds = { fecha: string; campania: string; campania_id?: string; cuenta?: string; gasto: number; moneda?: string; impresiones?: number; clics?: number; conversiones?: number }
 
 export async function guardarFilas(plataforma: "google" | "meta", filas: FilaAds[]) {
   let n = 0
-  for (const f of filas) {
+  for (let f of filas) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(f.fecha) || !f.campania) continue
+    // El script nuevo manda la cuenta: el id queda "cuenta:campaña" y se borra la fila vieja sin cuenta del mismo día (si no, se sumaría dos veces)
+    const cuenta = sinGuiones(f.cuenta)
+    if (cuenta && f.campania_id) {
+      await q("delete from ads_diario where plataforma=$1 and fecha=$2 and campania_id=$3", [plataforma, f.fecha, String(f.campania_id)])
+      f = { ...f, campania_id: `${cuenta}:${f.campania_id}` }
+    }
     await q(
       `insert into ads_diario(plataforma,fecha,campania,campania_id,gasto,moneda,impresiones,clics,conversiones) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
        on conflict (plataforma,fecha,campania_id,campania) do update set gasto=excluded.gasto, moneda=excluded.moneda, impresiones=excluded.impresiones, clics=excluded.clics, conversiones=excluded.conversiones, actualizado=now()`,
@@ -49,10 +59,25 @@ export async function resumenAds() {
   const [plat, dias, camp, consultas, ultima] = await Promise.all([
     q<{ plataforma: string; gasto: number; impresiones: number; clics: number; conversiones: number; moneda: string }>(`select plataforma, sum(gasto)::float gasto, sum(impresiones)::int impresiones, sum(clics)::int clics, sum(conversiones)::float conversiones, max(moneda) moneda from ads_diario where fecha > current_date - 30 group by plataforma`),
     q<{ fecha: string; plataforma: string; gasto: number; clics: number }>(`select to_char(fecha,'YYYY-MM-DD') fecha, plataforma, sum(gasto)::float gasto, sum(clics)::int clics from ads_diario where fecha > current_date - 30 group by 1,2 order by 1`),
-    q<{ plataforma: string; campania: string; gasto: number; impresiones: number; clics: number; conversiones: number }>(`select plataforma, campania, sum(gasto)::float gasto, sum(impresiones)::int impresiones, sum(clics)::int clics, sum(conversiones)::float conversiones from ads_diario where fecha > current_date - 30 group by 1,2 order by 3 desc limit 20`),
+    q<{ plataforma: string; campania: string; campania_id: string; gasto: number; impresiones: number; clics: number; conversiones: number }>(`select plataforma, campania, max(campania_id) campania_id, sum(gasto)::float gasto, sum(impresiones)::int impresiones, sum(clics)::int clics, sum(conversiones)::float conversiones from ads_diario where fecha > current_date - 30 group by 1,2 order by 3 desc limit 20`),
     q<{ fuente: string; c: number; contactos: number; crm: number; ganadas: number }>(`select fuente, count(*)::int c, count(*) filter (where estado in ('contactada','convertida') or exists (select 1 from db_contactos d where d.consulta_id=k.id))::int contactos, count(*) filter (where ${PASO_AL_CRM("k")})::int crm, count(*) filter (where ${GANADA("k")})::int ganadas from consultas k where creado > now() - interval '30 days' and fuente in ('Google Ads','Meta Ads') group by fuente`),
     q<{ plataforma: string; u: string }>(`select plataforma, to_char(max(actualizado) at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD HH24:MI') u from ads_diario group by plataforma`),
   ])
+  const cuentasG = await q<{ cuenta: string; gasto: number; ultimo_dia: string; actualizado: string }>(
+    `select case when campania_id like '%:%' then split_part(campania_id,':',1) else '' end cuenta, sum(gasto) filter (where fecha > current_date - 30)::float gasto,
+            to_char(max(fecha),'YYYY-MM-DD') ultimo_dia, to_char(max(actualizado) at time zone 'America/Argentina/Buenos_Aires','YYYY-MM-DD HH24:MI') actualizado
+     from ads_diario where plataforma='google' group by 1`,
+  ).catch(() => [])
+  const hoy = new Date().toISOString().slice(0, 10)
+  const diasDesde = (d: string | null | undefined) => (d ? Math.round((Date.parse(hoy) - Date.parse(d)) / 864e5) : null)
+  // Qué cuentas de Google están mandando datos. Las filas viejas sin cuenta se muestran aparte.
+  const cuentasGoogle = [
+    ...Object.entries(CUENTAS_GOOGLE).map(([id, nombre]) => {
+      const c = cuentasG.find((x) => x.cuenta === id)
+      return { id, nombre, gasto: c?.gasto ?? null, ultimoDia: c?.ultimo_dia ?? null, actualizado: c?.actualizado ?? null, diasSinDatos: diasDesde(c?.ultimo_dia) }
+    }),
+    ...cuentasG.filter((x) => x.cuenta === "").map((c) => ({ id: "", nombre: "Sin cuenta identificada (script anterior)", gasto: c.gasto, ultimoDia: c.ultimo_dia, actualizado: c.actualizado, diasSinDatos: diasDesde(c.ultimo_dia) })),
+  ]
   const consultasDe = (p: string) => consultas.find((c) => c.fuente === (p === "google" ? "Google Ads" : "Meta Ads"))
   const plataformas = ["google", "meta"].map((p) => {
     const x = plat.find((r) => r.plataforma === p)
@@ -70,5 +95,6 @@ export async function resumenAds() {
       costoPorConsulta: x && c?.c ? Math.round(x.gasto / c.c) : null,
     }
   })
-  return { periodo: "30 días", plataformas, dias, campanias: camp, nota: "Inversión y clics vienen de cada plataforma; las consultas son las que entraron al sistema marcadas como Google Ads o Meta Ads." }
+  const campanias = camp.map((c) => ({ ...c, cuenta: c.plataforma === "google" ? (CUENTAS_GOOGLE[String((c as any).campania_id ?? "").split(":")[0]] ?? null) : null }))
+  return { periodo: "30 días", plataformas, dias, campanias, cuentasGoogle, metaConClaves: !!(process.env.META_ADS_TOKEN && process.env.META_AD_ACCOUNT_ID), nota: "Inversión y clics vienen de cada plataforma; las consultas son las que entraron al sistema marcadas como Google Ads o Meta Ads." }
 }
