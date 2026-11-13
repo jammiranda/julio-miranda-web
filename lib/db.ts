@@ -240,6 +240,63 @@ create table if not exists informe_diario (
 );
 create table if not exists informe_tildes (dia date not null, clave text not null, hecho boolean not null default true, actualizado timestamptz not null default now(), primary key (dia, clave));
 create table if not exists informe_notas (dia date primary key, texto text not null default '', actualizado timestamptz not null default now());
+create table if not exists interaccion_acciones (
+  clave text primary key, dia date not null, red text not null, tipo text not null, cuenta text not null default '', tamano text not null default '',
+  texto text not null default '', url text not null default '', estado text not null default 'publicado', n int not null default 1,
+  creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create index if not exists interaccion_acciones_dia on interaccion_acciones(dia desc);
+create table if not exists interaccion_metricas (
+  dia date not null, red text not null, metrica text not null, valor numeric not null, actualizado timestamptz not null default now(),
+  primary key (dia, red, metrica)
+);
+insert into interaccion_acciones(clave,dia,red,tipo,cuenta,texto,estado,n) values
+  ('hist:2026-11-02:linkedin','2026-11-02','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',6),
+  ('hist:2026-11-02:instagram','2026-11-02','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',4),
+  ('hist:2026-11-02:facebook','2026-11-02','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',6),
+  ('hist:2026-11-03:linkedin','2026-11-03','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-05:linkedin','2026-11-05','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-05:instagram','2026-11-05','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',3),
+  ('hist:2026-11-05:facebook','2026-11-05','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',2),
+  ('hist:2026-11-06:instagram','2026-11-06','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-06:facebook','2026-11-06','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-07:instagram','2026-11-07','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',2),
+  ('hist:2026-11-09:linkedin','2026-11-09','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-10:linkedin','2026-11-10','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',5),
+  ('hist:2026-11-10:instagram','2026-11-10','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',4),
+  ('hist:2026-11-10:facebook','2026-11-10','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',4),
+  ('hist:2026-11-11:linkedin','2026-11-11','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',5),
+  ('hist:2026-11-11:instagram','2026-11-11','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',4),
+  ('hist:2026-11-11:facebook','2026-11-11','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',4),
+  ('hist:2026-11-12:linkedin','2026-11-12','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-12:instagram','2026-11-12','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',2),
+  ('hist:2026-11-12:facebook','2026-11-12','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1),
+  ('hist:2026-11-13:linkedin','2026-11-13','linkedin','comentario','(histórico, ver registro del día)','Carga inicial','publicado',2),
+  ('hist:2026-11-13:instagram','2026-11-13','instagram','comentario','(histórico, ver registro del día)','Carga inicial','publicado',5),
+  ('hist:2026-11-13:facebook','2026-11-13','facebook','comentario','(histórico, ver registro del día)','Carga inicial','publicado',1)
+on conflict (clave) do nothing;
+insert into interaccion_acciones(clave,dia,red,tipo,cuenta,tamano,estado,n) values
+  ('g:emprendimientos-argentina','2026-11-13','facebook','presentacion','Emprendimientos Argentina!','46 mil','publicado',1),
+  ('g:emprendedores-de-argentina','2026-11-13','facebook','presentacion','Emprendedores de Argentina','14 mil','publicado',1),
+  ('g:argentina-emprende','2026-11-13','facebook','presentacion','Argentina Emprende','55 mil','publicado',1),
+  ('g:empresas-pymes-emprendedores-arg','2026-11-13','facebook','presentacion','Empresas, PyMEs & Emprendedores de Argentina!','12,8 mil','publicado',1),
+  ('g:emprendedores-zona-sur','2026-11-13','facebook','presentacion','Emprendedores Zona Sur y alrededores','14 mil','publicado',1),
+  ('g:inversores-emprendedores-arg','2026-11-13','facebook','presentacion','Inversores y Emprendedores Argentinos','20 mil','publicado',1),
+  ('g:emprendedores-en-argentina','2026-11-13','facebook','presentacion','Emprendedores en Argentina','18,4 mil','publicado',1),
+  ('g:emprendedores-argentinos','2026-11-13','facebook','presentacion','Emprendedores Argentinos','18 mil','pendiente',1),
+  ('g:emprender-hoy-argentina','2026-11-13','facebook','presentacion','Emprender Hoy ARGENTINA','24 mil','pendiente',1),
+  ('g:empresas-y-pymes-en-argentina','2026-11-13','facebook','presentacion','Empresas y Pymes en Argentina','9,8 mil','pendiente',1),
+  ('g:argentinos-emprendedores','2026-11-13','facebook','grupo','Argentinos Emprendedores','31 mil','pendiente',1),
+  ('s:ig:nexoemprendedor.arg','2026-11-13','instagram','seguir','@nexoemprendedor.arg','15,7 mil','pendiente',1),
+  ('s:ig:argentina_emprendimientos','2026-11-13','instagram','seguir','@argentina_emprendimientos','12,8 mil','publicado',1)
+on conflict (clave) do nothing;
+insert into interaccion_metricas(dia,red,metrica,valor) values
+  ('2026-11-02','linkedin_julio','seguidores',374),('2026-11-02','linkedin_julio','visualizaciones_perfil',26),('2026-11-02','linkedin_julio','impresiones',175),
+  ('2026-11-03','linkedin_julio','visualizaciones_perfil',30),('2026-11-03','linkedin_julio','impresiones',225),
+  ('2026-11-05','linkedin_julio','visualizaciones_perfil',32),('2026-11-05','linkedin_julio','impresiones',375),
+  ('2026-11-06','linkedin_julio','seguidores',362),('2026-11-06','linkedin_julio','visualizaciones_perfil',33),('2026-11-06','linkedin_julio','impresiones',362),
+  ('2026-11-13','linkedin_julio','seguidores',403),('2026-11-13','linkedin_julio','visualizaciones_perfil',41),('2026-11-13','linkedin_julio','impresiones',194)
+on conflict (dia,red,metrica) do nothing;
 create table if not exists pv_visitas (
   dia date not null, host text not null, path text not null, ref text not null default '', disp text not null default '',
   n int not null default 0,
