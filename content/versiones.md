@@ -12,7 +12,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|---|---|
 | Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Página interna para bajar los 17 videos al celular y copiar el texto de TikTok |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.5.0** | 13/11/2026 | Contactos y Conversaciones sin barra horizontal, y filtro de contactos por email, teléfono o LinkedIn |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.6.0** | 13/11/2026 | Índice y buscador fijos en las pantallas largas, más avisos en Hoy y Contactos paginado |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
@@ -31,7 +31,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|
 | Sitio web DEVISEBIT | 86 | 9 |
 | Landings de anuncios | 11 | 4 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 146 | 16 |
+| Sistema (CRM y gestión) | 148 | 17 |
 | Bot de WhatsApp (Bit) | 21 | 8 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
@@ -97,10 +97,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-146 cambios · 16 versiones · versión actual **3.5.0**
+148 cambios · 17 versiones · versión actual **3.6.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **3.6.0** | 13/11/2026 | • Barra fija nueva en las pantallas largas (Material, Precios, Documentos de la empresa, Bot, Versiones, Tablero de dirección, Resumen comercial): índice de secciones, buscador que filtra al instante y botón para volver arriba<br>• Buscador al instante también en Prospección y Auditoría<br>• Resumen comercial: «Para hoy» suma los avisos de Prospección (respondieron, mensajes para enviar hoy, seguimientos) y los contactos por clasificar<br>• Contactos: 100 por página con el total a la vista; abre más rápido<br>• Tablero de dirección: ya no se sale del ancho de la pantalla<br>• Accesibilidad: el foco del teclado se ve en todos los botones y links | Mejora | `b20bf0f..09dd371` (2) |
 | **3.5.0** | 13/11/2026 | • Contactos: filtro nuevo «Se lo contacta por» (con email, con teléfono, solo LinkedIn, sin datos), con la cantidad de cada grupo<br>• Contactos y Conversaciones: la lista entra siempre en la pantalla, sin barra horizontal; el nombre abre la ficha<br>• En Contactos, el email, el WhatsApp y el perfil de LinkedIn se abren con un clic desde la lista<br>• En las demás tablas anchas, los botones de cada fila quedan fijos a la derecha | Mejora | `46a5c63..46a5c63` (1) |
 | **3.4.0** | 13/11/2026 | • Prospección pasa de tabla a tarjetas: cada contacto muestra el texto que toca mandar y los botones «1 Abrir perfil», «2 Copiar» y «3 Enviado» siempre a la vista, sin barra horizontal<br>• La lista se agrupa por lo que hay que hacer: respondieron, toca seguimiento, para enviar hoy y por fecha | Mejora | `7ad1257..7ad1257` (1) |
 | **3.3.0** | 12/11/2026 | • En Prospección, botón «Copiar» en cada fila de LinkedIn: en borrador copia la invitación o el primer mensaje; ya enviado, el mensaje al aceptar o el seguimiento | Novedad | `b6b81e0..b6b81e0` (1) |
