@@ -18,6 +18,8 @@ const SQL: Record<string, string> = {
   proyectos: `select p.id, p.nombre, c.organizacion cliente, s.nombre servicio, p.estado, p.inicio, p.entrega, p.monto, p.responsable, p.trello_url, p.notas, p.creado
               from db_proyectos p left join db_contactos c on c.id=p.contacto_id left join db_servicios s on s.id=p.servicio_id order by p.creado desc`,
   servicios: "select id, nombre, categoria, descripcion, precio_ref, activo from db_servicios order by nombre",
+  movimientos: `select m.id, m.fecha, m.tipo, m.concepto, m.categoria, m.monto, m.moneda, m.estado, m.vence, p.nombre proveedor, m.medio, m.comprobante, m.nota, m.creado_por
+                from g_movimientos m left join g_proveedores p on p.id=m.proveedor_id order by m.fecha desc nulls last, m.id desc`,
 }
 
 function claveOk(req: NextRequest) {

@@ -492,3 +492,22 @@ tr[aria-selected="true"], li[aria-selected="true"] { background: var(--ac-suave)
 [data-espacio] :where(a, button, summary, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--ac, #C8231F); outline-offset: 2px; border-radius: 6px; }
 @media (prefers-reduced-motion: reduce) { [data-espacio] * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
+/* «Para hoy»: cada aviso en una fila que no se corta, aunque la ventana sea angosta o el texto esté agrandado */
+.hoy { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.hoy a { flex-wrap: wrap; row-gap: 4px; }
+.hoy a > span:nth-child(2) { flex: 1 1 12rem; min-width: 0; }
+.hoy small { display: block; line-height: 1.35; }
+/* Números grandes: se achican para entrar en su tarjeta en vez de salirse */
+.kpi { container-type: inline-size; }
+.kpi-v { font-size: clamp(1.25rem, 13cqi, 2.75rem); white-space: nowrap; }
+/* Listas principales en el celular: cada fila pasa a ser una ficha, sin columnas apretadas */
+@media (max-width: 720px) {
+  .tbl-movil, .tbl-movil tbody, .tbl-movil tr, .tbl-movil td { display: block; width: auto !important; }
+  .tbl-movil colgroup, .tbl-movil thead { display: none; }
+  .tbl-movil tr { position: relative; padding: 12px 14px; border-bottom: 1px solid var(--borde-2); }
+  .tbl-movil tr:has(.td-sel) { padding-left: 52px; }
+  [data-espacio] .tbl-movil td, .tbl-movil td { padding: 2px 0 !important; border: 0 !important; }
+  .tbl-movil td.td-sel { position: absolute; left: 12px; top: 12px; }
+  .tbl-movil td:empty { display: none; }
+}
+

@@ -88,7 +88,7 @@ export default async function Email() {
         {enCola > 0 && <p className="m-0 text-xs text-[#4A515C]">{enCola} correos en cola. Salen solos todos los días a las 8 h, o ahora con el botón.</p>}
         {errores.length > 0 && <div className="text-xs"><strong>Errores de envío:</strong><ul className="m-0 pl-5">{errores.map((e, i) => <li key={i}>{e.n} × {e.error}</li>)}</ul></div>}
       </section>
-      {relId && rel && (
+      {relId && rel && rel.estado !== "enviada" && (
         <section className="card flex flex-wrap items-center justify-between gap-3 border-2 border-[#C8231F]">
           <div className="flex flex-col gap-1">
             <h2 className="m-0 text-base">📣 Campaña «DEVISEBIT se renueva» · landings de servicios</h2>

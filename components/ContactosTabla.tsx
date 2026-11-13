@@ -67,7 +67,7 @@ export default function ContactosTabla({ filas, etapas, sectores, editar, accion
         </form>
       )}
       <div>
-        <table className="tbl table-fixed">
+        <table className="tbl tbl-movil table-fixed">
           <colgroup>{editar && <col className="w-11" />}<col /><col className="w-[27%]" /><col className="w-[15%]" /><col className="w-[21%]" /></colgroup>
           <thead><tr>
             {editar && <th><input ref={todo} type="checkbox" checked={todos} onChange={alternarTodos} aria-label="Seleccionar todos los contactos de la lista" className="w-4 h-4 accent-[#C8231F]" /></th>}
@@ -79,7 +79,7 @@ export default function ContactosTabla({ filas, etapas, sectores, editar, accion
               const extra = [c.sector, c.proyectos ? `${c.proyectos} proyecto${c.proyectos === 1 ? "" : "s"}` : null].filter(Boolean).join(" · ")
               return (
                 <tr key={c.id} className={sel.has(c.id) ? "bg-[#FDF3F2]" : "hover:bg-[#F8F9FB]"}>
-                  {editar && <td><input type="checkbox" checked={sel.has(c.id)} onChange={() => alternar(c.id)} aria-label={`Seleccionar ${c.nombre}`} className="w-4 h-4 accent-[#C8231F]" /></td>}
+                  {editar && <td className="td-sel"><input type="checkbox" checked={sel.has(c.id)} onChange={() => alternar(c.id)} aria-label={`Seleccionar ${c.nombre}`} className="w-4 h-4 accent-[#C8231F]" /></td>}
                   <td className="break-words">
                     <Link href={`/contactos/${c.id}`} className="font-semibold hover:underline">{c.nombre || c.organizacion || "Sin nombre"}</Link>
                     {sub && <div className="text-xs text-[#4A515C]">{sub}</div>}

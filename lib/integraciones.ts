@@ -120,7 +120,8 @@ export async function sincronizarDrive(usuario = "drive"): Promise<{ ok: boolean
   const c = await driveConfig()
   const x = await googleScript({ accion: "drive", carpeta: c.carpeta, max: 800 }, 60000)
   if (!x || x.error || !Array.isArray(x.archivos)) {
-    const mensaje = x?.error ?? "Google no respondió."
+    const crudo = x?.error ?? "Google no respondió."
+    const mensaje = /permission|DriveApp|auth\/drive/i.test(crudo) ? "El conector de Google todavía no tiene permiso para leer tu Drive. Abrí el conector en Google Apps Script, ejecutalo una vez y aceptá el permiso de Drive; después volvé a tocar «Sincronizar con Drive»." : crudo
     await guardarCfg("drive", { ...c, ultima: new Date().toISOString(), resultado: mensaje })
     return { ok: false, mensaje }
   }

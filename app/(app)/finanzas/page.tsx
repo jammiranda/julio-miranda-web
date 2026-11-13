@@ -82,6 +82,7 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
             </select>
             <button className="btn-s py-2">Ver</button>
           </form>
+          <a href="/api/crm/movimientos?formato=csv" className="btn-s py-2" title="Todos los movimientos, para abrir en Excel">Exportar</a>
           <Link href={`/finanzas?ver=movimientos&p=${per}&nuevo=1`} className="btn-p">+ Movimiento</Link>
         </div>
       </header>

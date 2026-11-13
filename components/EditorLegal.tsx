@@ -17,7 +17,8 @@ export default function EditorLegal({ titulo, cuerpo, campos }: { titulo: string
   }, [cuerpo, v, campos])
 
   const firma = `<br><br><table style="width:100%;margin-top:40px"><tr><td style="width:50%;vertical-align:bottom"><div style="border-top:1px solid #000;width:80%;padding-top:4px">${v.firmante || "Julio A. Miranda"}<br>${v.cargo || "Gerente"}<br>DEVISEBIT SRL</div></td><td style="vertical-align:bottom"><div style="border-top:1px solid #000;width:80%;padding-top:4px">${v.representante || "Representante del cliente"}<br>${v.cliente || "Cliente"}</div></td></tr></table>`
-  const completo = () => (editado ? (doc.current?.innerHTML ?? html) : html + firma)
+  const pie = `<table style="width:100%;border-top:3px solid #C8231F;margin-top:36px"><tr><td style="padding-top:8px;font-size:8.5pt;color:#4A515C"><b style="color:#0B0D12">DEVISE<span style="color:#C8231F">BIT</span> SRL</b> · Software e inteligencia artificial · desde 2009</td><td style="padding-top:8px;font-size:8.5pt;color:#4A515C;text-align:right">www.devisebit.com · info@devisebit.com</td></tr></table>`
+  const completo = () => (editado ? (doc.current?.innerHTML ?? html) : html + firma + pie)
 
   function word() {
     const doc2 = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${titulo}</title><style>body{font-family:Calibri,Arial;font-size:11pt;line-height:1.45}mark{background:#ffe08a}</style></head><body>${completo()}</body></html>`
@@ -54,7 +55,7 @@ export default function EditorLegal({ titulo, cuerpo, campos }: { titulo: string
           suppressContentEditableWarning
           onInput={() => setEditado(true)}
           className="card !p-8 bg-white text-[15px] leading-relaxed outline-none focus:ring-2 focus:ring-[var(--ac)] [&_mark]:bg-amber-200"
-          dangerouslySetInnerHTML={{ __html: html + firma }}
+          dangerouslySetInnerHTML={{ __html: html + firma + pie }}
           key={editado ? "libre" : JSON.stringify(v)}
         />
       </div>

@@ -142,7 +142,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
           />
         )}
         <div>
-          <table className="tbl table-fixed">
+          <table className="tbl tbl-movil table-fixed">
             <colgroup>{ed && <col className="w-12" />}<col /><col className="w-[19%]" /><col className="w-[17%]" /><col className="w-[19%]" /><col className="w-[15%]" /></colgroup>
             <thead><tr>{ed && <th></th>}<th>Quién consulta</th><th>Estado</th><th>Motivo</th><th>Canal y origen</th><th>Entró</th></tr></thead>
             <tbody>
@@ -151,7 +151,7 @@ export default async function Consultas({ searchParams }: { searchParams: { v?: 
                 const demora = c.estado === "nueva" && Date.now() - new Date(c.creado).getTime() > 4 * 3600e3
                 return (
                   <tr key={c.id} className={`hover:bg-[#F8F9FB] ${c.estado === "nueva" ? "font-semibold" : ""}`}>
-                    {ed && <td><label className="flex items-center justify-center w-11 h-11 -m-2 cursor-pointer"><input type="checkbox" name="ids" value={c.id} form="f-sel" className="sel-fila w-5 h-5" aria-label={`Marcar la consulta de ${c.nombre ?? "sin nombre"}`} /></label></td>}
+                    {ed && <td className="td-sel"><label className="flex items-center justify-center w-11 h-11 -m-2 cursor-pointer"><input type="checkbox" name="ids" value={c.id} form="f-sel" className="sel-fila w-5 h-5" aria-label={`Marcar la consulta de ${c.nombre ?? "sin nombre"}`} /></label></td>}
                     <td className="break-words"><Link href={`/consultas/${c.id}`} className="hover:underline">{c.nombre ?? "Sin nombre"}</Link><div className="text-xs font-normal text-[#4A515C] break-all">{[c.organizacion, c.telefono, c.email].filter(Boolean).join(" · ")}</div></td>
                     <td><span className={`chip  ${est.c}`}>{est.n}</span>{c.estado === "nueva" && c.respondio && <div className="text-xs font-normal text-[#4A515C] mt-1 ">{c.respondio === "bot" ? "El bot ya respondió" : "El equipo ya escribió"}</div>}{c.necesita_humano && c.estado !== "descartada" && <div><span className="chip  bg-red-600 text-white mt-1">Quiere una persona</span></div>}{c.contacto_id && c.estado !== "convertida" && <div><Link href={`/contactos/${c.contacto_id}`} className="chip  bg-emerald-50 text-emerald-700 mt-1 font-normal hover:underline">En el CRM</Link></div>}</td>
                     <td className="font-normal break-words">{c.motivo ?? "—"}</td>
