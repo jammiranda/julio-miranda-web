@@ -1,6 +1,6 @@
 import { safe, panelMetricas } from "@/lib/panel"
 import { ESTADOS, METAS, REDES, TIPOS, resumenInteraccion, seguidoresPanel, type Accion } from "@/lib/interaccion"
-import { acceso, base, Head, Sec, Kpi, Delta, Columnas, Barras, Linea, SinDatos, Embudo, fmt, fechaCorta, fechaHora } from "../_ui"
+import { acceso, base, Head, Sec, Kpi, Delta, Columnas, Barras, Linea, SinDatos, fmt, fechaCorta, fechaHora } from "../_ui"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Interacción en redes · DEVISEBIT" }
@@ -87,13 +87,10 @@ export default async function Interaccion() {
         <Kpi k="Instagram @devisebit, seguidores" v={fmt(ult(igSeg)?.v)} ft="lo trae el panel solo" delta={<Delta v={crec(igSeg)} />} serie={igSeg.map((x) => x.v)} />
         <Kpi k="Facebook, seguidores de la página" v={fmt(ult(fbSeg)?.v)} ft="lo trae el panel solo" delta={<Delta v={crec(fbSeg)} />} serie={fbSeg.map((x) => x.v)} />
       </div>
-      <div className="pc-card" style={{ marginTop: 12 }}>
-        <Embudo pasos={[
-          { k: "Comentarios y presentaciones (30 días)", v: (r.mes?.comentarios ?? 0) + gPub },
-          { k: "Visitas a las webs (30 días)", v: visitas30, nota: "todas las webs del ecosistema" },
-          { k: "Consultas que entraron (30 días)", v: consultas30, nota: "web, WhatsApp y formularios" },
-          { k: "Conversaciones por mensaje desde redes", v: conversaciones },
-        ]} />
+      <div className="pc-kpis" style={{ marginTop: 12 }}>
+        <Kpi k="Visitas a las webs (30 días)" v={fmt(visitas30)} ft="todas las webs del ecosistema" />
+        <Kpi k="Consultas que entraron (30 días)" v={fmt(consultas30)} ft="web, WhatsApp y formularios" />
+        <Kpi k="Conversaciones desde redes" v={fmt(conversaciones)} ft="pasaron a mensaje directo" />
       </div>
       {liSeg.length > 1 && <div className="pc-card" style={{ marginTop: 12 }}><Linea titulo="Seguidores de LinkedIn de Julio" puntos={liSeg.map((x) => ({ x: x.dia, y: x.valor }))} /></div>}
 
