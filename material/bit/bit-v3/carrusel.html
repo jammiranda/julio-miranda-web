@@ -1,0 +1,55 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Carrusel piloto</title><link rel="stylesheet" href="estilo.css"><style>
+html,body{width:1080px;height:1350px}
+.cab{position:absolute;left:70px;right:70px;top:58px;display:flex;justify-content:space-between;align-items:center;z-index:5} .cab .n{font-size:30px;font-weight:800;padding:8px 20px;border-radius:999px;border:2px solid rgba(255,255,255,.3)}
+.num{position:absolute;right:-50px;top:-150px;font-size:620px;font-weight:900;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:5px rgba(255,106,99,.75)}
+.ey{position:absolute;left:70px;top:168px;font-size:36px;font-weight:900;letter-spacing:.2em;color:var(--ra)}
+h1{position:absolute;left:70px;top:222px;width:900px;font-size:118px;font-weight:900;letter-spacing:-.05em;line-height:.98} h1 b{background:var(--r);padding:0 .14em;border-radius:.12em;display:inline-block;transform:rotate(-2deg);font-weight:900}
+.vis{position:absolute;left:0;top:500px;width:1080px;height:462px;overflow:hidden}
+.capt{position:absolute;left:70px;top:984px;width:640px;font-size:52px;font-weight:800;letter-spacing:-.025em;line-height:1.1} .capt span{color:var(--am)}
+.piso{position:absolute;left:0;top:1268px;width:1080px;height:82px;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);border-top:3px solid rgba(255,255,255,.16)}
+#gente{position:absolute;left:0;top:0;overflow:visible} .bitbox{position:absolute}
+.tag{position:absolute;font-size:34px;font-weight:900;background:var(--am);color:#141414;padding:9px 20px;border-radius:12px;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.cel{position:absolute;border-radius:54px;background:#F4F1EC;border:12px solid #05060A;box-shadow:0 0 0 4px #343B4A,0 40px 90px rgba(0,0,0,.7);overflow:hidden}
+.lente{position:absolute;border-radius:50%;border:12px solid #fff;background:#F4F1EC;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.65)}
+.tarj{position:absolute;background:#F4F1EC;color:#11141B;border-radius:34px;box-shadow:0 40px 90px rgba(0,0,0,.65)}
+.fila{display:flex;align-items:center;gap:22px;font-size:40px;font-weight:800;padding:14px 26px;border-radius:20px;margin-top:14px;background:#E3DED6} .fila i{flex:none;width:54px;height:54px;border-radius:50%;background:#11141B;color:#fff;font-style:normal;display:flex;align-items:center;justify-content:center;font-size:30px}
+.btn{position:absolute;left:70px;height:130px;border-radius:38px;background:linear-gradient(180deg,#FF6A63,#C8231F);display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:900;letter-spacing:-.03em;box-shadow:0 12px 0 #6E100D,0 34px 70px rgba(200,35,31,.5);padding:0 44px}
+</style></head><body><div class="fondo"></div><div class="glow" id="gl"></div>
+<div id="p"></div><div class="piso"></div><svg id="gente" width="1080" height="1350"></svg><canvas id="cv" width="1080" height="1350" style="position:absolute;left:0;top:0"></canvas>
+<div class="cab"><div class="logo" style="font-size:42px;background:rgba(11,13,18,.9);padding:8px 18px;border-radius:14px;margin-left:-18px">DEVISE<b>BIT</b></div><div class="n" id="cnt"></div></div><div class="vin"></div><div class="grano"></div>
+<script src="bit3.js"></script><script src="gente.js"></script><script>
+const n = +new URLSearchParams(location.search).get('n') || 1; cnt.textContent = n + ' / 5';
+const WA = '<svg width="74" height="74" viewBox="0 0 24 24"><path d="M12 3.500a8.300 8.300 0 0 0-7.100 12.600L4 20.500l4.500-1A8.300 8.300 0 1 0 12 3.500z" fill="none" stroke="#fff" stroke-width="2.200" stroke-linejoin="round"/></svg>';
+const senal = (k, tit, vis, capt) => `<div class="num">0${k}</div><div class="ey">SEÑAL ${k} DE 3</div><h1>${tit}</h1><div class="vis">${vis}</div><div class="capt">${capt}</div>`;
+const lineas = (m, w, c = '#B9B3A8', h = 10, g = 9) => Array.from({ length: m }, (_, i) => `<div style="height:${h}px;width:${w - (i % 3) * 14}%;background:${c};border-radius:${h}px;margin-top:${g}px"></div>`).join('');
+const S = {
+ 1: { html: `<div style="position:absolute;left:-60px;top:-215px;font-size:1060px;font-weight:900;line-height:1;letter-spacing:-.06em;background:linear-gradient(170deg,#FF8179,#C8231F);-webkit-background-clip:text;color:transparent">3</div>
+   <h1 style="top:566px;font-size:92px;line-height:1.02;text-shadow:0 6px 0 rgba(0,0,0,.5)">señales de que<br>tu web te hace<br><b style="font-size:164px;line-height:1.02;margin:10px 0 0 -6px">PERDER</b><br><span style="font-size:136px;line-height:1">clientes</span></h1>
+   <div class="tag" style="left:650px;top:330px;transform:rotate(4deg);font-size:38px">Revisá la tuya →</div>`,
+   bit: [872, 1112, 138, { t: 2.2, lid: .86, look: [-.9, -.7], tilt: -.06 }, 'h1 b', -1], gente: [[120, 1, .1, 'abrigo'], [330, 1, .42, 'pelo bolso'], [520, 1, .2, 'gorro']], glow: [-500, 300] },
+ 2: { html: senal(1, 'En el celular<br>se ve <b>mal</b>', `<div class="cel" style="left:96px;top:26px;width:400px;height:760px;transform:rotate(-7deg)"><div style="width:860px;padding:22px 20px;transform-origin:0 0">
+     <div style="display:flex;gap:16px;font-size:13px;font-weight:700;color:#555;white-space:nowrap"><b style="font-size:17px;color:#111">Tu negocio</b><span>Inicio</span><span>Servicios</span><span>Nosotros</span><span>Galería</span><span>Novedades</span><span>Contacto</span></div>
+     <div style="height:150px;width:560px;background:#C9C2B6;border-radius:8px;margin-top:16px"></div><div style="width:600px">${lineas(9, 96, '#B9B3A8', 7, 8)}</div><div style="display:flex;gap:10px;margin-top:18px"><div style="width:290px;height:120px;background:#D6D0C6;border-radius:8px"></div><div style="width:290px;height:120px;background:#D6D0C6;border-radius:8px"></div></div><div style="width:600px">${lineas(8, 94, '#B9B3A8', 7, 8)}</div></div>
+     <div style="position:absolute;left:40px;right:40px;bottom:120px;height:12px;border-radius:8px;background:#CFC8BC"><div style="width:42%;height:100%;border-radius:8px;background:#7C766C"></div></div></div>
+    <div class="lente" style="left:520px;top:40px;width:370px;height:370px"><div style="padding:60px 0 0 44px;width:700px"><div style="font-size:54px;font-weight:800;color:#3b3b3b;white-space:nowrap;filter:blur(1.200px)">os servicios inclu</div>${lineas(5, 100, '#8F897E', 26, 26)}</div></div>
+    <div class="tag" style="left:560px;top:18px;transform:rotate(-4deg)">Letra mini · se corta</div>`, 'Si hay que hacer zoom para leer, <span>se van.</span>'),
+   bit: [872, 1112, 138, { t: 1.4, lid: .86, look: [-.8, -.9], tilt: -.05 }, '.vis .tag', 0], gente: [[110, -1, .15, 'pelo'], [300, -1, .5, 'abrigo']], glow: [300, -500] },
+ 3: { html: senal(2, 'No aparece<br>en <b>Google</b>', `<div class="tarj" style="left:110px;top:24px;width:800px;height:620px;padding:30px 34px;transform:rotate(-3deg)"><div style="display:flex;align-items:center;gap:18px;border:4px solid #11141B;border-radius:999px;padding:14px 28px;font-size:40px;font-weight:700"><svg width="44" height="44" viewBox="0 0 24 24"><circle cx="10.500" cy="10.500" r="6.500" fill="none" stroke="#11141B" stroke-width="3"/><path d="M15.500 15.500L21 21" stroke="#11141B" stroke-width="3" stroke-linecap="round"/></svg>tu rubro + tu ciudad</div>
+     <div class="fila"><i>1</i>Otro negocio</div><div class="fila"><i>2</i>Otro negocio</div><div class="fila" style="background:none;border:4px dashed #C8231F;color:#C8231F"><i style="background:#C8231F">?</i>Tu negocio · página 5</div></div>
+    <div class="tag" style="left:600px;top:318px;transform:rotate(5deg)">Acá nadie llega</div>`, 'Si no te encuentran, <span>le escriben a otro.</span>'),
+   bit: [872, 1112, 138, { t: 2.3, think: 1, lid: .6, look: [-.6, -.9], tilt: -.05 }, '.vis .tag', 0], gente: [[90, 1, .3, 'bolso'], [270, 1, .6, 'gorro'], [470, 1, .05, 'pelo abrigo']], glow: [-500, 200] },
+ 4: { html: senal(3, 'No tiene botón<br>de <b>WhatsApp</b>', `<div class="tarj" style="left:-120px;top:-150px;width:900px;height:560px;padding:28px 34px;transform:rotate(3deg)"><div style="display:flex;gap:10px"><i style="width:20px;height:20px;border-radius:50%;background:#C9C2B6"></i><i style="width:20px;height:20px;border-radius:50%;background:#C9C2B6"></i><i style="width:20px;height:20px;border-radius:50%;background:#C9C2B6"></i></div>
+     <div style="margin:170px 0 0 150px;width:420px">${lineas(6, 100, '#B9B3A8', 18, 18)}</div></div>
+    <div style="position:absolute;left:560px;top:60px;width:330px;height:330px;border-radius:50%;border:8px dashed #25D366;background:rgba(37,211,102,.12)"></div><div style="position:absolute;left:640px;top:140px;width:170px;height:170px;border-radius:50%;background:#25D366;opacity:.35;display:flex;align-items:center;justify-content:center">${WA}</div>
+    <div style="position:absolute;left:690px;top:122px;font-size:190px;font-weight:900;color:#fff;text-shadow:0 8px 0 rgba(0,0,0,.5)">?</div><div class="tag" style="left:500px;top:384px;transform:rotate(-4deg)">Acá falta el botón</div>`, 'Querían escribirte y <span>no supieron cómo.</span>'),
+   bit: [872, 1112, 138, { t: 3.1, lid: .86, look: [-.7, -.9], tilt: -.05 }, '.vis .tag', 0], gente: [[130, -1, .2, 'abrigo'], [360, -1, .55, 'bolso pelo']], glow: [200, -400] },
+ 5: { html: `<div class="ey" style="top:176px">EL SIGUIENTE PASO</div><h1 style="top:232px;font-size:196px;line-height:.94">Pedí tu<br><b style="margin-left:-8px">propuesta</b></h1>
+   <div class="capt" style="top:668px;width:520px;font-size:54px">Te decimos <span>qué arreglar primero</span> en tu web para que te escriban más.</div>
+   <div class="btn" style="top:958px">Link en el perfil</div><div style="position:absolute;left:78px;top:1116px;font-size:35px;font-weight:800;color:var(--m)">o entrá a <b style="color:#fff">devisebit.com/webs</b></div>`,
+   bit: [852, 1068, 182, { t: .36, joy: 1, v: .5, armL: { x: 640, y: 930, k: 1 }, armR: { x: 950, y: 775, k: 1, card: { a: 'Tu propuesta', b: 'por escrito', fs: 29, ok: 1, dx: -160, dy: -74 } } }, null, 0], gente: [[80, 1, .1, 'gorro'], [250, 1, .45, 'pelo bolso'], [430, 1, .7, 'abrigo']], glow: [0, 250] },
+}[n];
+p.innerHTML = S.html; gl.style.left = S.glow[0] + 'px'; gl.style.top = S.glow[1] + 'px';
+S.gente.forEach(([x, dir, f, v], i) => new Persona(gente, { alto: n === 5 ? 128 : 158 - i * 5, color: ['#232A3D', '#1C2233', '#2A3148'][i % 3], var: v }).pose(x, n === 5 ? 1330 : 1268, f, dir));
+const [bx, by, bs, est, sel, lado] = S.bit, c = cv.getContext('2d'); if (sel) { const r = document.querySelector(sel).getBoundingClientRect(); est.armL = { obj: { x: r.left, y: r.top, w: r.width, h: r.height }, k: 1, lado: lado || 0, ret: true }; }
+c.save(); c.globalAlpha = .5; c.fillStyle = '#000'; c.filter = 'blur(12px)'; c.beginPath(); c.ellipse(bx, 1290, bs * .8, bs * .1, 0, 0, 7); c.fill(); c.restore(); bit3(c, bx, by, bs, est);
+</script></body></html>

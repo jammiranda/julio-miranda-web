@@ -1,0 +1,11 @@
+/* Marca DEVISEBIT: mismos colores y tipografia que la serie (base.css) + capas nuevas de profundidad */
+:root { --n:#0B0D12; --n2:#141821; --r:#C8231F; --ra:#FF6A63; --g:#8A919C; --gc:#E2E5EA; --m:rgba(255,255,255,.74); --wa:#25D366; --am:#FFD84D }
+* { box-sizing:border-box; margin:0; padding:0 }
+html, body { width:1080px; height:1920px; overflow:hidden; background:var(--n); font-family:Inter, sans-serif; color:#fff; -webkit-font-smoothing:antialiased }
+.fondo { position:absolute; inset:-200px; background-image:radial-gradient(rgba(255,255,255,.075) 1.6px, transparent 1.6px); background-size:40px 40px }
+.glow { position:absolute; width:1500px; height:1500px; border-radius:50%; background:radial-gradient(circle, rgba(200,35,31,.42), transparent 62%) }
+.grano { position:absolute; inset:0; pointer-events:none; opacity:.11; mix-blend-mode:overlay; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.2 -.1'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>") }
+.vin { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 46%, transparent 52%, rgba(0,0,0,.6) 100%) }
+.logo { font-weight:900; font-size:44px; letter-spacing:-.04em } .logo b { color:var(--ra); font-weight:900 }
+.sw { display:inline-block; width:44px; height:44px; border-radius:12px; margin-left:10px; vertical-align:middle }
+.abs { position:absolute }

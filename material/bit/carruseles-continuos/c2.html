@@ -1,0 +1,61 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>c2 · El recorrido</title><link rel="stylesheet" href="base.css"><style>
+/* Mecanica 2: una linea punteada continua con rulos atraviesa las 7 placas; Bit viaja por ella y cada parada tiene un texto corto. */
+.par { position:absolute; left:70px; font-size:34px; font-weight:900; letter-spacing:.18em; color:var(--ra); white-space:nowrap }
+.lin { display:flex; align-items:center; gap:16px; font-size:40px; font-weight:800; letter-spacing:-.02em; margin-top:14px; color:#fff } .lin u { text-decoration:none; color:var(--am) } .lin i { font-style:normal; color:var(--ra) }
+</style></head><body>
+<div class="fondo" style="width:7560px"></div><div id="gl"></div>
+<svg id="esc" class="lienzo" width="7560" height="1350"></svg>
+<div id="pls"></div>
+<canvas id="cv" class="bc" width="7560" height="1350"></canvas>
+<div class="grano" style="width:7560px"></div>
+<script src="bit3.js"></script><script src="comun.js"></script><script>
+const N = 7, W = N * PW, P = placas(N);
+[[-300, 500], [1500, -700], [2700, 400], [4000, -750], [4900, 450], [6100, -700], [6500, 300]].forEach(([x, y]) => { const d = document.createElement('div'); d.className = 'glow'; d.style.left = x + 'px'; d.style.top = y + 'px'; gl.appendChild(d); });
+// ---------- la linea: puntos de paso + rulos, suavizada con Catmull-Rom ----------
+const rulo = (cx, cy, R) => [115, 65, 15, -40, -95, -150, -205, -255].map(a => [cx + R * Math.cos(a * Math.PI / 180), cy + R * Math.sin(a * Math.PI / 180)]).concat([[cx + R * 1.6, cy + R * .92]]);
+const PT = [[-120, 1180], [140, 1090], ...rulo(430, 960, 118), [840, 1010], [1080, 780],
+  [1290, 500], [1560, 400], [1860, 400], [2030, 480], [2160, 640],
+  [2330, 880], ...rulo(2700, 950, 112), [3040, 1010], [3240, 760],
+  [3440, 470], [3700, 380], [4000, 400], [4190, 490], [4320, 660],
+  [4480, 900], [4640, 1000], ...rulo(4940, 960, 108), [5250, 990], [5400, 770],
+  [5590, 480], [5860, 390], [6150, 400], [6360, 540], [6480, 900],
+  [6660, 1090], [6900, 1100], [7120, 1040], [7300, 1010]];
+let d = `M${PT[0]}`; for (let i = 0; i < PT.length - 1; i++) { const p0 = PT[Math.max(0, i - 1)], p1 = PT[i], p2 = PT[i + 1], p3 = PT[Math.min(PT.length - 1, i + 2)], k = 1 / 6;
+  d += ` C${p1[0] + (p2[0] - p0[0]) * k},${p1[1] + (p2[1] - p0[1]) * k} ${p2[0] - (p3[0] - p1[0]) * k},${p2[1] - (p3[1] - p1[1]) * k} ${p2[0]},${p2[1]}`; }
+// paradas: [x de la placa, y, icono, color]
+const ICO = {
+  cel: '<rect x="-24" y="-42" width="48" height="84" rx="10" fill="none" stroke="#fff" stroke-width="6"/><path d="M-12,-22 h24 M-12,-6 h24 M-12,10 h14" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cy="29" r="3.500" fill="#fff"/>',
+  lupa: '<circle cx="-6" cy="-6" r="26" fill="none" stroke="#fff" stroke-width="7"/><path d="M14,14 L38,38" stroke="#fff" stroke-width="9" stroke-linecap="round"/>',
+  wa: '<g transform="translate(-48 -48) scale(4)"><path d="M12 3.500a8.300 8.300 0 0 0-7.100 12.600L4 20.500l4.500-1A8.300 8.300 0 1 0 12 3.500z" fill="none" stroke="#fff" stroke-width="1.800" stroke-linejoin="round"/><path d="M9.200 8.400c-.6 2.600 2.600 6.300 5.600 6.300l.9-1.300-1.700-1-1 .7c-.9-.4-1.900-1.400-2.300-2.300l.7-1-1-1.700z" fill="#fff"/></g>',
+  dom: '<circle r="36" fill="none" stroke="#fff" stroke-width="6"/><ellipse rx="15" ry="36" fill="none" stroke="#fff" stroke-width="5"/><path d="M-36,0 h72 M-30,-18 h60 M-30,18 h60" stroke="#fff" stroke-width="5"/>',
+  cal: '<rect x="-36" y="-30" width="72" height="66" rx="10" fill="none" stroke="#fff" stroke-width="6"/><path d="M-36,-10 h72 M-18,-40 v16 M18,-40 v16" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M-14,12 l10,10 l18,-20" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>',
+  meta: '<path d="M-20,40 V-40" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M-20,-38 h52 l-14,18 l14,18 h-52 Z" fill="#fff"/>' };
+const PAR = [[1080 + 330, 'cel', '#C8231F', '1'], [2160 + 250, 'lupa', '#C8231F', '2'], [3240 + 330, 'wa', '#18A957', '3'], [4320 + 230, 'dom', '#C8231F', '4'], [5400 + 330, 'cal', '#C8231F', '5'], [6480 + 400, 'meta', '#C8231F', '']];
+esc.innerHTML = `<defs><filter id="bl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter><radialGradient id="med"><stop offset="0" stop-color="#2A3044"/><stop offset="1" stop-color="#11141D"/></radialGradient></defs>
+<path d="${d}" fill="none" stroke="#FF6A63" stroke-width="44" opacity=".07" stroke-linecap="round"/>
+<path id="ruta" d="${d}" fill="none" stroke="#FF8A84" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 30"/><g id="colas"></g><g id="meds"></g>`;
+const ruta = document.getElementById('ruta'), LEN = ruta.getTotalLength();
+// longitud de arco en la que la linea pasa por x (despues de sMin, para elegir que vuelta del rulo)
+const sEnX = (x, sMin = 0) => { for (let q = sMin; q < LEN; q += 2) if (ruta.getPointAtLength(q).x >= x) return q; return LEN; };
+let meds = ''; for (const [x, ic, col, n] of PAR) { const q = sEnX(x), p = ruta.getPointAtLength(q);
+  meds += `<g transform="translate(${p.x} ${p.y})"><circle r="122" fill="${col}" opacity=".35" filter="url(#bl)"/><circle r="104" fill="url(#med)" stroke="${col === '#18A957' ? '#25D366' : '#FF6A63'}" stroke-width="7"/>${col === '#18A957' ? '<circle r="88" fill="#18A957"/>' : ''}${ICO[ic]}${n ? `<circle cx="78" cy="-78" r="38" fill="#FFD84D"/><text x="78" y="-62" text-anchor="middle" font-family="Inter" font-weight="900" font-size="46" fill="#141414">${n}</text>` : ''}</g>`; }
+document.getElementById('meds').innerHTML = meds;
+// ---------- textos ----------
+const abajo = (n, tit, cuerpo) => `<div class="par" style="top:790px">PARADA ${n} DE 5</div><h1 style="top:842px;font-size:90px">${tit}</h1><div class="capt" style="top:1052px">${cuerpo}</div>`;
+const arriba = (n, tit, cuerpo) => `<div class="par" style="top:168px">PARADA ${n} DE 5</div><h1 style="top:222px;font-size:90px">${tit}</h1><div class="capt" style="top:432px">${cuerpo}</div>`;
+const T = [
+ `<div class="ey">WEBS PARA PYMES</div><h1 style="font-size:116px">El camino<br>de una web<br>que <b>vende</b></h1><div class="pill" style="left:70px;top:614px">5 paradas · seguí la línea <i>→</i></div>`,
+ abajo(1, 'Se ve bien<br>en el celular', 'Si hay que hacer zoom para leer, <span>se van.</span>'),
+ arriba(2, 'Aparece<br>en Google', 'Con alta en Google Business,<br><span>para que te encuentren.</span>'),
+ abajo(3, 'Botón de<br>WhatsApp', 'Querían escribirte:<br><span>que sea en un toque.</span>'),
+ arriba(4, 'Dominio<br>a tu nombre', 'Tu .com.ar y un diseño único,<br><span>no una plantilla repetida.</span>'),
+ `<div class="par" style="top:830px">PARADA 5 DE 5</div><h1 style="top:882px;font-size:90px">Lista en<br>días hábiles</h1><div class="abs" style="left:70px;top:1084px;width:940px"><div class="lin">Landing Express <i>→</i> <u>2 a 3 días hábiles</u></div><div class="lin">Web PyME <i>→</i> <u>5 días hábiles</u></div></div>`,
+ `<div class="ey">LLEGASTE</div><h1 style="font-size:150px;line-height:.95">Pedí tu<br><b style="margin-left:-6px">propuesta</b></h1><div class="capt" style="top:560px;width:800px;color:#fff">Contanos qué necesitás<br>y te la pasamos.</div><div class="btn" style="top:700px">${WA(64)}11 7346-6490</div>`,
+]; P.forEach((el, i) => el.innerHTML = cab(i, N) + T[i]);
+// ---------- Bit viaja por la linea: una posicion por placa, con la cola encendida del tramo recien recorrido ----------
+const c = cv.getContext('2d'), VJ = [[830, 150, { t: 1.2 }], [1080 + 800, 132, { t: 2.2 }], [2160 + 940, 128, { t: 3.3, v: .5 }], [3240 + 800, 132, { t: 4.1 }], [4320 + 920, 128, { t: 5.2, think: .0 }], [5400 + 790, 132, { t: 6.1, v: .4 }], [6480 + 800, 172, { t: .36, joy: 1, v: .5 }]];
+let colas = ''; VJ.forEach(([x, S, est], i) => { const lastLoop = [0, 0, 2160 + 760, 0, 4320 + 760, 0, 0][i], q = sEnX(x, lastLoop ? sEnX(lastLoop + 300, sEnX(lastLoop)) - 300 : 0), p = ruta.getPointAtLength(q), p2 = ruta.getPointAtLength(Math.min(LEN, q + 30)), ang = Math.atan2(p2.y - p.y, p2.x - p.x), cola = i === 6 ? 520 : 330;
+  colas += `<path d="${d}" fill="none" stroke="#FFE1DC" stroke-width="9" stroke-linecap="round" stroke-dasharray="${cola} ${LEN * 2}" stroke-dashoffset="${-(q - cola)}" style="filter:drop-shadow(0 0 12px #FF6A63)"/>`;
+  bitEn(c, null, p.x, p.y, S, { lid: .95, look: [Math.cos(ang) * .95, Math.sin(ang) * .8], tilt: Math.max(-.16, Math.min(.16, ang * .22)), ...est }); });
+document.getElementById('colas').innerHTML = colas;
+</script></body></html>

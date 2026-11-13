@@ -1,0 +1,99 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>c1 · Caminando entre placas</title><link rel="stylesheet" href="base.css"><style>
+/* Mecanica 1: un panorama continuo (7 x 1080) de una calle que va de la noche al amanecer; Bit cruza los cortes entre placas. */
+.bur { position:absolute; font-size:44px; font-weight:800; letter-spacing:-.02em; line-height:1.14; padding:26px 34px; border-radius:38px; box-shadow:0 24px 60px rgba(0,0,0,.6) }
+.bur.in { background:#232A3D; border:2px solid rgba(255,255,255,.14); border-bottom-left-radius:8px }
+.bur.out { background:linear-gradient(180deg,#D8312C,#A81C19); border-bottom-right-radius:8px }
+.bur small { display:block; font-size:30px; font-weight:700; opacity:.7; margin-top:8px; text-align:right }
+.hora { position:absolute; font-size:58px; font-weight:900; padding:18px 30px; border-radius:26px; background:#151A28; border:3px solid rgba(255,255,255,.2); box-shadow:0 18px 44px rgba(0,0,0,.55) }
+.hora.sel { background:#fff; color:#11141B; border-color:var(--ra); box-shadow:0 0 0 8px rgba(255,106,99,.35),0 18px 44px rgba(0,0,0,.55) }
+.tarj { position:absolute; background:#F4F1EC; color:#11141B; border-radius:34px; box-shadow:0 30px 80px rgba(0,0,0,.65); padding:30px 36px }
+.tarj .t { font-size:34px; font-weight:900; letter-spacing:.12em; color:#8B2B26 }
+.fila { display:flex; align-items:center; gap:20px; font-size:42px; font-weight:800; letter-spacing:-.02em; margin-top:16px } .fila i { flex:none; width:50px; height:50px; border-radius:50%; background:#18A957; display:flex; align-items:center; justify-content:center }
+</style></head><body>
+<svg id="esc" class="lienzo" width="7560" height="1350"></svg>
+<div id="pls"></div>
+<canvas id="cv" class="bc" width="7560" height="1350"></canvas>
+<div class="grano" style="width:7560px"></div>
+<script src="bit3.js"></script><script src="gente.js"></script><script src="comun.js"></script><script>
+const N = 7, W = N * PW, G = 1190, P = placas(N), r = rnd(31), r2 = rnd(77);
+const OK = '<i><svg width="30" height="30" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i>';
+// ---------- panorama ----------
+let s = `<defs>
+<linearGradient id="noche" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07090F"/><stop offset=".5" stop-color="#10142A"/><stop offset=".88" stop-color="#2A1830"/><stop offset="1" stop-color="#2A1830"/></linearGradient>
+<linearGradient id="alba" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0D1330"/><stop offset=".42" stop-color="#2A2048"/><stop offset=".68" stop-color="#8A3143"/><stop offset=".88" stop-color="#F0764E"/><stop offset="1" stop-color="#F0764E"/></linearGradient>
+<linearGradient id="mh" gradientUnits="userSpaceOnUse" x1="4300" y1="0" x2="6300" y2="0"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="mk" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="1350"><rect width="${W}" height="1350" fill="url(#mh)"/></mask>
+<radialGradient id="sol"><stop offset="0" stop-color="#FFF0D0"/><stop offset=".1" stop-color="#FFC98A" stop-opacity=".95"/><stop offset=".45" stop-color="#FF8A5E" stop-opacity=".4"/><stop offset="1" stop-color="#FF8A5E" stop-opacity="0"/></radialGradient>
+<linearGradient id="cono" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD2A8" stop-opacity=".38"/><stop offset="1" stop-color="#FFD2A8" stop-opacity=".02"/></linearGradient>
+<radialGradient id="foco"><stop offset="0" stop-color="#FFF3E0"/><stop offset=".25" stop-color="#FFC592" stop-opacity=".7"/><stop offset="1" stop-color="#FFC592" stop-opacity="0"/></radialGradient>
+<linearGradient id="vereda" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#474D6C"/><stop offset="1" stop-color="#2A2F45"/></linearGradient>
+<linearGradient id="toldo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E3403A"/><stop offset="1" stop-color="#A51B18"/></linearGradient>
+<linearGradient id="est" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF6A63" stop-opacity="0"/><stop offset="1" stop-color="#FF6A63" stop-opacity=".75"/></linearGradient>
+<filter id="bl"><feGaussianBlur stdDeviation="5"/></filter></defs>
+<rect width="${W}" height="1350" fill="url(#noche)"/><g mask="url(#mk)"><rect width="${W}" height="1350" fill="url(#alba)"/><circle cx="6480" cy="1130" r="900" fill="url(#sol)"/></g>`;
+for (let i = 0; i < 230; i++) { const x = r() * 5800, y = r() * 640; s += `<circle cx="${x}" cy="${y}" r="${1 + r() * 2.2}" fill="#fff" opacity="${(.2 + r() * .6) * Math.max(0, 1 - x / 5600)}"/>`; }
+// luna (entre las placas 2 y 3, lejos de los textos)
+s += `<circle cx="2160" cy="640" r="150" fill="#FFE9D6" opacity=".08"/><circle cx="2160" cy="640" r="46" fill="#FFF1E2"/><circle cx="2142" cy="628" r="46" fill="#10142A" opacity=".0"/>`;
+// skyline lejano
+for (let x = -40; x < W;) { const w = 90 + r() * 170, h = 330 + r() * 230, y = G - h, alb = Math.max(0, Math.min(1, (x - 4600) / 1500)); s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${alb > .5 ? '#1B1730' : '#161B33'}"/>`;
+  for (let a = x + 16; a < x + w - 24; a += 34) for (let b = y + 22; b < G - 40; b += 44) if (r() < .2 * (1 - alb * .7)) s += `<rect x="${a}" y="${b}" width="15" height="22" fill="${r() < .3 ? '#FF8A7A' : '#FFD88A'}" opacity="${.3 + r() * .45}"/>`; x += w + 5; }
+// franja de locales (cruzan los cortes a proposito)
+const persiana = (x, y, w, h) => { let o = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#262C48" stroke="#3A4166" stroke-width="6"/>`; for (let b = y + 12; b < y + h - 10; b += 22) o += `<rect x="${x + 7}" y="${b}" width="${w - 14}" height="12" rx="3" fill="#353C60"/>`; return o; };
+for (let x = 700; x < W + 100;) { const w = 300 + r2() * 190, h = 235 + r2() * 85, y = G - h, col = ['#1D2236', '#232944', '#1A1F38', '#272D4A'][Math.floor(r2() * 4)], tipo = Math.floor(r2() * 3);
+  if (x > 5850 && x < 6420) { x = 6440; continue; }
+  const xw = (x + w > 5880 && x < 5880) ? 5880 - x : w;
+  s += `<rect x="${x}" y="${y}" width="${xw}" height="${h}" fill="${col}"/><rect x="${x}" y="${y}" width="${xw}" height="12" fill="#3A4166"/>`;
+  if (xw > 260) { if (tipo === 0) s += persiana(x + 40, y + 60, xw - 80, h - 60);
+    else if (tipo === 1) s += `<rect x="${x + 36}" y="${y + 64}" width="${xw * .5}" height="${h - 110}" rx="6" fill="#0E1224" stroke="#3A4166" stroke-width="6"/><path d="M${x + 60},${y + h - 60} l70,${-(h - 150)}" stroke="#fff" stroke-opacity=".06" stroke-width="22"/>` + persiana(x + xw * .5 + 70, y + 64, xw * .5 - 110, h - 64);
+    else s += `<path d="M${x + 20},${y + 50} h${xw - 40} l16,44 h${-(xw - 8)} Z" fill="#3B2A4A"/><rect x="${x + 44}" y="${y + 116}" width="${xw - 88}" height="${h - 160}" rx="6" fill="${r2() < .5 ? '#FFD88A' : '#0E1224'}" opacity=".8" stroke="#3A4166" stroke-width="6"/>`; }
+  x += w + 6; }
+// local protagonista (placa 1): cerrado
+s += `<rect x="60" y="610" width="640" height="${G - 610}" fill="#2B3150"/><rect x="60" y="610" width="640" height="14" fill="#3A4166"/>
+<rect x="100" y="646" width="560" height="96" rx="14" fill="#11142A" stroke="#454C74" stroke-width="5"/><text x="380" y="716" text-anchor="middle" font-family="Inter" font-weight="900" font-size="60" letter-spacing="5" fill="#737A9C">TU NEGOCIO</text>
+<path d="M90,754 H670 L700,822 H60 Z" fill="url(#toldo)"/>`;
+for (let i = 0; i < 6; i++) { const a = 130 + i * 96, f = x => 380 + (x - 380) * 1.1; s += `<path d="M${a},754 H${a + 48} L${f(a + 48)},822 H${f(a)} Z" fill="#F4E9E2" opacity=".92"/>`; }
+for (let i = 0; i < 8; i++) s += `<path d="M${60 + i * 80},822 a40,40 0 0 0 80,0 Z" fill="${i % 2 ? '#F4E9E2' : '#B5201C'}"/>`;
+s += `<rect x="100" y="880" width="250" height="270" rx="8" fill="#0E1224" stroke="#3A4166" stroke-width="8"/><path d="M130,1130 L220,900 M200,1130 L290,900" stroke="#fff" stroke-opacity=".06" stroke-width="24"/>` + persiana(390, 880, 270, 310)
+  + `<path d="M525,930 L455,975 M525,930 L595,975" stroke="#C9CEDF" stroke-width="4" fill="none"/><circle cx="525" cy="930" r="7" fill="#C9CEDF"/><rect x="408" y="972" width="234" height="84" rx="14" fill="#F4E9E2" stroke="#B5201C" stroke-width="7" transform="rotate(-3 525 1014)"/><text x="525" y="1030" text-anchor="middle" font-family="Inter" font-weight="900" font-size="42" letter-spacing="2" fill="#B5201C" transform="rotate(-3 525 1014)">CERRADO</text>`;
+// local abierto a la manana (placa 6)
+s += `<rect x="5880" y="870" width="540" height="${G - 870}" fill="#3A3558"/><rect x="5880" y="870" width="540" height="12" fill="#5A5580"/>
+<rect x="5910" y="898" width="480" height="78" rx="12" fill="#1A1430" stroke="#FF6A63" stroke-width="4"/><text x="6150" y="955" text-anchor="middle" font-family="Inter" font-weight="900" font-size="46" letter-spacing="4" fill="#FFB0A8" style="filter:drop-shadow(0 0 10px #FF6A63)">TU NEGOCIO</text>
+<rect x="5912" y="1000" width="250" height="150" rx="6" fill="#FFD88A" stroke="#5A5580" stroke-width="7"/><rect x="5940" y="1046" width="194" height="58" rx="10" fill="#18A957"/><text x="6037" y="1088" text-anchor="middle" font-family="Inter" font-weight="900" font-size="36" letter-spacing="2" fill="#fff">ABIERTO</text>
+<rect x="6200" y="1000" width="170" height="190" fill="#FFE2A8" stroke="#5A5580" stroke-width="7"/><path d="M6200,1000 l-70,26 v164 h70 Z" fill="#4A4470"/><path d="M6200,1190 h170 l90,90 h-330 Z" fill="#FFD88A" opacity=".22"/>`;
+// faroles (solo de noche)
+for (const x of [770, 1780, 2880, 3960, 4950]) s += `<path d="M${x - 70},882 L${x - 230},${G + 110} L${x + 90},${G + 110} Z" fill="url(#cono)"/><rect x="${x}" y="876" width="12" height="${G - 876 + 30}" fill="#0C0E18"/><rect x="${x - 8}" y="${G}" width="28" height="34" rx="5" fill="#0C0E18"/><path d="M${x + 6},882 Q${x},850 ${x - 70},858" fill="none" stroke="#0C0E18" stroke-width="11" stroke-linecap="round"/><path d="M${x - 98},854 h56 l-9,24 h-38 Z" fill="#0C0E18"/><circle cx="${x - 70}" cy="884" r="62" fill="url(#foco)"/>`;
+// vereda, cordon y calle
+s += `<rect x="0" y="${G}" width="${W}" height="104" fill="url(#vereda)"/>`; for (let x = -40; x < W + 60; x += 120) s += `<path d="M${x},${G} l-30,104" stroke="#23283C" stroke-width="3"/>`;
+s += `<g mask="url(#mk)"><rect x="0" y="${G}" width="${W}" height="104" fill="#FF9A6A" opacity=".2"/></g><rect x="0" y="1294" width="${W}" height="14" fill="#5C6384"/><rect x="0" y="1308" width="${W}" height="42" fill="#10131C"/>`;
+// camino de luz que deja Bit (cruza todas las placas) y estelas de velocidad detras de cada Bit
+for (let x = 30; x < 7180; x += 44) s += `<circle cx="${x}" cy="1240" r="12" fill="#FF6A63" opacity=".22" filter="url(#bl)"/><circle cx="${x}" cy="1240" r="6.500" fill="${x % 3 ? '#FF6A63' : '#FFE1DC'}" opacity=".95"/>`;
+const BITS = [1080, 3240, 5400];
+for (const x of BITS) for (const [dy, l, o] of [[-70, 150, .9], [0, 210, 1], [64, 120, .7]]) s += `<rect x="${x - 236 - l}" y="${1005 + dy}" width="${l}" height="9" rx="4.500" fill="url(#est)" opacity="${o}"/>`;
+s += `<g id="per"></g>`;
+esc.innerHTML = s;
+// duenio a la manana: silueta propia mirando el celular
+const gp = document.getElementById('per'); gp.setAttribute('transform', 'translate(5770 0)'); new Persona(gp, { alto: 300, color: '#0C0E1A', var: 'tel abrigo', borde: .9, luz: '#FFB27A' }).pose(0, 1236, .52, 1);
+// ---------- textos (cada placa en su contenedor: nada cruza un corte) ----------
+const T = [
+ `<div class="ey">WHATSAPP CON IA</div><h1 style="font-size:108px">De la consulta<br>al turno<br>agendado</h1><div class="tag" style="left:70px;top:556px;font-size:50px;transform:rotate(-2deg)">sin que nadie atienda</div>
+  <div class="pill" style="left:706px;top:700px">Deslizá <i>→</i></div>`,
+ `<div class="ey">23:47 · LOCAL CERRADO</div><h1>Llega un<br>mensaje</h1><div class="capt" style="top:446px">Un cliente quiere un turno.<br><span>Vos estás durmiendo.</span></div>
+  <div class="bur in" style="left:200px;top:626px;width:660px">Hola, ¿tienen turno para mañana?<small>23:47</small></div>`,
+ `<div class="ey">23:47 · EN SEGUNDOS</div><h1>Bit le<br>contesta</h1><div class="capt" style="top:446px">Entrenado con la información<br><span>de tu negocio.</span></div>
+  <div class="bur out" style="left:150px;top:626px;width:690px">¡Hola! Soy Bit, el asistente con IA. Sí, hay lugar mañana.<small>23:47 ✓✓</small></div>`,
+ `<div class="ey">23:48 · TU AGENDA</div><h1>Ofrece<br>horarios</h1><div class="capt" style="top:446px">Los que tenés libres.<br><span>El cliente elige.</span></div>
+  <div class="hora" style="left:250px;top:660px">10:00</div><div class="hora sel" style="left:480px;top:640px;transform:rotate(-3deg)">16:30</div><div class="hora" style="left:710px;top:660px">18:15</div>
+  <div class="capt" style="left:350px;top:800px;width:640px;font-size:38px;color:#fff">“El de las 16:30 me viene bien.”</div>`,
+ `<div class="ey">23:49 · LISTO</div><h1>Agenda<br>el turno</h1><div class="capt" style="top:446px">Queda en tu agenda.<br><span>Y después manda el recordatorio.</span></div>
+  <div class="tarj" style="left:150px;top:622px;width:680px;transform:rotate(-2deg)"><div class="t">TURNO AGENDADO</div><div class="fila">${OK}Mañana · 16:30</div><div class="fila">${OK}Recordatorio programado</div></div>`,
+ `<div class="ey">A LA MAÑANA</div><h1>Abrís y ya<br>está resuelto</h1><div class="capt" style="top:446px">Si hace falta una persona,<br><span>te deriva la charla.</span></div>
+  <div class="tarj" style="left:270px;top:590px;width:690px;padding:24px 32px"><div class="t">RESUMEN DE LA NOCHE</div><div class="fila" style="font-size:38px;margin-top:10px">${OK}Consulta respondida</div><div class="fila" style="font-size:38px;margin-top:10px">${OK}Turno agendado: 16:30</div></div>`,
+ `<div class="ey">TU PRÓXIMO PASO</div><h1 style="font-size:178px;line-height:.94">Pedí<br>la <b>demo</b></h1><div class="capt" style="top:580px;width:520px;color:#fff">Te la mostramos con un caso parecido al tuyo.</div>
+  <div class="btn" style="top:790px">${WA(64)}11 7346-6490</div>`,
+]; P.forEach((d, i) => d.innerHTML = cab(i, N) + T[i]);
+// ---------- Bit: tres veces a caballo de un corte y una entera al final ----------
+const c = cv.getContext('2d'), S = 196, Y = 1012, base = { lid: .95, look: [.95, -.15], tilt: .09 };
+bitEn(c, null, 1080, Y, S, { ...base, t: 1.3, armR: { x: 1300, y: 836, k: 1 } }, 1244);
+bitEn(c, null, 3240, Y, S, { ...base, t: 2.6, v: .75, armL: { x: 2990, y: 850, k: 1 }, armR: { x: 3504, y: 806, k: 1 } }, 1244);
+bitEn(c, null, 5400, Y, S, { ...base, t: 4.1, joy: .35, armL: { x: 5110, y: 842, k: 1 }, armR: { x: 5690, y: 800, k: 1 } }, 1244);
+bitEn(c, null, 6480 + 800, 1010, 200, { t: .36, joy: 1, v: .5, look: [-.3, -.2], armL: { x: 6480 + 590, y: 1130, k: 1 }, armR: { x: 6480 + 960, y: 730, k: 1, card: { a: 'Turno agendado', b: 'Mañana · 16:30', fs: 30, ok: 1, dx: -120, dy: -76 } } }, 1244);
+</script></body></html>

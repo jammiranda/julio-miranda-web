@@ -1,0 +1,68 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>c3 · Zoom progresivo</title><link rel="stylesheet" href="base.css"><style>
+/* Mecanica 3: la misma escena (un escritorio visto desde arriba) en cada placa, cada vez mas cerca, hasta el tablero. */
+.mundo { position:absolute; left:0; top:0; width:1080px; height:1350px; transform-origin:0 0 }
+.mesa { position:absolute; left:-900px; top:-900px; width:2880px; height:3150px; background:radial-gradient(circle at 50% 51%, #2A3044 0, #1A1E2C 22%, #10131C 60%), #10131C }
+.mesa::after { content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 180px) }
+.hoja { position:absolute; background:#F1EDE5; box-shadow:0 6px 16px rgba(0,0,0,.55); overflow:hidden; border-radius:3px }
+.hoja .h { height:22px; background:#1F7A4A; color:#fff; font-size:12.5px; font-weight:800; line-height:22px; padding-left:7px; white-space:nowrap }
+.hoja .g { position:absolute; left:0; right:0; top:22px; bottom:0; background-image:linear-gradient(#C9C3B8 1px, transparent 1px), linear-gradient(90deg, #C9C3B8 1px, transparent 1px); background-size:34px 15px }
+.hoja .c { position:absolute; height:14px }
+.nota { position:absolute; width:74px; height:74px; box-shadow:0 5px 12px rgba(0,0,0,.5); font-size:13px; font-weight:900; color:#141414; padding:9px 7px; line-height:1.1 }
+.tab { position:absolute; left:424px; top:624px; width:232px; height:192px; border-radius:16px; background:#05060A; border:2px solid #485066; box-shadow:0 0 70px rgba(255,106,99,.6), 0 10px 26px rgba(0,0,0,.7) }
+.pant { position:absolute; left:10px; top:10px; width:208px; height:168px; border-radius:7px; overflow:hidden; background:#0E1220 }
+.dash { position:absolute; left:0; top:0; width:915px; height:739px; transform:scale(.22732); transform-origin:0 0; background:radial-gradient(circle at 50% 55%, #1B2136, #0D111D 70%) }
+.mod { position:absolute; width:300px; height:232px; border-radius:26px; background:#171C2C; border:2.500px solid rgba(255,255,255,.16); padding:22px 24px }
+.mod .t { display:flex; align-items:center; gap:14px; font-size:44px; font-weight:900; letter-spacing:-.03em } .mod .t i { flex:none; width:50px; height:50px; border-radius:14px; background:var(--r); display:flex; align-items:center; justify-content:center }
+.mod .b { height:20px; border-radius:10px; background:rgba(255,255,255,.16); margin-top:18px } .mod .b.on { background:var(--ra) } .mod .b.ok { background:#18A957 } .mod .b.fr { background:var(--fr); opacity:.8 }
+.scr { position:absolute; left:0; width:1080px; pointer-events:none }
+</style></head><body>
+<div id="pls"></div>
+<canvas id="cv" class="bc" width="6480" height="1350"></canvas>
+<script src="bit3.js"></script><script src="comun.js"></script><script>
+const N = 6, P = placas(N, true), r = rnd(19);
+// ---------- el mundo (1080 x 1350 a zoom 1; el tablero esta en el centro: 540, 720) ----------
+const NOM = ['clientes_FINAL.xlsx', 'turnos (2).xlsx', 'stock_viejo.xlsx', 'pagos-marzo.xlsx', 'clientes_FINAL_v2.xlsx', 'copia de stock.xlsx', 'turnos_NUEVO.xlsx', 'pagos (1).xlsx', 'clientes-ok.xlsx', 'stock_FINAL_final.xlsx', 'turnos-junio.xlsx', 'lista.xlsx'];
+function hoja(x, y, w, h, rot, i) { let cel = ''; for (let k = 0; k < 7; k++) cel += `<div class="c" style="left:${1 + 34 * Math.floor(r() * (w / 34))}px;top:${23 + 15 * Math.floor(r() * ((h - 30) / 15))}px;width:33px;background:${['#FFD84D', '#FF8A84', '#BFE8C9', '#FFD84D'][k % 4]};opacity:.85"></div>`;
+  return `<div class="hoja" style="left:${x - w / 2}px;top:${y - h / 2}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg);background:${['#F1EDE5', '#E9E4DA', '#F6F3EC'][i % 3]}"><div class="h">${NOM[i % NOM.length]}</div><div class="g"></div>${cel}</div>`; }
+let m = '<div class="mesa"></div>', puestas = [];
+// primero un anillo ordenado alrededor del tablero (para que siempre haya planillas cerca) y despues relleno al azar
+const fijo = [[330, 610, 190, 250, -14], [760, 640, 200, 250, 11], [330, 880, 210, 240, 8], [750, 890, 190, 250, -9], [545, 520, 230, 170, 4], [540, 930, 240, 170, -5], [140, 740, 190, 250, 17], [950, 760, 190, 250, -16], [200, 420, 200, 250, -7], [880, 400, 200, 250, 13], [520, 300, 230, 180, -3], [190, 1090, 210, 250, 9], [880, 1110, 200, 250, -12], [530, 1160, 240, 180, 6], [30, 1000, 180, 240, -20], [1060, 980, 180, 240, 21], [-20, 480, 190, 240, 12], [1090, 540, 180, 240, -8], [330, 1290, 220, 200, -6], [760, 1310, 220, 200, 10], [330, 160, 210, 230, 9], [760, 150, 210, 230, -11]];
+fijo.forEach(([x, y, w, h, rot], i) => m += hoja(x, y, w, h, rot, i));
+const notas = [[410, 560, '#FFD84D', '¿pagó?', -8], [700, 560, '#FF8A84', 'llamar!!', 9], [395, 850, '#9BE7FF', 'stock??', 6], [690, 870, '#FFD84D', '¿qué turno?', -7], [240, 700, '#FF8A84', 'pasar a la otra', 12], [850, 700, '#FFD84D', 'v2 o v3?', -10], [560, 440, '#9BE7FF', 'urgente', 5], [130, 930, '#FFD84D', 'falta', -14], [960, 930, '#FF8A84', 'ojo', 8]];
+notas.forEach(([x, y, c, t, rot]) => m += `<div class="nota" style="left:${x - 37}px;top:${y - 37}px;background:${c};transform:rotate(${rot}deg)">${t}</div>`);
+// taza, lapicera y calculadora
+m += `<div class="abs" style="left:800px;top:500px;width:96px;height:96px;border-radius:50%;background:#E9E4DA;box-shadow:0 8px 18px rgba(0,0,0,.6)"><div class="abs" style="inset:12px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6B4630,#2E1A10)"></div></div><div class="abs" style="left:884px;top:532px;width:34px;height:30px;border:9px solid #E9E4DA;border-left:none;border-radius:0 16px 16px 0"></div>
+<div class="abs" style="left:230px;top:530px;width:170px;height:13px;border-radius:7px;background:linear-gradient(90deg,#C8231F 0 78%,#E2E5EA 78% 92%,#141414 92%);transform:rotate(-38deg);box-shadow:0 4px 8px rgba(0,0,0,.5)"></div>
+<div class="abs" style="left:200px;top:940px;width:110px;height:150px;border-radius:12px;background:#232A3D;border:2px solid #485066;transform:rotate(13deg);box-shadow:0 8px 18px rgba(0,0,0,.6);padding:10px"><div style="height:30px;border-radius:5px;background:#9BC4A8"></div><div style="margin-top:9px;height:84px;background-image:radial-gradient(circle,#8A919C 6px,transparent 7px);background-size:22.500px 21px"></div></div>`;
+// el tablero: unico, con todo conectado
+const ICN = { cli: '<circle cx="12" cy="8" r="4.200" fill="#fff"/><path d="M4 21c0-4.400 3.600-7 8-7s8 2.600 8 7z" fill="#fff"/>', tur: '<rect x="3.500" y="5" width="17" height="15" rx="3" fill="none" stroke="#fff" stroke-width="2.400"/><path d="M3.500 10h17M8 3v4M16 3v4" stroke="#fff" stroke-width="2.400" stroke-linecap="round"/>', sto: '<path d="M12 3l8 4.200v9.600L12 21l-8-4.200V7.200z M4 7.200l8 4.200 8-4.200 M12 11.400V21" fill="none" stroke="#fff" stroke-width="2.200" stroke-linejoin="round"/>', pag: '<circle cx="12" cy="12" r="8.500" fill="none" stroke="#fff" stroke-width="2.400"/><path d="M7.800 12.300l3 3 5.400-6" fill="none" stroke="#fff" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"/>' };
+const mod = (x, y, ic, t, bars) => `<div class="mod" style="left:${x}px;top:${y}px"><div class="t"><i><svg width="34" height="34" viewBox="0 0 24 24">${ICN[ic]}</svg></i>${t}</div>${bars.map(([w, c]) => `<div class="b ${c}" style="width:${w}%"></div>`).join('')}</div>`;
+const dash = `<div class="dash"><svg class="abs" width="915" height="739" style="left:0;top:0"><g fill="none" stroke="#FF6A63" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 17" style="filter:drop-shadow(0 0 8px #FF6A63)"><path d="M457,405 C380,330 340,300 300,290"/><path d="M457,405 C540,330 580,300 620,290"/><path d="M457,405 C380,470 340,500 300,520"/><path d="M457,405 C540,470 580,500 620,520"/></g></svg>
+<div class="abs" style="left:30px;top:22px;display:flex;align-items:center;gap:14px;font-size:34px;font-weight:900"><span style="width:22px;height:22px;border-radius:6px;background:var(--ra)"></span>Tu empresa</div><div class="abs mono" style="right:30px;top:28px;font-size:24px;color:var(--fr)">un solo tablero</div>
+${mod(24, 84, 'cli', 'Clientes', [[92, ''], [70, 'on'], [82, '']])}${mod(591, 84, 'tur', 'Turnos', [[60, 'fr'], [88, ''], [74, '']])}${mod(24, 484, 'sto', 'Stock', [[84, ''], [46, 'on'], [70, '']])}${mod(591, 484, 'pag', 'Pagos', [[90, 'ok'], [76, 'ok'], [58, '']])}
+<div class="abs" style="left:377px;top:325px;width:160px;height:160px;border-radius:50%;background:#0B0D12;border:5px solid var(--ra);box-shadow:0 0 50px rgba(255,106,99,.7)"><div class="abs" style="left:42px;top:42px;width:66px;height:66px;border-radius:18px;background:linear-gradient(135deg,#fff,#FFCDC6);box-shadow:0 0 30px #FF6A63"><div class="abs" style="left:21px;top:21px;width:24px;height:24px;border-radius:7px;background:var(--r)"></div></div></div></div>`;
+m += `<div class="tab"><div class="pant">${dash}</div></div>`;
+// ---------- placas: [zoom, y de pantalla del centro, y del mundo que se centra, velo arriba hasta, velo abajo desde] ----------
+const V = [[1, 790, 720, 720, 1030], [1.6, 770, 720, 600, 1040], [2.4, 770, 720, 560, 1060], [3.4, 760, 720, 480, 1090], [4.2, 790, 720, 440, 1140], [10, 700, 729, 0, 0]];
+const T = [
+ `<div class="ey">SISTEMAS A MEDIDA</div><h1 style="font-size:106px">Tu empresa<br>está <b>a esto</b><br>de ordenarse</h1><div class="pill" style="left:70px;top:1150px">Deslizá y acercate <i>→</i></div>`,
+ `<div class="ey">HOY</div><h1 style="font-size:92px">Planillas sueltas<br>por todos lados</h1><div class="capt" style="top:1120px;width:660px"><b>Clientes en una. Turnos en otra.</b> <span>Stock, en otra más.</span></div>`,
+ `<div class="ey">MÁS CERCA</div><h1 style="font-size:92px">¿Cuál es la<br>versión buena?</h1><div class="capt" style="top:1120px;width:640px"><b>Nadie sabe.</b> Y se va el día <span>buscando y copiando.</span></div>`,
+ `<div class="ey">EN EL MEDIO</div><h1 style="font-size:92px">Hay otra forma<br>de trabajar</h1><div class="capt" style="top:1150px;width:660px"><b>Un solo tablero</b> <span>en vez de planillas sueltas.</span></div>`,
+ `<div class="ey">UN SISTEMA A MEDIDA</div><h1 style="font-size:104px">Todo <b>conectado</b></h1><div class="capt" style="top:1186px;width:700px;font-size:40px"><b>Clientes, turnos, stock y pagos.</b><br><span>Sin instalar nada.</span></div>`,
+ `<div class="ey">CÓMO SE EMPIEZA</div><h1 style="font-size:88px;line-height:1.02">Un módulo base<br>suele estar en<br><em>3 a 6 semanas.</em></h1><div class="capt" style="top:556px;font-size:52px;color:#fff;width:900px">Diagnóstico de 30 minutos<br><span>sin cargo.</span></div><div class="btn" style="top:726px">${WA(64)}Agendalo: 11 7346-6490</div>`,
+];
+P.forEach((el, i) => { const [z, sy, wy, va, vb] = V[i];
+  el.innerHTML = `<div class="mundo" style="transform:translate(${540 - 540 * z}px,${sy - wy * z}px) scale(${z})">${m}</div>`
+   + (i < 5 ? `<div class="scr" style="top:0;height:${va}px;background:linear-gradient(180deg,rgba(8,10,15,.98) 0,rgba(8,10,15,.93) ${Math.round((va - 170) / va * 100)}%,rgba(8,10,15,0) 100%)"></div><div class="scr" style="top:${vb}px;height:${1350 - vb}px;background:linear-gradient(180deg,rgba(8,10,15,0) 0,rgba(8,10,15,.94) ${i === 4 ? 30 : 42}%,rgba(8,10,15,.98) 100%)"></div>`
+     : `<div class="scr" style="top:0;height:1350px;background:linear-gradient(180deg,rgba(8,10,15,.93) 0,rgba(8,10,15,.86) 60%,rgba(8,10,15,.6) 100%)"></div>`)
+   + `<div class="grano"></div>` + cab(i, N) + T[i]; });
+// ---------- Bit: presenta, senala el tablero y mira hacia el ----------
+const c = cv.getContext('2d'), rect = i => { const [z, sy, wy] = V[i]; return { x: i * 1080 + 540 - 116 * z, y: sy - 96 * z, w: 232 * z, h: 192 * z }; };
+bitEn(c, 0, 880, 1150, 142, { t: 1.3, lid: .9, look: [-.8, -.8], tilt: -.06, armL: { obj: rect(0), k: 1, lado: -1 } });
+bitEn(c, 1, 1080 + 890, 1160, 136, { t: 2.2, lid: .62, think: .5, look: [-.8, -.7], tilt: -.05, armL: { obj: rect(1), k: 1, lado: -1 } });
+bitEn(c, 2, 2160 + 900, 1168, 132, { t: 3.4, lid: .6, think: .8, look: [-.6, -.9], tilt: -.05 });
+bitEn(c, 3, 3240 + 900, 1178, 128, { t: 4.3, lid: 1, v: .5, look: [-.7, -.9], tilt: -.05 });
+bitEn(c, 4, 4320 + 920, 1218, 112, { t: 5.2, lid: 1, joy: .5, look: [-.7, -.9], tilt: -.04 });
+bitEn(c, 5, 5400 + 790, 1085, 190, { t: .36, joy: 1, v: .5, armL: { x: 5400 + 560, y: 880, k: 1 }, armR: { x: 5400 + 960, y: 1240, k: .0 } });
+</script></body></html>

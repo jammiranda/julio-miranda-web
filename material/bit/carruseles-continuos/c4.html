@@ -1,0 +1,42 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>c4 · De borroso a claro</title><link rel="stylesheet" href="base.css"><style>
+/* Mecanica 4: la misma tarjeta de resultado en el mismo lugar de cada placa; arranca desenfocada y se aclara. Bit abre los parpados a medida que enfoca. */
+.res { position:absolute; left:130px; top:510px; width:820px; height:590px; border-radius:40px; background:#F4F1EC; color:#11141B; padding:30px 36px; box-shadow:0 0 90px rgba(255,106,99,.35), 0 40px 90px rgba(0,0,0,.6) }
+.res .k { font-size:28px; font-weight:900; letter-spacing:.14em; color:#8B2B26 }
+.res .mid { display:flex; gap:34px; align-items:center; margin-top:14px }
+.dim { display:flex; align-items:center; gap:14px; font-size:28px; font-weight:800; height:39px } .dim span { width:172px } .dim i { flex:1; height:18px; border-radius:9px; background:#DDD6CA; position:relative; overflow:hidden } .dim i b { position:absolute; left:0; top:0; bottom:0; border-radius:9px; background:#C8231F }
+.pri { display:flex; align-items:center; gap:16px; font-size:32px; font-weight:800; letter-spacing:-.02em; margin-top:10px } .pri i { flex:none; width:42px; height:42px; border-radius:50%; background:#11141B; color:#fff; font-style:normal; font-size:26px; display:flex; align-items:center; justify-content:center }
+.esq { position:absolute; left:98px; top:478px; width:884px; height:654px; pointer-events:none }
+.nit { position:absolute; left:130px; top:440px; font-size:30px; font-weight:700; color:var(--fr); letter-spacing:.04em; white-space:nowrap }
+.gr { font-size:236px; letter-spacing:-.06em; background:linear-gradient(170deg,#FF8179,#C8231F); -webkit-background-clip:text; color:transparent; margin-right:22px; padding-right:6px }
+</style></head><body>
+<div id="pls"></div>
+<canvas id="cv" class="bc" width="6480" height="1350"></canvas>
+<script src="bit3.js"></script><script src="comun.js"></script><script>
+const N = 6, P = placas(N, true);
+const DIM = [['Procesos', 64], ['Datos', 38], ['Atención', 72], ['Equipo', 55], ['Tecnología', 46], ['Seguridad', 30]], R = 96, CIRC = 2 * Math.PI * R;
+const res = `<div class="k">TU NIVEL DIGITAL</div>
+<div class="mid"><svg width="236" height="236" viewBox="-118 -118 236 236" style="flex:none"><circle r="${R}" fill="none" stroke="#DDD6CA" stroke-width="22"/><circle r="${R}" fill="none" stroke="#C8231F" stroke-width="22" stroke-linecap="round" stroke-dasharray="${CIRC * .58} ${CIRC}" transform="rotate(-90)"/><text y="22" text-anchor="middle" font-family="Inter" font-weight="900" font-size="96" letter-spacing="-4" fill="#11141B">58</text><text y="58" text-anchor="middle" font-family="Inter" font-weight="800" font-size="26" fill="#6B665D">de 100</text></svg>
+<div style="flex:1">${DIM.map(([n, v]) => `<div class="dim"><span>${n}</span><i><b style="width:${v}%"></b></i></div>`).join('')}</div></div>
+<div class="k" style="margin-top:14px">3 PRIORIDADES</div>
+<div class="pri"><i>1</i>Ordenar los datos de clientes</div><div class="pri"><i>2</i>Automatizar las respuestas frecuentes</div><div class="pri"><i>3</i>Programar copias de seguridad</div>`;
+const BL = [34, 22, 13, 7, 2.2, 0];
+const esq = `<svg class="esq" viewBox="0 0 884 654"><path d="M0,54 V0 H54 M830,0 H884 V54 M884,600 V654 H830 M54,654 H0 V600" fill="none" stroke="#6EE2FF" stroke-width="5" stroke-linecap="round" style="filter:drop-shadow(0 0 8px #6EE2FF)"/></svg>`;
+const num = (n, pal) => `<h1 style="top:176px;line-height:1;white-space:nowrap;display:flex;align-items:baseline"><span class="gr">${n}</span><span style="font-size:104px">${pal}</span></h1>`;
+const T = [
+ `<div class="ey">AUTODIAGNÓSTICO GRATUITO</div><h1 style="font-size:88px">¿En qué <em>nivel digital</em> está tu empresa?</h1><div class="pill" style="left:70px;top:1168px">Deslizá para enfocar <i>→</i></div>`,
+ num(12, 'preguntas') + `<div class="capt" style="top:1146px;width:640px">Las respondés<br><span>desde el celular.</span></div>`,
+ num(5, 'minutos') + `<div class="capt" style="top:1146px;width:640px">Lo que tarda <span>un café.</span></div>`,
+ num(6, 'dimensiones') + `<div class="capt" style="top:1132px;width:670px;font-size:40px">Procesos, datos, atención, equipo, <span>tecnología y seguridad.</span></div>`,
+ `<div class="ey">AL INSTANTE</div><h1 style="font-size:92px;line-height:1.1;top:214px"><span style="position:relative;z-index:2">Tu puntaje y</span><br><b style="margin-left:-6px">3 prioridades</b></h1><div class="capt" style="top:1146px;width:640px">Para saber<br><span>por dónde empezar.</span></div>`,
+ `<div class="ey">12 PREGUNTAS · 5 MINUTOS</div><h1 style="font-size:150px;line-height:1;top:214px;white-space:nowrap">Hacelo <b>gratis</b></h1><div class="btn" style="top:1156px;height:116px;font-size:48px">Link en el perfil</div>`,
+];
+P.forEach((el, i) => { el.innerHTML = `<div class="fondo"></div><div class="glow" style="left:${[-500, 200, -400, 150, -300, -210][i]}px;top:${[300, 100, 250, 150, 200, 50][i]}px;opacity:${.6 + i * .08}"></div>
+  <div class="res" style="filter:blur(${BL[i]}px)">${res}</div>${esq}
+  <div class="nit mono">${i < 5 ? 'ENFOCANDO ' : 'EN FOCO '}${'▮'.repeat(i + 1)}${'▯'.repeat(5 - i)}</div>
+  ${i >= 4 ? `<div class="tag" style="left:${i === 5 ? 560 : 576}px;top:${i === 5 ? 482 : 486}px;transform:rotate(3deg);font-size:${i === 5 ? 36 : 34}px">Resultado de ejemplo</div>` : ''}
+  <div class="grano"></div>` + cab(i, N) + T[i]; });
+// Bit enfoca: parpados entrecerrados y pensando al principio, abiertos al final
+const c = cv.getContext('2d'), LID = [.34, .46, .6, .76, .92, 1], TH = [.9, .7, .45, .2, 0, 0];
+for (let i = 0; i < 5; i++) bitEn(c, i, i * PW + 900, 1196, 130, { t: 1.1 + i * .9, lid: LID[i], think: TH[i], look: [-.6, -.9], tilt: -.05 });
+bitEn(c, 5, 5 * PW + 890, 1206, 132, { t: .36, joy: 1, v: .5, look: [-.5, -.5] });
+</script></body></html>

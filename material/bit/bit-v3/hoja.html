@@ -1,0 +1,34 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><link rel="stylesheet" href="estilo.css"><style>
+html,body{width:2400px;height:1500px} canvas{position:absolute;left:0;top:0}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:50px 50px}
+.et{position:absolute;font:700 24px "DejaVu Sans Mono",monospace;letter-spacing:.12em;color:#fff;background:rgba(8,9,14,.75);border:1px solid rgba(255,255,255,.22);padding:6px 16px;border-radius:999px;white-space:nowrap}
+.ds{position:absolute;font-size:23px;font-weight:500;line-height:1.25;color:var(--m);width:340px}
+.nota{position:absolute;font:400 21px "DejaVu Sans Mono",monospace;color:#6EE2FF;white-space:nowrap}
+.sep{position:absolute;background:rgba(255,255,255,.1)}
+.chat{position:absolute;border-radius:36px;background:#0F1318;border:3px solid #343B4A;overflow:hidden} .chat div{position:absolute;font-size:20px;font-weight:600;padding:10px 14px;border-radius:18px;line-height:1.2}
+</style></head><body><div class="grid"></div><div class="glow" style="left:-200px;top:300px;opacity:.55"></div><div class="glow" style="left:1500px;top:-600px;opacity:.35"></div>
+<div style="position:absolute;left:60px;top:48px;display:flex;align-items:baseline;gap:26px"><div class="logo" style="font-size:44px">DEVISE<b>BIT</b></div><div style="font:400 24px 'DejaVu Sans Mono',monospace;color:var(--m)">asistente con IA · no es una persona · diseño propio</div></div>
+<div style="position:absolute;left:60px;top:120px;font-size:112px;font-weight:900;letter-spacing:-.045em">Bit <span style="color:var(--ra)">v3</span></div>
+<div style="position:absolute;left:60px;top:262px;width:800px;font-size:29px;font-weight:500;line-height:1.3;color:var(--m)">Un cuerpo de vidrio oscuro con forma de bit y, adentro, <b style="color:#fff">el núcleo de luz</b>. No tiene cara: mira moviendo el núcleo, se expresa con dos párpados de vidrio, habla con el anillo de voz y actúa con dos brazos de interfaz.</div>
+<div class="sep" style="left:900px;top:60px;width:1px;height:1380px"></div>
+<div class="chat" style="left:2065px;top:870px;width:300px;height:540px"><div style="left:16px;top:70px;background:#262E39">Hola, ¿tienen turno?</div><div style="right:16px;top:140px;background:#8A1E1A;width:210px">¡Hola! Soy Bit. Mañana hay 16:30.</div><div style="left:0;top:0;right:0;height:52px;border-radius:0;background:#1A2028;font-size:20px;padding:14px 18px">Tu negocio</div></div>
+<canvas id="cv" width="2400" height="1500"></canvas><div id="et"></div><div class="grano"></div>
+<script src="bit3.js"></script><script>
+const c = cv.getContext('2d'), E = (x, y, t, d) => et.insertAdjacentHTML('beforeend', `<div class="et" style="left:${x}px;top:${y}px">${t}</div>` + (d ? `<div class="ds" style="left:${x + 4}px;top:${y + 48}px">${d}</div>` : ''));
+const D = (x, y, d) => et.insertAdjacentHTML('beforeend', `<div class="ds" style="left:${x + 4}px;top:${y}px">${d}</div>`);
+const N = (x, y, t, x2, y2) => { et.insertAdjacentHTML('beforeend', `<div class="nota" style="left:${x}px;top:${y}px">${t}</div>`); c.strokeStyle = 'rgba(110,226,255,.6)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(x - 8, y + 14); c.lineTo(x2, y2); c.stroke(); c.fillStyle = '#6EE2FF'; c.beginPath(); c.arc(x2, y2, 4, 0, 7); c.fill(); };
+// vista grande: hablando, con tarjeta
+bit3(c, 430, 900, 270, { t: 1.37, v: .85, lid: .86, look: [.15, 0], armR: { x: 705, y: 1215, k: 1, card: { a: 'RESPONDIENDO', b: '23:47 · en linea', fs: 22, dx: -40, dy: 72 } } });
+E(60, 440, 'HABLANDO · VISTA GRANDE'); N(520, 560, 'cuerpo de vidrio, borde coral', 560, 700); N(60, 620, 'párpados de vidrio', 335, 766); N(700, 800, 'anillo de voz', 520, 872); N(700, 905, 'núcleo: el bit', 448, 902); N(60, 1250, 'medidor de voz', 398, 1084); N(60, 1150, 'brazo de interfaz', 170, 985);
+// estados
+const X = [1090, 1465, 1840, 2215], Y = [420, 1110], G = 132;
+bit3(c, X[0], Y[0], G, { t: 4.1 }); E(940, 110, 'REPOSO'); D(940, 640, 'Flota, respira y parpadea. El núcleo late.');
+bit3(c, X[1], Y[0], G, { t: 2.3, think: 1, lid: .5, look: [.5, -.6] }); E(1315, 110, 'PENSANDO'); D(1315, 640, 'Entrecierra los párpados, el núcleo gira y aparece el arco de carga.');
+const ob = { x: 1900, y: 216, w: 120, h: 50 }; c.fillStyle = 'rgba(16,19,27,.95)'; c.strokeStyle = 'rgba(255,255,255,.3)'; rr(c, ob.x, ob.y, ob.w, ob.h, 25); c.fill(); c.stroke(); c.font = '900 28px Inter'; c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText('23:47', ob.x + 20, ob.y + 36);
+bit3(c, X[2] - 40, Y[0] + 50, G * .86, { t: 2.2, v: .15, look: [.9, -.9], tilt: .08, armR: { obj: ob, k: 1 } }); E(1690, 110, 'SEÑALANDO'); D(1690, 640, 'El núcleo mira hacia el objetivo y un brazo lo marca.');
+bit3(c, X[3] - 10, Y[0] - 40, G * .84, { t: .36, joy: 1, v: .4, armL: { x: X[3] - 175, y: Y[0] - 190, k: 1 }, armR: { x: X[3] + 95, y: Y[0] + 120, k: 1, card: { a: 'Turno agendado', b: 'Mañana · 16:30', fs: 16, ok: 1, dx: -70, dy: 46 } } }); E(2065, 110, 'CELEBRANDO'); D(2065, 640, 'Se abre del todo, el núcleo se dilata y entrega la tarjeta.');
+bit3(c, X[0], Y[1], G, { t: 3, ap: .55 }); E(940, 800, 'ENTRADA'); D(940, 1330, 'Aparece en escala; los párpados abren al final.');
+bit3(c, X[1], Y[1], G, { t: 5, lid: .12 }); E(1315, 800, 'SALIDA'); D(1315, 1330, 'Cierra los párpados y se apaga.');
+bit3(c, X[2], Y[1], G, { t: 1.37, v: .8 }); E(1690, 800, 'HABLANDO'); D(1690, 1330, 'El anillo de voz se deforma con cada sílaba.');
+bit3(c, 2292, 1300, 54, { t: 1.1, v: .6, look: [-.8, -.5], armL: { x: 2205, y: 1085, k: 1 } }); E(2065, 800, 'CHICO · EN CHAT');
+</script></body></html>
