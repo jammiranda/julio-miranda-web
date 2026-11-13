@@ -60,6 +60,7 @@ export default async function Prospeccion({ searchParams: sp }: { searchParams: 
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
         abierto={(r) => !CERRADOS.includes(r.estado)}
         rapido={{ etiqueta: "Enviado", si: (r) => r.estado === "borrador" }}
+        copiar={textoParaCopiar}
         enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
         vacio="Sin contactos en esta vista. Cargá cada mail o invitación al prepararla (estado Borrador) y marcala Enviado cuando salga: el seguimiento se agenda solo a los 7 días." />
       <Link href={sp.todos ? qs({ todos: undefined }) : qs({ todos: "1" })} className="text-sm underline text-[var(--gris)] w-fit">{sp.todos ? "Ocultar ganados, sin respuesta y descartados" : "Ver también ganados, sin respuesta y descartados"}</Link>
@@ -81,4 +82,35 @@ export default async function Prospeccion({ searchParams: sp }: { searchParams: 
       <p className="text-xs text-[var(--gris)]">Canales: {Object.values(CANAL_N).join(", ")}. LinkedIn se envía siempre a mano desde la cuenta de Julio; acá solo se registra.</p>
     </div>
   )
+}
+
+/** Bloques de las notas armadas para LinkedIn: «ENCABEZADO:» en una línea y el texto debajo, separados por una línea en blanco. */
+function bloques(notas: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const b of notas.split(/\n\s*\n/)) {
+    const [cab, ...resto] = b.split("\n")
+    const k = cab.trim().toUpperCase()
+    const t = resto.join("\n").trim()
+    if (!t) continue
+    if (k.startsWith("MENSAJE")) out.mensaje = t
+    else if (k.startsWith("PASO 1")) out.invitacion = t
+    else if (k.startsWith("PASO 2")) out.paso2 = t
+    else if (k.startsWith("SEGUIMIENTO")) out.seguimiento = t
+  }
+  return out
+}
+
+/** Qué copiar según el estado: primero la invitación o el mensaje; ya enviado, el mensaje al aceptar o el seguimiento. */
+function textoParaCopiar(r: any): { texto: string; etiqueta: string } | null {
+  if (!r.notas) return null
+  const b = bloques(String(r.notas))
+  if (r.estado === "borrador") {
+    if (b.invitacion) return { texto: b.invitacion, etiqueta: "Copiar invitación" }
+    if (b.mensaje) return { texto: b.mensaje, etiqueta: "Copiar mensaje" }
+  }
+  if (r.estado === "enviado") {
+    if (b.paso2) return { texto: b.paso2, etiqueta: "Copiar mensaje" }
+    if (b.seguimiento) return { texto: b.seguimiento, etiqueta: "Copiar seguimiento" }
+  }
+  return null
 }
