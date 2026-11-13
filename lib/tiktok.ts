@@ -7,8 +7,8 @@ import { guardarPublicaciones, guardarRedDiario, redDiario, type Publicacion } f
 /**
  * TikTok de DEVISEBIT para el Panel de Contenido.
  * Los videos se traen solos desde Buffer (que es quien los publica): reproducciones, me gusta, comentarios, compartidos y alcance,
- * con la misma clave BUFFER_API_KEY que usa LinkedIn. Los seguidores y los me gusta de la cuenta no los da Buffer: esos se cargan a mano
- * desde el panel (pantalla TikTok), escribiéndolos o subiendo una planilla.
+ * con la misma clave BUFFER_API_KEY que usa LinkedIn. Los seguidores y los totales diarios de la cuenta (y también los videos) llegan desde
+ * Metricool con la tarea diaria del panel (POST /api/panel/redes, red "tiktok"). La carga a mano (pantalla TikTok) queda como respaldo.
  * Se guardan en las mismas tablas que las demás redes: pc_red_diario (red tiktok: seguidores y me gusta de la cuenta por día)
  * y pc_publicaciones (un renglón por video; volver a cargar el mismo link actualiza, no duplica).
  * Mientras no haya nada cargado no se muestra ningún número.

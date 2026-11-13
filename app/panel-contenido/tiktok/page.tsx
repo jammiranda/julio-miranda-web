@@ -21,14 +21,14 @@ export default async function TikTok() {
 
   return (
     <>
-      <Head t="TikTok" sub={<>@{TT_USUARIO} · cuenta creada el 12/11/2026 · se publica por Buffer, 2 videos por día · los videos y sus números llegan solos desde Buffer; los seguidores se cargan a mano{tt?.actualizado ? <> · última carga {fechaHora(tt.actualizado)}</> : null}</>}>
+      <Head t="TikTok" sub={<>@{TT_USUARIO} · cuenta creada el 12/11/2026 · se publica por Buffer, 2 videos por día · los números llegan solos: seguidores y totales diarios desde Metricool (tarea diaria de las 7:17), videos desde Metricool y Buffer; la carga a mano queda como respaldo{tt?.actualizado ? <> · última carga {fechaHora(tt.actualizado)}</> : null}</>}>
         <a className="pc-btn" href={TT_URL} target="_blank" rel="noreferrer">Abrir TikTok</a>
       </Head>
 
       {!tt ? (
         <SinDatos><b>No se pudieron leer los datos guardados de TikTok en este momento.</b> Probá de nuevo en un rato.</SinDatos>
       ) : !tt.hay ? (
-        <SinDatos><b>Todavía no hay datos cargados.</b> {sincro.ok ? "Buffer todavía no informó videos publicados." : sincro.error === "sin_clave" ? "Falta la clave de Buffer (BUFFER_API_KEY) para traer los videos solos." : `No se pudieron traer los videos desde Buffer (${sincro.error}).`} Los seguidores y los me gusta de la cuenta se cargan a mano: copialos desde <a href={TT_URL} target="_blank" rel="noreferrer">el perfil @{TT_USUARIO}</a> y cargalos en el formulario de abajo. El primer video se publicó el 12/11/2026: <a href={TT_PRIMER_VIDEO} target="_blank" rel="noreferrer">verlo en TikTok</a>.</SinDatos>
+        <SinDatos><b>Todavía no hay datos cargados.</b> {sincro.ok ? "Buffer todavía no informó videos publicados." : sincro.error === "sin_clave" ? "Falta la clave de Buffer (BUFFER_API_KEY) para traer los videos solos." : `No se pudieron traer los videos desde Buffer (${sincro.error}).`} Los seguidores llegan desde Metricool con la tarea diaria (Metricool empezó a medir la cuenta el 13/11). Si hace falta, se pueden cargar a mano: copialos desde <a href={TT_URL} target="_blank" rel="noreferrer">el perfil @{TT_USUARIO}</a> y cargalos en el formulario de abajo. El primer video se publicó el 12/11/2026: <a href={TT_PRIMER_VIDEO} target="_blank" rel="noreferrer">verlo en TikTok</a>.</SinDatos>
       ) : (
         <>
           <div className="pc-kpis">
@@ -40,7 +40,7 @@ export default async function TikTok() {
           </div>
           {conSeg.length > 1 && <div className="pc-card"><div className="pc-ch"><h2>Seguidores</h2><span className="pc-k">según cada carga</span></div><Linea puntos={conSeg.map((d) => ({ x: d.dia, y: Number(d.seguidores) }))} color="var(--tt)" titulo="Seguidores de TikTok" /></div>}
           <div className="pc-card">
-            <div className="pc-ch"><h2>Videos</h2><span className="pc-tag"><span className="pc-dot" style={{ background: "var(--tt)" }} />Origen: Buffer (automático) y carga a mano</span>{!sincro.ok && sincro.error !== "sin_clave" && <span className="pc-tag" title={sincro.error}>Buffer no respondió: se muestra lo último guardado</span>}<a className="pc-btn" href={`${b}/publicaciones?red=tiktok&periodo=365`}>Ver en el historial</a></div>
+            <div className="pc-ch"><h2>Videos</h2><span className="pc-tag"><span className="pc-dot" style={{ background: "var(--tt)" }} />Origen: Metricool y Buffer (automático), carga a mano de respaldo</span>{!sincro.ok && sincro.error !== "sin_clave" && <span className="pc-tag" title={sincro.error}>Buffer no respondió: se muestra lo último guardado</span>}<a className="pc-btn" href={`${b}/publicaciones?red=tiktok&periodo=365`}>Ver en el historial</a></div>
             {videos.length ? (
               <div className="pc-tw"><table>
                 <thead><tr><th>Fecha</th><th>Video</th><th className="n">Reproducciones</th><th className="n">Me gusta</th><th className="n">Coment.</th><th className="n">Compart.</th><th>Última carga</th></tr></thead>
