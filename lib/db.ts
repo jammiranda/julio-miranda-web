@@ -1193,7 +1193,24 @@ from (values
 ) v(nombre,monto,estado,pagado,nota) join db_proyectos p on p.nombre=v.nombre
 where not exists (select 1 from config where clave='seed_cobros_octubre_2026')
 on conflict (proyecto_id, periodo) where tipo='abono' and estado<>'anulado' do nothing;
-insert into config(clave,valor) values ('seed_cobros_octubre_2026','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_cobros_octubre_2026','ok') on conflict (clave) do nothing;
+update db_cobros set estado='anulado', nota='Reemplazado por la deuda de octubre en 3 cuotas de $1.000.000 (se pagan junto con el abono de noviembre, diciembre y enero).'
+ where periodo='2026-10' and tipo='abono' and estado='pendiente' and concepto like '%Consultora SN%' and not exists (select 1 from config where clave='seed_deuda_sn_2026');
+update db_cobros set monto=3000000, nota='Abono base. Se paga junto con la cuota 2 de 3 de la deuda de octubre ($1.000.000): en total $4.000.000.'
+ where periodo='2026-12' and tipo='abono' and concepto like '%Consultora SN%' and not exists (select 1 from config where clave='seed_deuda_sn_2026');
+update g_movimientos set monto=3000000, nota='Abono de noviembre ($3.000.000). El otro $1.000.000 que entró es la cuota 1 de 3 de la deuda de octubre y figura en Cobros.'
+ where tipo='ingreso' and concepto='CONSULTORA SN' and monto=4000000 and not exists (select 1 from config where clave='seed_deuda_sn_2026');
+insert into db_cobros(contacto_id,proyecto_id,tipo,concepto,monto,moneda,vence,periodo,estado,pagado_en,nota,creado_por)
+select p.contacto_id,p.id,'cuota',v.concepto,1000000,'ARS',v.vence::date,null,v.estado,v.pagado::timestamptz,'Deuda del abono de octubre ($3.000.000) en 3 cuotas, junto con el abono de cada mes.','finanzas'
+from (values
+ ('Deuda abono octubre · cuota 1 de 3','2026-11-06','pagado','2026-11-06 12:00-03'),
+ ('Deuda abono octubre · cuota 2 de 3','2026-12-10','pendiente',null),
+ ('Deuda abono octubre · cuota 3 de 3','2027-01-10','pendiente',null)
+) v(concepto,vence,estado,pagado) join db_proyectos p on p.nombre='Consultora SN · abono mensual'
+where not exists (select 1 from config where clave='seed_deuda_sn_2026');
+update db_proyectos set notas='Software desarrollado. Abono base $3.000.000 por mes desde septiembre 2026, 6 meses en principio, sin fecha de fin. Octubre no se pagó: se cancela en 3 cuotas de $1.000.000 en noviembre, diciembre y enero (esos meses entran $4.000.000).'
+ where nombre='Consultora SN · abono mensual' and not exists (select 1 from config where clave='seed_deuda_sn_2026');
+insert into config(clave,valor) values ('seed_deuda_sn_2026','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
