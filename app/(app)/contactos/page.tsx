@@ -11,7 +11,7 @@ import ContactosTabla from "@/components/ContactosTabla"
 export const dynamic = "force-dynamic"
 
 // Con qué dato se puede contactar a cada uno. El perfil de LinkedIn se guarda en las notas al importar la red.
-const TIENE_EMAIL = "(c.email ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$')"
+const TIENE_EMAIL = "(coalesce(c.email,'') ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$')"
 const TIENE_TEL = "(length(regexp_replace(coalesce(c.telefono,''), '[^0-9]', '', 'g')) >= 8)"
 const TIENE_LI = "(coalesce(c.notas,'') ilike '%linkedin.com/in/%')"
 const DATOS = [
