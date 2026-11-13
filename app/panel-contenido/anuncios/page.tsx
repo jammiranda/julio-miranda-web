@@ -15,7 +15,7 @@ async function Seguimiento() {
         <div key={c.campania_id} className="pc-card">
           <div className="pc-ch">
             <h2>{c.nombre}</h2>
-            <span className="pc-tag"><span className="pc-dot" style={{ background: c.estado === "activa" ? "var(--ok)" : "var(--muted)" }} />{c.estado === "activa" ? "Activa" : c.estado}{c.diasTotal ? ` · día ${Math.min(c.diasCorridos ?? 0, c.diasTotal)} de ${c.diasTotal}` : ""}</span>
+            <span className="pc-tag"><span className="pc-dot" style={{ background: c.estado === "activa" ? "var(--ok)" : "var(--muted)" }} />{c.estado === "activa" ? "Activa" : c.estado === "terminada" ? "Terminada" : c.estado}{c.diasTotal ? ` · día ${Math.min(c.diasCorridos ?? 0, c.diasTotal)} de ${c.diasTotal}` : ""}</span>
           </div>
           <p className="pc-sub" style={{ marginTop: 0 }}>
             {c.plataforma === "meta" ? "Meta Ads" : "Google Ads"}{c.objetivo ? ` · ${c.objetivo}` : ""}
@@ -27,7 +27,7 @@ async function Seguimiento() {
             <Kpi k="Invertido" v={c.gasto != null ? plata(c.gasto, c.moneda) : null} ft={c.presupuestoTotal ? `de ${plata(c.presupuestoTotal, c.moneda)}` : ""} />
             <Kpi k="Alcance" v={c.alcance != null ? fmt(c.alcance) : null} ft={c.impresiones != null ? `${fmt(c.impresiones)} impresiones${c.frecuencia ? ` · frec. ${fmt(c.frecuencia, 1)}` : ""}` : ""} />
             <Kpi k="Visitas al perfil" v={c.resultados != null ? fmt(c.resultados) : null} ft={c.costoResultado != null ? `${plata(c.costoResultado, c.moneda)} c/u` : ""} />
-            <Kpi k="Seguidores nuevos" v={c.nuevosSeguidores != null ? fmt(c.nuevosSeguidores) : null} ft={c.seguidoresHoy != null ? `${fmt(c.seguidoresHoy)} hoy · ${c.costoSeguidor != null ? `${plata(c.costoSeguidor, c.moneda)} c/u` : "desde el inicio"}` : ""} color="var(--ok)" />
+            <Kpi k={c.estado === "activa" ? "Seguidores ganados en Instagram" : "Seguidores ganados durante la campaña"} v={c.nuevosSeguidores != null ? fmt(c.nuevosSeguidores) : null} ft={c.seguidoresFin != null ? `${fmt(c.seguidoresFin)} ${c.estado === "activa" ? "hoy" : "al terminar"} · todas las fuentes, no solo el anuncio${c.costoSeguidor != null ? ` · ≈ ${plata(c.costoSeguidor, c.moneda)} c/u` : ""}` : ""} color="var(--ok)" />
             {c.base_palabra && <Kpi k={`Pedidos ${c.base_palabra}`} v={c.pedidosPalabra != null ? fmt(c.pedidosPalabra) : null} ft="por DM desde el inicio" color="var(--ok)" />}
           </div>
           {(c.publico || c.anuncios || c.meta) && (
@@ -85,7 +85,20 @@ export default async function Anuncios() {
                 <Kpi k="Consultas" v={fmt(p.consultas)} ft={`${fmt(p.consultasAtendidas)} atendidas · ${fmt(p.pasaronCrm)} al CRM · ${fmt(p.ventas)} ganadas`} color="var(--ok)" />
                 <Kpi k="Costo por consulta" v={p.costoPorConsulta != null ? plata(p.costoPorConsulta, p.moneda) : null} />
               </div>
-            ) : <div className="pc-empty">{p.plataforma === "meta" ? "Meta Ads no se sincroniza solo todavía: la inversión y los resultados de sus campañas están en los controles de la bitácora, arriba." : "Sin inversión registrada en los últimos 30 días."}</div>}
+            ) : <div className="pc-empty">{p.plataforma === "meta" ? (a.metaConClaves ? "Meta Ads está conectado pero no informó inversión en los últimos 30 días." : "Meta Ads todavía no está conectado: faltan las claves META_ADS_TOKEN y META_AD_ACCOUNT_ID en Vercel. Hasta que se carguen, la inversión de Meta solo aparece en los controles de la bitácora, arriba, y puede estar desactualizada.") : "Sin inversión registrada en los últimos 30 días."}</div>}
+            {p.plataforma === "google" && (
+              <div className="pc-list" style={{ marginTop: 10 }}>
+                {a.cuentasGoogle.map((c) => (
+                  <div key={c.nombre} className="pc-item">
+                    <span className="pc-row" style={{ justifyContent: "space-between" }}>
+                      <span>{c.nombre}</span>
+                      <span className="pc-tag"><span className="pc-dot" style={{ background: c.diasSinDatos == null ? "var(--bad, #c8231f)" : c.diasSinDatos > 2 ? "var(--warn, #d97706)" : "var(--ok)" }} />
+                        {c.diasSinDatos == null ? "No manda datos al panel" : c.diasSinDatos > 2 ? `Sin datos nuevos desde el ${fechaCorta(c.ultimoDia!)}` : `Al día · ${plata(c.gasto ?? 0, p.moneda)} en 30 días`}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -93,9 +106,10 @@ export default async function Anuncios() {
         <>
           <div className="pc-card"><div className="pc-ch"><h2>Inversión por día</h2></div><Columnas filas={dias} titulo="Inversión por día" /></div>
           <div className="pc-card"><div className="pc-ch"><h2>Campañas</h2></div>
-            <div className="pc-tw"><table><thead><tr><th>Campaña</th><th>Plataforma</th><th className="n">Inversión</th><th className="n">Impresiones</th><th className="n">Clics</th><th className="n">Conversiones</th></tr></thead>
-              <tbody>{a.campanias.map((c, i) => <tr key={i}><td>{c.campania}</td><td className="pc-muted">{c.plataforma === "google" ? "Google" : "Meta"}</td><td className="n">{plata(Number(c.gasto))}</td><td className="n">{fmt(Number(c.impresiones))}</td><td className="n">{fmt(Number(c.clics))}</td><td className="n">{fmt(Number(c.conversiones), 0)}</td></tr>)}</tbody>
+            <div className="pc-tw"><table><thead><tr><th>Campaña</th><th>Plataforma</th><th className="n">Inversión</th><th className="n">Impresiones</th><th className="n">Clics</th><th className="n">Conversiones*</th></tr></thead>
+              <tbody>{a.campanias.map((c, i) => <tr key={i}><td>{c.campania}</td><td className="pc-muted">{c.plataforma === "google" ? (c.cuenta ?? "Google") : "Meta"}</td><td className="n">{plata(Number(c.gasto), a.plataformas.find((x) => x.plataforma === c.plataforma)?.moneda)}</td><td className="n">{fmt(Number(c.impresiones))}</td><td className="n">{fmt(Number(c.clics))}</td><td className="n">{fmt(Number(c.conversiones), 0)}</td></tr>)}</tbody>
             </table></div>
+            <p className="pc-sub" style={{ marginBottom: 0 }}>* Conversiones según cada plataforma. En Google Ads, hasta el 12/11/2026 se contaba como conversión el toque en el botón de WhatsApp (no el mensaje enviado), así que esos días están inflados. Para medir resultados reales mirá «Consultas», que sale del sistema.</p>
           </div>
         </>
       )}

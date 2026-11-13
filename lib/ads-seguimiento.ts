@@ -17,6 +17,8 @@ export type Seguimiento = {
 }
 
 const seguidoresHoy = () => one<{ seguidores: number }>("select seguidores from pc_ig_seguidores order by dia desc limit 1").then((r) => r?.seguidores ?? null).catch(() => null)
+/** Seguidores de Instagram al cierre de un día (el último dato guardado hasta esa fecha, hora Argentina). */
+const seguidoresAl = (fecha: Date) => one<{ seguidores: number }>("select seguidores from pc_ig_seguidores where dia <= ($1::timestamptz at time zone 'America/Argentina/Buenos_Aires')::date order by dia desc limit 1", [fecha.toISOString()]).then((r) => r?.seguidores ?? null).catch(() => null)
 const usosPalabra = (p: string | null) => (p ? one<{ usos: number }>("select usos from am_recursos where palabra=$1", [p]).then((r) => r?.usos ?? null).catch(() => null) : Promise.resolve(null))
 
 /** Crea o actualiza la ficha de una campaña. La primera vez guarda la base de seguidores y de la palabra clave. */
@@ -83,11 +85,18 @@ export async function seguimientos() {
     const ini = s.inicio ? new Date(s.inicio).getTime() : null, fin = s.fin ? new Date(s.fin).getTime() : null
     const diasTotal = ini && fin ? Math.max(1, Math.round((fin - ini) / 864e5)) : null
     const diasCorridos = ini ? Math.min(diasTotal ?? Infinity, Math.max(0, Math.floor((ahora - ini) / 864e5))) : null
-    const nuevosSeg = segHoy != null && s.base_seguidores != null ? segHoy - s.base_seguidores : null
+    // Una campaña cuya fecha de fin ya pasó se muestra como terminada aunque nadie haya cambiado el estado a mano,
+    // y los seguidores se cuentan solo hasta su fin (no todo lo que creció Instagram después).
+    const terminada = s.estado === "activa" && fin != null && fin < ahora
+    const estado = terminada ? "terminada" : s.estado
+    const segFin = fin != null && fin < ahora ? await seguidoresAl(new Date(fin)) : segHoy
+    const nuevosSeg = segFin != null && s.base_seguidores != null ? segFin - s.base_seguidores : null
     const pedidos = usosHoy != null && s.base_palabra_usos != null ? usosHoy - s.base_palabra_usos : null
     const gasto = ult?.gasto ?? null
     return {
       ...s,
+      estado,
+      seguidoresFin: segFin,
       ultimoControl: controles[controles.length - 1]?.fecha ?? null,
       diasTotal, diasCorridos,
       presupuestoTotal: s.presupuesto_diario != null && diasTotal ? Number(s.presupuesto_diario) * diasTotal : null,
