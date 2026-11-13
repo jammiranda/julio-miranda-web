@@ -1242,7 +1242,16 @@ select 'egreso',v.concepto,v.categoria,v.monto::numeric,'USD',v.estado,v.fecha::
 where not exists (select 1 from config where clave='seed_gmail_nov_2026')
 on conflict (externo_id) where externo_id is not null do nothing;
 update g_proveedores set notas='Oficina en Circular. Factura del 1 al 10 de cada mes, por transferencia a GD WORK SA. Contacto: administración de Circular.' where nombre='Gd Work SA' and not exists (select 1 from config where clave='seed_gmail_nov_2026');
-insert into config(clave,valor) values ('seed_gmail_nov_2026','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_gmail_nov_2026','ok') on conflict (clave) do nothing;
+insert into g_reglas(patron,categoria,ambito,proveedor) values ('linkedin','Software y servicios','laboral',null) on conflict (patron) do nothing;
+insert into g_movimientos(tipo,concepto,categoria,monto,moneda,estado,fecha,vence,medio,externo_id,nota,ambito,origen,creado_por)
+select 'egreso',v.concepto,'Software y servicios',6000,'ARS','pendiente',null,v.vence::date,'Tarjeta',v.externo_id,'A reconfirmar: $6.000 por cuenta, según Julio. Se renueva el 18 de cada mes (aviso de LinkedIn en Gmail). Falta saber cuántas cuentas son.','laboral','gmail','finanzas' from (values
+  ('LinkedIn Premium · noviembre (a reconfirmar)','2026-11-18','gmail:linkedin:2026-11'),
+  ('LinkedIn Premium · diciembre (a reconfirmar)','2026-12-18','gmail:linkedin:2026-12')
+) v(concepto,vence,externo_id)
+where not exists (select 1 from config where clave='seed_linkedin_2026_11')
+on conflict (externo_id) where externo_id is not null do nothing;
+insert into config(clave,valor) values ('seed_linkedin_2026_11','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
