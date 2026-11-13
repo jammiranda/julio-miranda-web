@@ -75,46 +75,62 @@ function detectarSeparador(txt: string) {
   return tab > pc && tab > c ? "\t" : pc >= c ? ";" : ","
 }
 
-export async function importarMercadoPago(tabla: unknown[][], usuario: string): Promise<ResultadoMP> {
+export const FUENTES = {
+  mercadopago: { n: "Mercado Pago", medio: "Mercado Pago", pref: "mp" },
+  galicia: { n: "Banco Galicia", medio: "Banco Galicia", pref: "galicia" },
+  banco: { n: "Otro banco", medio: "Otro banco", pref: "banco" },
+} as const
+export type Fuente = keyof typeof FUENTES
+
+export async function importarMercadoPago(tabla: unknown[][], usuario: string, fuente: Fuente = "mercadopago"): Promise<ResultadoMP> {
+  const F = FUENTES[fuente] ?? FUENTES.mercadopago
   const r: ResultadoMP = { leidas: 0, egresos: 0, nuevos: 0, repetidos: 0, ingresosOmitidos: 0, laborales: 0, porClasificar: 0 }
   // Fila de títulos: la primera que tenga algo de fecha y algo de monto
   const iCab = tabla.findIndex((f) => {
     const c = f.map(norm)
-    return c.some((x) => x.includes("fecha") || x.includes("date")) && c.some((x) => /monto|importe|amount|valor|neto/.test(x))
+    return c.some((x) => x.includes("fecha") || x.includes("date")) && c.some((x) => /monto|importe|amount|valor|neto|debito|credito/.test(x))
   })
-  if (iCab < 0) return { ...r, error: "No encontré las columnas de fecha y monto. Subí el reporte de Mercado Pago tal como se descarga (CSV o Excel)." }
+  if (iCab < 0) return { ...r, error: `No encontré las columnas de fecha y monto. Subí el archivo de ${F.n} tal como se descarga (CSV o Excel).` }
   const cab = tabla[iCab].map(norm)
   const cFecha = buscarCol(cab, "transaction_date", "fecha de origen", "fecha de creacion", "fecha", "date_created", "date")
+  // Bancos (Galicia y otros): débitos y créditos en columnas separadas, ambos en positivo
+  const cDeb = buscarCol(cab, "debitos", "debito", "debe")
+  const cCred = buscarCol(cab, "creditos", "credito", "haber")
   const cMonto = buscarCol(cab, "transaction_amount", "monto neto", "importe", "monto", "net_amount", "settlement_net_amount", "amount", "valor")
-  const cDesc = buscarCol(cab, "descripcion", "description", "detalle", "concepto", "transaction_type", "tipo de operacion", "tipo")
+  const cDesc = buscarCol(cab, "descripcion", "description", "detalle", "concepto", "leyendas adicionales1", "transaction_type", "tipo de operacion", "tipo")
+  // Otras columnas con texto del movimiento (en Galicia el comercio viene en "Concepto" o en las leyendas)
+  const cTextos = cab.map((c, i) => (/^concepto$|leyenda|observacion|referencia|comercio|establecimiento/.test(c) ? i : -1)).filter((i) => i >= 0)
   const cContra = buscarCol(cab, "contraparte", "nombre", "counterpart", "pagador", "vendedor", "store", "payer")
   const cId = buscarCol(cab, "source_id", "id de operacion", "numero de operacion", "operacion", "reference_id", "id")
   const cMoneda = buscarCol(cab, "transaction_currency", "moneda", "currency")
-  if (cFecha < 0 || cMonto < 0) return { ...r, error: "No encontré las columnas de fecha y monto en el archivo." }
+  if (cFecha < 0 || (cMonto < 0 && cDeb < 0)) return { ...r, error: "No encontré las columnas de fecha y monto (o débitos y créditos) en el archivo." }
 
   const reglas = await q<Regla>("select patron, categoria, ambito, proveedor from g_reglas order by length(patron) desc")
   const provs = await q<{ id: number; nombre: string }>("select id, nombre from g_proveedores")
   const provId = (n: string | null) => (n ? provs.find((p) => p.nombre === n)?.id ?? null : null)
 
   for (const fila of tabla.slice(iCab + 1)) {
-    const monto = aNumero(fila[cMonto])
+    const deb = cDeb >= 0 ? Math.abs(aNumero(fila[cDeb]) ?? 0) : 0
+    const cred = cCred >= 0 ? Math.abs(aNumero(fila[cCred]) ?? 0) : 0
+    const monto = cDeb >= 0 ? (deb ? -deb : cred || null) : aNumero(fila[cMonto])
     const fecha = aFecha(fila[cFecha])
     if (monto == null || !fecha || monto === 0) continue
     r.leidas++
     if (monto > 0) { r.ingresosOmitidos++; continue }
     r.egresos++
-    const desc = [cDesc >= 0 ? fila[cDesc] : "", cContra >= 0 && cContra !== cDesc ? fila[cContra] : ""].map((x) => String(x ?? "").trim()).filter(Boolean).join(" · ") || "Movimiento de Mercado Pago"
+    const partes = [...new Set([cDesc, ...cTextos, cContra].filter((i) => i >= 0))].map((i) => String(fila[i] ?? "").trim()).filter((x) => x && !/^[\d\s.,\-]+$/.test(x))
+    const desc = [...new Set(partes)].join(" · ") || `Movimiento de ${F.n}`
     const idOp = cId >= 0 ? String(fila[cId] ?? "").trim() : ""
-    const externo = `mp:${idOp && /\d{4,}/.test(idOp) ? idOp : hash(`${fecha}|${desc}|${monto}`)}`
+    const externo = `${F.pref}:${idOp && /\d{4,}/.test(idOp) ? idOp : hash(`${fecha}|${desc}|${monto}`)}`
     const moneda = cMoneda >= 0 && /usd|u\$s|dolar/.test(norm(fila[cMoneda])) ? "USD" : "ARS"
     const d = norm(desc)
     const regla = reglas.find((x) => d.includes(norm(x.patron)))
     const ins = await q<{ id: number }>(
       `insert into g_movimientos(tipo,concepto,categoria,monto,moneda,estado,fecha,medio,externo_id,proveedor_id,ambito,origen,nota,creado_por)
-       values ('egreso',$1,$2,$3,$4,'pagado',$5,'Mercado Pago',$6,$7,$8,'mercadopago',$9,$10)
+       values ('egreso',$1,$2,$3,$4,'pagado',$5,$11,$6,$7,$8,$12,$9,$10)
        on conflict (externo_id) where externo_id is not null do nothing returning id`,
       [desc.slice(0, 200), regla?.categoria ?? null, Math.abs(monto), moneda, fecha, externo, provId(regla?.proveedor ?? null), regla?.ambito ?? null,
-       regla ? `Clasificado solo por la regla "${regla.patron}".` : "Importado de Mercado Pago. Falta marcar si es laboral o personal.", usuario],
+       regla ? `Importado de ${F.n}. Clasificado solo por la regla "${regla.patron}".` : `Importado de ${F.n}. Falta marcar si es laboral o personal.`, usuario, F.medio, fuente],
     )
     if (!ins.length) { r.repetidos++; continue }
     r.nuevos++

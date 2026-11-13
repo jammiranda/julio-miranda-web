@@ -14,7 +14,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|---|---|
 | Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Página interna para bajar los 17 videos al celular y copiar el texto de TikTok |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.9.1** | 13/11/2026 | Finanzas: noviembre real de Mercado Pago, oficina y estudio contable |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.10.0** | 13/11/2026 | Finanzas: importación de extractos del banco y abonos de clientes |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
@@ -70,7 +70,7 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-86 cambios · 9 versiones · versión actual **1.7.0**
+87 cambios · 10 versiones · versión actual **3.10.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
@@ -103,6 +103,7 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **3.10.0** | 13/11/2026 | • Finanzas: el mismo botón importa extractos de Banco Galicia y de otros bancos (débitos y créditos), además de Mercado Pago<br>• Clientes con abono: Consultora SN, App Soy Tigre y CSC Merlo, con sus proyectos y los cobros de diciembre | Novedad | finanzas-bancos-abonos (1) |
 | **3.9.1** | 13/11/2026 | • Finanzas: cobros reales de Meta en la Mastercard prepaga de Mercado Pago, oficina (Gd Work) y estudio contable MG separado entre DEVISEBIT y personal<br>• Claude estimado para noviembre y diciembre, y gastos dudosos de Mercado Pago en Por clasificar | Corrección | finanzas-mp-noviembre (1) |
 | **3.9.0** | 13/11/2026 | • Finanzas: cada gasto se marca laboral o personal, con «Por clasificar» y reglas que aprenden por palabra<br>• Importación del reporte de Mercado Pago (CSV o Excel), sin duplicar y con Google Ads, Meta, Vercel, Anthropic y Donweb como laborales solos<br>• Publicidad del mes separada en prepago de Google Ads y Mastercard Galicia, y precarga de noviembre y diciembre | Novedad | finanzas-mercadopago (1) |
 | **3.8.0** | 13/11/2026 | • Ayuda pasa a ser un Centro de ayuda: buscador, accesos por tarea y guías paso a paso que se abren de a una<br>• Envíos de email: bloque «Próximos envíos» con lo que está saliendo y lo que está preparado<br>• Activos digitales: link de calendario para que los vencimientos aparezcan solos en Google Calendar, con aviso 7 días antes | Novedad | `96bfdde..96bfdde` (1) |

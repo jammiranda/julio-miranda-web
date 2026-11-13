@@ -1156,7 +1156,35 @@ update g_movimientos set monto=400000, ambito='laboral', concepto=replace(concep
 update g_movimientos set nota='Oficina en Gd Work SA. Pago único de noviembre por Mercado Pago ($416.000).', actualizado=now()
  where externo_id='mp:act:2026-11-10:gdwork:416000' and not exists (select 1 from config where clave='seed_finanzas_mg_unico');
 update g_proveedores set notas='Mari Godoy. $400.000 por mes, todo junto (DEVISEBIT, Julio y Georgina).' where nombre='Estudio contable MG' and not exists (select 1 from config where clave='seed_finanzas_mg_unico');
-insert into config(clave,valor) values ('seed_finanzas_mg_unico','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_finanzas_mg_unico','ok') on conflict (clave) do nothing;
+insert into db_contactos(nombre,organizacion,etapa,clase,origen,notas,clasificado_en,clasificado_por)
+select v.org,v.org,'ganado','cliente','Cliente cargado por Julio',v.notas,now(),'julio' from (values
+ ('Consultora SN','Proyecto de software ya desarrollado, con abono mensual desde septiembre de 2026. Arrancó por 6 meses en principio, sin fecha de fin.'),
+ ('App Soy Tigre','App Soy Tigre, proyecto de software ya desarrollado con abono mensual desde hace tiempo. El monto se actualiza cada 4 meses (Julio avisa el nuevo).'),
+ ('CSC Merlo','Proyecto con abono de $2.000.000 por mes durante 10 meses, de diciembre de 2026 a septiembre de 2027.')
+) v(org,notas)
+where not exists (select 1 from config where clave='seed_clientes_abonos_2026_11') and not exists (select 1 from db_contactos c where c.organizacion=v.org);
+insert into db_proyectos(nombre,contacto_id,estado,inicio,monto,responsable,notas,abono_monto,abono_moneda,abono_dia,abono_desde,abono_hasta)
+select v.nombre,(select id from db_contactos where organizacion=v.org order by id limit 1),v.estado,v.inicio::date,null,'Julio',v.notas,v.abono::numeric,'ARS',10,v.desde::date,v.hasta::date from (values
+ ('Consultora SN · abono mensual','Consultora SN','terminado','2026-09-01','3000000','2026-12-01',null,'Software desarrollado. Abono base $3.000.000. Noviembre y diciembre de 2026 se cobran $4.000.000. Arrancó en septiembre, 6 meses en principio, sin fecha de fin.'),
+ ('App Soy Tigre · abono mensual','App Soy Tigre','terminado',null,'1400000','2026-12-01',null,'Software desarrollado. Abono de $1.400.000 por mes, se actualiza cada 4 meses.'),
+ ('CSC Merlo · proyecto 10 meses','CSC Merlo','planificado','2026-12-01','2000000','2026-12-01','2027-09-30','$2.000.000 por mes durante 10 meses (diciembre 2026 a septiembre 2027).')
+) v(nombre,org,estado,inicio,abono,desde,hasta,notas)
+where not exists (select 1 from config where clave='seed_clientes_abonos_2026_11') and not exists (select 1 from db_proyectos p where p.nombre=v.nombre);
+insert into db_cobros(contacto_id,proyecto_id,tipo,concepto,monto,moneda,vence,periodo,nota,creado_por)
+select p.contacto_id,p.id,'abono','Abono mensual 2026-12 · '||p.nombre,v.monto::numeric,'ARS','2026-12-10','2026-12',v.nota,'finanzas'
+from (values
+ ('Consultora SN · abono mensual','4000000','Diciembre igual que noviembre: $4.000.000. Desde enero vuelve al abono base de $3.000.000.'),
+ ('App Soy Tigre · abono mensual','1400000',null),
+ ('CSC Merlo · proyecto 10 meses','2000000','Cuota 1 de 10.')
+) v(nombre,monto,nota) join db_proyectos p on p.nombre=v.nombre
+where not exists (select 1 from config where clave='seed_clientes_abonos_2026_11')
+on conflict (proyecto_id, periodo) where tipo='abono' and estado<>'anulado' do nothing;
+update g_movimientos set categoria='Abonos y mantenimiento', nota=coalesce(nota||' · ','')||'Abono de noviembre (en noviembre fueron $4.000.000, el abono base es $3.000.000).'
+ where tipo='ingreso' and concepto='CONSULTORA SN' and monto=4000000 and not exists (select 1 from config where clave='seed_clientes_abonos_2026_11');
+update g_movimientos set categoria='Abonos y mantenimiento', nota=coalesce(nota||' · ','')||'Abono mensual de noviembre.'
+ where tipo='ingreso' and concepto='App Soy Tigre' and monto=1400000 and not exists (select 1 from config where clave='seed_clientes_abonos_2026_11');
+insert into config(clave,valor) values ('seed_clientes_abonos_2026_11','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
