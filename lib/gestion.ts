@@ -45,11 +45,14 @@ const EDITAN: Rol[] = ["gerente", "coordinacion"]
 export const CAT_EGRESO = ["Sueldos y honorarios", "Desarrollo tercerizado", "Software y servicios", "Hosting y dominios", "Publicidad", "Impuestos", "Cargas sociales", "Alquiler y cowork", "Contador y legales", "Bancos y comisiones", "Viáticos", "Equipamiento", "Otros"]
 export const CAT_INGRESO = ["Desarrollo a medida", "Abonos y mantenimiento", "Webs y SEO", "Bots y automatización", "Academia y cursos", "Consultoría", "Licitaciones", "Otros"]
 
+export const AMBITOS: Op[] = [{ v: "laboral", n: "Laboral", c: C.cielo }, { v: "personal", n: "Personal", c: C.gris }]
+
 export const MOVIMIENTOS: Ent = {
   tabla: "g_movimientos", n: "Movimientos", uno: "movimiento", orden: "coalesce(fecha, vence) desc nulls last, id desc", titulo: "concepto", edita: EDITAN,
   campos: [
     { k: "tipo", n: "Tipo", t: "sel", req: true, lista: true, def: "egreso", ops: [{ v: "egreso", n: "Egreso", c: C.rojo }, { v: "ingreso", n: "Ingreso", c: C.verde }] },
     { k: "concepto", n: "Concepto", t: "text", req: true, lista: true },
+    { k: "ambito", n: "Laboral o personal", t: "sel", lista: true, ops: AMBITOS, ayuda: "Laboral: gasto de la empresa (deducible si tiene factura). Vacío: queda en Por clasificar." },
     { k: "categoria", n: "Categoría", t: "sel", lista: true, ops: [...new Set([...CAT_EGRESO, ...CAT_INGRESO])].map((x) => ({ v: x, n: x })) },
     { k: "monto", n: "Monto", t: "num", req: true, lista: true },
     { k: "moneda", n: "Moneda", t: "sel", def: "ARS", ops: MONEDAS },
@@ -58,7 +61,7 @@ export const MOVIMIENTOS: Ent = {
     { k: "vence", n: "Vence", t: "date", lista: true, ayuda: "Para pendientes: fecha límite de pago." },
     { k: "proveedor_id", n: "Proveedor", t: "ref", ref: "proveedores", lista: true },
     { k: "proyecto_id", n: "Proyecto", t: "ref", ref: "proyectos" },
-    { k: "medio", n: "Medio", t: "sel", ops: ["Transferencia", "Mercado Pago", "Tarjeta", "Efectivo", "Débito automático", "Cheque", "Otro"].map((x) => ({ v: x, n: x })) },
+    { k: "medio", n: "Medio", t: "sel", ops: ["Transferencia", "Mercado Pago", "Tarjeta", "Mastercard Galicia", "Prepago Google Ads", "Efectivo", "Débito automático", "Cheque", "Otro"].map((x) => ({ v: x, n: x })) },
     { k: "comprobante", n: "Comprobante (link)", t: "url", ayuda: "Link a la factura o recibo en Drive." },
     { k: "nota", n: "Nota", t: "area", ancho: true },
   ],
