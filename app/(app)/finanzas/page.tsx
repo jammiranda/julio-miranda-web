@@ -4,7 +4,7 @@ import { q } from "@/lib/db"
 import { dinero, isoD, sumarDias } from "@/lib/gestion"
 import { fecha, hoyISO, nombrePeriodo, periodoActual, periodosRecientes, rangoPeriodo } from "@/lib/util"
 import { TablaRegistro, Aviso, Pestanias, Kpi } from "@/components/Registro"
-import { importarMP, clasificar } from "@/lib/finanzas-acciones"
+import { importarMP, clasificar, cobrar } from "@/lib/finanzas-acciones"
 
 export const dynamic = "force-dynamic"
 
@@ -66,6 +66,48 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
      group by 1,2 order by 1, 2`, [ini, fin]) : []
   const sinClasificar = amb === "sin" ? await q<any>("select * from g_movimientos where tipo='egreso' and ambito is null and estado<>'anulado' order by coalesce(fecha, vence) desc nulls last, id desc limit 80") : []
 
+  const [MES] = await q<{ cobrar: string; cobrar_venc: string; pagar: string }>(
+    `select
+      coalesce((select sum(monto) from db_cobros where estado='pendiente' and moneda='ARS' and (vence between $1 and $2 or ($3 and vence < $1))),0) cobrar,
+      coalesce((select sum(monto) from db_cobros where estado='pendiente' and moneda='ARS' and vence < $4 and (vence between $1 and $2 or ($3 and vence < $1))),0) cobrar_venc,
+      coalesce((select sum(monto) from g_movimientos where tipo='egreso' and estado='pendiente' and moneda='ARS' and coalesce(ambito,'')<>'personal' and (coalesce(vence,$2::date) between $1 and $2 or ($3 and vence < $1))),0) pagar`,
+    [ini, fin, per === periodoActual(), hoy])
+  const esActual = per === periodoActual()
+  const TZ = "at time zone 'America/Argentina/Buenos_Aires'"
+  // Todo lo que entra en el mes, en una sola lista: cobros a clientes (de cada proyecto) y otros ingresos
+  const entradas = ver === "resumen" ? await q<any>(
+    `select * from (
+       select 'cobro' src, k.id, coalesce(c.organizacion, c.nombre) quien, k.concepto, k.tipo, k.periodo, k.estado, k.monto, k.moneda, k.proyecto_id, k.nota,
+              coalesce((k.pagado_en ${TZ})::date, k.vence) f
+       from db_cobros k join db_contactos c on c.id=k.contacto_id
+       where k.estado<>'anulado' and ((k.estado='pagado' and (k.pagado_en ${TZ})::date between $1 and $2) or (k.estado='pendiente' and (k.vence between $1 and $2 or ($3 and k.vence < $1))))
+       union all
+       select 'mov', m.id, m.concepto, m.categoria, null, null, m.estado, m.monto, m.moneda, m.proyecto_id, m.nota,
+              coalesce(m.fecha, m.vence, (m.creado ${TZ})::date)
+       from g_movimientos m
+       where m.tipo='ingreso' and m.estado<>'anulado' and (coalesce(m.fecha, m.vence, (m.creado ${TZ})::date) between $1 and $2 or ($3 and m.estado='pendiente' and m.vence < $1))
+     ) x order by case estado when 'pagado' then 0 else 1 end, f, id`, [ini, fin, esActual]) : []
+  // Lo que sale en el mes por categoría: pagado y por pagar (sin lo personal)
+  const salidas = ver === "resumen" ? await q<{ categoria: string; pagado: string; pendiente: string; n: number }>(
+    `select coalesce(categoria,'Sin categoría') categoria,
+       coalesce(sum(monto) filter (where estado='pagado'),0) pagado, coalesce(sum(monto) filter (where estado='pendiente'),0) pendiente, count(*)::int n
+     from g_movimientos
+     where tipo='egreso' and moneda='ARS' and estado<>'anulado' and coalesce(ambito,'')<>'personal'
+       and ((estado='pagado' and coalesce(fecha, (creado ${TZ})::date) between $1 and $2) or (estado='pendiente' and (coalesce(vence, $2::date) between $1 and $2 or ($3 and vence < $1))))
+     group by 1 order by sum(monto) desc`, [ini, fin, esActual]) : []
+  const abonos = ver === "resumen" ? await q<any>(
+    `select p.id, coalesce(c.organizacion, c.nombre) cliente, p.abono_monto, p.abono_moneda, p.abono_desde, p.abono_hasta, p.notas,
+            k.estado k_estado, k.monto k_monto, k.id k_id
+     from db_proyectos p join db_contactos c on c.id=p.contacto_id
+     left join db_cobros k on k.proyecto_id=p.id and k.tipo='abono' and k.periodo=$1 and k.estado<>'anulado'
+     where p.abono_monto > 0 and p.estado not in ('cancelado') order by p.abono_monto desc`, [per]) : []
+  const sumaARS = (l: any[], f: (x: any) => boolean) => l.filter((x) => (x.moneda ?? "ARS") === "ARS" && f(x)).reduce((a, x) => a + Number(x.monto), 0)
+  const entro = sumaARS(entradas, (x) => x.estado === "pagado")
+  const faltaCobrar = sumaARS(entradas, (x) => x.estado === "pendiente")
+  const salio = salidas.reduce((a, x) => a + Number(x.pagado), 0)
+  const faltaPagar = salidas.reduce((a, x) => a + Number(x.pendiente), 0)
+  const conceptoLindo = (x: any) => (x.src === "cobro" && x.tipo === "abono" && x.periodo ? `Abono de ${nombrePeriodo(x.periodo).toLowerCase()}` : x.src === "mov" ? `Otro ingreso${x.concepto ? ` · ${x.concepto}` : ""}` : x.concepto)
+
   const T = Object.fromEntries(tot.map((t) => [t.moneda, { ing: Number(t.ing), egr: Number(t.egr) }]))
   const P = Object.fromEntries(pend.map((t) => [t.moneda, t]))
   const ars = T.ARS ?? { ing: 0, egr: 0 }
@@ -105,20 +147,102 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
       </header>
       <Aviso ok={sp.ok} error={sp.error} />
 
-      <section aria-label={`Números de ${nombrePeriodo(per)}`} className="grid grid-cols-2 lg:grid-cols-6 gap-3">
-        <Kpi t="Ingresos del mes" v={dinero(ars.ing)} d={usdLinea(usd.ing)} tono="verde" />
-        <Kpi t="Egresos del mes" v={dinero(ars.egr)} d={usdLinea(usd.egr) ?? "Sin contar lo personal"} />
-        <Kpi t="Gastos laborales" v={dinero(lab.pagado)} d={Number(lab.pendiente) ? `+ ${dinero(lab.pendiente)} a pagar este mes` : Number(lab.sin) ? `${lab.sin} por clasificar` : "Pagado en el mes"} tono={Number(lab.sin) ? "ambar" : undefined} href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso&amb=laboral`} />
-        <Kpi t="Resultado" v={dinero(res)} d={usd.ing || usd.egr ? `USD: ${dinero(usd.ing - usd.egr, "USD")}` : "Ingresos menos egresos pagados"} tono={res >= 0 ? "verde" : "rojo"} />
-        <Kpi t="A cobrar" v={dinero(P.ARS?.cobrar ?? 0)} d={Number(P.ARS?.cobrar_venc ?? 0) ? `${dinero(P.ARS!.cobrar_venc)} vencido` : "Nada vencido"} tono={Number(P.ARS?.cobrar_venc ?? 0) ? "rojo" : undefined} />
-        <Kpi t="A pagar" v={dinero(P.ARS?.pagar ?? 0)} d={`${dinero(P.ARS?.pagar_15 ?? 0)} en 15 días`} tono={Number(P.ARS?.pagar_15 ?? 0) ? "ambar" : undefined} href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso`} />
+      <section aria-label={`Números de ${nombrePeriodo(per)}`} className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <Kpi t={`Entró en ${nombrePeriodo(per).split(" ")[0].toLowerCase()}`} v={dinero(ars.ing)} d={usdLinea(usd.ing) ?? "Cobrado a clientes y otros ingresos"} tono="verde" />
+        <Kpi t="Salió" v={dinero(ars.egr)} d={usdLinea(usd.egr) ?? (Number(lab.sin) ? `${lab.sin} gastos por clasificar` : "Gastos pagados, sin lo personal")} tono={Number(lab.sin) ? "ambar" : undefined} href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso`} />
+        <Kpi t="Quedó" v={dinero(res)} d="Lo que entró menos lo que salió" tono={res >= 0 ? "verde" : "rojo"} />
+        <Kpi t="Falta cobrar" v={dinero(MES.cobrar)} d={Number(MES.cobrar_venc) ? `${dinero(MES.cobrar_venc)} vencido` : `Después de este mes: ${dinero(Math.max(0, Number(P.ARS?.cobrar ?? 0) - Number(MES.cobrar)))}`} tono={Number(MES.cobrar_venc) ? "rojo" : undefined} />
+        <Kpi t="Falta pagar" v={dinero(MES.pagar)} d={`Después de este mes: ${dinero(Math.max(0, Number(P.ARS?.pagar ?? 0) - Number(MES.pagar)))}`} tono={Number(MES.pagar) ? "ambar" : undefined} href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso`} />
       </section>
 
       <Pestanias base="/finanzas" actual={ver} items={[{ v: "resumen", n: "Resumen" }, { v: "movimientos", n: "Movimientos", cant: cant[0]?.movs }, { v: "proveedores", n: "Proveedores", cant: cant[0]?.provs }]} />
 
       {ver === "resumen" && (
         <>
-          <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+            <section className="card flex flex-col gap-3" aria-label="Ingresos del mes">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <div><h2 className="m-0 text-base">Lo que entra · {nombrePeriodo(per)}</h2><p className="m-0 text-xs text-[var(--gris)]">Todos los ingresos del mes en un solo lugar: abonos y cobros de clientes, y cualquier otro ingreso.</p></div>
+                <Link href={`/finanzas?ver=movimientos&p=${per}&nuevo=1`} className="btn-s py-1 px-3 text-xs">+ Otro ingreso</Link>
+              </div>
+              {entradas.length ? (
+                <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
+                  <table className="tbl"><thead><tr><th>De quién</th><th>Fecha</th><th>Estado</th><th className="text-right">Monto</th></tr></thead>
+                    <tbody>{entradas.map((x) => { const f = isoD(x.f); const tarde = x.estado === "pendiente" && !!f && f < hoy; return (
+                      <tr key={`${x.src}-${x.id}`}>
+                        <td><span className="font-semibold">{x.src === "cobro" && x.proyecto_id ? <Link href={`/proyectos/${x.proyecto_id}#cobros`} className="hover:underline">{x.quien}</Link> : x.quien}</span>
+                          <span className="block text-xs text-[var(--gris)]">{conceptoLindo(x)}{x.nota ? ` · ${x.nota}` : ""}</span></td>
+                        <td className={`whitespace-nowrap ${tarde ? "text-rojo font-semibold" : ""}`}>{f ? fecha(f) : "—"}</td>
+                        <td>{x.estado === "pagado" ? <span className="chip bg-emerald-50 text-emerald-700">Cobrado</span> : (
+                          <span className="flex flex-wrap items-center gap-2"><span className={`chip ${tarde ? "bg-red-50 text-rojo" : "bg-amber-50 text-amber-700"}`}>{tarde ? "Vencido" : "Falta cobrar"}</span>
+                            {x.src === "cobro" && <form action={cobrar}><input type="hidden" name="_volver" value={volver} /><input type="hidden" name="id" value={x.id} /><button className="btn-s py-1 px-2 text-xs">✓ Cobrado</button></form>}</span>)}</td>
+                        <td className="text-right tabular-nums font-semibold whitespace-nowrap">{dinero(x.monto, x.moneda)}</td>
+                      </tr>
+                    ) })}</tbody>
+                    <tfoot>
+                      <tr><td colSpan={3} className="font-semibold">Entró</td><td className="text-right tabular-nums font-bold">{dinero(entro)}</td></tr>
+                      {faltaCobrar > 0 && <tr><td colSpan={3} className="text-[var(--gris)]">Falta cobrar</td><td className="text-right tabular-nums">{dinero(faltaCobrar)}</td></tr>}
+                    </tfoot></table>
+                </div>
+              ) : <p className="vacio">Sin ingresos cargados en {nombrePeriodo(per)}.</p>}
+            </section>
+
+            <section className="card flex flex-col gap-3" aria-label="Egresos del mes">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <div><h2 className="m-0 text-base">Lo que sale · {nombrePeriodo(per)}</h2><p className="m-0 text-xs text-[var(--gris)]">Gastos de la empresa por rubro: lo ya pagado y lo que falta pagar este mes. No incluye lo personal.</p></div>
+                <Link href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso`} className="btn-s py-1 px-3 text-xs">Ver cada gasto</Link>
+              </div>
+              {salidas.length ? (
+                <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
+                  <table className="tbl"><thead><tr><th>Rubro</th><th className="text-right">Pagado</th><th className="text-right">Falta pagar</th></tr></thead>
+                    <tbody>{salidas.map((c) => (
+                      <tr key={c.categoria}><td className="font-semibold">{c.categoria}</td><td className="text-right tabular-nums">{Number(c.pagado) ? dinero(c.pagado) : "—"}</td><td className="text-right tabular-nums text-[var(--gris)]">{Number(c.pendiente) ? dinero(c.pendiente) : "—"}</td></tr>
+                    ))}</tbody>
+                    <tfoot><tr><td className="font-semibold">Total</td><td className="text-right tabular-nums font-bold">{dinero(salio)}</td><td className="text-right tabular-nums font-semibold">{dinero(faltaPagar)}</td></tr></tfoot></table>
+                </div>
+              ) : <p className="vacio">Sin gastos cargados en {nombrePeriodo(per)}.</p>}
+              {Number(lab.sin) > 0 && <Link href={`/finanzas?ver=movimientos&p=${per}&amb=sin`} className="text-sm font-semibold hover:underline self-start">Hay {lab.sin} gastos por clasificar (laboral o personal)</Link>}
+            </section>
+          </div>
+
+          <section className="card flex flex-col gap-3" aria-label="Clientes con abono">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div><h2 className="m-0 text-base">Clientes con abono mensual</h2><p className="m-0 text-xs text-[var(--gris)]">Lo que entra fijo todos los meses. El sistema crea solo el cobro de cada mes; acá ves cómo va {nombrePeriodo(per)}.</p></div>
+              <Link href="/proyectos" className="btn-s py-1 px-3 text-xs">Ir a proyectos</Link>
+            </div>
+            {abonos.length ? (
+              <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
+                <table className="tbl"><thead><tr><th>Cliente</th><th className="text-right">Abono por mes</th><th>Vigencia</th><th>{nombrePeriodo(per)}</th></tr></thead>
+                  <tbody>{abonos.map((a) => { const d = isoD(a.abono_desde), h = isoD(a.abono_hasta); const fuera = (d && d > fin) || (h && h < ini); return (
+                    <tr key={a.id}>
+                      <td><Link href={`/proyectos/${a.id}`} className="font-semibold hover:underline">{a.cliente}</Link>{a.notas ? <span className="block text-xs text-[var(--gris)] max-w-xl">{a.notas}</span> : null}</td>
+                      <td className="text-right tabular-nums font-semibold whitespace-nowrap">{dinero(a.abono_monto, a.abono_moneda)}</td>
+                      <td className="whitespace-nowrap text-sm">{d ? `Desde ${fecha(d)}` : "Hace tiempo"}{h ? ` hasta ${fecha(h)}` : ", sin fecha de fin"}</td>
+                      <td>{a.k_estado === "pagado" ? <span className="chip bg-emerald-50 text-emerald-700">Cobrado {dinero(a.k_monto)}</span> : a.k_estado === "pendiente" ? <span className="chip bg-amber-50 text-amber-700">Falta cobrar {dinero(a.k_monto)}</span> : <span className="chip bg-slate-100 text-slate-600">{fuera ? "No corresponde" : "Sin cobro cargado"}</span>}</td>
+                    </tr>
+                  ) })}</tbody>
+                  <tfoot><tr><td className="font-semibold">Total fijo por mes</td><td className="text-right tabular-nums font-bold">{dinero(abonos.reduce((s, a) => s + Number(a.abono_monto), 0))}</td><td colSpan={2} /></tr></tfoot></table>
+              </div>
+            ) : <p className="vacio">Sin clientes con abono. Cargá el abono en el proyecto de cada cliente.</p>}
+          </section>
+
+          <section className="card flex flex-col gap-3" aria-label="Publicidad del mes">
+            <div><h2 className="m-0 text-base">Publicidad · {nombrePeriodo(per)}</h2><p className="m-0 text-xs text-[var(--gris)]">Separado por cómo se paga: el prepago de Google Ads (cuenta 1) es plata ya cargada que se va consumiendo. La Mastercard Galicia (cuenta 2 de Google) y la Mastercard prepaga de Mercado Pago (Meta) cobran a medida que se gasta.</p></div>
+            {ads.length ? (
+              <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
+                <table className="tbl"><thead><tr><th>Medio</th><th>Estado</th><th className="text-right">Monto</th></tr></thead>
+                  <tbody>{ads.map((a) => (
+                    <tr key={`${a.medio}-${a.estado}`}>
+                      <td className="font-semibold">{a.medio}</td>
+                      <td><span className={`chip ${a.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{a.estado === "pagado" ? (a.medio === "Prepago Google Ads" ? "Consumido" : "Cobrado") : a.medio === "Prepago Google Ads" ? "Recarga a decidir" : "Falta cobrar"}</span></td>
+                      <td className="text-right tabular-nums font-semibold">{dinero(a.total)}</td>
+                    </tr>
+                  ))}</tbody></table>
+              </div>
+            ) : <p className="vacio">Sin gastos de publicidad cargados en {nombrePeriodo(per)}.</p>}
+            <Link href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso&amb=laboral`} className="text-sm font-semibold hover:underline self-start">Ver el detalle de cada gasto laboral</Link>
+          </section>
+
             <section className="card flex flex-col gap-4" aria-label="Últimos 6 meses">
               <div className="flex flex-wrap items-end justify-between gap-2">
                 <div><h2 className="m-0 text-base">Ingresos y egresos · últimos 6 meses</h2><p className="m-0 text-xs text-[var(--gris)]">En pesos, solo lo cobrado y pagado.</p></div>
@@ -142,59 +266,6 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
                   ) })}</tbody></table>
               </div>
             </section>
-
-            <section className="card flex flex-col gap-3" aria-label="Egresos por categoría">
-              <h2 className="m-0 text-base">En qué se fue la plata · {nombrePeriodo(per)}</h2>
-              {cats.length ? (
-                <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
-                  {cats.map((c) => (
-                    <li key={c.categoria} className="flex flex-col gap-1">
-                      <div className="flex justify-between gap-2 text-sm"><span className="font-semibold">{c.categoria}</span><span className="tabular-nums">{dinero(c.total)}</span></div>
-                      <div className="h-2 rounded-full bg-[var(--borde-2)] overflow-hidden"><div className="h-full bg-[#C8231F]" style={{ width: `${(100 * Number(c.total)) / totCat}%` }} /></div>
-                    </li>
-                  ))}
-                </ul>
-              ) : <p className="vacio">Sin egresos cargados en {nombrePeriodo(per)}. Cargá sueldos, servicios, impuestos y publicidad en Movimientos.</p>}
-            </section>
-          </div>
-
-          <section className="card flex flex-col gap-3" aria-label="Publicidad del mes">
-            <div><h2 className="m-0 text-base">Publicidad · {nombrePeriodo(per)}</h2><p className="m-0 text-xs text-[var(--gris)]">Separado por cómo se paga: el prepago de Google Ads (cuenta 1) es plata ya cargada que se va consumiendo. La Mastercard Galicia (cuenta 2 de Google) y la Mastercard prepaga de Mercado Pago (Meta) cobran a medida que se gasta.</p></div>
-            {ads.length ? (
-              <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
-                <table className="tbl"><thead><tr><th>Medio</th><th>Estado</th><th className="text-right">Monto</th></tr></thead>
-                  <tbody>{ads.map((a) => (
-                    <tr key={`${a.medio}-${a.estado}`}>
-                      <td className="font-semibold">{a.medio}</td>
-                      <td><span className={`chip ${a.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{a.estado === "pagado" ? (a.medio === "Prepago Google Ads" ? "Consumido" : "Cobrado") : a.medio === "Prepago Google Ads" ? "Recarga a decidir" : "Falta cobrar"}</span></td>
-                      <td className="text-right tabular-nums font-semibold">{dinero(a.total)}</td>
-                    </tr>
-                  ))}</tbody></table>
-              </div>
-            ) : <p className="vacio">Sin gastos de publicidad cargados en {nombrePeriodo(per)}.</p>}
-            <Link href={`/finanzas?ver=movimientos&p=${per}&tipo=egreso&amb=laboral`} className="text-sm font-semibold hover:underline self-start">Ver el detalle de cada gasto laboral</Link>
-          </section>
-
-          <section className="card flex flex-col gap-3" aria-label="Cobros a clientes">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div><h2 className="m-0 text-base">Cobros a clientes</h2><p className="m-0 text-xs text-[var(--gris)]">Salen de cada proyecto (anticipos, cuotas y abonos). Los pagados del mes y los pendientes vencidos.</p></div>
-              <Link href="/proyectos" className="btn-s py-1 px-3 text-xs">Ir a proyectos</Link>
-            </div>
-            {cobros.length ? (
-              <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
-                <table className="tbl"><thead><tr><th>Cliente</th><th>Concepto</th><th>Vence</th><th>Estado</th><th className="text-right">Monto</th></tr></thead>
-                  <tbody>{cobros.map((k) => { const v = isoD(k.vence)!; const tarde = k.estado === "pendiente" && v < hoy; return (
-                    <tr key={k.id}>
-                      <td className="font-semibold">{k.proyecto_id ? <Link href={`/proyectos/${k.proyecto_id}`} className="hover:underline">{k.organizacion ?? k.contacto}</Link> : <Link href={`/contactos/${k.contacto_id}`} className="hover:underline">{k.organizacion ?? k.contacto}</Link>}</td>
-                      <td>{k.concepto}{k.proyecto ? <span className="block text-xs text-[var(--gris)]">{k.proyecto}</span> : null}</td>
-                      <td className={tarde ? "text-rojo font-semibold whitespace-nowrap" : "whitespace-nowrap"}>{fecha(v)}</td>
-                      <td><span className={`chip ${k.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : tarde ? "bg-red-50 text-rojo" : "bg-amber-50 text-amber-700"}`}>{k.estado === "pagado" ? "Cobrado" : tarde ? "Vencido" : "Pendiente"}</span></td>
-                      <td className="text-right tabular-nums font-semibold">{dinero(k.monto, k.moneda)}</td>
-                    </tr>
-                  ) })}</tbody></table>
-              </div>
-            ) : <p className="vacio">No hay cobros cobrados ni vencidos en {nombrePeriodo(per)}.</p>}
-          </section>
         </>
       )}
 
