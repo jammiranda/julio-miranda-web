@@ -95,7 +95,7 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
             <input type="hidden" name="ver" value={ver} />
             <label htmlFor="per" className="sr-only">Período</label>
             <select id="per" name="p" defaultValue={per} className="inp !py-2 !w-auto">
-              {periodosRecientes(18).map((p) => <option key={p} value={p}>{nombrePeriodo(p)}</option>)}
+              {periodosRecientes(18, 4).map((p) => <option key={p} value={p}>{nombrePeriodo(p)}</option>)}
             </select>
             <button className="btn-s py-2">Ver</button>
           </form>
