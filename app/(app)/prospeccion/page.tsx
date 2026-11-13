@@ -1,9 +1,9 @@
 import Link from "next/link"
 import { requerir } from "@/lib/auth"
 import { q } from "@/lib/db"
-import { isoD } from "@/lib/gestion"
+import { isoD, ESTADOS_PROS, CANALES_PROS, TIPOS_PROS } from "@/lib/gestion"
 import { prospeccionPanel, CANAL_N } from "@/lib/prospeccion"
-import { fecha } from "@/lib/util"
+import { fecha, hoyISO } from "@/lib/util"
 import { TablaRegistro, Aviso, Kpi, Pestanias } from "@/components/Registro"
 
 export const dynamic = "force-dynamic"
@@ -61,6 +61,8 @@ export default async function Prospeccion({ searchParams: sp }: { searchParams: 
         abierto={(r) => !CERRADOS.includes(r.estado)}
         rapido={{ etiqueta: "Enviado", si: (r) => r.estado === "borrador" }}
         copiar={textoParaCopiar}
+        tarjeta={(r) => <Tarjeta r={r} />}
+        grupo={grupoDe}
         enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
         vacio="Sin contactos en esta vista. Cargá cada mail o invitación al prepararla (estado Borrador) y marcala Enviado cuando salga: el seguimiento se agenda solo a los 7 días." />
       <Link href={sp.todos ? qs({ todos: undefined }) : qs({ todos: "1" })} className="text-sm underline text-[var(--gris)] w-fit">{sp.todos ? "Ocultar ganados, sin respuesta y descartados" : "Ver también ganados, sin respuesta y descartados"}</Link>
@@ -113,4 +115,47 @@ function textoParaCopiar(r: any): { texto: string; etiqueta: string } | null {
     if (b.seguimiento) return { texto: b.seguimiento, etiqueta: "Copiar seguimiento" }
   }
   return null
+}
+
+const chip = (ops: { v: string; n: string; c?: string }[], v: string) => { const o = ops.find((x) => x.v === v); return o ? <span className={`chip ${o.c ?? ""}`}>{o.n}</span> : null }
+
+/** Grupo de la lista: lo que hay que hacer y cuándo. */
+function grupoDe(r: any): string {
+  const d = isoD(r.seguimiento)
+  if (r.estado === "respondio") return "Respondieron: contestar"
+  if (r.estado === "reunion") return "Con reunión"
+  if (r.estado === "enviado") return d && d <= hoyISO() ? "Enviados: toca seguimiento" : "Enviados: esperando respuesta"
+  if (r.estado === "borrador") return !d ? "Para enviar · sin fecha" : d < hoyISO() ? "Para enviar · atrasados" : d === hoyISO() ? "Para enviar · hoy" : `Para enviar · ${fecha(d)}`
+  return "Cerrados"
+}
+
+/** Tarjeta de un contacto: quién es, en qué está y el texto que toca mandar, todo a la vista. */
+function Tarjeta({ r }: { r: any }) {
+  const org = r.organizacion && !/^sin dato/i.test(r.organizacion) ? r.organizacion : ""
+  const titulo = r.persona || org || "Sin nombre"
+  const sub = [r.cargo, r.persona ? org : ""].filter(Boolean).join(" · ")
+  const t = textoParaCopiar(r)
+  const d = isoD(r.seguimiento)
+  const esLink = /^https?:/i.test(r.destino ?? "")
+  return (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5">
+        <div className="min-w-0">
+          <div className="font-semibold text-base leading-snug">{titulo}</div>
+          {sub && <div className="text-sm text-[var(--gris)]">{sub}</div>}
+          {r.destino && !esLink && <div className="text-sm text-[var(--gris)] break-all">{r.destino}</div>}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {chip(ESTADOS_PROS, r.estado)}{chip(CANALES_PROS, r.canal)}{chip(TIPOS_PROS, r.tipo)}
+          {d && r.estado === "enviado" && <span className="text-xs text-[var(--gris)] whitespace-nowrap">Seguimiento {fecha(d)}</span>}
+        </div>
+      </div>
+      {t
+        ? <div className="rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-3.5 py-2.5">
+            <div className="text-xs font-bold uppercase tracking-wide text-[var(--gris)] mb-1">{t.etiqueta.replace(/^Copiar /, "")}</div>
+            <p className="m-0 text-sm whitespace-pre-line">{t.texto}</p>
+          </div>
+        : r.asunto ? <p className="m-0 text-sm text-[var(--gris)]">{r.asunto}</p> : null}
+    </>
+  )
 }

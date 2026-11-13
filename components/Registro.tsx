@@ -111,13 +111,17 @@ function Celda({ c, r, refs, abiertos }: { c: Campo; r: any; refs: Refs; abierto
 }
 
 /** Tabla de registros con edición en la misma página (?editar=ID) y alta (?nuevo=1). */
-export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puedeEditar, abierto, vacio, rapido, enlace, copiar }: {
+export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puedeEditar, abierto, vacio, rapido, enlace, copiar, tarjeta, grupo }: {
   clave: string; filas: any[]; volver: string; editar?: number | null; nuevo?: boolean; puedeEditar: boolean
   abierto?: (r: any) => boolean; vacio: string; rapido?: { etiqueta: string; si: (r: any) => boolean }
   /** Link externo por fila (ej.: abrir el perfil de LinkedIn), en una pestaña nueva. */
   enlace?: (r: any) => { href: string; etiqueta: string } | null
   /** Texto listo para copiar por fila (ej.: el mensaje armado para mandar a mano). */
   copiar?: (r: any) => { texto: string; etiqueta: string } | null
+  /** Vista en tarjetas en vez de tabla: el contenido de cada una. Las acciones quedan siempre a la vista, sin barra horizontal. */
+  tarjeta?: (r: any) => React.ReactNode
+  /** Con tarjetas: título del grupo de cada fila (se muestra cuando cambia, con su cantidad). */
+  grupo?: (r: any) => string
 }) {
   const ent = ENTIDADES[clave]
   const cols = ent.campos.filter((c) => c.lista)
@@ -126,7 +130,42 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
   const panel = puedeEditar && (nuevo || !!filaEditar)
   return (
     <div className={panel ? "lp" : "flex flex-col gap-3"}>
-      {filas.length ? (
+      {filas.length && tarjeta ? (
+        <div className="flex flex-col gap-2.5 min-w-0">
+          {(() => {
+            const cant: Record<string, number> = {}
+            if (grupo) for (const r of filas) { const g = grupo(r); cant[g] = (cant[g] ?? 0) + 1 }
+            let previo: string | null = null
+            return filas.map((r) => {
+              const g = grupo ? grupo(r) : null
+              const cab = g != null && g !== previo
+              previo = g
+              const e = enlace?.(r)
+              const c = copiar?.(r)
+              const urlEditar = conParam(sinParams(volver, "nuevo", "ok", "error"), "editar", String(r.id))
+              return (
+                <div key={r.id} className="contents">
+                  {cab && <h2 className="m-0 mt-3 first:mt-0 text-sm font-bold text-[var(--gris)] uppercase tracking-wide">{g} <span className="font-semibold normal-case tracking-normal">· {cant[g!]}</span></h2>}
+                  <article className={`card !p-4 flex flex-col gap-3 ${editar === r.id ? "border-[var(--ac)]" : ""}`} aria-label={String(r[ent.titulo] ?? "")}>
+                    {tarjeta(r)}
+                    {puedeEditar && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        {e && <a href={e.href} target="_blank" rel="noopener noreferrer" className="btn-p py-2 px-4 text-sm">1 · {e.etiqueta} ↗</a>}
+                        {c && <Copiar texto={c.texto} etiqueta={`${e ? "2 · " : ""}${c.etiqueta}`} className="btn-s py-2 px-4 text-sm" />}
+                        {rapido && rapido.si(r) && (
+                          <form action={resolverRapido}><input type="hidden" name="_ent" value={clave} /><input type="hidden" name="_id" value={r.id} /><input type="hidden" name="_volver" value={volver} />
+                            <button className="btn-s py-2 px-4 text-sm">{e && c ? "3 · " : ""}✓ {rapido.etiqueta}</button></form>
+                        )}
+                        <Link scroll={false} href={urlEditar} className="ml-auto text-sm underline text-[var(--gris)]" aria-label={`Editar ${r[ent.titulo]}`}>Editar</Link>
+                      </div>
+                    )}
+                  </article>
+                </div>
+              )
+            })
+          })()}
+        </div>
+      ) : filas.length ? (
         <div className="card !p-0 overflow-x-auto">
           <table className="tbl">
             <thead><tr>{cols.map((c) => <th key={c.k} className={c.t === "num" ? "text-right" : ""}>{c.n}</th>)}{puedeEditar && <th className="w-px"><span className="sr-only">Acciones</span></th>}</tr></thead>
