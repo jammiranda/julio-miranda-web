@@ -45,7 +45,7 @@ export default async function Documentos({ searchParams: sp }: { searchParams: S
   return (
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
-        <div><div className="eyebrow">Gestión</div><h1 className="m-0">Documentos</h1><p>Todo lo que DEVISEBIT tiene escrito, en un solo lugar: institucional, propuestas, contratos, papeles contables, documentación técnica y plantillas.</p></div>
+        <div><div className="eyebrow">Gestión</div><h1 className="m-0">Archivo de Drive</h1><p>Todo lo que DEVISEBIT tiene escrito, en un solo lugar: institucional, propuestas, contratos, papeles contables, documentación técnica y plantillas.</p></div>
         {edita && <div className="pag-acc"><form action={sincronizar}><button className="btn-s">↻ Sincronizar con Drive</button></form><Link href={`${volver}${params ? "&" : "?"}nuevo=1`} className="btn-p">+ Documento</Link></div>}
       </header>
       <Aviso ok={sp.ok} error={sp.error} />

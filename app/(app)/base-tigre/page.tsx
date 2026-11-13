@@ -23,7 +23,7 @@ export default async function BaseTigre() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="m-0">Base Tigre</h1>
+        <h1 className="m-0">Envíos · Base Tigre</h1>
         <p className="m-0 text-sm text-[#4A515C]">Usuarios de la app Soy Tigre, curados y divididos por rango etario (edad estimada desde el DNI). Vive aparte del CRM: no aparece en Contactos y <b>no está conectada a Envíos de email</b>.</p>
       </div>
 

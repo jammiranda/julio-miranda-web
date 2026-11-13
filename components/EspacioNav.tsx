@@ -102,15 +102,17 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
         ] },
         { t: "Comunicación", items: edita ? [
           { href: "/email", t: "Envíos de email", i: "mail" },
-          { href: "/correos", t: "Correo", i: "bandeja" },
+          // Base Tigre es una base de emails: va pegada a Envíos (pedido de Julio, 13/11/2026)
+          ...(gerente ? [{ href: "/base-tigre", t: "Envíos · Base Tigre", i: "personas" }] : []),
+          { href: "/piezas", t: "Piezas para redes", i: "demo" },
           { href: "/bot", t: "Bot · Conocimiento", i: "bot" },
           { href: "/whatsapp-business", t: "WhatsApp Business", i: "whatsapp" },
-          { href: "/piezas", t: "Piezas para redes", i: "demo" },
-          ...(gerente ? [{ href: "/base-tigre", t: "Base Tigre", i: "personas" }] : []),
+          // Correo (/correos) salió del menú hasta que el conector de Google vuelva a leer Gmail; la pantalla sigue existiendo
         ] : [] },
         { t: "Documentos", items: [
-          { href: "/documentos", t: "Documentos", i: "carpeta" },
-          ...(edita ? [{ href: "/biblioteca", t: "De la empresa", i: "carpeta" }, { href: "/material", t: "Material de venta", i: "guia" }, { href: "/legales", t: "Legales", i: "balanza" }] : []),
+          // Tres estantes que no se pisan: lo que se le manda al cliente, lo interno y los contratos. El archivo de Drive queda al final.
+          ...(edita ? [{ href: "/material", t: "Para clientes", i: "guia" }, { href: "/biblioteca", t: "De la empresa", i: "carpeta" }, { href: "/legales", t: "Contratos y legales", i: "balanza" }] : []),
+          { href: "/documentos", t: "Archivo de Drive", i: "carpeta" },
         ] },
         { t: "Gestión", items: edita ? [{ href: "/finanzas", t: "Finanzas", i: "dinero" }, { href: "/activos", t: "Activos digitales", i: "servidor" }] : [] },
         { t: "Ajustes", items: [...(edita ? [{ href: "/integraciones", t: "Integraciones", i: "enchufe" }] : []), ...(gerente ? [{ href: "/usuarios", t: "Usuarios", i: "usuarios" }, { href: "/auditoria", t: "Auditoría", i: "escudo" }] : []), { href: "/versiones", t: "Versiones", i: "escudo" }, { href: "/ayuda", t: "Ayuda", i: "ayuda" }] },

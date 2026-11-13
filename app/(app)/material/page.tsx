@@ -65,14 +65,14 @@ export default async function Material({ searchParams }: { searchParams: { ok?: 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="m-0">Material de venta</h1>
+        <h1 className="m-0">Para clientes · material de venta</h1>
         <p className="m-0 text-sm text-[#4A515C]">Todo para mandar a un cliente en un clic: folletos, el PDF del Panel, piezas para redes y los videos del canal y los demos ocultos. Copiá el link, copiá el mensaje para WhatsApp o mandalo por email desde abajo. Las demos interactivas se mandan desde <a href="/demos-admin" className="underline">Demos</a>, y el manual y la presentación institucional desde <a href="/biblioteca" className="underline">Documentos de la empresa</a>.</p>
       </div>
       <Indice filtra="li.card" placeholder="Buscar material" />
       {searchParams.ok && <p className="m-0 text-sm text-emerald-700">{searchParams.ok}</p>}
       {searchParams.err && <p className="m-0 text-sm text-rojo">{searchParams.err}</p>}
 
-      {GRUPOS.map((g) => (
+      {GRUPOS.filter((g) => g.t !== "Piezas para redes").map((g) => (
         <section key={g.t} className="flex flex-col gap-3" aria-labelledby={`g-${g.t}`}>
           <div><h2 id={`g-${g.t}`} className="m-0 text-lg">{g.t}</h2><p className="m-0 text-sm text-[#4A515C]">{g.d}</p></div>
           <ul className="m-0 p-0 list-none grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

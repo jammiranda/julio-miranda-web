@@ -31,7 +31,7 @@ export default async function Legales({ searchParams: sp }: { searchParams: SP }
   return (
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
-        <div><div className="eyebrow">Gestión</div><h1 className="m-0">Legales</h1><p>Contratos con clientes, proveedores y equipo, y los vencimientos que no se pueden pasar: impuestos, dominios, seguros y registros.</p></div>
+        <div><div className="eyebrow">Gestión</div><h1 className="m-0">Contratos y legales</h1><p>Contratos con clientes, proveedores y equipo, y los vencimientos que no se pueden pasar: impuestos, dominios, seguros y registros.</p></div>
         <div className="pag-acc">
           <Link href="/legales/plantillas" className="btn-p">Modelos para enviar</Link>
           <Link href="/legales?ver=vencimientos&nuevo=1" className="btn-s">+ Vencimiento</Link>
