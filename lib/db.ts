@@ -1210,7 +1210,27 @@ from (values
 where not exists (select 1 from config where clave='seed_deuda_sn_2026');
 update db_proyectos set notas='Software desarrollado. Abono base $3.000.000 por mes desde septiembre 2026, 6 meses en principio, sin fecha de fin. Octubre no se pagó: se cancela en 3 cuotas de $1.000.000 en noviembre, diciembre y enero (esos meses entran $4.000.000).'
  where nombre='Consultora SN · abono mensual' and not exists (select 1 from config where clave='seed_deuda_sn_2026');
-insert into config(clave,valor) values ('seed_deuda_sn_2026','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_deuda_sn_2026','ok') on conflict (clave) do nothing;
+update db_cobros set estado='anulado', nota='Simplificado: la deuda de octubre va incluida en los $4.000.000 de noviembre, diciembre y enero.'
+ where tipo='cuota' and concepto like 'Deuda abono octubre%' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
+update db_cobros set monto=4000000, nota='$3.000.000 de abono + $1.000.000 de la deuda de octubre.'
+ where periodo='2026-12' and tipo='abono' and estado<>'anulado' and concepto like '%Consultora SN%' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
+insert into db_cobros(contacto_id,proyecto_id,tipo,concepto,monto,moneda,vence,periodo,estado,pagado_en,medio,nota,creado_por)
+select p.contacto_id,p.id,'abono','Abono mensual '||v.periodo||' · '||p.nombre,v.monto::numeric,'ARS',v.vence::date,v.periodo,v.estado,v.pagado::timestamptz,v.medio,v.nota,'finanzas'
+from (values
+ ('Consultora SN · abono mensual','2026-11','4000000','2026-11-10','pagado','2026-11-06 12:00-03','Transferencia','$3.000.000 de abono + $1.000.000 de la deuda de octubre.'),
+ ('App Soy Tigre · abono mensual','2026-11','1400000','2026-11-10','pagado','2026-11-13 12:00-03','Transferencia',null),
+ ('Consultora SN · abono mensual','2027-01','4000000','2027-01-10','pendiente',null,null,'$3.000.000 de abono + $1.000.000 de la deuda de octubre (último mes con el millón extra).')
+) v(nombre,periodo,monto,vence,estado,pagado,medio,nota) join db_proyectos p on p.nombre=v.nombre
+where not exists (select 1 from config where clave='seed_ingresos_claros_2026_11')
+on conflict (proyecto_id, periodo) where tipo='abono' and estado<>'anulado' do nothing;
+update g_movimientos set estado='anulado', nota='Pasó a Cobros a clientes (abono de noviembre) para que los ingresos se vean en un solo lugar.', actualizado=now()
+ where tipo='ingreso' and concepto in ('CONSULTORA SN','App Soy Tigre') and fecha between '2026-11-01' and '2026-11-30' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
+update db_proyectos set abono_desde='2026-09-01', notas='Abono base $3.000.000. Octubre no se pagó: por eso noviembre, diciembre y enero entran $4.000.000. Desde febrero vuelve a $3.000.000. 6 meses en principio.'
+ where nombre='Consultora SN · abono mensual' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
+update db_proyectos set abono_desde=null, notas='El monto se actualiza cada 4 meses.' where nombre='App Soy Tigre · abono mensual' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
+update db_proyectos set notas='10 meses, de diciembre 2026 a septiembre 2027.' where nombre='CSC Merlo · proyecto 10 meses' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
+insert into config(clave,valor) values ('seed_ingresos_claros_2026_11','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null

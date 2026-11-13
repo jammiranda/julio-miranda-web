@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
+import { registrarPago } from "@/lib/pagos"
 import { importarMercadoPago, leerTabla, FUENTES, type Fuente } from "@/lib/mp-importar"
 
 const ir = (base: string, k: "ok" | "error", msg: string) => redirect(`${base}${base.includes("?") ? "&" : "?"}${k}=${encodeURIComponent(msg)}`)
@@ -55,4 +56,15 @@ export async function clasificar(fd: FormData) {
   await audit(u, "clasificar", "movimientos", id, `${ambito}${patron ? ` · regla "${patron}"` : ""}`)
   revalidatePath("/finanzas")
   ir(volver, "ok", ambito === "laboral" ? "Marcado como gasto laboral." : "Marcado como personal: no suma en los gastos de la empresa.")
+}
+
+/** Marca como cobrado un cobro de cliente desde Finanzas. */
+export async function cobrar(fd: FormData) {
+  const u = await requerir(["gerente", "coordinacion"])
+  const volver = volverA(fd)
+  const id = Number(fd.get("id"))
+  const c = id ? await registrarPago(id, { medio: "Transferencia", por: u.usuario }) : null
+  revalidatePath("/finanzas")
+  if (!c) ir(volver, "error", "Ese cobro ya estaba cobrado o no existe.")
+  ir(volver, "ok", "Cobro marcado como cobrado.")
 }
