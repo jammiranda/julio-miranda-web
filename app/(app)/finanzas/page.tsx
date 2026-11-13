@@ -80,7 +80,7 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
   if (ver === "movimientos") {
     const tipo = sp.tipo === "ingreso" || sp.tipo === "egreso" ? sp.tipo : null
     movs = await q<any>(
-      `select * from g_movimientos where (coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date) between $1 and $2 or (estado='pendiente' and fecha is null and coalesce(vence,$2) <= $2)) and ($3::text is null or tipo=$3)
+      `select * from g_movimientos where (coalesce(fecha, case when estado='pendiente' then coalesce(vence,$2) end, (creado at time zone 'America/Argentina/Buenos_Aires')::date) between $1 and $2 or (estado='pendiente' and fecha is null and vence < $1)) and ($3::text is null or tipo=$3)
          and ($4::text is null or ($4='sin' and ambito is null) or ambito=$4)
        order by case estado when 'pendiente' then 0 else 1 end, coalesce(fecha, vence) desc nulls last, id desc`, [ini, fin, tipo, amb])
   }
