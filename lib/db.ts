@@ -1230,7 +1230,19 @@ update db_proyectos set abono_desde='2026-09-01', notas='Abono base $3.000.000. 
  where nombre='Consultora SN · abono mensual' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
 update db_proyectos set abono_desde=null, notas='El monto se actualiza cada 4 meses.' where nombre='App Soy Tigre · abono mensual' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
 update db_proyectos set notas='10 meses, de diciembre 2026 a septiembre 2027.' where nombre='CSC Merlo · proyecto 10 meses' and not exists (select 1 from config where clave='seed_ingresos_claros_2026_11');
-insert into config(clave,valor) values ('seed_ingresos_claros_2026_11','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_ingresos_claros_2026_11','ok') on conflict (clave) do nothing;
+insert into g_reglas(patron,categoria,ambito,proveedor) values ('google one','Software y servicios','laboral',null),('google ai pro','Software y servicios','laboral',null) on conflict (patron) do nothing;
+insert into g_movimientos(tipo,concepto,categoria,monto,moneda,estado,fecha,vence,medio,externo_id,proveedor_id,nota,ambito,origen,creado_por)
+select 'egreso',v.concepto,v.categoria,v.monto::numeric,'USD',v.estado,v.fecha::date,v.vence::date,v.medio,v.externo_id,(select id from g_proveedores where nombre=v.prov limit 1),v.nota,'laboral','gmail','finanzas' from (values
+  ('Google AI Pro (Google One 5 TB) · octubre','Software y servicios','19.99','pagado','2026-10-13',null,'Tarjeta','gmail:gplay:2026-10',null,'Suscripción mensual por Google Play, tarjeta Visa terminada en 4392. Recibo en Gmail.'),
+  ('Google AI Pro (Google One 5 TB) · noviembre','Software y servicios','19.99','pagado','2026-11-13',null,'Tarjeta','gmail:gplay:2026-11',null,'Suscripción mensual por Google Play, tarjeta Visa terminada en 4392. Recibo en Gmail.'),
+  ('Google AI Pro (Google One 5 TB) · diciembre','Software y servicios','19.99','pendiente',null,'2026-12-13','Tarjeta','gmail:gplay:2026-12',null,'Se renueva sola el 13 de cada mes.'),
+  ('Meta Ads · fondos cargados desde el iPhone (App Store)','Publicidad','38.57','pagado','2026-11-11',null,'Mastercard Galicia','gmail:apple:MQ9D6XB4YX','Meta (Facebook e Instagram)','Carga de fondos para anuncios por App Store: US$ 38,57 a la Mastercard Galicia terminada en 9827 (Meta acreditó $41.895). Recibo de Apple en Gmail.')
+) v(concepto,categoria,monto,estado,fecha,vence,medio,externo_id,prov,nota)
+where not exists (select 1 from config where clave='seed_gmail_nov_2026')
+on conflict (externo_id) where externo_id is not null do nothing;
+update g_proveedores set notas='Oficina en Circular. Factura del 1 al 10 de cada mes, por transferencia a GD WORK SA. Contacto: administración de Circular.' where nombre='Gd Work SA' and not exists (select 1 from config where clave='seed_gmail_nov_2026');
+insert into config(clave,valor) values ('seed_gmail_nov_2026','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null
