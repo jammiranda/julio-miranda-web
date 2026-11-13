@@ -12,7 +12,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|---|---|
 | Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Página interna para bajar los 17 videos al celular y copiar el texto de TikTok |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.2.0** | 12/11/2026 | En Prospección, botón «Abrir perfil» en cada contacto de LinkedIn |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.3.0** | 12/11/2026 | En Prospección, botón «Copiar» con el mensaje listo de cada paso |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
@@ -31,7 +31,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|
 | Sitio web DEVISEBIT | 86 | 9 |
 | Landings de anuncios | 11 | 4 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 143 | 13 |
+| Sistema (CRM y gestión) | 144 | 14 |
 | Bot de WhatsApp (Bit) | 21 | 8 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
@@ -97,10 +97,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-143 cambios · 13 versiones · versión actual **3.2.0**
+144 cambios · 14 versiones · versión actual **3.3.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **3.3.0** | 12/11/2026 | • En Prospección, botón «Copiar» en cada fila de LinkedIn: en borrador copia la invitación o el primer mensaje; ya enviado, el mensaje al aceptar o el seguimiento | Novedad | `b6b81e0..b6b81e0` (1) |
 | **3.2.0** | 12/11/2026 | • En Prospección, cada fila con un perfil de LinkedIn tiene el botón «Abrir perfil», que lo abre en una pestaña nueva sin entrar a Editar | Novedad | `db05f89..db05f89` (1) |
 | **3.1.0** | 12/11/2026 | • En Conversaciones se pueden marcar varias consultas y pasarlas al CRM o descartarlas de una vez<br>• El link de agenda, el material y el brief también se mandan por email desde la misma ventana, y el email queda guardado en la consulta<br>• «Pasaron al CRM» cuenta las consultas que ya tienen un contacto comercial; «Ganadas» es solo el contacto que llega a la etapa Ganado. La misma cuenta en Conversaciones y en el Resumen comercial<br>• El brief pregunta la inversión en pesos, con rangos alineados a la lista de precios<br>• Nuevo documento en la Biblioteca: «Alta de cliente · Agente de WhatsApp», versión 1, con la lista de lo que tiene que mandar el cliente<br>• Pantalla nueva «Versiones» en Ajustes: este documento, dentro del Sistema | Novedad | `2abf7b8..dfd8805` (10) |
 | **3.0.1** | 12/11/2026 | • 🔒 **Seguridad (10 arreglos):** tres pantallas (Resumen, Proyectos y ficha de contacto) ahora verifican bien que quien entra sea del equipo; los montos de proyectos y cobros solo los ven Dirección y Comercial; el link general de agenda ya no puede mostrar la consulta de otra persona; recuperar la clave tiene límite de pedidos; las tareas automáticas ya no se pueden disparar desde afuera<br>• Se corrigió que los correos podían salir duplicados, y que los recordatorios de pago y de clase podían repetirse<br>• La baja en un clic de Gmail y Yahoo ahora da de baja de verdad<br>• «Sin atender» en Conversaciones ya no engaña; fechas en hora de Argentina; confirmación antes de borrar; pantalla de error con «Reintentar» | 🔒 Seguridad + Corrección | `ed6dbad..4a18588` (25) |
