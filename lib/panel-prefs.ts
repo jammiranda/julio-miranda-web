@@ -14,6 +14,7 @@ export const TARJETAS: { id: string; t: string }[] = [
   { id: "fb_seg", t: "Seguidores de Facebook" },
   { id: "li_seg", t: "Seguidores de LinkedIn (página)" },
   { id: "yt_vistas", t: "Vistas de YouTube" },
+  { id: "tt_seg", t: "Seguidores de TikTok" },
   { id: "academia", t: "Suscriptores de la Academia" },
   { id: "inversion", t: "Inversión en anuncios" },
 ]

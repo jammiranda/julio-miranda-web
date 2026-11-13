@@ -6,6 +6,7 @@ import { resumenAds } from "@/lib/ads"
 import { seguimientos } from "@/lib/ads-seguimiento"
 import { linkedinExport } from "@/lib/linkedin-export"
 import { facebook, FB_URL } from "@/lib/facebook"
+import { tiktok, TT_URL, TT_USUARIO } from "@/lib/tiktok"
 import { historial, interacciones, REDES } from "@/lib/publicaciones"
 import { edadDias, formatoDe, negocioPeriodo, sumaDias, cubrePrevio, diaHace } from "@/lib/panel-analisis"
 import { prefsDe } from "@/lib/panel-prefs"
@@ -24,7 +25,7 @@ export default async function Inicio() {
   const ver = (id: string) => P.bloques.includes(id)
   const b = base()
   const [segAds, ig, hist, m, yt, ads, li, ytp] = await Promise.all([safe(seguimientos()), instagram(), historialSeguidores(120).catch(() => []), safe(panelMetricas()), safe(youtubeCache()), safe(resumenAds()), linkedin(), safe(publicacionesYouTubeCache())])
-  const [lix, fb, pubs, neg] = await Promise.all([safe(linkedinExport()), facebook(), historial(90).catch(() => []), negocioPeriodo(30)])
+  const [lix, fb, pubs, neg, tt] = await Promise.all([safe(linkedinExport()), facebook(), historial(90).catch(() => []), negocioPeriodo(30), safe(tiktok())])
   const seg = ig.ok ? ig.perfil.seguidores : null
   const posts = ig.ok ? ig.posts : []
   const p30 = posts.filter((p) => p.fecha && Date.now() - new Date(p.fecha).getTime() < 30 * 864e5)
@@ -42,6 +43,8 @@ export default async function Inicio() {
 
   const ultima = (reds: string[]) => pubs.find((p) => reds.includes(p.red) && p.fecha)?.fecha ?? null
   const cuentasEstado: [string, string, string[]][] = [["Instagram", "instagram", ["instagram"]], ["Facebook", "facebook", ["facebook"]], ["YouTube", "youtube", ["youtube", "youtube_post"]], ["LinkedIn de la página", "linkedin", ["linkedin"]], ["LinkedIn de Julio", "linkedin_julio", ["linkedin_julio"]]]
+  // TikTok se carga a mano: solo se avisa que falta publicar cuando ya hay videos cargados (sin carga no se sabe)
+  if (tt?.videos.length) cuentasEstado.push(["TikTok", "tiktok", ["tiktok"]])
   type Al = { nivel: "alto" | "medio" | "info" | "ok"; t: string; d?: string; href?: string; accion?: string }
   const atencion: Al[] = []
   if (c?.esperanHumano) atencion.push({ nivel: "alto", t: `${fmt(c.esperanHumano)} consulta${c.esperanHumano === 1 ? "" : "s"} sin atender o esperan a una persona`, d: "Entraron por la web, WhatsApp o el bot y nadie respondió todavía.", href: `${b}/crm`, accion: "Atender" })
@@ -72,6 +75,7 @@ export default async function Inicio() {
     yt_vistas: <Kpi key="yt_vistas" href={`${b}/youtube`} k="Vistas YouTube" v={yt?.vistas != null ? fmt(yt.vistas) : null} color="var(--yt)" serie={yt?.lista.slice().reverse().map((v) => v.vistas ?? 0)} ft={yt ? `últimos ${yt.videos} videos del canal` : "Sin conexión con YouTube"} />,
     inversion: <Kpi key="inversion" href={`${b}/anuncios`} k="Inversión en anuncios" v={inversion.length ? inversion.map((x) => x.t).join(" + ") : null} ft={inversion.length ? inversion.map((x) => x.n).join(" y ") + " · 30 días" : "No hay datos de anuncios cargados"} />,
     visitas_hoy: <Kpi key="visitas_hoy" href={`${b}/web`} k="Visitas de hoy" v={visHoy != null ? fmt(visHoy) : null} serie={nv.slice(-14).map((x) => Number(x.c))} color="var(--info)" ft={visAyer != null ? `ayer ${fmt(visAyer)} visitas` : "Sin visitas registradas"} />,
+    tt_seg: <Kpi key="tt_seg" href={`${b}/tiktok`} k="Seguidores TikTok" v={tt?.seguidores != null ? fmt(tt.seguidores) : null} color="var(--tt)" serie={tt?.serie.filter((d) => d.seguidores != null).map((d) => Number(d.seguidores))} ft={tt?.seguidoresDia ? `carga a mano · al ${fechaCorta(tt.seguidoresDia)}` : "Todavía no hay datos cargados"} />,
     li_seg: <Kpi key="li_seg" href={`${b}/linkedin`} k="Seguidores LinkedIn (página)" v={lix?.seguidores.total != null ? fmt(lix.seguidores.total) : null} color="var(--li)" delta={<Delta v={lix?.seguidores.nuevos ?? null} />} ft={lix?.seguidores.total != null ? `exportación de LinkedIn${lix.mes ? " · " + lix.mes : ""}` : "Sin exportación cargada"} />,
   }
 
@@ -133,6 +137,18 @@ export default async function Inicio() {
             </div>
           ) : <span className="pc-muted" style={{ fontSize: 12.5 }}>{li.error === "sin_clave" ? "Datos de la página vía Buffer: falta cargar la clave de Buffer." : `Buffer no respondió: ${li.error}`}</span>}
         </a>
+        <div className="pc-card pc-red">
+          <div className="hd"><span className="ic" style={{ background: "color-mix(in srgb, var(--tt) 15%, transparent)", color: "var(--tt)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3v11.5a3.5 3.5 0 11-3.5-3.5" /><path d="M14 3c.4 2.6 2.2 4.4 5 4.8" /></svg></span><div><h3>TikTok</h3><span className="pc-muted" style={{ fontSize: 12 }}>@{TT_USUARIO}</span></div></div>
+          {tt?.hay ? (
+            <>
+              <div className="pc-mono" style={{ fontSize: 13 }}>{[tt.seguidores != null ? `${fmt(tt.seguidores)} seguidores` : null, tt.meGusta != null ? `${fmt(tt.meGusta)} me gusta` : null, tt.videos.length ? `${fmt(tt.videos.length)} video${tt.videos.length === 1 ? "" : "s"} cargado${tt.videos.length === 1 ? "" : "s"}` : null].filter(Boolean).join(" · ")}</div>
+              <div className="pc-mono pc-muted" style={{ fontSize: 12 }}>Carga a mano{tt.actualizado ? ` · última ${fechaHora(tt.actualizado)}` : ""}</div>
+            </>
+          ) : (
+            <span className="pc-muted" style={{ fontSize: 12.5 }}><b style={{ color: "var(--fg)" }}>Todavía no hay datos cargados.</b> TikTok no se conecta solo: los seguidores, los me gusta y los números de cada video se cargan a mano.</span>
+          )}
+          <div className="pc-row" style={{ gap: 14, fontSize: 12.5 }}><a href={`${b}/tiktok${tt?.hay ? "" : "#cargar"}`}>{tt?.hay ? "Ver y cargar datos" : "Cargar datos"}</a><a href={TT_URL} target="_blank" rel="noreferrer">Abrir el perfil</a></div>
+        </div>
         <a className="pc-card pc-red" href={`${b}/web`}>
           <div className="hd"><span className="ic" style={{ background: "var(--red-soft)", color: "var(--red)" }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h13v16H6a2 2 0 01-2-2zM17 8h3v10a2 2 0 01-2 2M8 8h5M8 12h5M8 16h3" /></svg></span><div><h3>Blog y web</h3><span className="pc-muted" style={{ fontSize: 12 }}>devisebit.com/novedades</span></div></div>
           <span className="pc-muted" style={{ fontSize: 12.5 }}>Estado de los sitios, notas publicadas y visitas.</span>
