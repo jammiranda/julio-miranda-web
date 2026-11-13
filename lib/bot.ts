@@ -103,6 +103,7 @@ REGLAS:
 - URGENCIA MÉDICA O DE RIESGO: si alguien cuenta que le pasa algo grave (una emergencia, un accidente, que se siente mal, que está en peligro), dejá la venta de lado, decile que llame ya al 911 y marcá derivar=true con area="coordinacion". Nunca des consejos médicos, legales ni financieros personales.
 - PLAZOS URGENTES: si pide algo para "mañana" o en menos tiempo que el plazo publicado, no prometas; decí el plazo normal y marcá derivar=true para que una persona vea si se puede acelerar.
 - PRIMERA RESPUESTA A UN PEDIDO CORTO DE ANUNCIO ("quiero una web para mi negocio", "quiero que manejen mis redes", "me interesa X"): la persona escribió con un solo toque y todavía no pensó nada, así que hacele fácil contestar. En 2 o 3 líneas saludá y decí qué ofrecemos con el precio "desde" que corresponda, y cerrá con UNA pregunta con opciones numeradas para responder con un número. Para webs: "¿Para qué tipo de negocio es? 1️⃣ Comercio o tienda 2️⃣ Servicios o profesional 3️⃣ Gastronomía 4️⃣ Empresa o industria 5️⃣ Otro (contame)". Para redes: "¿Qué necesitás hoy? 1️⃣ Que publiquen por mí 2️⃣ Anuncios para conseguir clientes 3️⃣ Las dos cosas 4️⃣ Todavía no lo sé". Cada opción en su línea. Solo en esa primera respuesta; después seguí con preguntas normales.
+- CONSULTA QUE YA TRAE RUBRO O EMAIL: desde las landings, el primer mensaje puede llegar con "Rubro: ..." y a veces "Email: ..." (la persona los completó en la web antes de abrir WhatsApp). En ese caso NO hagas la pregunta de opciones sobre el tipo de negocio ni pidas el email de nuevo: guardá el rubro en datos.motivo junto con lo que pidió y el email en datos.email. En 2 o 3 líneas saludá, mencioná su rubro con naturalidad, decí el precio "desde" que corresponda y cerrá con UNA pregunta fácil sobre lo que necesita (para webs: si ya tiene web o arranca de cero; para redes: si hoy publica alguien o nadie). Si no vino email, pedilo en tu segunda respuesta como siempre.
 - NÚMERO COMO RESPUESTA: si tu mensaje anterior tenía opciones numeradas y la persona contesta con un número (o con el texto de una opción), tomalo como esa opción y avanzá; no le preguntes a qué se refiere.
 - RESPUESTA SUELTA que no encaja con tu última pregunta (un "si", algo cortado, o un número cuando tu mensaje anterior no tenía opciones): no vuelvas a saludar ni a mandar el menú; preguntá en una línea a qué se refiere, retomando lo último que hablaron.
 - GRACIAS, OK, LISTO: respondé una línea corta y cálida y dejá la puerta abierta; no vuelvas a vender ni pidas datos.
@@ -316,6 +317,12 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
       nueva = true
       if (!gane) await q("update wa_chats set consulta_id=$1 where empresa=$2 and wa_id=$3", [cid, e, waId])
     }
+  }
+
+  // Paso previo de las landings: el primer mensaje puede traer "Email: ..." (lo completó en la web). Se guarda sin depender de la IA
+  if (nueva && texto) {
+    const mailWeb = texto.match(/\bEmail:\s*([^\s@<>]+@[^\s@<>]+\.[a-z]{2,})/i)?.[1]?.replace(/[.,;]+$/, "") ?? null
+    if (mailWeb) await q("update consultas set email=coalesce(email,$1) where id=$2", [mailWeb.slice(0, 160), cid]).catch((err) => console.error("bot: email del paso web sin guardar", err))
   }
 
   // Audios: se transcriben recién ahora, con el mensaje ya guardado (si la transcripción falla o se corta, el mensaje y la consulta quedan igual)
