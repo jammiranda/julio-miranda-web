@@ -18,7 +18,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
-| Panel de Contenido | panel.devisebit.com | **2.2.0** | 13/11/2026 | Pantalla nueva de TikTok, con carga a mano de seguidores, me gusta y videos |
+| Panel de Contenido | panel.devisebit.com | **2.3.0** | 13/11/2026 | Pestaña nueva «Interacción en redes»: comentarios, grupos de Facebook, cuentas seguidas y seguidores, actualizada sola cada día |
 | Oficina | oficina.devisebit.com | **1.1.0** | 07/11/2026 | Las tareas programadas ya pueden leer y actualizar el registro de Prospección |
 | Sitio personal de Julio | julio.devisebit.com | **1.5.0** | 12/11/2026 | Se sumaron los básicos: mapa del sitio, página de «no encontrado» y selector de idioma en celular |
 
@@ -168,10 +168,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.7 Panel de Contenido — panel.devisebit.com
 
-36 cambios · 8 versiones · versión actual **2.2.0**
+37 cambios · 9 versiones · versión actual **2.3.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **2.3.0** | 13/11/2026 | • **Interacción en redes** (pestaña nueva, también desde tablero.devisebit.com/interaccion): comentarios publicados por día y por red, avance de la meta del mes, presentaciones en grupos de Facebook (visibles y en aprobación), cuentas seguidas, seguidores de LinkedIn de Julio, Instagram y Facebook, y el embudo hasta las consultas<br>• Se carga sola: la tarea de comentarios informa cada corrida al panel; se cargó todo lo hecho del 02/11 al 13/11 (66 comentarios, 10 presentaciones en grupos)<br>• En el Tablero diario, acceso directo a la pestaña | Novedad | (1) |
 | **2.2.0** | 13/11/2026 | • **Tablero diario** (solo para Julio): el informe de la mañana (8:27) y el de cierre (18:57) con semáforo, decisiones para tildar, notas del día y días anteriores; tiene dirección propia (tablero.devisebit.com) y avisa por Telegram cuando sale<br>• En el menú, «Tablero diario» queda justo debajo de «Inicio»<br>• **Pantalla nueva de TikTok:** se cargan a mano los seguidores, los me gusta y los videos (con formulario o planilla), y quedan en el mismo historial que las demás redes<br>• En Inicio, tarjeta de TikTok (sin números hasta que se carguen) e indicador opcional de seguidores<br>• TikTok aparece como una cuenta más en Análisis, y Publicaciones aclara de dónde salen sus datos | Novedad | `c4d22bc..9952dff` (6) |
 | **2.1.1** | 12/11/2026 | • «Ganadas» cuenta solo los contactos en etapa Ganado del CRM; la consulta que pasó al CRM se llama «Pasaron al CRM» | Corrección | `63ee348` (1) |
 | **2.1.0** | 12/11/2026 | • Los avisos del Panel cuentan las consultas sin atender<br>• Estadísticas de Prospección: enviados, respuestas, reuniones y seguimientos vencidos (cambio del 07/11, compartido con el Sistema: `96603ca`)<br>• Mejor uso desde el celular | Mejora | `ff50bc9..91cd8ec` (2) |

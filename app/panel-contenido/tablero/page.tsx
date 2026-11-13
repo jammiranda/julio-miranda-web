@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { soloJulio } from "@/lib/oficina"
 import { claveItem, diasConInforme, edicionesDe, diaValido, hoyAR, notaDe, tildesDe, EDICIONES, type Item, type Seccion } from "@/lib/informe"
-import { Head, Sec, SinDatos, NoPermiso, fechaHora } from "../_ui"
+import { Head, Sec, SinDatos, NoPermiso, fechaHora, base as basePanel } from "../_ui"
 import { dejarNota, tildarDecision } from "./_acciones"
 
 export const dynamic = "force-dynamic"
@@ -63,6 +63,7 @@ export default async function Tablero({ searchParams }: { searchParams: { dia?: 
   return (
     <>
       <Head t="Tablero diario" sub={`${diaLargo(dia)}${dia === hoy ? " · hoy" : ""}`}>
+        <Link className="tb-pill" href={`${basePanel()}/interaccion`}>💬 Interacción en redes</Link>
         {eds.map((x) => (
           <Link key={x.edicion} className={`tb-pill${e?.edicion === x.edicion ? " on" : ""}`} href={`${base}&ed=${x.edicion}`}>{EDICIONES[x.edicion]}</Link>
         ))}

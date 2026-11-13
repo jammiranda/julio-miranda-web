@@ -8,6 +8,7 @@ export const GRUPOS: GrupoNav[] = [
     items: [
       { s: "", t: "Inicio", claves: "resumen inicio atención alertas indicadores tablero general" },
       { s: "tablero", t: "Tablero diario", claves: "informe diario agenda reuniones posteos empleos decisiones cierre mañana telegram notas" },
+      { s: "interaccion", t: "Interacción en redes", claves: "comentarios grupos facebook presentaciones cuentas seguidas meta mensual linkedin instagram seguidores respuestas conversaciones" },
       { s: "analisis", t: "Análisis", claves: "indicadores métricas engagement seguidores mejor día formato horario hallazgos embudo comparación período" },
       { s: "competencia", t: "Competencia", claves: "competidores mercado benchmark comparar cuentas" },
     ],

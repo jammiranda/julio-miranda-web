@@ -50,6 +50,9 @@ export function middleware(req: NextRequest) {
     if (/^\/(login|primer-ingreso|activar|recuperar)(\/|$)/.test(p)) return NextResponse.next()
     if (!req.cookies.get("db_sesion")) return NextResponse.redirect(host.startsWith("tablero.localhost") ? new URL("/login", req.url) : "https://tablero.devisebit.com/login")
     if (p === "/panel-contenido/tablero") return NextResponse.next()
+    // Pestaña de interacción en redes (vive en /panel-contenido/interaccion)
+    if (p === "/panel-contenido/interaccion") return NextResponse.next()
+    if (p === "/interaccion") { const i = req.nextUrl.clone(); i.pathname = "/panel-contenido/interaccion"; return NextResponse.rewrite(i) }
     const t = req.nextUrl.clone()
     t.pathname = "/panel-contenido/tablero"
     return NextResponse.rewrite(t)
