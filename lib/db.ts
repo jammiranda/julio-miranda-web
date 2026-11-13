@@ -304,6 +304,7 @@ create table if not exists pc_red_diario (
   red text not null, dia date not null, seguidores int, nuevos int, impresiones int, alcance int, interacciones int, publicaciones int,
   actualizado timestamptz not null default now(), primary key (red, dia)
 );
+alter table pc_red_diario add column if not exists me_gusta int;
 create table if not exists demo_diagnosticos (
   id serial primary key, email text not null, nombre text, organizacion text, telefono text, puntaje int, nivel text,
   dimensiones jsonb, prioridades jsonb, respuestas jsonb, marca text, origen text, contacto_id int references db_contactos(id) on delete set null,

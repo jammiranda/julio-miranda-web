@@ -7,6 +7,7 @@ import { q } from "./db"
  * - facebook: Metricool, por la tarea diaria (POST /api/panel/redes).
  * - youtube (videos) y youtube_post (pestaña Publicaciones del canal): feed/página pública o la tarea diaria.
  * - linkedin (página) y linkedin_julio (perfil de Julio): Buffer y las exportaciones de LinkedIn.
+ * - tiktok: carga a mano desde el panel (TikTok no tiene conexión automática), ver lib/tiktok.ts.
  * Las publicaciones de la exportación de la página (li_publicaciones) se suman al leer.
  */
 export const REDES: Record<string, { nombre: string; color: string }> = {
@@ -16,6 +17,7 @@ export const REDES: Record<string, { nombre: string; color: string }> = {
   youtube_post: { nombre: "YouTube · publicaciones", color: "var(--yt)" },
   linkedin: { nombre: "LinkedIn DEVISEBIT", color: "var(--li)" },
   linkedin_julio: { nombre: "LinkedIn Julio", color: "var(--li)" },
+  tiktok: { nombre: "TikTok", color: "var(--tt)" },
 }
 
 export type Publicacion = {
@@ -78,23 +80,24 @@ export async function historial(dias = 3650): Promise<Publicacion[]> {
 export const interacciones = (p: Publicacion) => p.interacciones ?? (p.me_gusta ?? 0) + (p.comentarios ?? 0) + (p.compartidos ?? 0) + (p.votos ?? 0) + (p.clics ?? 0)
 
 /** Serie diaria guardada de una red (seguidores, impresiones, etc.). */
-export type FilaRed = { dia: string; seguidores?: number | null; nuevos?: number | null; impresiones?: number | null; alcance?: number | null; interacciones?: number | null; publicaciones?: number | null }
+export type FilaRed = { dia: string; seguidores?: number | null; nuevos?: number | null; impresiones?: number | null; alcance?: number | null; interacciones?: number | null; publicaciones?: number | null; me_gusta?: number | null }
 export async function guardarRedDiario(red: string, filas: FilaRed[]) {
-  const ok = filas.filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(String(f.dia ?? ""))).slice(0, 2000).map((f) => ({ red, dia: f.dia, seguidores: n(f.seguidores), nuevos: n(f.nuevos), impresiones: n(f.impresiones), alcance: n(f.alcance), interacciones: n(f.interacciones), publicaciones: n(f.publicaciones) }))
+  const ok = filas.filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(String(f.dia ?? ""))).slice(0, 2000).map((f) => ({ red, dia: f.dia, seguidores: n(f.seguidores), nuevos: n(f.nuevos), impresiones: n(f.impresiones), alcance: n(f.alcance), interacciones: n(f.interacciones), publicaciones: n(f.publicaciones), me_gusta: n(f.me_gusta) }))
   if (!ok.length) return 0
   await q(
-    `insert into pc_red_diario(red,dia,seguidores,nuevos,impresiones,alcance,interacciones,publicaciones)
-     select red,dia,seguidores,nuevos,impresiones,alcance,interacciones,publicaciones from jsonb_to_recordset($1::jsonb) as x(red text, dia date, seguidores int, nuevos int, impresiones int, alcance int, interacciones int, publicaciones int)
+    `insert into pc_red_diario(red,dia,seguidores,nuevos,impresiones,alcance,interacciones,publicaciones,me_gusta)
+     select red,dia,seguidores,nuevos,impresiones,alcance,interacciones,publicaciones,me_gusta from jsonb_to_recordset($1::jsonb) as x(red text, dia date, seguidores int, nuevos int, impresiones int, alcance int, interacciones int, publicaciones int, me_gusta int)
      on conflict (red,dia) do update set seguidores=coalesce(excluded.seguidores,pc_red_diario.seguidores), nuevos=coalesce(excluded.nuevos,pc_red_diario.nuevos),
        impresiones=coalesce(excluded.impresiones,pc_red_diario.impresiones), alcance=coalesce(excluded.alcance,pc_red_diario.alcance),
-       interacciones=coalesce(excluded.interacciones,pc_red_diario.interacciones), publicaciones=coalesce(excluded.publicaciones,pc_red_diario.publicaciones), actualizado=now()`,
+       interacciones=coalesce(excluded.interacciones,pc_red_diario.interacciones), publicaciones=coalesce(excluded.publicaciones,pc_red_diario.publicaciones),
+       me_gusta=coalesce(excluded.me_gusta,pc_red_diario.me_gusta), actualizado=now()`,
     [JSON.stringify(ok)],
   )
   return ok.length
 }
 export function redDiario(red: string, dias = 365) {
-  return q<{ dia: string; seguidores: number | null; nuevos: number | null; impresiones: number | null; alcance: number | null; interacciones: number | null; publicaciones: number | null; actualizado: string }>(
-    `select to_char(dia,'YYYY-MM-DD') dia, seguidores, nuevos, impresiones, alcance, interacciones, publicaciones, actualizado::text from pc_red_diario where red=$1 and dia > current_date - $2::int order by dia`,
+  return q<{ dia: string; seguidores: number | null; nuevos: number | null; impresiones: number | null; alcance: number | null; interacciones: number | null; publicaciones: number | null; me_gusta: number | null; actualizado: string }>(
+    `select to_char(dia,'YYYY-MM-DD') dia, seguidores, nuevos, impresiones, alcance, interacciones, publicaciones, me_gusta, actualizado::text from pc_red_diario where red=$1 and dia > current_date - $2::int order by dia`,
     [red, dias],
   )
 }
