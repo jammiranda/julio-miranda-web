@@ -5,6 +5,7 @@ import { ESTADOS_MOD, dinero, isoD, sumarDias } from "@/lib/gestion"
 import { fecha, hoyISO, nombrePeriodo, periodoActual, rangoPeriodo } from "@/lib/util"
 import { Kpis, ParaHoy, type KpiDato } from "@/components/Kpi"
 import { eventosCalendario, correosGmail, correosImap, contactosPorEmail, nombreDe, emailDe } from "@/lib/integraciones"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 
@@ -85,6 +86,7 @@ export default async function TableroDireccion() {
         <div><div className="eyebrow">Dirección</div><h1 className="m-0">Tablero de dirección</h1><p>Toda la empresa en una pantalla: ventas, plata, legales, licitaciones y el equipo de agentes. {nombrePeriodo(per)}.</p></div>
         <div className="pag-acc"><Link href="/agentes" className="btn-s">Equipo de agentes</Link>{fin && <Link href="/finanzas" className="btn-p">Ver finanzas</Link>}</div>
       </header>
+      <Indice />
 
       <ParaHoy items={[
         ...(fin ? [{ n: Number(n.cobrar_venc) ? dinero(n.cobrar_venc) : 0, t: "Cobros vencidos", d: "Reclamar esta semana", href: "/finanzas", accion: "Ver cobros", tono: "av" as const }] : []),
@@ -105,7 +107,7 @@ export default async function TableroDireccion() {
       ]} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-5">
-        <section className="card flex flex-col gap-3" aria-label="Lo que viene">
+        <section className="card flex flex-col gap-3 min-w-0" aria-label="Lo que viene">
           <div><h2 className="m-0 text-base">Lo que viene · próximos 30 días</h2><p className="m-0 text-xs text-[var(--gris)]">Reuniones de tu Google Calendar, cobros, pagos, vencimientos legales, contratos, aperturas de licitaciones, entregas y próximos pasos de cada módulo, en un solo orden.</p></div>
           {visibles.length ? (
             <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--borde-2)]">
@@ -134,7 +136,7 @@ export default async function TableroDireccion() {
           ) : <p className="vacio">Nada con fecha en los próximos 30 días. A medida que cargues cobros, gastos, vencimientos y licitaciones, aparecen acá.</p>}
         </section>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 min-w-0">
         <section className="card flex flex-col gap-2" aria-label="Equipo de agentes">
           <div className="flex items-center justify-between gap-2"><h2 className="m-0 text-base">Equipo de agentes</h2><Link href="/agentes" className="btn-s py-1 px-3 text-xs">Ver equipo</Link></div>
           <p className="m-0 text-sm text-[var(--gris)]">Administrativo, Finanzas, Ventas, Comercial, Contenido y Control diario trabajan todos los días y dejan su parte en la Bitácora.</p>

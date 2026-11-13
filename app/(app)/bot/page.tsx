@@ -9,6 +9,7 @@ import { BOTS } from "@/lib/bots/conocimiento"
 import { modoBot } from "@/lib/bot"
 import { revisionSemanal, ultimoInforme } from "@/lib/revision"
 import { importarConocimiento, leerUrl } from "@/lib/importar-conocimiento"
+import Indice from "@/components/Indice"
 
 export const maxDuration = 120
 
@@ -127,6 +128,7 @@ export default async function Bot({ searchParams }: { searchParams: { e?: string
         </div>
       </div>
 
+      <Indice filtra="details.card" placeholder="Buscar en lo que sabe el bot" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="card"><div className="text-xs font-semibold uppercase text-[#4A515C]">Mensajes recibidos (30 días)</div><div className="text-2xl font-extrabold">{st.cliente ?? 0}</div></div>
         <div className="card"><div className="text-xs font-semibold uppercase text-[#4A515C]">Respondió el bot</div><div className="text-2xl font-extrabold">{st.bot ?? 0}</div></div>

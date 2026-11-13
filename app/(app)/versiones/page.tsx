@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises"
 import path from "path"
 import { requerir } from "@/lib/auth"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Versiones" }
@@ -115,6 +116,7 @@ export default async function Versiones() {
       <header className="pag-cab">
         <div><div className="eyebrow">Ajustes</div><h1 className="m-0">Versiones</h1><H as="p" t={bajada} /></div>
       </header>
+      <Indice filtra="tbody tr" placeholder="Buscar un cambio o una versión" />
       <nav aria-label="Productos" className="flex flex-wrap gap-2">
         {productos.map((p) => <a key={p.t} href={`#${ancla(p.t)}`} className="chip bg-[var(--sup-2)] text-[var(--ac-texto)] no-underline border border-[var(--borde)]">{p.t}</a>)}
       </nav>

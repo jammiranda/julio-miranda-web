@@ -1,5 +1,6 @@
 import { requerir } from "@/lib/auth"
 import { q } from "@/lib/db"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 export default async function Auditoria() {
@@ -9,6 +10,7 @@ export default async function Auditoria() {
     <div className="flex flex-col gap-4">
       <h1 className="m-0">Auditoría</h1>
       <p className="m-0 text-sm text-[#4A515C]">Registro de quién ingresó, vio o modificó datos (últimos 300 movimientos).</p>
+      <Indice filtra="tbody tr" placeholder="Buscar por usuario, acción o detalle" />
       <div className="card p-0 overflow-x-auto">
         <table className="tbl">
           <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead>

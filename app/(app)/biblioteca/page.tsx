@@ -8,6 +8,7 @@ import { validarEmail } from "@/lib/demos"
 import { docs, publicar, guardarVersion, sembrarVersiones, MAX_ARCHIVO, crearEnvio, mandarEnvio, mensajeWA, linkEnvio, peso, type Version, type Envio } from "@/lib/biblioteca"
 import Copiar from "@/components/Copiar"
 import SubirVersion from "@/components/SubirVersion"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 
@@ -111,6 +112,7 @@ export default async function Biblioteca({ searchParams: sp }: { searchParams: {
         <h1 className="m-0">Documentos de la empresa</h1>
         <p className="m-0 text-sm text-[#4A515C]">El manual general, la presentación institucional y los manuales por rol, siempre en su última versión. Se comparten con un link personal que vence, se puede revocar y avisa cuando lo abren. El link siempre abre la versión vigente: si subís una nueva, los links ya enviados la muestran sola. Los manuales son internos y nunca llevan usuarios ni contraseñas.</p>
       </div>
+      <Indice filtra='section[id^="doc-"]' placeholder="Buscar documento" />
       {sp.ok && <p className="m-0 text-sm text-emerald-700" role="status">{sp.ok}</p>}
       {sp.err && <p className="m-0 text-sm text-rojo" role="alert">{sp.err}</p>}
 

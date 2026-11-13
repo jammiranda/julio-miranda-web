@@ -5,6 +5,7 @@ import { isoD, ESTADOS_PROS, CANALES_PROS, TIPOS_PROS } from "@/lib/gestion"
 import { prospeccionPanel, CANAL_N } from "@/lib/prospeccion"
 import { fecha, hoyISO } from "@/lib/util"
 import { TablaRegistro, Aviso, Kpi, Pestanias } from "@/components/Registro"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 
@@ -57,6 +58,7 @@ export default async function Prospeccion({ searchParams: sp }: { searchParams: 
 
       <Pestanias base="/prospeccion" actual={camp} items={[{ v: "", n: "Todas", cant: m.total }, ...m.porCampania.map((x: any) => ({ v: x.campania, n: x.campania, cant: x.total }))]} />
 
+      <Indice sel="h2.grupo" filtra="article.card" placeholder="Buscar persona, empresa o cargo" />
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
         abierto={(r) => !CERRADOS.includes(r.estado)}
         rapido={{ etiqueta: "Enviado", si: (r) => r.estado === "borrador" }}

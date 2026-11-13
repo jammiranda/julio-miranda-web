@@ -482,3 +482,13 @@ tr[aria-selected="true"], li[aria-selected="true"] { background: var(--ac-suave)
 :where([data-espacio] .tbl tbody tr) { background: var(--sup); }
 [data-espacio] .tbl :where(td:last-child:has(.btn-s, .btn-p, button)) { position: sticky; right: 0; background: inherit; box-shadow: -10px 0 12px -12px rgba(14, 17, 22, .28); }
 
+/* Barra fija de cada pantalla larga: índice de secciones + buscador (components/Indice.tsx) */
+.indice { position: sticky; top: 106px; z-index: 9; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 0; margin-block: -6px; background: color-mix(in srgb, var(--fondo) 94%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--borde-2); }
+.indice-arriba { position: fixed; right: 20px; bottom: 20px; z-index: 30; padding: 10px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; color: #fff; background: var(--tinta, #0E1116); box-shadow: 0 6px 18px rgba(14, 17, 22, .25); cursor: pointer; }
+@media (max-width: 1023px) { .indice { top: 60px; } }
+/* Listas largas en tarjetas: el navegador solo dibuja las que están a la vista */
+.tarjeta-lista { content-visibility: auto; contain-intrinsic-size: auto 210px; }
+/* Foco visible con teclado en todo el Sistema */
+[data-espacio] :where(a, button, summary, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--ac, #C8231F); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { [data-espacio] * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+

@@ -8,6 +8,7 @@ import { URL_SISTEMA } from "@/lib/brief"
 import { fechaHora } from "@/lib/consultas"
 import Copiar from "@/components/Copiar"
 import ListaPrecios from "./Lista"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 
@@ -71,6 +72,7 @@ export default async function Precios({ searchParams }: { searchParams: { ok?: s
         <span className="text-[#4A515C]">Muestra los precios y qué incluye cada servicio, sin las referencias internas. El bot lo manda cuando piden precios. Se actualiza solo cuando cambiás un precio acá.</span>
         <span className="text-[#4A515C]">Formas de pago: {PAGO.texto} Alias: <strong>{PAGO.alias}</strong>.</span>
       </section>
+      <Indice sel="section > h2, .card > h2" filtra="section tbody tr" placeholder="Buscar producto o precio" />
       <ListaPrecios filas={ps.map((p) => ({ ...p, pos: posicion(p) }))} guardar={guardar} editar={editar} />
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="card text-sm flex flex-col gap-2">

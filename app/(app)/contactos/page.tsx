@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic"
 const TIENE_EMAIL = "(coalesce(c.email,'') ~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$')"
 const TIENE_TEL = "(length(regexp_replace(coalesce(c.telefono,''), '[^0-9]', '', 'g')) >= 8)"
 const TIENE_LI = "(coalesce(c.notas,'') ilike '%linkedin.com/in/%')"
+const POR_PAGINA = 100
 const DATOS = [
   { v: "", n: "Todos", d: "Sin filtrar por dato de contacto" },
   { v: "email", n: "Con email", d: "Sirven para campañas de email" },
@@ -66,7 +67,7 @@ async function masivo(fd: FormData) {
   redirect("/contactos")
 }
 
-export default async function Contactos({ searchParams }: { searchParams: { etapa?: string; b?: string; msg?: string; n?: string; lista?: string; canal?: string; datos?: string } }) {
+export default async function Contactos({ searchParams }: { searchParams: { etapa?: string; b?: string; msg?: string; n?: string; lista?: string; canal?: string; datos?: string; p?: string } }) {
   const u = await requerir()
   const et = ETAPAS.some((e) => e.v === searchParams.etapa) ? searchParams.etapa! : null
   const lista = esClase(searchParams.lista) ? searchParams.lista : null
@@ -77,15 +78,16 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
   // Con qué se lo puede contactar (pedido de Julio, 12/11/2026): email, teléfono, solo perfil de LinkedIn o nada.
   const datos = DATOS.some((x) => x.v === searchParams.datos) ? searchParams.datos! : ""
   const datosSQL = datos === "email" ? `and ${TIENE_EMAIL}` : datos === "telefono" ? `and ${TIENE_TEL}` : datos === "linkedin" ? `and not ${TIENE_EMAIL} and not ${TIENE_TEL} and ${TIENE_LI}` : datos === "nada" ? `and not ${TIENE_EMAIL} and not ${TIENE_TEL} and not ${TIENE_LI}` : ""
+  const pag = Math.min(Math.max(Math.trunc(Number(searchParams.p)) || 1, 1), 1000)
   // Conteos y lista en paralelo (antes, una consulta esperaba a la otra)
   const [cuentas, rows, porCanal, sinClas, porDatos] = await Promise.all([
     q<{ clase: string | null; n: number }>(`select clase, count(*)::int n from db_contactos c where true ${canalSQL} group by clase`),
     q<any>(
-    `select c.*, (select count(*)::int from db_proyectos p where p.contacto_id=c.id) proyectos from db_contactos c
+    `select c.*, count(*) over()::int total, (select count(*)::int from db_proyectos p where p.contacto_id=c.id) proyectos from db_contactos c
      where c.clase is not null and (case when $3::text is null then c.clase<>'descartado' else c.clase=$3 end)
        and ($1::text is null or etapa=$1) ${canalSQL} ${datosSQL}
        and ($2='' or nombre ilike '%'||$2||'%' or organizacion ilike '%'||$2||'%' or email ilike '%'||$2||'%' or telefono ilike '%'||$2||'%')
-     order by actualizado desc limit 500`,
+     order by actualizado desc, c.id desc limit ${POR_PAGINA} offset ${(pag - 1) * POR_PAGINA}`,
     [et, b, lista],
   ),
     q<{ redes: boolean; n: number }>(`select ${SQL_DE_REDES} redes, count(*)::int n from db_contactos c where c.clase is not null and (case when $1::text is null then c.clase<>'descartado' else c.clase=$1 end) group by 1`, [lista]),
@@ -107,6 +109,9 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
     linkedin: (String(c.notas ?? "").match(/https?:\/\/[a-z.]*linkedin\.com\/in\/[^\s·]+/i) ?? [null])[0],
   }))
   const qs = (o: Record<string, string | null>) => { const p = new URLSearchParams(); const t0 = { canal: canal === "directos" ? null : canal, datos: datos || null, ...o }; for (const [k, v] of Object.entries(t0)) if (v) p.set(k, v); const t = p.toString(); return `/contactos${t ? `?${t}` : ""}` }
+  const total = rows[0]?.total ?? 0
+  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA))
+  const irA = (n: number) => qs({ lista, etapa: et, b: b || null, p: n > 1 ? String(n) : null })
   const sinClasificar = sinClas[0]?.n ?? 0
   const n = Number(searchParams.n ?? 0)
   const aviso = searchParams.msg === "eliminados" ? `Se eliminaron ${n} contacto${n === 1 ? "" : "s"}.` : searchParams.msg === "editados" ? `Se actualizaron ${n} contacto${n === 1 ? "" : "s"}.` : null
@@ -143,6 +148,18 @@ export default async function Contactos({ searchParams }: { searchParams: { etap
       </div>
       {puede.editar(u) && rows.length > 0 && <p className="m-0 px-5 pt-3 text-xs text-[#4A515C]">Tildá los contactos (o el casillero del encabezado para elegir todos los de la lista) para cambiarles la etapa, el sector o el próximo paso, o para eliminarlos.</p>}
       <ContactosTabla clases={CLASES.map((x) => ({ v: x.v, n: x.n }))} filas={filas} etapas={ETAPAS.map((e) => ({ v: e.v, n: e.n }))} sectores={SECTORES} editar={puede.editar(u)} accion={masivo} />
+      {total > 0 && (
+        <nav aria-label="Páginas" className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-t border-[#E2E5EA] text-sm">
+          <span className="text-[#4A515C]">Mostrando {(pag - 1) * POR_PAGINA + 1} a {Math.min(pag * POR_PAGINA, total)} de <strong className="text-[var(--tinta)]">{total}</strong></span>
+          {paginas > 1 && (
+            <span className="flex items-center gap-2">
+              {pag > 1 ? <Link href={irA(pag - 1)} className="btn-s py-1.5">← Anterior</Link> : <span className="btn-s py-1.5 opacity-40" aria-disabled="true">← Anterior</span>}
+              <span className="text-[#4A515C]">Página {pag} de {paginas}</span>
+              {pag < paginas ? <Link href={irA(pag + 1)} className="btn-p py-1.5">Siguiente →</Link> : <span className="btn-s py-1.5 opacity-40" aria-disabled="true">Siguiente →</span>}
+            </span>
+          )}
+        </nav>
+      )}
     </div>
     </div>
   )

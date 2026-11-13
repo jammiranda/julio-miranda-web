@@ -145,8 +145,8 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
               const urlEditar = conParam(sinParams(volver, "nuevo", "ok", "error"), "editar", String(r.id))
               return (
                 <div key={r.id} className="contents">
-                  {cab && <h2 className="m-0 mt-3 first:mt-0 text-sm font-bold text-[var(--gris)] uppercase tracking-wide">{g} <span className="font-semibold normal-case tracking-normal">· {cant[g!]}</span></h2>}
-                  <article className={`card !p-4 flex flex-col gap-3 ${editar === r.id ? "border-[var(--ac)]" : ""}`} aria-label={String(r[ent.titulo] ?? "")}>
+                  {cab && <h2 className="grupo m-0 mt-3 first:mt-0 text-sm font-bold text-[var(--gris)] uppercase tracking-wide">{g} <span className="font-semibold normal-case tracking-normal">· {cant[g!]}</span></h2>}
+                  <article className={`card tarjeta-lista !p-4 flex flex-col gap-3 ${editar === r.id ? "border-[var(--ac)]" : ""}`} aria-label={String(r[ent.titulo] ?? "")}>
                     {tarjeta(r)}
                     {puedeEditar && (
                       <div className="flex flex-wrap items-center gap-2">

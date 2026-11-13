@@ -7,6 +7,7 @@ import { PASO_AL_CRM, GANADA } from "@/lib/consultas"
 import { local, calendarioConectado } from "@/lib/agenda"
 import { eventosCalendario, contactosPorEmail } from "@/lib/integraciones"
 import { Kpis, ParaHoy } from "@/components/Kpi"
+import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 
@@ -14,7 +15,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
   // La sesión se valida acá también: el layout no vuelve a ejecutarse en cada pedido de la página
   const verMontos = puede.verMontos(await requerir())
   const dias = [30, 90, 365].includes(Number(searchParams.dias)) ? Number(searchParams.dias) : 30
-  const [cuenta, proximos, activos, sinPasar, fuentes, reuniones] = await Promise.all([
+  const [cuenta, proximos, activos, sinPasar, fuentes, reuniones, pros, sinClas] = await Promise.all([
     q<{ etapa: string; n: number }>("select etapa, count(*)::int n from db_contactos where clase in ('oportunidad','cliente') group by etapa"),
     q<any>("select id, nombre, organizacion, etapa, proximo, proximo_fecha from db_contactos where coalesce(clase,'') not in ('descartado') and etapa not in ('ganado','perdido') and (proximo is not null or proximo_fecha is not null) order by proximo_fecha nulls last limit 12"),
     q<any>(`select p.id, p.nombre, p.estado, p.entrega, p.monto, c.organizacion, c.nombre contacto
@@ -33,7 +34,15 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
        where k.creado > now() - make_interval(days => $1)
        group by 1 order by leads desc`, [dias]),
     q<any>("select r.*, k.organizacion from db_reuniones r left join consultas k on k.id=r.consulta_id where r.estado='confirmada' and r.fin > now() order by r.inicio limit 10"),
+    // Prospección: lo que toca mandar o contestar hoy (fecha de Buenos Aires)
+    q<{ enviar: number; respondieron: number; seguir: number }>(
+      `select count(*) filter (where estado='borrador' and seguimiento <= (now() at time zone 'America/Argentina/Buenos_Aires')::date)::int enviar,
+              count(*) filter (where estado='respondio')::int respondieron,
+              count(*) filter (where estado='enviado' and seguimiento <= (now() at time zone 'America/Argentina/Buenos_Aires')::date)::int seguir
+       from g_prospeccion`).catch(() => [{ enviar: 0, respondieron: 0, seguir: 0 }]),
+    q<{ n: number }>("select count(*)::int n from db_contactos where clase is null").catch(() => [{ n: 0 }]),
   ])
+  const P = pros[0] ?? { enviar: 0, respondieron: 0, seguir: 0 }
   const cal = await eventosCalendario(14).catch(() => ({ eventos: [], ok: false, cuando: null }))
   const delSistema = new Set(reuniones.map((r: any) => String(r.calendar_id ?? "").replace(/@google\.com$/, "")).filter(Boolean))
   const externos = cal.eventos.filter((e) => !e.todoElDia && !delSistema.has(e.id.replace(/@google\.com$/, "")))
@@ -57,7 +66,12 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
         { n: sinPasar.length, t: "Consultas del bot sin atender", d: "Pasalas a contacto o descartalas", href: "/consultas", accion: "Abrir" },
         { n: proximos.filter((c: any) => { const f = iso(c.proximo_fecha); return f && f < hoy }).length, t: "Próximos pasos vencidos", d: "Contactos con una acción atrasada", href: "/contactos", accion: "Ver", tono: "av" },
         { n: todas.filter((r) => local(r.ini).fecha === hoy).length, t: "Reuniones de hoy", d: "Entrá desde la lista de abajo", href: "#reuniones", accion: "Ver", tono: "ok" },
+        { n: P.respondieron, t: "Respondieron en Prospección", d: "Contestales hoy: es cuando más interés hay", href: "/prospeccion", accion: "Contestar", tono: "ok" },
+        { n: P.enviar, t: "Mensajes para enviar hoy", d: "LinkedIn y mails ya armados: abrir, copiar y enviar", href: "/prospeccion", accion: "Enviar" },
+        { n: P.seguir, t: "Seguimientos de Prospección", d: "Enviados sin respuesta que ya cumplieron el plazo", href: "/prospeccion", accion: "Seguir", tono: "av" },
+        { n: sinClas[0]?.n ?? 0, t: "Contactos por clasificar", d: "Ubicalos en su lista para poder trabajarlos", href: "/contactos/clasificar", accion: "Clasificar", tono: "av" },
       ]} />
+      <Indice />
       <Kpis datos={ETAPAS.map((e) => ({ t: e.n, v: n[e.v] ?? 0, href: `/contactos?etapa=${e.v}`, tono: e.v === "ganado" ? "oscuro" as const : undefined }))} min={130} />
 
       <section id="reuniones" className="card flex flex-col gap-3 scroll-mt-28" aria-label="Próximas reuniones">
