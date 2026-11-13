@@ -35,10 +35,10 @@ export function nombrePeriodo(p: string) {
   const [y, m] = p.split("-").map(Number)
   return `${MESES[m - 1]} ${y}`
 }
-export function periodosRecientes(n = 12) {
+export function periodosRecientes(n = 12, futuros = 0) {
   const out: string[] = []
   const [y, m] = periodoActual().split("-").map(Number)
-  for (let i = 0; i < n; i++) {
+  for (let i = -futuros; i < n; i++) {
     const d = new Date(Date.UTC(y, m - 1 - i, 1))
     out.push(d.toISOString().slice(0, 7))
   }
