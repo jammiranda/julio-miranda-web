@@ -62,14 +62,86 @@
     var c = o.utm_campaign || ((o.landing || '').split('/')[1] || '');
     return ' [ref:' + k + (c ? '|' + c.slice(0, 40) : '') + ']';
   })();
+  // Paso previo al WhatsApp (12/11/2026): antes de abrir el chat se pide el tipo de negocio y el email.
+  // Filtra los toques sin intención (banners de Display) y la consulta llega al bot con rubro y email.
+  // La conversión de Google Ads y Meta se cuenta al completar el paso, no al tocar el botón.
+  var RUBROS = /\/(sistemas|comunidad)(\.html)?$/.test(location.pathname)
+    ? ['Empresa o pyme', 'Institución, gremio u obra social', 'Salud', 'Comercio o servicios', 'Otro']
+    : ['Comercio o tienda', 'Servicios o profesional', 'Gastronomía', 'Empresa o industria', 'Otro'];
+  function medir(msg, rubro, email) {
+    try {
+      if (window.gtag) {
+        gtag('event', 'conversion', { send_to: AW_CONV });
+        gtag('event', 'contacto_whatsapp', { event_label: msg, rubro: rubro || '', con_email: email ? 'si' : 'no' });
+        if (email) gtag('event', 'generate_lead', { metodo: 'paso_whatsapp', rubro: rubro || '' });
+      }
+    } catch (e) {}
+    try { if (window.fbq) { fbq('track', 'Contact'); if (email) fbq('track', 'Lead'); } } catch (e) {}
+  }
+  function urlWa(msg, rubro, email) {
+    var t = msg + (rubro ? '. Rubro: ' + rubro : '') + (email ? '. Email: ' + email : '');
+    return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(t + REF);
+  }
+  var paso = null, pasoMsg = '';
+  function armarPaso() {
+    if (paso) return paso;
+    if (!('HTMLDialogElement' in window)) return null;
+    var g = document.createElement('dialog');
+    g.className = 'wa-paso'; g.setAttribute('aria-labelledby', 'wa-paso-t');
+    g.innerHTML = '<form method="dialog" novalidate>'
+      + '<button type="button" class="wa-paso-x" aria-label="Cerrar">×</button>'
+      + '<h3 id="wa-paso-t">Dos datos y te respondemos mejor</h3>'
+      + '<p class="wa-paso-s">Así te contestamos por WhatsApp con ejemplos y precios de tu rubro.</p>'
+      + '<fieldset><legend>¿Para qué tipo de negocio es?</legend><div class="wa-paso-r">'
+      + RUBROS.map(function (r, i) { return '<label><input type="radio" name="rubro" value="' + r + '"' + (i ? '' : ' required') + '><span>' + r + '</span></label>'; }).join('')
+      + '</div></fieldset>'
+      + '<label class="wa-paso-l" for="wa-paso-e">Tu email, para mandarte la propuesta por escrito</label>'
+      + '<input id="wa-paso-e" type="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@tuempresa.com" maxlength="120">'
+      + '<p class="wa-paso-err" role="alert" hidden></p>'
+      + '<button type="submit" class="btn btn-red wa-paso-ok">Abrir WhatsApp</button>'
+      + '<button type="button" class="wa-paso-sin">Seguir sin email</button>'
+      + '<p class="wa-paso-n">Lo usamos para responderte y mandarte la propuesta.</p>'
+      + '</form>';
+    document.body.appendChild(g);
+    var f = g.querySelector('form'), err = g.querySelector('.wa-paso-err'), em = g.querySelector('#wa-paso-e');
+    var aviso = function (t) { err.textContent = t; err.hidden = !t; };
+    var rubro = function () { var r = f.querySelector('input[name="rubro"]:checked'); return r ? r.value : ''; };
+    var ir = function (conEmail) {
+      var r = rubro(), e = conEmail ? em.value.trim() : '';
+      if (!r) { aviso('Elegí el tipo de negocio para seguir.'); return; }
+      if (conEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) { aviso('Escribí un email válido, o tocá «Seguir sin email».'); em.focus(); return; }
+      aviso('');
+      try { sessionStorage.setItem('db_paso', JSON.stringify({ r: r, e: e })); } catch (x) {}
+      medir(pasoMsg, r, e);
+      var u = urlWa(pasoMsg, r, e);
+      g.close();
+      var w = window.open(u, '_blank', 'noopener'); if (!w) location.href = u;
+    };
+    f.addEventListener('submit', function (ev) { ev.preventDefault(); ir(true); });
+    g.querySelector('.wa-paso-sin').addEventListener('click', function () { ir(false); });
+    g.querySelector('.wa-paso-x').addEventListener('click', function () { g.close(); });
+    // Tocar afuera del recuadro lo cierra
+    g.addEventListener('click', function (ev) { if (ev.target === g) g.close(); });
+    try {
+      var v = JSON.parse(sessionStorage.getItem('db_paso') || '{}') || {};
+      if (v.e) em.value = v.e;
+      if (v.r) { var x = f.querySelector('input[name="rubro"][value="' + v.r + '"]'); if (x) x.checked = true; }
+    } catch (x) {}
+    paso = g; return g;
+  }
   document.querySelectorAll('.js-wa').forEach(function (a) {
     var msg = a.getAttribute('data-msg') || 'Hola DEVISEBIT';
     a.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg + REF);
     a.target = '_blank'; a.rel = 'noopener';
-    a.addEventListener('click', function () {
-      // Conversión para Google Ads y Meta (se activa si las etiquetas están instaladas)
-      try { if (window.gtag) { gtag('event', 'conversion', { send_to: AW_CONV }); gtag('event', 'contacto_whatsapp', { event_label: msg }); } } catch (e) {}
-      try { if (window.fbq) fbq('track', 'Contact'); } catch (e) {}
+    // Palabras clave del bot (por ejemplo INICIO) van directo: el texto tiene que llegar tal cual
+    var directo = /^[A-ZÁÉÍÓÚÑ]{3,}$/.test(msg);
+    a.addEventListener('click', function (ev) {
+      var g = directo ? null : armarPaso();
+      if (!g) { medir(msg, '', ''); return; }
+      ev.preventDefault();
+      pasoMsg = msg;
+      try { if (window.gtag) gtag('event', 'paso_whatsapp_abierto', { event_label: msg }); } catch (e) {}
+      if (!g.open) g.showModal();
     });
   });
   // YouTube: el reproductor (más de 1 MB) se carga recién al tocar el recuadro; sin JavaScript, el recuadro abre el canal
