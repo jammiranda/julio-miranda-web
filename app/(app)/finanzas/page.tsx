@@ -23,18 +23,18 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
     q<{ moneda: string; ing: string; egr: string }>(
       `select m moneda,
         coalesce((select sum(monto) from db_cobros where estado='pagado' and moneda=m and (pagado_en at time zone 'America/Argentina/Buenos_Aires')::date between $1 and $2),0)
-        + coalesce((select sum(monto) from g_movimientos where tipo='ingreso' and estado='pagado' and moneda=m and fecha between $1 and $2),0) ing,
-        coalesce((select sum(monto) from g_movimientos where tipo='egreso' and estado='pagado' and moneda=m and fecha between $1 and $2),0) egr
+        + coalesce((select sum(monto) from g_movimientos where tipo='ingreso' and estado='pagado' and moneda=m and coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date) between $1 and $2),0) ing,
+        coalesce((select sum(monto) from g_movimientos where tipo='egreso' and estado='pagado' and moneda=m and coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date) between $1 and $2),0) egr
        from unnest(array['ARS','USD']) m`, [ini, fin]),
     q<{ p: string; ing: string; egr: string }>(
       `with m as (select to_char(d,'YYYY-MM') p from generate_series(date_trunc('month',$1::date)-interval '5 months', date_trunc('month',$1::date), interval '1 month') d)
        select m.p,
         coalesce((select sum(monto) from db_cobros where estado='pagado' and moneda='ARS' and to_char(pagado_en at time zone 'America/Argentina/Buenos_Aires','YYYY-MM')=m.p),0)
-        + coalesce((select sum(monto) from g_movimientos where tipo='ingreso' and estado='pagado' and moneda='ARS' and to_char(fecha,'YYYY-MM')=m.p),0) ing,
-        coalesce((select sum(monto) from g_movimientos where tipo='egreso' and estado='pagado' and moneda='ARS' and to_char(fecha,'YYYY-MM')=m.p),0) egr
+        + coalesce((select sum(monto) from g_movimientos where tipo='ingreso' and estado='pagado' and moneda='ARS' and to_char(coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date),'YYYY-MM')=m.p),0) ing,
+        coalesce((select sum(monto) from g_movimientos where tipo='egreso' and estado='pagado' and moneda='ARS' and to_char(coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date),'YYYY-MM')=m.p),0) egr
        from m order by m.p`, [ini]),
     q<{ categoria: string; total: string; n: number }>(
-      "select coalesce(categoria,'Sin categoría') categoria, sum(monto) total, count(*)::int n from g_movimientos where tipo='egreso' and estado='pagado' and moneda='ARS' and fecha between $1 and $2 group by 1 order by 2 desc", [ini, fin]),
+      "select coalesce(categoria,'Sin categoría') categoria, sum(monto) total, count(*)::int n from g_movimientos where tipo='egreso' and estado='pagado' and moneda='ARS' and coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date) between $1 and $2 group by 1 order by 2 desc", [ini, fin]),
     q<any>(
       `select k.*, c.organizacion, c.nombre contacto, p.nombre proyecto from db_cobros k
        join db_contactos c on c.id=k.contacto_id left join db_proyectos p on p.id=k.proyecto_id
@@ -64,7 +64,7 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
   if (ver === "movimientos") {
     const tipo = sp.tipo === "ingreso" || sp.tipo === "egreso" ? sp.tipo : null
     movs = await q<any>(
-      `select * from g_movimientos where (fecha between $1 and $2 or (estado='pendiente' and fecha is null)) and ($3::text is null or tipo=$3)
+      `select * from g_movimientos where (coalesce(fecha, (creado at time zone 'America/Argentina/Buenos_Aires')::date) between $1 and $2 or (estado='pendiente' and fecha is null)) and ($3::text is null or tipo=$3)
        order by case estado when 'pendiente' then 0 else 1 end, coalesce(fecha, vence) desc nulls last, id desc`, [ini, fin, tipo])
   }
   if (ver === "proveedores") provs = await q<any>("select * from g_proveedores order by nombre")
