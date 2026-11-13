@@ -15,9 +15,10 @@ export const GRUPOS: GrupoNav[] = [
   {
     g: "Canales",
     items: [
-      { s: "publicaciones", t: "Publicaciones", claves: "posts historial contenido instagram facebook linkedin youtube buscar texto" },
+      { s: "publicaciones", t: "Publicaciones", claves: "posts historial contenido instagram facebook linkedin youtube tiktok buscar texto" },
       { s: "youtube", t: "YouTube", claves: "videos shorts suscriptores vistas canal academia" },
       { s: "linkedin", t: "LinkedIn", claves: "página perfil julio exportación seguidores impresiones" },
+      { s: "tiktok", t: "TikTok", claves: "videos reproducciones seguidores me gusta cargar datos a mano planilla" },
       { s: "email", t: "Email", claves: "campañas envíos aperturas clics brevo newsletter" },
       { s: "anuncios", t: "Anuncios", claves: "meta ads google ads inversión gasto costo por consulta campañas pauta" },
     ],
@@ -42,4 +43,5 @@ export const CUENTAS: [id: string, nombre: string][] = [
   ["youtube", "YouTube · ACADEMIA DEVISEBIT"],
   ["linkedin", "LinkedIn · página DEVISEBIT"],
   ["linkedin_julio", "LinkedIn · Julio Miranda"],
+  ["tiktok", "TikTok @devisebit"],
 ]
