@@ -95,6 +95,10 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
      where tipo='egreso' and moneda='ARS' and estado<>'anulado' and coalesce(ambito,'')<>'personal'
        and ((estado='pagado' and coalesce(fecha, (creado ${TZ})::date) between $1 and $2) or (estado='pendiente' and (coalesce(vence, $2::date) between $1 and $2 or ($3 and vence < $1))))
      group by 1 order by sum(monto) desc`, [ini, fin, esActual]) : []
+  const [usdSal] = ver === "resumen" ? await q<{ pagado: string; pendiente: string }>(
+    `select coalesce(sum(monto) filter (where estado='pagado'),0) pagado, coalesce(sum(monto) filter (where estado='pendiente'),0) pendiente from g_movimientos
+     where tipo='egreso' and moneda='USD' and estado<>'anulado' and coalesce(ambito,'')<>'personal'
+       and ((estado='pagado' and coalesce(fecha, (creado ${TZ})::date) between $1 and $2) or (estado='pendiente' and (coalesce(vence, $2::date) between $1 and $2 or ($3 and vence < $1))))`, [ini, fin, esActual]) : [{ pagado: "0", pendiente: "0" }]
   const abonos = ver === "resumen" ? await q<any>(
     `select p.id, coalesce(c.organizacion, c.nombre) cliente, p.abono_monto, p.abono_moneda, p.abono_desde, p.abono_hasta, p.notas,
             k.estado k_estado, k.monto k_monto, k.id k_id
@@ -201,6 +205,7 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
                     <tfoot><tr><td className="font-semibold">Total</td><td className="text-right tabular-nums font-bold">{dinero(salio)}</td><td className="text-right tabular-nums font-semibold">{dinero(faltaPagar)}</td></tr></tfoot></table>
                 </div>
               ) : <p className="vacio">Sin gastos cargados en {nombrePeriodo(per)}.</p>}
+              {(Number(usdSal.pagado) > 0 || Number(usdSal.pendiente) > 0) && <p className="m-0 text-sm">Además, en dólares: <strong>{dinero(usdSal.pagado, "USD")}</strong> pagado{Number(usdSal.pendiente) > 0 ? <> y {dinero(usdSal.pendiente, "USD")} por pagar</> : null}. No se convierten a pesos.</p>}
               {Number(lab.sin) > 0 && <Link href={`/finanzas?ver=movimientos&p=${per}&amb=sin`} className="text-sm font-semibold hover:underline self-start">Hay {lab.sin} gastos por clasificar (laboral o personal)</Link>}
             </section>
           </div>
@@ -326,7 +331,7 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
               ) : <p className="vacio">No queda nada por clasificar.</p>}
             </section>
           )}
-          <TablaRegistro clave="movimientos" filas={movs} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar
+          <TablaRegistro clave="movimientos" filas={movs} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar borrar
             abierto={(r) => r.estado === "pendiente"} rapido={{ etiqueta: "Pagado", si: (r) => r.estado === "pendiente" }}
             vacio={`Sin movimientos en ${nombrePeriodo(per)}. Los cobros a clientes se cargan en cada proyecto; acá van los gastos y otros ingresos.`} />
         </>
