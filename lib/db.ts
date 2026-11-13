@@ -1098,7 +1098,50 @@ select v.tipo,v.concepto,v.categoria,v.monto::numeric,v.moneda,v.estado,v.fecha:
 ) v(tipo,concepto,categoria,monto,moneda,estado,fecha,vence,medio,externo_id,prov,nota)
 where not exists (select 1 from config where clave='seed_finanzas_nov_dic_2026')
 on conflict (externo_id) where externo_id is not null do nothing;
-insert into config(clave,valor) values ('seed_finanzas_nov_dic_2026','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_finanzas_nov_dic_2026','ok') on conflict (clave) do nothing;
+insert into g_proveedores(nombre,rubro,condicion_iva,notas,creado_por)
+select v.nombre,v.rubro,v.iva,v.notas,'finanzas' from (values
+ ('Estudio contable MG','Contador','Responsable inscripto','Mari Godoy. $400.000 por mes por Georgina, Julio y DEVISEBIT.'),
+ ('Gd Work SA','Oficina','Responsable inscripto','Oficina. Noviembre pago único, diciembre $300.000, enero sin cargo, vuelve en febrero.')
+) v(nombre,rubro,iva,notas)
+where not exists (select 1 from g_proveedores p where p.nombre=v.nombre);
+insert into g_reglas(patron,categoria,ambito,proveedor) values
+ ('gd work','Alquiler y cowork','laboral','Gd Work SA'),
+ ('claude ai','Software y servicios','laboral','Anthropic (Claude)')
+on conflict (patron) do nothing;
+update g_movimientos set estado='anulado', nota='Reemplazado por los cobros reales de Facebook en la Mastercard prepaga de Mercado Pago.', actualizado=now()
+ where externo_id='pre:2026-11:meta' and not exists (select 1 from config where clave='seed_finanzas_mp_nov_2026');
+update g_movimientos set monto=80000, medio='Mastercard prepaga MP', nota='ESTIMADO con lo cobrado en noviembre ($78.577 al 13/11). Meta cobra con la Mastercard prepaga de Mercado Pago.', actualizado=now()
+ where externo_id='pre:2026-12:meta' and not exists (select 1 from config where clave='seed_finanzas_mp_nov_2026');
+update g_movimientos set fecha='2026-11-13', ambito='laboral', medio='Mercado Pago', categoria='Desarrollo tercerizado',
+  nota=coalesce(nota||' · ','')||'Transferencia a Jonatan Olmedo por Mercado Pago el 13/11.', actualizado=now()
+ where tipo='egreso' and concepto='App Soy Tigre' and monto=300000 and fecha is null and not exists (select 1 from config where clave='seed_finanzas_mp_nov_2026');
+insert into g_movimientos(tipo,concepto,categoria,monto,moneda,estado,fecha,vence,medio,externo_id,proveedor_id,nota,ambito,origen,creado_por)
+select 'egreso',v.concepto,v.categoria,v.monto::numeric,'ARS',v.estado,v.fecha::date,v.vence::date,v.medio,v.externo_id,(select id from g_proveedores where nombre=v.prov limit 1),v.nota,nullif(v.ambito,''),v.origen,'finanzas' from (values
+  ('Facebook · anuncios','Publicidad','4114.42','pagado','2026-11-02',null,'Mastercard prepaga MP','mp:act:2026-11-02:facebook:4114.42','Meta (Facebook e Instagram)','Cobro de Meta Ads en la Mastercard prepaga de Mercado Pago.','laboral','mercadopago'),
+  ('Facebook · anuncios','Publicidad','4082.44','pagado','2026-11-04',null,'Mastercard prepaga MP','mp:act:2026-11-04:facebook:4082.44','Meta (Facebook e Instagram)','Cobro de Meta Ads en la Mastercard prepaga de Mercado Pago.','laboral','mercadopago'),
+  ('Facebook · anuncios','Publicidad','4527.47','pagado','2026-11-05',null,'Mastercard prepaga MP','mp:act:2026-11-05:facebook:4527.47','Meta (Facebook e Instagram)','Cobro de Meta Ads en la Mastercard prepaga de Mercado Pago.','laboral','mercadopago'),
+  ('Facebook · anuncios','Publicidad','40862.46','pagado','2026-11-06',null,'Mastercard prepaga MP','mp:act:2026-11-06:facebook:40862.46','Meta (Facebook e Instagram)','Cobro de Meta Ads en la Mastercard prepaga de Mercado Pago.','laboral','mercadopago'),
+  ('Facebook · anuncios','Publicidad','9919.88','pagado','2026-11-08',null,'Mastercard prepaga MP','mp:act:2026-11-08:facebook:9919.88','Meta (Facebook e Instagram)','Cobro de Meta Ads en la Mastercard prepaga de Mercado Pago.','laboral','mercadopago'),
+  ('Facebook · anuncios','Publicidad','15070.72','pagado','2026-11-12',null,'Mastercard prepaga MP','mp:act:2026-11-12:facebook:15070.72','Meta (Facebook e Instagram)','Cobro de Meta Ads en la Mastercard prepaga de Mercado Pago.','laboral','mercadopago'),
+  ('Oficina · pago único de noviembre (Gd Work SA)','Alquiler y cowork','416000','pagado','2026-11-10',null,'Mercado Pago','mp:act:2026-11-10:gdwork:416000','Gd Work SA','Julio indicó $400.000 por única vez. La transferencia por Mercado Pago fue de $416.000 (revisar si la diferencia es IVA o un recargo).','laboral','mercadopago'),
+  ('Oficina · diciembre','Alquiler y cowork','300000','pendiente',null,'2026-12-10','Mercado Pago','pre:2026-12:oficina','Gd Work SA','Desde diciembre pasa a $300.000. En enero se cancela y vuelve en febrero.','laboral','precarga'),
+  ('Oficina · febrero 2027','Alquiler y cowork','300000','pendiente',null,'2027-02-10','Mercado Pago','pre:2027-02:oficina','Gd Work SA','Vuelve en febrero después de enero sin oficina. Confirmar monto.','laboral','precarga'),
+  ('Estudio contable MG · noviembre (parte DEVISEBIT)','Contador y legales','133334','pendiente',null,'2026-11-30','Transferencia','pre:2026-11:mg-devisebit','Estudio contable MG','Honorarios de $400.000 por mes que cubren a Georgina, Julio y DEVISEBIT. Se toma un tercio como gasto de la empresa. Ajustar si el estudio lo divide distinto.','laboral','precarga'),
+  ('Estudio contable MG · noviembre (Julio y Georgina)','Contador y legales','266666','pendiente',null,'2026-11-30','Transferencia','pre:2026-11:mg-personal','Estudio contable MG','Dos tercios de los $400.000: monotributo o ganancias de Julio y de Georgina.','personal','precarga'),
+  ('Estudio contable MG · diciembre (parte DEVISEBIT)','Contador y legales','133334','pendiente',null,'2026-12-31','Transferencia','pre:2026-12:mg-devisebit','Estudio contable MG','Un tercio de los $400.000 mensuales.','laboral','precarga'),
+  ('Estudio contable MG · diciembre (Julio y Georgina)','Contador y legales','266666','pendiente',null,'2026-12-31','Transferencia','pre:2026-12:mg-personal','Estudio contable MG','Dos tercios de los $400.000 mensuales.','personal','precarga'),
+  ('Claude (Anthropic) · renovación de noviembre (estimado)','Software y servicios','202438.64','pendiente',null,'2026-11-27','Mastercard prepaga MP','pre:2026-11:claude','Anthropic (Claude)','ESTIMADO. El 27/10 se cobraron tres cargos en la Mastercard prepaga de Mercado Pago: $135.009,66 + $33.714,49 + $33.714,49.','laboral','precarga'),
+  ('Claude (Anthropic) · renovación de diciembre (estimado)','Software y servicios','202438.64','pendiente',null,'2026-12-27','Mastercard prepaga MP','pre:2026-12:claude','Anthropic (Claude)','ESTIMADO con los cargos de octubre.','laboral','precarga'),
+  ('ARCA · VEP N.º 1701586947','Impuestos','759697.66','pagado','2026-11-02',null,'Mercado Pago','mp:act:2026-11-02:arca:1701586947',null,'Pagado desde Mercado Pago. ¿Es de DEVISEBIT o personal?','','mercadopago'),
+  ('Movistar','Software y servicios','34040.99','pagado','2026-11-10',null,'Mercado Pago','mp:act:2026-11-10:movistar:34040.99',null,'Telefonía. ¿Línea de trabajo o personal?','','mercadopago'),
+  ('Central de Pasajes · pasaje (neto de la devolución)','Viáticos','55675','pagado','2026-11-04',null,'Mercado Pago','mp:act:2026-11-04:pasajes:55675',null,'Compra de $141.825 con devolución parcial de $86.150. ¿Viaje de trabajo?','','mercadopago'),
+  ('Axion Energy · combustible','Viáticos','112013.95','pagado','2026-11-12',null,'Mercado Pago','mp:act:2026-11-12:axion:112013.95',null,'¿Viaje de trabajo o personal?','','mercadopago'),
+  ('Shell · combustible','Viáticos','7500','pagado','2026-11-03',null,'Mercado Pago','mp:act:2026-11-03:shell:7500',null,'¿Viaje de trabajo o personal?','','mercadopago')
+) v(concepto,categoria,monto,estado,fecha,vence,medio,externo_id,prov,nota,ambito,origen)
+where not exists (select 1 from config where clave='seed_finanzas_mp_nov_2026')
+on conflict (externo_id) where externo_id is not null do nothing;
+insert into config(clave,valor) values ('seed_finanzas_mp_nov_2026','ok') on conflict (clave) do nothing
 `
 
 let ready: Promise<void> | null = null

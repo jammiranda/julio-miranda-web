@@ -61,7 +61,7 @@ export const MOVIMIENTOS: Ent = {
     { k: "vence", n: "Vence", t: "date", lista: true, ayuda: "Para pendientes: fecha límite de pago." },
     { k: "proveedor_id", n: "Proveedor", t: "ref", ref: "proveedores", lista: true },
     { k: "proyecto_id", n: "Proyecto", t: "ref", ref: "proyectos" },
-    { k: "medio", n: "Medio", t: "sel", ops: ["Transferencia", "Mercado Pago", "Tarjeta", "Mastercard Galicia", "Prepago Google Ads", "Efectivo", "Débito automático", "Cheque", "Otro"].map((x) => ({ v: x, n: x })) },
+    { k: "medio", n: "Medio", t: "sel", ops: ["Transferencia", "Mercado Pago", "Tarjeta", "Mastercard Galicia", "Mastercard prepaga MP", "Prepago Google Ads", "Efectivo", "Débito automático", "Cheque", "Otro"].map((x) => ({ v: x, n: x })) },
     { k: "comprobante", n: "Comprobante (link)", t: "url", ayuda: "Link a la factura o recibo en Drive." },
     { k: "nota", n: "Nota", t: "area", ancho: true },
   ],
