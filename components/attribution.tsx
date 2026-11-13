@@ -14,7 +14,10 @@ function codigo(o: O) {
     : (/facebook|instagram|meta/.test(s) && /cpc|paid|ads/.test(m)) ? "meta"
     : /facebook|instagram|linkedin|social/.test(s) || o.fbclid ? "social"
     : /google|bing/.test(s) || /google\./.test(o.referrer || "") ? "seo" : ""
-  return k ? `[ref:${k}${o.utm_campaign ? "|" + o.utm_campaign.slice(0, 40) : ""}]` : ""
+  // Campaña (sufijo de URL de cada cuenta de Google Ads) más la página de entrada: «cuenta1/webs», «pmax-cuenta2/webs»
+  const lp = (o.landing || "").split("/")[1] || ""
+  const c = o.utm_campaign ? o.utm_campaign.slice(0, 28) + (lp ? "/" + lp : "") : lp
+  return k ? `[ref:${k}${c ? "|" + c.slice(0, 40) : ""}]` : ""
 }
 
 export default function Attribution() {

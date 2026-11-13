@@ -58,8 +58,10 @@
       : /facebook|instagram|linkedin|social/.test(s) || o.fbclid ? 'social'
       : /google|bing/.test(s) || /google\./.test(o.referrer || '') ? 'seo' : '';
     if (!k) return '';
-    // Sin utm_campaign (etiquetado automático de Google): se usa la landing de entrada, que identifica la campaña
-    var c = o.utm_campaign || ((o.landing || '').split('/')[1] || '');
+    // utm_campaign llega del sufijo de URL de cada cuenta de Google Ads (cuenta1 = Búsqueda, pmax-cuenta2 = Máximo rendimiento);
+    // se le suma la landing de entrada para saber también el servicio: «cuenta1/webs», «pmax-cuenta2/webs»
+    var lp = ((o.landing || '').split('/')[1] || '').replace(/\.html$/, '');
+    var c = o.utm_campaign ? o.utm_campaign.slice(0, 28) + (lp ? '/' + lp : '') : lp;
     return ' [ref:' + k + (c ? '|' + c.slice(0, 40) : '') + ']';
   })();
   // Paso previo al WhatsApp (12/11/2026): antes de abrir el chat se pide el tipo de negocio y el email.
