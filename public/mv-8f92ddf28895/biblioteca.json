@@ -1,0 +1,467 @@
+{
+ "_ayuda": "Para sumar un mes: agregá entradas a 'piezas' con el campo 'mes' en formato AAAA-MM. La página ordena los meses sola, del más nuevo al más viejo, y agrupa por 'serie'. Las rutas son relativas a esta carpeta. 'notas_de_serie' es opcional: una línea que aparece debajo del nombre de la serie.",
+ "notas_de_serie": {
+  "Videos con Bit": "Bit es nuestro asistente con inteligencia artificial. Los chats y los números que aparecen son ejemplos.",
+  "Carruseles continuos": "Pensados para verse de corrido: deslizá placa por placa.",
+  "LinkedIn": "Videos y carruseles en formato 4:5."
+ },
+ "piezas": [
+  {
+   "id": "2026-11-bit-b09",
+   "tipo": "video",
+   "titulo": "Lo que hago mientras dormís",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b09-mientras-dormis.mp4",
+   "portada": "r3/portadas/b09-mientras-dormis-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b01",
+   "tipo": "video",
+   "titulo": "3 señales de que tu web te hace perder clientes",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b01-3-senales-web.mp4",
+   "portada": "r3/portadas/b01-3-senales-web-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b10",
+   "tipo": "video",
+   "titulo": "3 cosas que no hago",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b10-lo-que-no-hago.mp4",
+   "portada": "r3/portadas/b10-lo-que-no-hago-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b06",
+   "tipo": "video",
+   "titulo": "¿Landing o web completa?",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b06-landing-o-web.mp4",
+   "portada": "r3/portadas/b06-landing-o-web-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b08",
+   "tipo": "video",
+   "titulo": "Publicar no es vender",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b08-publicar-no-es-vender.mp4",
+   "portada": "r3/portadas/b08-publicar-no-es-vender-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b02",
+   "tipo": "video",
+   "titulo": "5 preguntas que contesto solo",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b02-5-preguntas.mp4",
+   "portada": "r3/portadas/b02-5-preguntas-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b03",
+   "tipo": "video",
+   "titulo": "¿Tu dominio está a tu nombre?",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b03-dominio.mp4",
+   "portada": "r3/portadas/b03-dominio-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b05",
+   "tipo": "video",
+   "titulo": "IA en tu negocio: por dónde empezar",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b05-ia-por-donde.mp4",
+   "portada": "r3/portadas/b05-ia-por-donde-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b04",
+   "tipo": "video",
+   "titulo": "Planilla contra sistema",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b04-planillas.mp4",
+   "portada": "r3/portadas/b04-planillas-portada.jpg"
+  },
+  {
+   "id": "2026-11-bit-b07",
+   "tipo": "video",
+   "titulo": "33 sobre 100. ¿Cuánto saca tu empresa?",
+   "mes": "2026-11",
+   "serie": "Videos con Bit",
+   "formato": "9:16",
+   "video": "r3/reels/b07-33-sobre-100.mp4",
+   "portada": "r3/portadas/b07-33-sobre-100-portada.jpg"
+  },
+  {
+   "id": "2026-11-carrusel-c1",
+   "tipo": "carrusel",
+   "titulo": "De la consulta al turno agendado",
+   "mes": "2026-11",
+   "serie": "Carruseles continuos",
+   "formato": "4:5",
+   "placas": [
+    "r3/carruseles/c1-caminando/placa-1.jpg",
+    "r3/carruseles/c1-caminando/placa-2.jpg",
+    "r3/carruseles/c1-caminando/placa-3.jpg",
+    "r3/carruseles/c1-caminando/placa-4.jpg",
+    "r3/carruseles/c1-caminando/placa-5.jpg",
+    "r3/carruseles/c1-caminando/placa-6.jpg",
+    "r3/carruseles/c1-caminando/placa-7.jpg"
+   ],
+   "pdf": "r3/carruseles/c1-caminando/c1-caminando.pdf"
+  },
+  {
+   "id": "2026-11-carrusel-c2",
+   "tipo": "carrusel",
+   "titulo": "El camino de una web que vende",
+   "mes": "2026-11",
+   "serie": "Carruseles continuos",
+   "formato": "4:5",
+   "placas": [
+    "r3/carruseles/c2-recorrido/placa-1.jpg",
+    "r3/carruseles/c2-recorrido/placa-2.jpg",
+    "r3/carruseles/c2-recorrido/placa-3.jpg",
+    "r3/carruseles/c2-recorrido/placa-4.jpg",
+    "r3/carruseles/c2-recorrido/placa-5.jpg",
+    "r3/carruseles/c2-recorrido/placa-6.jpg",
+    "r3/carruseles/c2-recorrido/placa-7.jpg"
+   ],
+   "pdf": "r3/carruseles/c2-recorrido/c2-recorrido.pdf"
+  },
+  {
+   "id": "2026-11-carrusel-c3",
+   "tipo": "carrusel",
+   "titulo": "Tu empresa está a esto de ordenarse",
+   "mes": "2026-11",
+   "serie": "Carruseles continuos",
+   "formato": "4:5",
+   "placas": [
+    "r3/carruseles/c3-zoom/placa-1.jpg",
+    "r3/carruseles/c3-zoom/placa-2.jpg",
+    "r3/carruseles/c3-zoom/placa-3.jpg",
+    "r3/carruseles/c3-zoom/placa-4.jpg",
+    "r3/carruseles/c3-zoom/placa-5.jpg",
+    "r3/carruseles/c3-zoom/placa-6.jpg"
+   ],
+   "pdf": "r3/carruseles/c3-zoom/c3-zoom.pdf"
+  },
+  {
+   "id": "2026-11-carrusel-c4",
+   "tipo": "carrusel",
+   "titulo": "¿En qué nivel digital está tu empresa?",
+   "mes": "2026-11",
+   "serie": "Carruseles continuos",
+   "formato": "4:5",
+   "placas": [
+    "r3/carruseles/c4-borroso/placa-1.jpg",
+    "r3/carruseles/c4-borroso/placa-2.jpg",
+    "r3/carruseles/c4-borroso/placa-3.jpg",
+    "r3/carruseles/c4-borroso/placa-4.jpg",
+    "r3/carruseles/c4-borroso/placa-5.jpg",
+    "r3/carruseles/c4-borroso/placa-6.jpg"
+   ],
+   "pdf": "r3/carruseles/c4-borroso/c4-borroso.pdf"
+  },
+  {
+   "id": "2026-11-servicio-01",
+   "tipo": "video",
+   "titulo": "3 asistentes de WhatsApp",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/01-r01-3-asistentes-de-whatsapp.mp4",
+   "portada": "r2/portadas/portada-01-r01-3-asistentes-de-whatsapp.jpg"
+  },
+  {
+   "id": "2026-11-servicio-02",
+   "tipo": "video",
+   "titulo": "3 señales de que tu web pierde clientes",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/02-r02-3-senales-tu-web-pierde-clientes.mp4",
+   "portada": "r2/portadas/portada-02-r02-3-senales-tu-web-pierde-clientes.jpg"
+  },
+  {
+   "id": "2026-11-servicio-03",
+   "tipo": "video",
+   "titulo": "12 preguntas, 5 minutos",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/03-r09-12-preguntas-5-minutos.mp4",
+   "portada": "r2/portadas/portada-03-r09-12-preguntas-5-minutos.jpg"
+  },
+  {
+   "id": "2026-11-servicio-04",
+   "tipo": "video",
+   "titulo": "Redes: publicar no es vender",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/04-r06-redes-publicar-o-vender.mp4",
+   "portada": "r2/portadas/portada-04-r06-redes-publicar-o-vender.jpg"
+  },
+  {
+   "id": "2026-11-servicio-05",
+   "tipo": "video",
+   "titulo": "Planillas sueltas o sistema a medida",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/05-r08-planillas-sueltas-sistema-a-medida.mp4",
+   "portada": "r2/portadas/portada-05-r08-planillas-sueltas-sistema-a-medida.jpg"
+  },
+  {
+   "id": "2026-11-servicio-06",
+   "tipo": "video",
+   "titulo": "23:47. ¿Quién le contesta?",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/06-nuevo-A-2347-quien-le-contesta.mp4",
+   "portada": "r2/portadas/portada-06-nuevo-A-2347-quien-le-contesta.jpg"
+  },
+  {
+   "id": "2026-11-servicio-07",
+   "tipo": "video",
+   "titulo": "¿Landing o web completa?",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/07-r03-landing-o-web-completa.mp4",
+   "portada": "r2/portadas/portada-07-r03-landing-o-web-completa.jpg"
+  },
+  {
+   "id": "2026-11-servicio-08",
+   "tipo": "video",
+   "titulo": "IA en tu pyme: por dónde empezar",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/08-r10-ia-en-tu-pyme-por-donde-empezar.mp4",
+   "portada": "r2/portadas/portada-08-r10-ia-en-tu-pyme-por-donde-empezar.jpg"
+  },
+  {
+   "id": "2026-11-servicio-09",
+   "tipo": "video",
+   "titulo": "Publicar sin estrategia",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/09-nuevo-D-publicar-sin-estrategia-redes-360.mp4",
+   "portada": "r2/portadas/portada-09-nuevo-D-publicar-sin-estrategia-redes-360.jpg"
+  },
+  {
+   "id": "2026-11-servicio-10",
+   "tipo": "video",
+   "titulo": "Después de la seña",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/10-r04-despues-de-la-sena.mp4",
+   "portada": "r2/portadas/portada-10-r04-despues-de-la-sena.jpg"
+  },
+  {
+   "id": "2026-11-servicio-11",
+   "tipo": "video",
+   "titulo": "33 sobre 100",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/11-nuevo-C-33-sobre-100-autodiagnostico.mp4",
+   "portada": "r2/portadas/portada-11-nuevo-C-33-sobre-100-autodiagnostico.jpg"
+  },
+  {
+   "id": "2026-11-servicio-12",
+   "tipo": "video",
+   "titulo": "5 preguntas que WhatsApp contesta solo",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/12-r07-5-preguntas-whatsapp-solo.mp4",
+   "portada": "r2/portadas/portada-12-r07-5-preguntas-whatsapp-solo.jpg"
+  },
+  {
+   "id": "2026-11-servicio-13",
+   "tipo": "video",
+   "titulo": "Tu dominio, a tu nombre",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/13-r05-tu-dominio-a-tu-nombre.mp4",
+   "portada": "r2/portadas/portada-13-r05-tu-dominio-a-tu-nombre.jpg"
+  },
+  {
+   "id": "2026-11-servicio-14",
+   "tipo": "video",
+   "titulo": "WhatsApp con IA",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/14-corregido-whatsapp-ia.mp4",
+   "portada": "r2/portadas/portada-14-corregido-whatsapp-ia.jpg"
+  },
+  {
+   "id": "2026-11-servicio-15",
+   "tipo": "video",
+   "titulo": "Web lista en 2 a 3 días",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/15-nuevo-B-web-lista-en-2-a-3-dias.mp4",
+   "portada": "r2/portadas/portada-15-nuevo-B-web-lista-en-2-a-3-dias.jpg"
+  },
+  {
+   "id": "2026-11-servicio-16",
+   "tipo": "video",
+   "titulo": "Autodiagnóstico",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/16-corregido-autodiagnostico.mp4",
+   "portada": "r2/portadas/portada-16-corregido-autodiagnostico.jpg"
+  },
+  {
+   "id": "2026-11-servicio-17",
+   "tipo": "video",
+   "titulo": "Web con IA",
+   "mes": "2026-11",
+   "serie": "Serie por servicio",
+   "formato": "9:16",
+   "video": "r2/reels/17-corregido-web-ia.mp4",
+   "portada": "r2/portadas/portada-17-corregido-web-ia.jpg"
+  },
+  {
+   "id": "2026-11-linkedin-video-1",
+   "tipo": "video",
+   "titulo": "5 preguntas antes de contratar un proveedor de software",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "video": "r2/linkedin/li1-5-preguntas-proveedor-de-software.mp4",
+   "portada": "r2/portadas/portada-li1-5-preguntas-proveedor-de-software.jpg"
+  },
+  {
+   "id": "2026-11-linkedin-video-2",
+   "tipo": "video",
+   "titulo": "Precio fijo y fecha por escrito",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "video": "r2/linkedin/li2-precio-fijo-y-fecha-por-escrito.mp4",
+   "portada": "r2/portadas/portada-li2-precio-fijo-y-fecha-por-escrito.jpg"
+  },
+  {
+   "id": "2026-11-linkedin-video-3",
+   "tipo": "video",
+   "titulo": "¿Qué automatizar primero con IA?",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "video": "r2/linkedin/li3-que-automatizar-primero-con-ia.mp4",
+   "portada": "r2/portadas/portada-li3-que-automatizar-primero-con-ia.jpg"
+  },
+  {
+   "id": "2026-11-linkedin-video-4",
+   "tipo": "video",
+   "titulo": "Del Excel al sistema, por etapas",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "video": "r2/linkedin/li4-del-excel-al-sistema-por-etapas.mp4",
+   "portada": "r2/portadas/portada-li4-del-excel-al-sistema-por-etapas.jpg"
+  },
+  {
+   "id": "2026-11-linkedin-carrusel-1",
+   "tipo": "carrusel",
+   "titulo": "5 preguntas antes de contratar un proveedor de software",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "placas": [
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-1.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-2.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-3.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-4.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-5.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-6.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-7.jpg",
+    "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software/placa-8.jpg"
+   ],
+   "pdf": "r2/linkedin/carrusel-1-5-preguntas-proveedor-de-software.pdf"
+  },
+  {
+   "id": "2026-11-linkedin-carrusel-2",
+   "tipo": "carrusel",
+   "titulo": "Precio fijo y fecha de entrega: 6 cosas que pedir por escrito",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "placas": [
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-1.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-2.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-3.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-4.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-5.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-6.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-7.jpg",
+    "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito/placa-8.jpg"
+   ],
+   "pdf": "r2/linkedin/carrusel-2-precio-fijo-y-fecha-por-escrito.pdf"
+  },
+  {
+   "id": "2026-11-linkedin-carrusel-3",
+   "tipo": "carrusel",
+   "titulo": "¿Qué automatizar primero con IA?",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "placas": [
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-1.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-2.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-3.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-4.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-5.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-6.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-7.jpg",
+    "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia/placa-8.jpg"
+   ],
+   "pdf": "r2/linkedin/carrusel-3-que-automatizar-primero-con-ia.pdf"
+  },
+  {
+   "id": "2026-11-linkedin-carrusel-4",
+   "tipo": "carrusel",
+   "titulo": "Del Excel al sistema, en 5 etapas",
+   "mes": "2026-11",
+   "serie": "LinkedIn",
+   "formato": "4:5",
+   "placas": [
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-1.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-2.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-3.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-4.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-5.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-6.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-7.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-8.jpg",
+    "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-9.jpg"
+   ],
+   "pdf": "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas.pdf"
+  }
+ ]
+}
