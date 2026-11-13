@@ -35,3 +35,13 @@ Bumeran, ZonaJobs (misma red Jobint que Bumeran: comparten gran parte de los avi
 - Diario automático: freehire + Computrabajo (filtro 15 días) + Indeed AR + Get on Board + Jobgether + Michael Page.
 - Semanal manual: Hays, Robert Half, Randstad, portales de empresas de salud, Workana/Upwork.
 - No verificado: antigüedad en LinkedIn/ZonaJobs/Indeed (requiere Chrome); las páginas de Indeed y Michael Page no las pude leer con el scraper en esta pasada.
+
+## Ampliación 13/11 (pedido: sumar todas las que se pueda + prioridad zona norte y remoto)
+Prioridad fija en cada búsqueda: 1) Tigre, Escobar, Campana, Zona Norte (Pilar, Don Torcuato, Garín, Pacheco, Benavídez, Nordelta, San Fernando, San Isidro, Vicente López, Olivos, Martínez, San Martín, Zárate); 2) remoto; 3) resto.
+
+Consultadas esta pasada (vía API freehire, que agrega ~20 fuentes, y WebSearch): Bumeran, Computrabajo/Pandape (ManpowerGroup, Adecco, ADN, C&S, Consultores de Empresas), HiringRoom, Teamtailor, Lever, Greenhouse, Ashby, Workday, SmartRecruiters, iCIMS, Rippling, Workable, careers-page.com, Torre, WhatJobs, BuiltIn, Get on Board, GetOnBoard, Jobgether, cazvid, OpenToWorkRemote, WorkingNomads, EPAM y otras carreras directas.
+Pendientes de abrir a mano (el buscador no las lee): Indeed AR, LinkedIn, ZonaJobs, Michael Page, Jooble, Jobsora, MisuJob, Kit Empleo.
+
+Alertas sugeridas por zona (URLs de Bumeran por localidad): https://www.bumeran.com.ar/en-buenos-aires/campana/empleos.html , /en-buenos-aires/zarate/empleos.html (probar mismo patrón con tigre, escobar, pilar). En Computrabajo: trabajo-de-project-manager-en-buenos-aires-gba y filtro "últimos 15 días". En Indeed: palabra clave + ubicación (Tigre, Escobar, Pilar, San Isidro) + fromage=14.
+Palabras clave para alertas: jefe de sistemas, gerente de sistemas, gerente de IT, IT manager, responsable de IT, líder de proyectos IT, project manager IT, technical project manager, coordinador de proyectos IT, analista funcional (puerta de entrada a consultoría), implementador ERP/SAP/Odoo/Dynamics, consultor freelance, health IT / HIS / FHIR, PMO, transformación digital.
+Lectura del mercado en la zona: en Tigre/Escobar/Campana domina industria y logística (jefes de planta, mantenimiento); lo IT son PM, analistas funcionales y consultores SAP/ERP. Gerencias IT puras casi no se publican: se cubren por headhunters y red de contactos (ver búsquedas ejecutivas).
