@@ -99,7 +99,7 @@ export default async function Publicaciones({ searchParams }: { searchParams: { 
           </table></div>
         </div>
       ) : <div className="pc-card pc-empty">No hay publicaciones con estos filtros.</div>}
-      <p className="pc-sub">El historial se guarda cada día: Instagram por su API, Facebook desde Metricool, YouTube desde el canal, LinkedIn desde Buffer y las exportaciones (página y perfil de Julio). Instagram no comparte impresiones con el permiso actual. Interacciones = me gusta + comentarios + compartidos + clics + votos (o lo que informa la red).</p>
+      <p className="pc-sub">El historial se guarda cada día: Instagram por su API, Facebook desde Metricool, YouTube desde el canal, LinkedIn desde Buffer y las exportaciones (página y perfil de Julio). TikTok no se conecta solo: figura lo que se carga a mano en su pantalla. Instagram no comparte impresiones con el permiso actual. Interacciones = me gusta + comentarios + compartidos + clics + votos (o lo que informa la red).</p>
     </>
   )
 }

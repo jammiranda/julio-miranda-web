@@ -34,6 +34,8 @@ type Cuenta = {
   seguidores: number | null; crec: number | null; crecNota?: string
   posts: number; postsPrev: number | null; inter: number; interPrev: number | null
   alcance: number | null; ultima: string | null; fuente: string
+  /** Cuenta de carga a mano sin nada cargado todavía: sus publicaciones e interacciones se muestran como «—», no como cero. */
+  sinCarga?: boolean
 }
 
 export default async function Analisis({ searchParams }: { searchParams: { cuenta?: string; dias?: string } }) {
@@ -41,8 +43,8 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
   const b = base()
   const dias = diasDe(searchParams.dias)
   const AHORA = Date.now()
-  const [ig, histIG, fb, fbD, yt, lix, liJ, m, pubs, neg] = await Promise.all([
-    instagram(), historialSeguidores(180).catch(() => []), facebook(), safe(fbDiario(dias * 2)), safe(youtubeCache()), safe(linkedinExport()), redDiario("linkedin_julio", 180).catch(() => []),
+  const [ig, histIG, fb, fbD, yt, lix, liJ, ttD, m, pubs, neg] = await Promise.all([
+    instagram(), historialSeguidores(180).catch(() => []), facebook(), safe(fbDiario(dias * 2)), safe(youtubeCache()), safe(linkedinExport()), redDiario("linkedin_julio", 180).catch(() => []), redDiario("tiktok", 180).catch(() => []),
     safe(panelMetricas()), historial(180).catch(() => [] as Publicacion[]), negocioPeriodo(dias),
   ])
 
@@ -89,12 +91,19 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
 
   const vYT = vol(["youtube", "youtube_post"])
 
+  // TikTok: todo sale de la carga a mano (seguidores por día de carga y videos); sin carga queda como «Sin datos»
+  const vTT = vol(["tiktok"])
+  const ttSeg = [...ttD].reverse().find((x) => x.seguidores != null)?.seguidores ?? null
+  const cTT = crecimientoSerie(ttD, dias, AHORA)
+  const ttHay = ttSeg != null || pubs.some((p) => p.red === "tiktok")
+
   const cuentas: Cuenta[] = [
     { id: "instagram", nombre: "Instagram @devisebit", color: "var(--ig)", seguidores: ig.ok ? ig.perfil.seguidores : null, crec: cIG.valor, crecNota: parcial(cIG.desde), posts: vIG.posts, postsPrev: vIG.postsPrev, inter: vIG.inter, interPrev: vIG.interPrev, alcance: null, ultima: ultimaDe(["instagram"]), fuente: ig.ok ? "API de Instagram" : `sin conexión: ${ig.error}` },
     { id: "facebook", nombre: "Facebook · página", color: "var(--fb)", seguidores: fbSeg, crec: cFB.valor, crecNota: parcial(cFB.desde), posts: fbPosts, postsPrev: fbPostsPrev, inter: fbInter, interPrev: fbInterPrev, alcance: sumaDias(fbRows, (f) => f.vistas_contenido, dias, 0, AHORA), ultima: ultimaDe(["facebook"]), fuente: fbRows.length ? "Metricool (tarea diaria)" : fb.ok ? "Metricool" : fb.error },
     { id: "youtube", nombre: "YouTube · ACADEMIA DEVISEBIT", color: "var(--yt)", seguidores: yt?.suscriptores ?? null, crec: null, posts: vYT.posts, postsPrev: vYT.postsPrev, inter: vYT.inter, interPrev: vYT.interPrev, alcance: vYT.alcance ?? (dias === 30 ? yt?.vistas30 ?? null : null), ultima: ultimaDe(["youtube", "youtube_post"]), fuente: yt ? "página pública + tarea diaria" : "sin datos" },
     { id: "linkedin", nombre: "LinkedIn · página DEVISEBIT", color: "var(--li)", seguidores: lix?.seguidores.total ?? null, crec: liCrec, crecNota: liCrec != null ? "exportación de LinkedIn" : undefined, posts: vLI.posts, postsPrev: vLI.postsPrev, inter: vLI.inter, interPrev: vLI.interPrev, alcance: vLI.alcance, ultima: ultimaDe(["linkedin"]), fuente: "Buffer + exportación mensual" },
     { id: "linkedin_julio", nombre: "LinkedIn · Julio Miranda", color: "var(--li)", seguidores: jSeg, crec: sumaDias(liJ, (x) => x.nuevos, dias, 0, AHORA), posts: jPosts, postsPrev: jPostsPrev, inter: jInter, interPrev: jInterPrev, alcance: sumaDias(liJ, (x) => x.impresiones, dias, 0, AHORA) ?? vJ.alcance, ultima: ultimaDe(["linkedin_julio"]), fuente: liJ.length ? "Buffer + exportación del perfil" : "Buffer (subí la exportación del perfil)" },
+    { id: "tiktok", nombre: "TikTok @devisebit", color: "var(--tt)", seguidores: ttSeg, crec: cTT.valor, crecNota: parcial(cTT.desde), posts: vTT.posts, postsPrev: vTT.postsPrev, inter: vTT.inter, interPrev: vTT.interPrev, alcance: vTT.alcance, ultima: ultimaDe(["tiktok"]), fuente: ttHay ? "carga a mano" : "todavía no hay datos cargados", sinCarga: !ttHay },
   ]
   const hace = (c: Cuenta) => edadDias(c.ultima, AHORA)
   const estado = (c: Cuenta) => {
@@ -207,8 +216,8 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
               <td style={{ whiteSpace: "nowrap" }}><span className="pc-tag"><span className="pc-dot" style={{ background: e.col }} />{e.t}</span></td>
               <td className="n">{fmt(x.seguidores)}</td>
               <td className="n" title={x.crecNota}>{x.crec != null ? <Delta v={x.crec} /> : "—"}{x.crecNota ? <span className="pc-sub2">{x.crecNota}</span> : null}</td>
-              <td className="n">{fmt(x.posts)}{x.postsPrev != null ? <span className="pc-sub2"><Delta v={x.posts - x.postsPrev} /></span> : null}</td>
-              <td className="n">{fmt(x.inter)}{x.interPrev != null ? <span className="pc-sub2"><Delta v={x.inter - x.interPrev} /></span> : null}</td>
+              <td className="n">{x.sinCarga ? "—" : fmt(x.posts)}{x.postsPrev != null && !x.sinCarga ? <span className="pc-sub2"><Delta v={x.posts - x.postsPrev} /></span> : null}</td>
+              <td className="n">{x.sinCarga ? "—" : fmt(x.inter)}{x.interPrev != null && !x.sinCarga ? <span className="pc-sub2"><Delta v={x.inter - x.interPrev} /></span> : null}</td>
               <td className="n">{x.posts ? fmt(x.inter / x.posts, 1) : "—"}</td>
               <td className="n">{t != null ? `${fmt(t, t < 1 ? 2 : 1)}%` : "—"}</td>
               <td className="n">{fmt(x.alcance)}</td>
@@ -320,4 +329,4 @@ export default async function Analisis({ searchParams }: { searchParams: { cuent
   )
 }
 
-function CUENTAS_IDS(v?: string) { return !!v && ["instagram", "facebook", "youtube", "linkedin", "linkedin_julio"].includes(v) }
+function CUENTAS_IDS(v?: string) { return !!v && ["instagram", "facebook", "youtube", "linkedin", "linkedin_julio", "tiktok"].includes(v) }
