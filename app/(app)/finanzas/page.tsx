@@ -159,14 +159,14 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
           </div>
 
           <section className="card flex flex-col gap-3" aria-label="Publicidad del mes">
-            <div><h2 className="m-0 text-base">Publicidad · {nombrePeriodo(per)}</h2><p className="m-0 text-xs text-[var(--gris)]">Separado por cómo se paga: el prepago de Google Ads (cuenta 1) es plata ya cargada que se va consumiendo. La Mastercard Galicia (cuenta 2 de Google y Meta) cobra a medida que se gasta.</p></div>
+            <div><h2 className="m-0 text-base">Publicidad · {nombrePeriodo(per)}</h2><p className="m-0 text-xs text-[var(--gris)]">Separado por cómo se paga: el prepago de Google Ads (cuenta 1) es plata ya cargada que se va consumiendo. La Mastercard Galicia (cuenta 2 de Google) y la Mastercard prepaga de Mercado Pago (Meta) cobran a medida que se gasta.</p></div>
             {ads.length ? (
               <div className="overflow-x-auto -mx-5 border-y border-[var(--borde-2)]">
                 <table className="tbl"><thead><tr><th>Medio</th><th>Estado</th><th className="text-right">Monto</th></tr></thead>
                   <tbody>{ads.map((a) => (
                     <tr key={`${a.medio}-${a.estado}`}>
                       <td className="font-semibold">{a.medio}</td>
-                      <td><span className={`chip ${a.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{a.estado === "pagado" ? (a.medio === "Prepago Google Ads" ? "Consumido" : "Cobrado") : "Falta cobrar"}</span></td>
+                      <td><span className={`chip ${a.estado === "pagado" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{a.estado === "pagado" ? (a.medio === "Prepago Google Ads" ? "Consumido" : "Cobrado") : a.medio === "Prepago Google Ads" ? "Recarga a decidir" : "Falta cobrar"}</span></td>
                       <td className="text-right tabular-nums font-semibold">{dinero(a.total)}</td>
                     </tr>
                   ))}</tbody></table>
