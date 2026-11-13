@@ -4,13 +4,16 @@ import { q } from "@/lib/db"
 import { TIPOS_ACTIVO, dinero, isoD, sumarDias } from "@/lib/gestion"
 import { fecha, hoyISO } from "@/lib/util"
 import { TablaRegistro, Aviso, Kpi } from "@/components/Registro"
+import Copiar from "@/components/Copiar"
+import { claveIcs } from "@/lib/ics"
 
 export const dynamic = "force-dynamic"
 
 type SP = { tipo?: string; cliente?: string; b?: string; editar?: string; nuevo?: string; ok?: string; error?: string; bajas?: string }
 
 export default async function Activos({ searchParams: sp }: { searchParams: SP }) {
-  await requerir(["gerente", "coordinacion"])
+  const u = await requerir(["gerente", "coordinacion"])
+  const icsUrl = u.rol === "gerente" ? `https://sistema.devisebit.com/api/ics/${await claveIcs()}.ics` : ""
   const hoy = hoyISO()
   const tipo = TIPOS_ACTIVO.some((t) => t.v === sp.tipo) ? sp.tipo! : null
   const cliente = (sp.cliente ?? "").trim() || null
@@ -52,6 +55,15 @@ export default async function Activos({ searchParams: sp }: { searchParams: SP }
         <Kpi t="Sin cliente asignado" v={sinAsignar} d={sinAsignar ? "Asignalos para poder cobrarlos" : "Todo asignado"} tono={sinAsignar ? "ambar" : undefined} href={con("cliente", "Sin asignar")} />
       </section>
 
+      {u.rol === "gerente" && (
+        <section className="card flex flex-wrap items-center justify-between gap-3" aria-label="Vencimientos en Google Calendar">
+          <div className="min-w-0 flex-1">
+            <h2 className="m-0 text-base">📅 Vencimientos en tu Google Calendar</h2>
+            <p className="m-0 text-sm text-[var(--gris)]">Un calendario que se actualiza solo con cada vencimiento de esta pantalla y avisa 7 días antes. En Google Calendar: «Otros calendarios» → «+» → «Desde URL», pegá el link y listo. Se hace una sola vez.</p>
+          </div>
+          <Copiar texto={icsUrl} etiqueta="Copiar link del calendario" className="btn-p py-2 px-4 text-sm" />
+        </section>
+      )}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.4fr] gap-5">
         <section className="card flex flex-col gap-3" aria-label="Por cliente">
           <h2 className="m-0 text-base">Por cliente · costo anual</h2>

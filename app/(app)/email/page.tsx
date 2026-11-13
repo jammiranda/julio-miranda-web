@@ -111,6 +111,27 @@ export default async function Email() {
           <div key={t as string} className="card flex flex-col gap-1"><span className="text-xs font-semibold uppercase tracking-wider text-[#4A515C]">{t}</span><span className="text-3xl font-extrabold">{(n as number) ?? 0}</span></div>
         ))}
       </section>
+      <section className="card flex flex-col gap-3" aria-label="Próximos envíos">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div><h2 className="m-0 text-base">Próximos envíos</h2><p className="m-0 text-xs text-[#4A515C]">Lo que está saliendo y lo que está preparado para salir. Salen hasta {LIMITE_DIARIO} por día.</p></div>
+          <Link href="/email/plantillas" className="btn-s py-1.5">+ Preparar un envío</Link>
+        </div>
+        {(() => {
+          const prox = camps.filter((k: any) => k.estado === "enviando" || k.estado === "borrador" || k.estado === "pausada")
+          if (!prox.length) return <p className="vacio">No hay ningún envío preparado. El próximo que armes, vos o un agente, aparece acá antes de salir.</p>
+          return (
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[#EEF0F3]">
+              {prox.map((k: any) => (
+                <li key={k.id} className="py-2.5 flex flex-wrap items-center justify-between gap-3">
+                  <div className="min-w-0"><Link href={`/email/${k.id}`} className="font-semibold hover:underline">{k.asunto ?? k.nombre ?? `Envío ${k.id}`}</Link>
+                    <div className="text-xs text-[#4A515C]">{k.estado === "enviando" ? `Saliendo: ${k.enviados} de ${k.total} · faltan ${k.pendientes} (≈ ${Math.max(1, Math.ceil(k.pendientes / LIMITE_DIARIO))} día${Math.ceil(k.pendientes / LIMITE_DIARIO) > 1 ? "s" : ""})` : k.estado === "pausada" ? `Pausada: ${k.enviados} de ${k.total} enviados` : "Borrador: falta revisarlo y tocar «Enviar campaña»"}</div></div>
+                  <Link href={`/email/${k.id}`} className="btn-s py-1 px-3 text-xs">{k.estado === "borrador" ? "Revisar y enviar" : "Ver"}</Link>
+                </li>
+              ))}
+            </ul>
+          )
+        })()}
+      </section>
       <section className="card p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="tbl">

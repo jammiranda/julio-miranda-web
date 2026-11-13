@@ -1,6 +1,6 @@
-import Link from "next/link"
 import { requerir, ROL_NOMBRE, espacioDelHost, type Espacio } from "@/lib/auth"
 import Imprimir from "@/components/Imprimir"
+import AyudaCentro, { type Atajo } from "@/components/AyudaCentro"
 
 export const dynamic = "force-dynamic"
 
@@ -55,7 +55,7 @@ const SECCIONES: Sec[] = [
     tips: ["El sistema ordena y avisa; lo que tenga plata o responsabilidad en juego lo revisa el abogado o el contador antes de firmar."],
   },
   {
-    id: "documentos", t: "Documentos", para: ["todos"], en: ["comercial"], link: "/documentos",
+    id: "documentos", t: "Documentos (archivo de Drive)", para: ["todos"], en: ["comercial"], link: "/documentos",
     pasos: [
       "Repositorio único de DEVISEBIT por categoría: institucional, comercial y propuestas, legal, contable, técnico, equipo y procesos, plantillas y licitaciones.",
       "Subí el archivo a Drive y pegá el link: así todos encuentran la última versión. Indicá la versión y el responsable.",
@@ -177,29 +177,29 @@ export default async function Ayuda() {
   const u = await requerir()
   const espacio = espacioDelHost()
   const visibles = SECCIONES.filter((x) => x.en.includes(espacio) && (x.para.includes("todos") || x.para.includes(u.rol)))
-  const fmt = (t: string) => t.split(/(\*[^*]+\*)/).map((p, i) => (p.startsWith("*") ? <strong key={i}>{p.slice(1, -1)}</strong> : p))
+  // Accesos por tarea: lo que más se hace en el día, a un clic
+  const ATAJOS: (Atajo & { roles?: string[] })[] = espacio === "academia" ? [
+    { icono: "🎓", t: "Ver alumnos y suscriptos", d: "Quién cursa, quién compró y quién recibe el newsletter", href: "/sistema/alumnos" },
+    { icono: "📚", t: "Cargar o editar un curso", d: "Cursos, ediciones, clases y certificados", href: "/sistema/cursos" },
+  ] : [
+    { icono: "💬", t: "Responder una consulta", d: "Lo que entra por WhatsApp, Instagram y la web", href: "/consultas" },
+    { icono: "🤝", t: "Enviar los mensajes de hoy", d: "Prospección: abrir perfil, copiar y marcar enviado", href: "/prospeccion" },
+    { icono: "👤", t: "Buscar o cargar un contacto", d: "Con filtros por email, teléfono o LinkedIn", href: "/contactos" },
+    { icono: "✉️", t: "Preparar un envío de email", d: "Elegí una plantilla y a quién va", href: "/email/plantillas", roles: ["gerente", "coordinacion"] },
+    { icono: "📎", t: "Mandarle material a un cliente", d: "Folletos, PDF y videos con link para copiar", href: "/material", roles: ["gerente", "coordinacion"] },
+    { icono: "📝", t: "Armar un contrato", d: "Modelos listos para completar y bajar en Word", href: "/legales/plantillas", roles: ["gerente", "coordinacion"] },
+    { icono: "💰", t: "Cargar un cobro o un gasto", d: "Finanzas: movimientos y resumen del mes", href: "/finanzas?ver=movimientos", roles: ["gerente", "coordinacion"] },
+    { icono: "🌐", t: "Ver qué dominio o hosting vence", d: "Activos digitales y su calendario", href: "/activos", roles: ["gerente", "coordinacion"] },
+    { icono: "🧭", t: "Ver cómo va la empresa", d: "Tablero de dirección, en una pantalla", href: "/gestion", roles: ["gerente", "coordinacion"] },
+  ]
+  const atajos = ATAJOS.filter((a) => !a.roles || a.roles.includes(u.rol)).map(({ roles: _r, ...a }) => a)
   return (
-    <div className="flex flex-col gap-5 max-w-4xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="m-0">Manual del {espacio === "academia" ? "Sistema Academia" : "Sistema de gestión"}</h1>
-          <p className="m-0 text-sm text-[#4A515C]">Guía paso a paso para tu rol: <strong>{ROL_NOMBRE[u.rol]}</strong>. Ante cualquier duda, consultá a la coordinadora general o a Dirección.</p>
-        </div>
-        <Imprimir texto="Descargar en PDF" />
-      </div>
-      <nav aria-label="Secciones del manual" className="card flex flex-wrap gap-2 no-print">
-        {visibles.map((x) => <a key={x.id} href={`#${x.id}`} className="chip text-sm px-3 py-1 border bg-white border-[#C3C8D1] hover:border-[#C8231F]">{x.t}</a>)}
-      </nav>
-      {visibles.map((x, n) => (
-        <section key={x.id} id={x.id} className="card flex flex-col gap-3 scroll-mt-28">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="m-0">{n + 1}. {x.t}</h2>
-            {x.link && <Link href={x.link} className="btn-s py-1 px-3 text-xs no-print">Ir a {x.ir ?? x.t}</Link>}
-          </div>
-          <ol className="m-0 pl-5 flex flex-col gap-2 text-[15px] leading-relaxed list-decimal">{x.pasos.map((p, i) => <li key={i}>{fmt(p)}</li>)}</ol>
-          {x.tips?.map((t, i) => <p key={i} className="m-0 text-sm bg-emerald-50 text-emerald-800 rounded-xl px-3 py-2">💡 {fmt(t)}</p>)}
-        </section>
-      ))}
+    <div className="flex flex-col gap-5">
+      <header className="pag-cab">
+        <div><div className="eyebrow">Ayuda</div><h1 className="m-0">Centro de ayuda</h1><p>Guías del {espacio === "academia" ? "Sistema Academia" : "Sistema de gestión"} para tu rol: <strong>{ROL_NOMBRE[u.rol]}</strong>. Buscá lo que necesitás o entrá directo por tarea.</p></div>
+        <div className="pag-acc"><Imprimir texto="Descargar todo en PDF" /></div>
+      </header>
+      <AyudaCentro atajos={atajos} guias={visibles.map(({ id, t, pasos, tips, link, ir }) => ({ id, t, pasos, tips, link, ir }))} />
     </div>
   )
 }
