@@ -5,6 +5,7 @@ import { guardarFacebook, type FilaFB } from "@/lib/facebook"
 import { guardarRespaldoYouTube } from "@/lib/panel"
 import { guardarRespaldoPosts } from "@/lib/youtube-publicaciones"
 import { guardarPublicaciones, guardarRedDiario } from "@/lib/publicaciones"
+import { idDeLink, TT_CREADA, TT_URL } from "@/lib/tiktok"
 
 export const dynamic = "force-dynamic"
 
@@ -15,6 +16,8 @@ export const dynamic = "force-dynamic"
  * - { red: "facebook", filas?: [{ dia: "YYYY-MM-DD", seguidores, nuevos, perdidos, vistas_pagina, vistas_contenido, publicaciones, interacciones }],
  *     posts?: [{ id, fecha, texto, tipo, url, impresiones, alcance, reacciones, comentarios, compartidos, clics }] }
  * - { red: "linkedin_julio" | "linkedin", filas?: [{ dia, seguidores, nuevos, impresiones, alcance, interacciones, publicaciones }], posts?: [{ id, fecha, texto, url, impresiones, reacciones, comentarios, compartidos, clics, interacciones }] }
+ * - { red: "tiktok", filas?: [{ dia, seguidores, nuevos, impresiones (reproducciones del día), alcance, interacciones, publicaciones, me_gusta }],
+ *     posts?: [{ id o url (link del video), fecha, texto, vistas, me_gusta, comentarios, compartidos, alcance }] } · datos de Metricool; se juntan con lo de Buffer y lo cargado a mano
  * - { red: "youtube", suscriptores?: number, videos: [{ id, titulo, fecha, corto, vistas, meGusta }], posts?: [{ id, texto, hace, meGusta, comentarios, votos, tipo, url }] }
  *   Es el respaldo que usa el panel cuando YouTube no responde a los servidores de Vercel.
  */
@@ -36,6 +39,14 @@ export async function POST(req: NextRequest) {
     const p = await posts(b.red, String(b.origen ?? "ingesta"))
     await anotar({ red: b.red, filas: n, posts: p })
     return NextResponse.json({ ok: true, red: b.red, dias: n, posts: p })
+  }
+  if (b.red === "tiktok" && (Array.isArray(b.filas) || Array.isArray(b.posts))) {
+    const n = Array.isArray(b.filas) ? await guardarRedDiario("tiktok", (b.filas as any[]).filter((f) => String(f?.dia ?? "") >= TT_CREADA).slice(0, 400)) : 0
+    // Mismo id que Buffer y la carga a mano (el número del video), así no se duplican
+    const vids = Array.isArray(b.posts) ? (b.posts as any[]).slice(0, 500).map((p) => { const vid = idDeLink(p.url) ?? (/^\d{15,22}$/.test(String(p.id ?? "")) ? String(p.id) : null); return vid ? { red: "tiktok", id: vid, fecha: p.fecha ?? null, texto: p.texto ?? "", tipo: "Video", url: `${TT_URL}/video/${vid}`, vistas: p.vistas, me_gusta: p.me_gusta ?? p.meGusta, comentarios: p.comentarios, compartidos: p.compartidos, alcance: p.alcance } : null }).filter(Boolean) : []
+    const p = vids.length ? await guardarPublicaciones(vids as any[], "Metricool") : 0
+    await anotar({ red: "tiktok", filas: n, posts: p })
+    return NextResponse.json({ ok: true, red: "tiktok", dias: n, posts: p })
   }
   if (b.red === "youtube" && Array.isArray(b.videos)) {
     const n = await guardarRespaldoYouTube({ suscriptores: b.suscriptores ?? null, videos: b.videos })

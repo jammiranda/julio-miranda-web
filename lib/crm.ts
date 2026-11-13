@@ -78,6 +78,19 @@ export type Clase = (typeof CLASES)[number]["v"]
 export const clase = (v: string | null | undefined) => CLASES.find((x) => x.v === v) ?? null
 export const esClase = (v: unknown): v is Clase => CLASES.some((x) => x.v === v)
 
+/**
+ * Contactos que llegaron por redes sociales (SQL sobre db_contactos c): consultas del bot de Instagram, anuncios de Meta,
+ * Facebook, TikTok o tráfico orgánico de redes. Se usa para verlos aparte en Contactos y que no se mezclen con los demás.
+ */
+export const SQL_DE_REDES = `(coalesce(c.origen,'') ~* '(instagram|facebook|tiktok|redes)' or coalesce(c.fuente,'') ~* '(meta ads|redes|instagram|facebook|tiktok)')`
+export const CANALES = [
+  { v: "directos", n: "Directos", d: "WhatsApp, web, mail, importados y cargados a mano: todo lo que no llegó por redes." },
+  { v: "redes", n: "Redes sociales", d: "Llegaron por Instagram, Facebook, TikTok o anuncios de Meta." },
+  { v: "todos", n: "Todos los canales", d: "Sin filtrar por canal." },
+] as const
+export type Canal = (typeof CANALES)[number]["v"]
+export const esCanal = (v: unknown): v is Canal => CANALES.some((x) => x.v === v)
+
 /** Sugerencia de lista según lo que el sistema ya sabe del contacto (SQL sobre db_contactos c). */
 export const SQL_SUGERENCIA = `case
   when exists (select 1 from db_proyectos p where p.contacto_id=c.id and p.estado<>'cancelado') or exists (select 1 from db_cobros b where b.contacto_id=c.id and b.estado<>'anulado') or c.etapa='ganado' then 'cliente'
