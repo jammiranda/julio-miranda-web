@@ -1,11 +1,14 @@
 import * as XLSX from "xlsx"
+import { unstable_cache } from "next/cache"
+import { bufferGql, linkedinConfigurado } from "./linkedin"
 import { q } from "./db"
 import { guardarPublicaciones, guardarRedDiario, redDiario, type Publicacion } from "./publicaciones"
 
 /**
  * TikTok de DEVISEBIT para el Panel de Contenido.
- * No hay clave ni conexión automática con TikTok: los números se cargan a mano desde el panel (pantalla TikTok),
- * escribiéndolos o subiendo una planilla, igual que el perfil de LinkedIn de Julio se carga con su exportación.
+ * Los videos se traen solos desde Buffer (que es quien los publica): reproducciones, me gusta, comentarios, compartidos y alcance,
+ * con la misma clave BUFFER_API_KEY que usa LinkedIn. Los seguidores y los me gusta de la cuenta no los da Buffer: esos se cargan a mano
+ * desde el panel (pantalla TikTok), escribiéndolos o subiendo una planilla.
  * Se guardan en las mismas tablas que las demás redes: pc_red_diario (red tiktok: seguidores y me gusta de la cuenta por día)
  * y pc_publicaciones (un renglón por video; volver a cargar el mismo link actualiza, no duplica).
  * Mientras no haya nada cargado no se muestra ningún número.
@@ -171,4 +174,41 @@ export async function tiktok(): Promise<DatosTT> {
     videos,
     actualizado: marcas[marcas.length - 1] ?? null,
   }
+}
+
+/** Canal de TikTok (@devisebit) en Buffer. */
+const TT_CANAL_BUFFER = () => process.env.BUFFER_TIKTOK_CHANNEL ?? "6af64ecc62b70b94b0113f3d"
+const TT_ORG_BUFFER = () => process.env.BUFFER_ORG_ID ?? "6ad77518fa8d2fdc36836810"
+
+export type SincroTT = { ok: true; videos: number; actualizado: string } | { ok: false; error: string }
+
+/**
+ * Trae de Buffer los videos de TikTok ya publicados con sus números y los guarda en pc_publicaciones (red tiktok).
+ * Si Buffer da el link del video, se guarda con el número del video, así se junta con lo cargado a mano; si no, con "buf:" + id de Buffer.
+ * Un número que Buffer no trae no pisa uno cargado a mano (guardarPublicaciones usa coalesce).
+ */
+async function sincronizar(): Promise<SincroTT> {
+  const consulta = (link: boolean) => `query { posts(first: 100, input: { organizationId: "${TT_ORG_BUFFER()}", filter: { status: [sent], channelIds: ["${TT_CANAL_BUFFER()}"] } }) { edges { node { id text dueAt sentAt ${link ? "externalLink " : ""}metrics { type value } } } } }`
+  let d: any
+  try { d = await bufferGql(consulta(true)) } catch { d = await bufferGql(consulta(false)) }
+  const nodos: any[] = (d?.posts?.edges ?? []).map((e: any) => e?.node).filter(Boolean)
+  const pubs: Partial<Publicacion>[] = nodos.map((n) => {
+    const m: Record<string, number> = Object.fromEntries((n.metrics ?? []).map((x: any) => [x.type, Number(x.value)]))
+    const vid = idDeLink(n.externalLink)
+    return {
+      red: "tiktok", id: vid ?? "buf:" + n.id, fecha: n.sentAt ?? n.dueAt ?? null, texto: String(n.text ?? "").trim(), tipo: "Video",
+      url: vid ? `${TT_URL}/video/${vid}` : n.externalLink ?? null,
+      vistas: m.views, me_gusta: m.reactions ?? m.likes, comentarios: m.comments, compartidos: m.shares, alcance: m.reach,
+    }
+  })
+  const videos = await guardarPublicaciones(pubs, "Buffer")
+  return { ok: true, videos, actualizado: new Date().toISOString() }
+}
+
+const sincronizarCache = unstable_cache(sincronizar, ["pc-tiktok-buffer-v1"], { revalidate: 1800 })
+
+/** Sincroniza los videos de TikTok desde Buffer (como mucho una vez cada 30 minutos). Nunca tira error: si falla, lo devuelve. */
+export async function tiktokDesdeBuffer(forzar = false): Promise<SincroTT> {
+  if (!linkedinConfigurado()) return { ok: false, error: "sin_clave" }
+  try { return await (forzar ? sincronizar() : sincronizarCache()) } catch (e: any) { return { ok: false, error: String(e?.message ?? e).slice(0, 220) } }
 }

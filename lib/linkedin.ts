@@ -12,7 +12,8 @@ const CANAL = () => process.env.BUFFER_LINKEDIN_CHANNEL ?? "6ad776b6778b240e2f6a
 const CANAL_JULIO = () => process.env.BUFFER_LINKEDIN_JULIO_CHANNEL ?? "6ae3972b2f1f5ed648132112"
 export const linkedinConfigurado = () => !!process.env.BUFFER_API_KEY
 
-async function gql(query: string) {
+/** Consulta a la API de Buffer (GraphQL). La usan LinkedIn y TikTok. */
+export async function bufferGql(query: string) {
   const r = await fetch("https://api.buffer.com", {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.BUFFER_API_KEY}`, "Content-Type": "application/json" },
@@ -36,13 +37,13 @@ const agregado = (canal: string, desde: Date, hasta: Date) => `aggregatedPostMet
 /** El plan gratuito de Buffer solo da métricas de los últimos 31 días: se piden 30 (antes se pedían 60 y Buffer rechazaba todo). */
 async function traerCanal(canal: string, red: "linkedin" | "linkedin_julio") {
   const ahora = new Date(), d30 = new Date(Date.now() - 30 * 864e5)
-  const a = await gql(`query { actual: ${agregado(canal, d30, ahora)} }`)
+  const a = await bufferGql(`query { actual: ${agregado(canal, d30, ahora)} }`)
   let posts: PostLI[] = []
   try {
-    const p = await gql(`query { posts(first: 50, input: { organizationId: "${ORG()}", filter: { status: [sent], channelIds: ["${canal}"] } }) { edges { node { id text dueAt sentAt externalLink metrics { type value } } } } }`)
+    const p = await bufferGql(`query { posts(first: 50, input: { organizationId: "${ORG()}", filter: { status: [sent], channelIds: ["${canal}"] } }) { edges { node { id text dueAt sentAt externalLink metrics { type value } } } } }`)
     posts = (p.posts?.edges ?? []).map((e: any) => e.node).filter(Boolean).map((n: any) => ({ id: String(n.id), texto: String(n.text ?? ""), fecha: n.sentAt ?? n.dueAt ?? "", url: n.externalLink ?? null, metricas: Object.fromEntries((n.metrics ?? []).map((m: any) => [m.type, Number(m.value)])) }))
   } catch {
-    const p = await gql(`query { posts(first: 50, input: { organizationId: "${ORG()}", filter: { status: [sent], channelIds: ["${canal}"] } }) { edges { node { id text dueAt metrics { type value } } } } }`).catch(() => null)
+    const p = await bufferGql(`query { posts(first: 50, input: { organizationId: "${ORG()}", filter: { status: [sent], channelIds: ["${canal}"] } }) { edges { node { id text dueAt metrics { type value } } } } }`).catch(() => null)
     posts = (p?.posts?.edges ?? []).map((e: any) => e.node).filter(Boolean).map((n: any) => ({ id: String(n.id), texto: String(n.text ?? ""), fecha: n.dueAt ?? "", url: null, metricas: Object.fromEntries((n.metrics ?? []).map((m: any) => [m.type, Number(m.value)])) }))
   }
   posts.sort((x, y) => y.fecha.localeCompare(x.fecha))
