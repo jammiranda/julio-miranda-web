@@ -240,6 +240,12 @@ create table if not exists informe_diario (
 );
 create table if not exists informe_tildes (dia date not null, clave text not null, hecho boolean not null default true, actualizado timestamptz not null default now(), primary key (dia, clave));
 create table if not exists informe_notas (dia date primary key, texto text not null default '', actualizado timestamptz not null default now());
+create table if not exists control_cortes (
+  dia date primary key, numero int not null default 0, titulo text not null default '', periodo text not null default '',
+  semaforo text not null default 'amarillo', resumen text not null default '', indicadores jsonb not null default '[]'::jsonb,
+  infografia text not null default '', pdf_b64 text not null default '', pdf_nombre text not null default '',
+  creado timestamptz not null default now()
+);
 create table if not exists interaccion_acciones (
   clave text primary key, dia date not null, red text not null, tipo text not null, cuenta text not null default '', tamano text not null default '',
   texto text not null default '', url text not null default '', estado text not null default 'publicado', n int not null default 1,
