@@ -8,7 +8,9 @@ const nextConfig = {
     return [
       // La Oficina se muestra embebida en el panel (mismo origen)
       { source: "/api/oficina/vista", headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }] },
-      { source: "/:path((?!api/oficina/vista$).*)", headers: [
+      // La infografía del Control mensual se muestra embebida en el panel (mismo origen, en un marco aislado)
+      { source: "/api/panel/control/archivo", headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }] },
+      { source: "/:path((?!api/oficina/vista$|api/panel/control/archivo$).*)", headers: [
         { key: "X-Frame-Options", value: "DENY" },
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

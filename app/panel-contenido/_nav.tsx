@@ -7,6 +7,7 @@ import { GRUPOS } from "./_secciones"
 const I: Record<string, React.ReactNode> = {
   inicio: <path d="M3 11l9-8 9 8v10H3z" />,
   tablero: <><rect x="3" y="4" width="18" height="16" rx="3" /><path d="M7 9h10M7 13h6M7 17h4" /></>,
+  control: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 10h18M8 15l2.5 2.5L16 13" /></>,
   publicaciones: <><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /></>,
   crm: <path d="M3 4h18l-7 8v6l-4 2v-8z" />,
   academia: <><path d="M2 9l10-5 10 5-10 5z" /><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" /></>,
