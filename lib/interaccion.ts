@@ -17,7 +17,8 @@ export type Accion = { clave: string; dia: string; red: Red; tipo: Tipo; cuenta:
 export const METAS = { comentarios: 300, seguidas: 100, conversaciones: 10 }
 
 const txt = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "")
-const slug = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9@._]+/g, "-").replace(/^-|-$/g, "").slice(0, 80)
+/** Clave estable para grupos y cuentas: sin tildes, sin @ inicial; "@Cuenta" y "cuenta" son la misma. */
+export const slug = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/^@+/, "").replace(/[^a-z0-9._]+/g, "-").replace(/^-|-$/g, "").slice(0, 80)
 
 /** Normaliza una acción que manda la tarea. La clave evita duplicados si la tarea reenvía lo mismo (y permite pasar de pendiente a publicado). */
 export function limpiarAccion(a: any, diaDefecto: string): Omit<Accion, "actualizado"> | null {

@@ -279,9 +279,9 @@ insert into interaccion_acciones(clave,dia,red,tipo,cuenta,tamano,estado,n) valu
   ('g:emprendimientos-argentina','2026-11-13','facebook','presentacion','Emprendimientos Argentina!','46 mil','publicado',1),
   ('g:emprendedores-de-argentina','2026-11-13','facebook','presentacion','Emprendedores de Argentina','14 mil','publicado',1),
   ('g:argentina-emprende','2026-11-13','facebook','presentacion','Argentina Emprende','55 mil','publicado',1),
-  ('g:empresas-pymes-emprendedores-arg','2026-11-13','facebook','presentacion','Empresas, PyMEs & Emprendedores de Argentina!','12,8 mil','publicado',1),
-  ('g:emprendedores-zona-sur','2026-11-13','facebook','presentacion','Emprendedores Zona Sur y alrededores','14 mil','publicado',1),
-  ('g:inversores-emprendedores-arg','2026-11-13','facebook','presentacion','Inversores y Emprendedores Argentinos','20 mil','publicado',1),
+  ('g:empresas-pymes-emprendedores-de-argentina','2026-11-13','facebook','presentacion','Empresas, PyMEs & Emprendedores de Argentina!','12,8 mil','publicado',1),
+  ('g:emprendedores-zona-sur-y-alrededores','2026-11-13','facebook','presentacion','Emprendedores Zona Sur y alrededores','14 mil','publicado',1),
+  ('g:inversores-y-emprendedores-argentinos','2026-11-13','facebook','presentacion','Inversores y Emprendedores Argentinos','20 mil','publicado',1),
   ('g:emprendedores-en-argentina','2026-11-13','facebook','presentacion','Emprendedores en Argentina','18,4 mil','publicado',1),
   ('g:emprendedores-argentinos','2026-11-13','facebook','presentacion','Emprendedores Argentinos','18 mil','pendiente',1),
   ('g:emprender-hoy-argentina','2026-11-13','facebook','presentacion','Emprender Hoy ARGENTINA','24 mil','pendiente',1),
@@ -290,6 +290,10 @@ insert into interaccion_acciones(clave,dia,red,tipo,cuenta,tamano,estado,n) valu
   ('s:ig:nexoemprendedor.arg','2026-11-13','instagram','seguir','@nexoemprendedor.arg','15,7 mil','pendiente',1),
   ('s:ig:argentina_emprendimientos','2026-11-13','instagram','seguir','@argentina_emprendimientos','12,8 mil','publicado',1)
 on conflict (clave) do nothing;
+update interaccion_acciones set clave='g:empresas-pymes-emprendedores-de-argentina' where clave='g:empresas-pymes-emprendedores-arg' and not exists (select 1 from interaccion_acciones where clave='g:empresas-pymes-emprendedores-de-argentina');
+update interaccion_acciones set clave='g:emprendedores-zona-sur-y-alrededores' where clave='g:emprendedores-zona-sur' and not exists (select 1 from interaccion_acciones where clave='g:emprendedores-zona-sur-y-alrededores');
+update interaccion_acciones set clave='g:inversores-y-emprendedores-argentinos' where clave='g:inversores-emprendedores-arg' and not exists (select 1 from interaccion_acciones where clave='g:inversores-y-emprendedores-argentinos');
+delete from interaccion_acciones where clave in ('g:empresas-pymes-emprendedores-arg','g:emprendedores-zona-sur','g:inversores-emprendedores-arg','s:ig:@argentina_emprendimientos','s:ig:@nexoemprendedor.arg');
 insert into interaccion_metricas(dia,red,metrica,valor) values
   ('2026-11-02','linkedin_julio','seguidores',374),('2026-11-02','linkedin_julio','visualizaciones_perfil',26),('2026-11-02','linkedin_julio','impresiones',175),
   ('2026-11-03','linkedin_julio','visualizaciones_perfil',30),('2026-11-03','linkedin_julio','impresiones',225),
