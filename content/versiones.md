@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 12/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (424 cambios publicados desde el 17 de octubre).
+Última actualización: 13/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (431 cambios publicados desde el 17 de octubre).
 
 Este documento responde una sola pregunta: **en qué versión está cada cosa y qué cambió en cada versión**. Hasta hoy nada tenía número; acá se le pone número a todo, hacia atrás, y queda la regla para seguir.
 
@@ -10,13 +10,13 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Juego de videos para redes sin precios: 17 verticales, 4 para LinkedIn, 4 carruseles y portadas |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Página interna para bajar los 17 videos al celular y copiar el texto de TikTok |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.1.0** | 12/11/2026 | Pantalla nueva «Versiones» en Ajustes, con este documento dentro del Sistema |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
-| Panel de Contenido | panel.devisebit.com | **2.1.1** | 12/11/2026 | «Ganadas» cuenta solo los contactos en etapa Ganado del CRM |
+| Panel de Contenido | panel.devisebit.com | **2.2.0** | 13/11/2026 | Pantalla nueva de TikTok, con carga a mano de seguidores, me gusta y videos |
 | Oficina | oficina.devisebit.com | **1.1.0** | 07/11/2026 | Las tareas programadas ya pueden leer y actualizar el registro de Prospección |
 | Sitio personal de Julio | julio.devisebit.com | **1.5.0** | 12/11/2026 | Se sumaron los básicos: mapa del sitio, página de «no encontrado» y selector de idioma en celular |
 
@@ -29,18 +29,18 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 85 | 9 |
+| Sitio web DEVISEBIT | 86 | 9 |
 | Landings de anuncios | 11 | 4 (3 de ellas con cambios compartidos con el sitio) |
 | Sistema (CRM y gestión) | 142 | 12 |
 | Bot de WhatsApp (Bit) | 21 | 8 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
-| Panel de Contenido | 30 | 7 |
+| Panel de Contenido | 36 | 8 |
 | Oficina | 20 | 2 |
 | Sitio personal de Julio | 61 | 6 |
-| **Total** | **424** | **59** |
+| **Total** | **431** | **60** |
 
-Los 424 se reparten así: 96 en el código del sitio web (85 + 11), 267 en el código del Sistema (142 + 21 + 40 + 14 + 30 + 20) y 61 en el sitio personal.
+Los 431 se reparten así: 97 en el código del sitio web (86 + 11), 273 en el código del Sistema (142 + 21 + 40 + 14 + 36 + 20) y 61 en el sitio personal.
 
 ---
 
@@ -68,11 +68,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-85 cambios · 9 versiones · versión actual **1.7.0**
+86 cambios · 9 versiones · versión actual **1.7.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
-| **1.7.0** | 12/11/2026 | • Juego de videos para redes en versión sin precios, en una carpeta no listada: 17 verticales, 4 videos para LinkedIn, 4 carruseles en PDF y 21 portadas<br>• Es de donde toman el material las publicaciones programadas de Instagram, Facebook, YouTube y LinkedIn | Novedad | `35e2cd0` (1) |
+| **1.7.0** | 12/11/2026 | • Juego de videos para redes en versión sin precios, en una carpeta no listada: 17 verticales, 4 videos para LinkedIn, 4 carruseles en PDF y 21 portadas<br>• Es de donde toman el material las publicaciones programadas de Instagram, Facebook, YouTube y LinkedIn<br>• Página interna para bajar los 17 videos verticales al celular y copiar el texto de cada uno para TikTok | Novedad | `35e2cd0..8ec0e3b` (2) |
 | **1.6.1** | 12/11/2026 | • Si falla el correo del formulario de contacto, la consulta igual queda registrada en el Sistema<br>• El sitio carga más rápido: las etiquetas de medición se bajan después de que la página ya se ve, y el logo pesa mucho menos<br>• En celular: el contenido ya no se corta contra el borde, los links son más fáciles de tocar y el botón de WhatsApp no tapa los campos<br>• En Casos de éxito, «Ver como lista» ahora lleva a la lista | Corrección | `fa7905f..0e8fd62` (14) |
 | **1.6.0** | 10/11/2026 | • Nota semanal en Novedades: IA en Argentina, de asistentes a agentes<br>• La página de Casos de éxito carga más liviana (el mapa 3D se baja aparte) | Mejora | `eb6735f..c0417df` (2) |
 | **1.5.0** | 06/11/2026 | • Etiqueta de Google Ads de la cuenta nueva, con conversión por vista de página<br>• PDF del Programa de Socios Comerciales para descargar, con una dirección corta | Novedad | `06f2a67..5a35850` (3) |
@@ -158,10 +158,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.7 Panel de Contenido — panel.devisebit.com
 
-30 cambios · 7 versiones · versión actual **2.1.1**
+36 cambios · 8 versiones · versión actual **2.2.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **2.2.0** | 13/11/2026 | • **Tablero diario** (solo para Julio): el informe de la mañana (8:27) y el de cierre (18:57) con semáforo, decisiones para tildar, notas del día y días anteriores; tiene dirección propia (tablero.devisebit.com) y avisa por Telegram cuando sale<br>• En el menú, «Tablero diario» queda justo debajo de «Inicio»<br>• **Pantalla nueva de TikTok:** se cargan a mano los seguidores, los me gusta y los videos (con formulario o planilla), y quedan en el mismo historial que las demás redes<br>• En Inicio, tarjeta de TikTok (sin números hasta que se carguen) e indicador opcional de seguidores<br>• TikTok aparece como una cuenta más en Análisis, y Publicaciones aclara de dónde salen sus datos | Novedad | `c4d22bc..9952dff` (6) |
 | **2.1.1** | 12/11/2026 | • «Ganadas» cuenta solo los contactos en etapa Ganado del CRM; la consulta que pasó al CRM se llama «Pasaron al CRM» | Corrección | `63ee348` (1) |
 | **2.1.0** | 12/11/2026 | • Los avisos del Panel cuentan las consultas sin atender<br>• Estadísticas de Prospección: enviados, respuestas, reuniones y seguimientos vencidos (cambio del 07/11, compartido con el Sistema: `96603ca`)<br>• Mejor uso desde el celular | Mejora | `ff50bc9..91cd8ec` (2) |
 | **2.0.0** | 06/11/2026 | • **Rediseño:** nuevo Análisis, Inicio con alertas, buscador con Ctrl+K y menú agrupado<br>• Tarjetas del Inicio personalizables<br>• Exportar el Análisis en PDF, Excel o texto<br>• Filtro de 15 días y datos corregidos de Facebook, Instagram y Anuncios | Novedad (rediseño) | `cffcc17..f63e6b2` (9) |
@@ -215,6 +216,7 @@ En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un 
 - **10/11** — **Rediseño 2026** del Sistema (3.0.0): menú de 7 áreas y más velocidad.
 - **11/11** — Bit entiende audios.
 - **12/11** — **Seguimiento automático** de Bit. Las landings empiezan a informar de qué anuncio vino cada consulta. Tanda grande de seguridad y correcciones en todos los productos. A la tarde: pase al CRM de varias consultas a la vez, envío de material por email y la separación entre «Pasaron al CRM» y «Ganadas».
+- **13/11** — **Tablero diario** en el Panel: el informe de la mañana y el de cierre en una pantalla, con decisiones para tildar. TikTok entra a las mediciones del Panel.
 
 ---
 
@@ -295,6 +297,6 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 
 | Rama | Último cambio incluido |
 |---|---|
-| `devisebit-sistema` | `dfd8805` |
-| `devisebit-web` | `35e2cd0` |
+| `devisebit-sistema` | `9952dff` |
+| `devisebit-web` | `8ec0e3b` |
 | `main` | `3e6a2dc` |
