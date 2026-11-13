@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, audit } from "@/lib/db"
-import { importarMercadoPago, leerTabla } from "@/lib/mp-importar"
+import { importarMercadoPago, leerTabla, FUENTES, type Fuente } from "@/lib/mp-importar"
 
 const ir = (base: string, k: "ok" | "error", msg: string) => redirect(`${base}${base.includes("?") ? "&" : "?"}${k}=${encodeURIComponent(msg)}`)
 const volverA = (fd: FormData) => {
@@ -17,15 +17,17 @@ export async function importarMP(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const volver = volverA(fd)
   const f = fd.get("archivo")
-  if (!(f instanceof File) || !f.size) ir(volver, "error", "Elegí el archivo descargado de Mercado Pago.")
+  const fuente = (String(fd.get("fuente") ?? "mercadopago") in FUENTES ? String(fd.get("fuente") ?? "mercadopago") : "mercadopago") as Fuente
+  const nom = FUENTES[fuente].n
+  if (!(f instanceof File) || !f.size) ir(volver, "error", `Elegí el archivo descargado de ${nom}.`)
   const file = f as File
   if (file.size > 8 * 1024 * 1024) ir(volver, "error", "El archivo pesa más de 8 MB. Descargá un rango de fechas más corto.")
   let msg = ""
   try {
-    const r = await importarMercadoPago(leerTabla(await file.arrayBuffer(), file.name), u.usuario)
+    const r = await importarMercadoPago(leerTabla(await file.arrayBuffer(), file.name), u.usuario, fuente)
     if (r.error) ir(volver, "error", r.error)
-    await audit(u, "importar", "mercadopago", undefined, JSON.stringify(r))
-    msg = `Mercado Pago: ${r.nuevos} gastos nuevos (${r.laborales} laborales por regla, ${r.porClasificar} por clasificar), ${r.repetidos} ya estaban, ${r.ingresosOmitidos} ingresos no se cargan porque los cobros van en cada proyecto.`
+    await audit(u, "importar", fuente, undefined, JSON.stringify(r))
+    msg = `${nom}: ${r.nuevos} gastos nuevos (${r.laborales} laborales por regla, ${r.porClasificar} por clasificar), ${r.repetidos} ya estaban, ${r.ingresosOmitidos} ingresos no se cargan porque los cobros van en cada proyecto.`
   } catch (e: any) {
     if (e?.digest?.startsWith?.("NEXT_REDIRECT")) throw e
     ir(volver, "error", `No pude leer el archivo: ${e?.message ?? "formato desconocido"}`)

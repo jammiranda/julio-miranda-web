@@ -212,15 +212,21 @@ export default async function Finanzas({ searchParams: sp }: { searchParams: SP 
             <span className="text-xs text-[var(--gris)]">{nombrePeriodo(per)} y lo pendiente hasta fin de mes.</span>
           </div>
 
-          <section className="card flex flex-col gap-3" aria-label="Importar Mercado Pago">
+          <section className="card flex flex-col gap-3" aria-label="Importar Mercado Pago o banco">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="m-0 text-base">Importar movimientos de Mercado Pago</h2>
-                <p className="m-0 text-xs text-[var(--gris)] max-w-2xl">En Mercado Pago: Tu negocio → Reportes → Todas las transacciones (o Actividad → Descargar), en CSV o Excel. Se cargan solo los gastos y no se duplican si subís el mismo archivo dos veces. Google Ads, Meta, Vercel, Anthropic y Donweb quedan como laborales solos; el resto queda en Por clasificar.</p>
+                <h2 className="m-0 text-base">Importar movimientos de Mercado Pago o del banco</h2>
+                <p className="m-0 text-xs text-[var(--gris)] max-w-2xl">Mercado Pago: Tu negocio → Reportes → Todas las transacciones (o Actividad → Descargar). Galicia: Office Banking → Cuentas → Movimientos → Descargar (Excel o CSV). Se cargan solo los gastos y no se duplican si subís el mismo archivo dos veces. Lo que reconocen las reglas queda clasificado solo, y el resto queda en Por clasificar.</p>
               </div>
               <form action={importarMP} className="flex flex-wrap items-center gap-2">
                 <input type="hidden" name="_volver" value={volver} />
-                <label htmlFor="mp-archivo" className="sr-only">Archivo de Mercado Pago</label>
+                <label htmlFor="imp-fuente" className="sr-only">De dónde viene el archivo</label>
+                <select id="imp-fuente" name="fuente" defaultValue="mercadopago" className="inp !py-2 !w-auto">
+                  <option value="mercadopago">Mercado Pago</option>
+                  <option value="galicia">Banco Galicia</option>
+                  <option value="banco">Otro banco</option>
+                </select>
+                <label htmlFor="mp-archivo" className="sr-only">Archivo</label>
                 <input id="mp-archivo" type="file" name="archivo" accept=".csv,.xlsx,.xls,.txt" required className="text-sm max-w-[16rem]" />
                 <button className="btn-p py-2">Importar</button>
               </form>
