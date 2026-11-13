@@ -60,6 +60,7 @@ export default async function Prospeccion({ searchParams: sp }: { searchParams: 
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
         abierto={(r) => !CERRADOS.includes(r.estado)}
         rapido={{ etiqueta: "Enviado", si: (r) => r.estado === "borrador" }}
+        enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
         vacio="Sin contactos en esta vista. Cargá cada mail o invitación al prepararla (estado Borrador) y marcala Enviado cuando salga: el seguimiento se agenda solo a los 7 días." />
       <Link href={sp.todos ? qs({ todos: undefined }) : qs({ todos: "1" })} className="text-sm underline text-[var(--gris)] w-fit">{sp.todos ? "Ocultar ganados, sin respuesta y descartados" : "Ver también ganados, sin respuesta y descartados"}</Link>
 

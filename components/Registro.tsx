@@ -110,9 +110,11 @@ function Celda({ c, r, refs, abiertos }: { c: Campo; r: any; refs: Refs; abierto
 }
 
 /** Tabla de registros con edición en la misma página (?editar=ID) y alta (?nuevo=1). */
-export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puedeEditar, abierto, vacio, rapido }: {
+export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puedeEditar, abierto, vacio, rapido, enlace }: {
   clave: string; filas: any[]; volver: string; editar?: number | null; nuevo?: boolean; puedeEditar: boolean
   abierto?: (r: any) => boolean; vacio: string; rapido?: { etiqueta: string; si: (r: any) => boolean }
+  /** Link externo por fila (ej.: abrir el perfil de LinkedIn), en una pestaña nueva. */
+  enlace?: (r: any) => { href: string; etiqueta: string } | null
 }) {
   const ent = ENTIDADES[clave]
   const cols = ent.campos.filter((c) => c.lista)
@@ -141,6 +143,7 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
                     {puedeEditar && (
                       <td className="whitespace-nowrap text-right">
                         <span className="inline-flex gap-1.5">
+                          {(() => { const e = enlace?.(r); return e ? <a href={e.href} target="_blank" rel="noopener noreferrer" className="btn-s py-1 px-2.5 text-xs" aria-label={`${e.etiqueta}: ${r[ent.titulo]}`}>{e.etiqueta} ↗</a> : null })()}
                           {rapido && rapido.si(r) && (
                             <form action={resolverRapido}><input type="hidden" name="_ent" value={clave} /><input type="hidden" name="_id" value={r.id} /><input type="hidden" name="_volver" value={volver} />
                               <button className="btn-s py-1 px-2.5 text-xs">✓ {rapido.etiqueta}</button></form>
