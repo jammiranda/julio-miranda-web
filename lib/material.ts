@@ -34,6 +34,16 @@ const PLACAS = [
   ["08-autodiagnostico-de-madurez-digital", "Autodiagnóstico de madurez digital"],
 ]
 
+/** Reels animados (GSAP + FFmpeg). Archivos en /public/marca/shorts, a continuación de los shorts 01 a 19. */
+const REELS_ANIMADOS: [string, string, string][] = [
+  ["20-todo-funciona-junto", "Marca · Todo puede funcionar junto", "MP4 · 26 s · nombra Soy Tigre y BA Emprende"],
+  ["21-asistente-whatsapp-ia", "Asistente de WhatsApp con IA", "MP4 · 23 s"],
+  ["22-sistema-para-clinicas", "Sistema para clínicas", "MP4 · 23 s"],
+  ["23-tableros-de-control", "Tableros de control", "MP4 · 23 s"],
+  ["24-academias-online", "Academias online", "MP4 · 23 s"],
+  ["25-web-a-medida", "Tu web a medida", "MP4 · 23 s"],
+]
+
 export const VIDEOS = [
   { k: "video-whatsapp", titulo: "Demo · Asistente de WhatsApp con IA" },
   { k: "video-webs", titulo: "Demo · Páginas web con IA" },
@@ -72,6 +82,11 @@ export const GRUPOS: GrupoMaterial[] = [
       { k: "panel-pdf", titulo: "Panel de Contenido · DEVISEBIT", url: `${MV}/panel-de-contenido-devisebit.pdf`, tipo: "pdf", marca: "devisebit" },
       { k: "panel-pdf-blanca", titulo: "Panel de Contenido · marca blanca", url: `${MV}/panel-de-contenido-marca-blanca.pdf`, tipo: "pdf", marca: "blanca" },
     ],
+  },
+  {
+    t: "Reels animados · noviembre 2026",
+    d: "Seis reels verticales (1080×1920) con animación: uno de marca y uno por producto. Sin precios. Sin música ni voz: el audio se suma al publicar.",
+    items: REELS_ANIMADOS.map(([f, n, det]) => ({ k: `reel-${f}`, titulo: n, detalle: det, url: `${process.env.SISTEMA_URL ?? "https://sistema.devisebit.com"}/marca/shorts/${f}.mp4`, tipo: "video" as const, marca: "devisebit" as const })),
   },
   {
     t: "Piezas para redes",
