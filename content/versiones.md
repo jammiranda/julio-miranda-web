@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 13/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (431 cambios publicados desde el 17 de octubre).
+Última actualización: 14/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (470 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,13 +12,13 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.7.0** | 12/11/2026 | Página interna para bajar los 17 videos al celular y copiar el texto de TikTok |
-| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.3.0** | 12/11/2026 | La tipografía pesa la mitad y el botón de enviar también la usa |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.8.0** | 13/11/2026 | Página para ver y descargar los videos y carruseles, con biblioteca de contenidos por mes |
+| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.4.0** | 13/11/2026 | Antes de abrir WhatsApp piden el tipo de negocio y el email |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.11.1** | 13/11/2026 | Finanzas: botón Borrar en cada movimiento y gastos en dólares a la vista |
-| Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.7.0** | 12/11/2026 | Pide el email siempre en la segunda respuesta |
+| Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.8.0** | 13/11/2026 | Ya no vuelve a preguntar el rubro ni el email a quien los dejó en la landing |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
-| Panel de Contenido | panel.devisebit.com | **2.3.0** | 13/11/2026 | Pestaña nueva «Interacción en redes»: comentarios, grupos de Facebook, cuentas seguidas y seguidores, actualizada sola cada día |
+| Panel de Contenido | panel.devisebit.com | **2.3.0** | 13/11/2026 | Sección nueva «Control mensual», con el PDF y la infografía de cada corte |
 | Oficina | oficina.devisebit.com | **1.1.0** | 07/11/2026 | Las tareas programadas ya pueden leer y actualizar el registro de Prospección |
 | Sitio personal de Julio | julio.devisebit.com | **1.5.0** | 12/11/2026 | Se sumaron los básicos: mapa del sitio, página de «no encontrado» y selector de idioma en celular |
 
@@ -26,23 +26,23 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 **Dos aclaraciones sobre cómo se separó:**
 
-- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 11 cambios propios (todos del 12/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
+- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 13 cambios propios (del 12/11 y del 13/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
 - **Bot, Academia, Portal, Panel y Oficina** viven en el mismo código que el Sistema. Cada cambio se contó una sola vez, en el producto al que apunta su título. Cuando un cambio tocó dos productos, se anota en el otro como "compartido".
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 86 | 9 |
-| Landings de anuncios | 11 | 4 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 153 | 20 |
-| Bot de WhatsApp (Bit) | 21 | 8 (1 de ellas con cambios compartidos con el Sistema) |
+| Sitio web DEVISEBIT | 90 | 10 |
+| Landings de anuncios | 13 | 5 (3 de ellas con cambios compartidos con el sitio) |
+| Sistema (CRM y gestión) | 165 | 25 |
+| Bot de WhatsApp (Bit) | 22 | 9 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
-| Panel de Contenido | 36 | 8 |
+| Panel de Contenido | 45 | 9 |
 | Oficina | 20 | 2 |
 | Sitio personal de Julio | 61 | 6 |
-| **Total** | **431** | **60** |
+| **Total** | **470** | **77** |
 
-Los 431 se reparten así: 97 en el código del sitio web (86 + 11), 273 en el código del Sistema (142 + 21 + 40 + 14 + 36 + 20) y 61 en el sitio personal.
+Los 470 se reparten así: 103 en el código del sitio web (90 + 13), 306 en el código del Sistema (165 + 22 + 40 + 14 + 45 + 20) y 61 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-89 cambios · 12 versiones · versión actual **3.11.1**
+90 cambios · 10 versiones · versión actual **1.8.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.8.0** | 13/11/2026 | • Tanda nueva de material para redes con Bit, en la carpeta no listada: 10 videos verticales con sus portadas y 4 carruseles para deslizar (en PDF y placa por placa)<br>• Página para ver y descargar los videos y los carruseles desde el celular o la computadora<br>• Biblioteca de contenidos ordenada por mes, con los carruseles deslizables<br>• Quedan guardadas las fuentes del personaje Bit, de los videos y de los carruseles (no se publican en la web) | Novedad | `c1ec17f..2a51aad` (4) |
 | **1.7.0** | 12/11/2026 | • Juego de videos para redes en versión sin precios, en una carpeta no listada: 17 verticales, 4 videos para LinkedIn, 4 carruseles en PDF y 21 portadas<br>• Es de donde toman el material las publicaciones programadas de Instagram, Facebook, YouTube y LinkedIn<br>• Página interna para bajar los 17 videos verticales al celular y copiar el texto de cada uno para TikTok | Novedad | `35e2cd0..8ec0e3b` (2) |
 | **1.6.1** | 12/11/2026 | • Si falla el correo del formulario de contacto, la consulta igual queda registrada en el Sistema<br>• El sitio carga más rápido: las etiquetas de medición se bajan después de que la página ya se ve, y el logo pesa mucho menos<br>• En celular: el contenido ya no se corta contra el borde, los links son más fáciles de tocar y el botón de WhatsApp no tapa los campos<br>• En Casos de éxito, «Ver como lista» ahora lleva a la lista | Corrección | `fa7905f..0e8fd62` (14) |
 | **1.6.0** | 10/11/2026 | • Nota semanal en Novedades: IA en Argentina, de asistentes a agentes<br>• La página de Casos de éxito carga más liviana (el mapa 3D se baja aparte) | Mejora | `eb6735f..c0417df` (2) |
@@ -88,10 +89,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.2 Landings de anuncios — /webs, /redes, /whatsapp, /sistemas, /comunidad
 
-11 cambios propios · 4 versiones · versión actual **1.3.0**
+13 cambios propios · 5 versiones · versión actual **1.4.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.4.0** | 13/11/2026 | • Paso previo al WhatsApp: antes de abrir el chat se pide el tipo de negocio y el email (se puede seguir sin email)<br>• El mensaje llega a Bit con el rubro y el email ya cargados<br>• La conversión de Google y de Meta se cuenta al completar ese paso, no al tocar el botón<br>• El origen de cada consulta dice de qué cuenta de Google Ads vino y por qué página entró | Novedad | `fdadea7..7324f89` (2) |
 | **1.3.0** | 12/11/2026 | • El mensaje de WhatsApp ahora dice de qué anuncio vino la persona (antes todo figuraba como «WhatsApp directo»)<br>• Los formularios entran al Sistema con el origen de la visita, además de salir por correo<br>• Precio y plazo a la vista en la portada; el formulario de /webs pide solo 3 datos para empezar<br>• Cargan más rápido y funcionan aunque falle el navegador: tipografía propia, casos e imágenes servidos desde el sitio, video a demanda | Mejora | `e0fae1b..f44853c` (11) |
 | **1.2.0** | 05/11/2026 | • Medición con Google Analytics y píxel de Meta<br>• Formularios sin captcha; cada clic a WhatsApp cuenta como conversión<br>• Etiqueta de Google Ads de la cuenta nueva | Novedad | Compartido con el sitio: `ec59ea9`, `3926155`, `06f2a67` |
 | **1.1.0** | 29/10/2026 | • Precios publicados en la landing de Comunidad<br>• Contador de visitas propio, sin cookies | Novedad | Compartido con el sitio: `a840f88`, `781e61a` |
@@ -99,11 +101,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-155 cambios · 22 versiones · versión actual **3.9.1**
+165 cambios · 25 versiones · versión actual **3.11.1**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
-| **3.11.1** | 13/11/2026 | • Finanzas: botón «Borrar» en cada movimiento, con confirmación<br>• Los gastos en dólares del mes se ven en «Lo que sale»<br>• Gastos encontrados en Gmail: Google AI Pro (Google One) y fondos de Meta cargados por App Store | Mejora | finanzas-borrar (1) |
+| **3.11.1** | 13/11/2026 | • Finanzas: botón «Borrar» en cada movimiento, con confirmación<br>• Los gastos en dólares del mes se ven en «Lo que sale»<br>• Gastos encontrados en Gmail: Google AI Pro (Google One) y fondos de Meta cargados por App Store<br>• Cada pendiente se ve en el mes en que vence, junto con los vencidos sin pagar; el selector de período llega hasta 4 meses adelante<br>• Los textos de publicidad dicen cómo paga cada cuenta<br>• Cargas al día: estudio contable y oficina, abonos de octubre con su plan de cuotas, y LinkedIn Premium de noviembre y diciembre (a reconfirmar)<br>• Contactos: filtro «Canal» que deja aparte lo que llegó por redes sociales (cambio compartido con el Panel: `b7cd301`) | Mejora | `c96ad03..75ec298` (8) |
 | **3.11.0** | 13/11/2026 | • Finanzas: el Resumen muestra en una sola lista todo lo que entra en el mes (abonos, cobros y otros ingresos) y, al lado, lo que sale por rubro con lo que falta pagar<br>• Tabla de clientes con abono mensual y botón «Cobrado» para marcar un cobro sin salir de Finanzas<br>• Los números de arriba son del mes elegido: entró, salió, quedó, falta cobrar y falta pagar | Mejora | finanzas-claro (1) |
 | **3.10.0** | 13/11/2026 | • Finanzas: el mismo botón importa extractos de Banco Galicia y de otros bancos (débitos y créditos), además de Mercado Pago<br>• Clientes con abono: Consultora SN, App Soy Tigre y CSC Merlo, con sus proyectos y los cobros de diciembre | Novedad | finanzas-bancos-abonos (1) |
 | **3.9.1** | 13/11/2026 | • Finanzas: cobros reales de Meta en la Mastercard prepaga de Mercado Pago, oficina (Gd Work) y estudio contable MG separado entre DEVISEBIT y personal<br>• Claude estimado para noviembre y diciembre, y gastos dudosos de Mercado Pago en Por clasificar | Corrección | finanzas-mp-noviembre (1) |
@@ -133,10 +135,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.4 Bot de WhatsApp (Bit)
 
-21 cambios propios · 8 versiones · versión actual **1.7.0**
+22 cambios propios · 9 versiones · versión actual **1.8.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.8.0** | 13/11/2026 | • Bit reconoce las consultas que llegan desde el paso previo de las landings: guarda el email en la consulta y no vuelve a preguntar el rubro ni a pedir el email | Mejora | `48da03b` (1) |
 | **1.7.0** | 12/11/2026 | • Pide el email siempre en la segunda respuesta (en la primera no)<br>• Puede decir qué incluye cada plan según la lista de precios, y lo que el sitio publica sobre datos personales<br>• Un solo rango de largo para las respuestas | Mejora | `074dca2..89d02f1` (2) |
 | **1.6.0** | 12/11/2026 | • **Seguimiento automático:** si el cliente no contesta en 1 hora, Bit manda una sola vez el material de lo que pidió y le pide el email (de 9 a 21 h, y solo si nadie del equipo tomó el chat)<br>• Pide el email temprano, una sola vez y explicando para qué<br>• La primera respuesta a quien llega por un anuncio cierra con opciones numeradas<br>• Se corrigió que podía responder dos veces a mensajes seguidos, un link de folleto caído y que decía que la primera reunión de asesoría se cobraba | Novedad | `0da0e99..9ba06a6` (7) |
 | **1.5.0** | 11/11/2026 | • Bit entiende los audios de los clientes: los pasa a texto antes de responder<br>• Si un audio no se puede entender, pide que lo escriban y avisa al equipo<br>• Ya no repite preguntas; los contactos sin empresa también pasan al CRM (cambio del 10/11, compartido con el Panel: `ff50bc9`) | Novedad | `dcfcc91..fa7c72a` (2) |
@@ -173,11 +176,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.7 Panel de Contenido — panel.devisebit.com
 
-37 cambios · 9 versiones · versión actual **2.3.0**
+45 cambios · 9 versiones · versión actual **2.3.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
-| **2.3.0** | 13/11/2026 | • **Interacción en redes** (pestaña nueva, también desde tablero.devisebit.com/interaccion): comentarios publicados por día y por red, avance de la meta del mes, presentaciones en grupos de Facebook (visibles y en aprobación), cuentas seguidas, seguidores de LinkedIn de Julio, Instagram y Facebook, y el embudo hasta las consultas<br>• Se carga sola: la tarea de comentarios informa cada corrida al panel; se cargó todo lo hecho del 02/11 al 13/11 (66 comentarios, 10 presentaciones en grupos)<br>• En el Tablero diario, acceso directo a la pestaña | Novedad | (1) |
+| **2.3.0** | 13/11/2026 | • **Interacción en redes** (pestaña nueva, también desde tablero.devisebit.com/interaccion): comentarios publicados por día y por red, avance de la meta del mes, presentaciones en grupos de Facebook (visibles y en aprobación), cuentas seguidas, seguidores de LinkedIn de Julio, Instagram y Facebook, y el embudo hasta las consultas<br>• Se carga sola: la tarea de comentarios informa cada corrida al panel; se cargó todo lo hecho del 02/11 al 13/11 (66 comentarios, 10 presentaciones en grupos)<br>• En el Tablero diario, acceso directo a la pestaña<br>• **Control mensual** (sección nueva, solo para Dirección): la infografía y el PDF de cada corte del mes, con el historial de cortes y aviso por Telegram<br>• TikTok se carga solo: videos y sus números desde Buffer, y seguidores y totales diarios desde Metricool<br>• Anuncios: las cuentas de Google se ven por separado, con el estado de cada una; una campaña con fecha de fin pasada figura «Terminada»; si falla Meta, lo dice claro y se sincroniza al abrir<br>• Interacción en redes: una cuenta o un grupo ya no se cuenta dos veces, y los resultados se muestran como indicadores sueltos | Novedad | `b7cd301..a7a30c4` (9) |
 | **2.2.0** | 13/11/2026 | • **Tablero diario** (solo para Julio): el informe de la mañana (8:27) y el de cierre (18:57) con semáforo, decisiones para tildar, notas del día y días anteriores; tiene dirección propia (tablero.devisebit.com) y avisa por Telegram cuando sale<br>• En el menú, «Tablero diario» queda justo debajo de «Inicio»<br>• **Pantalla nueva de TikTok:** se cargan a mano los seguidores, los me gusta y los videos (con formulario o planilla), y quedan en el mismo historial que las demás redes<br>• En Inicio, tarjeta de TikTok (sin números hasta que se carguen) e indicador opcional de seguidores<br>• TikTok aparece como una cuenta más en Análisis, y Publicaciones aclara de dónde salen sus datos | Novedad | `c4d22bc..9952dff` (6) |
 | **2.1.1** | 12/11/2026 | • «Ganadas» cuenta solo los contactos en etapa Ganado del CRM; la consulta que pasó al CRM se llama «Pasaron al CRM» | Corrección | `63ee348` (1) |
 | **2.1.0** | 12/11/2026 | • Los avisos del Panel cuentan las consultas sin atender<br>• Estadísticas de Prospección: enviados, respuestas, reuniones y seguimientos vencidos (cambio del 07/11, compartido con el Sistema: `96603ca`)<br>• Mejor uso desde el celular | Mejora | `ff50bc9..91cd8ec` (2) |
@@ -232,7 +235,7 @@ En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un 
 - **10/11** — **Rediseño 2026** del Sistema (3.0.0): menú de 7 áreas y más velocidad.
 - **11/11** — Bit entiende audios.
 - **12/11** — **Seguimiento automático** de Bit. Las landings empiezan a informar de qué anuncio vino cada consulta. Tanda grande de seguridad y correcciones en todos los productos. A la tarde: pase al CRM de varias consultas a la vez, envío de material por email y la separación entre «Pasaron al CRM» y «Ganadas».
-- **13/11** — **Tablero diario** en el Panel: el informe de la mañana y el de cierre en una pantalla, con decisiones para tildar. TikTok entra a las mediciones del Panel.
+- **13/11** — **Tablero diario** en el Panel: el informe de la mañana y el de cierre en una pantalla, con decisiones para tildar. TikTok entra a las mediciones del Panel. Las landings suman un paso previo al WhatsApp (tipo de negocio y email) y la conversión se cuenta al completarlo. Finanzas del Sistema: importación de Mercado Pago y de extractos bancarios.
 
 ---
 
@@ -313,6 +316,6 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 
 | Rama | Último cambio incluido |
 |---|---|
-| `devisebit-sistema` | `9952dff` |
-| `devisebit-web` | `8ec0e3b` |
+| `devisebit-sistema` | `c3df72a` |
+| `devisebit-web` | `2a51aad` |
 | `main` | `3e6a2dc` |
