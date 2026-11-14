@@ -3,7 +3,8 @@
  "notas_de_serie": {
   "Videos con Bit": "Bit es nuestro asistente con inteligencia artificial. Los chats y los números que aparecen son ejemplos.",
   "Carruseles continuos": "Pensados para verse de corrido: deslizá placa por placa.",
-  "LinkedIn": "Videos y carruseles en formato 4:5."
+  "LinkedIn": "Videos y carruseles en formato 4:5.",
+  "Reels animados": "Textos, números y demos en movimiento. Por ahora sin voz ni música. Los chats y los números de las demos son ejemplos."
  },
  "piezas": [
   {
@@ -462,6 +463,66 @@
     "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas/placa-9.jpg"
    ],
    "pdf": "r2/linkedin/carrusel-4-del-excel-al-sistema-en-5-etapas.pdf"
+  },
+  {
+   "id": "2026-11-animado-a01",
+   "tipo": "video",
+   "titulo": "Todo puede funcionar junto",
+   "mes": "2026-11",
+   "serie": "Reels animados",
+   "formato": "9:16",
+   "video": "r4/reels/a01-todo-funciona-junto.mp4",
+   "portada": "r4/portadas/a01-todo-funciona-junto-portada.jpg"
+  },
+  {
+   "id": "2026-11-animado-a02",
+   "tipo": "video",
+   "titulo": "Asistente de WhatsApp con IA",
+   "mes": "2026-11",
+   "serie": "Reels animados",
+   "formato": "9:16",
+   "video": "r4/reels/a02-asistente-whatsapp-ia.mp4",
+   "portada": "r4/portadas/a02-asistente-whatsapp-ia-portada.jpg"
+  },
+  {
+   "id": "2026-11-animado-a03",
+   "tipo": "video",
+   "titulo": "Sistema para clínicas",
+   "mes": "2026-11",
+   "serie": "Reels animados",
+   "formato": "9:16",
+   "video": "r4/reels/a03-sistema-para-clinicas.mp4",
+   "portada": "r4/portadas/a03-sistema-para-clinicas-portada.jpg"
+  },
+  {
+   "id": "2026-11-animado-a04",
+   "tipo": "video",
+   "titulo": "Tableros de control",
+   "mes": "2026-11",
+   "serie": "Reels animados",
+   "formato": "9:16",
+   "video": "r4/reels/a04-tableros-de-control.mp4",
+   "portada": "r4/portadas/a04-tableros-de-control-portada.jpg"
+  },
+  {
+   "id": "2026-11-animado-a05",
+   "tipo": "video",
+   "titulo": "Academias online",
+   "mes": "2026-11",
+   "serie": "Reels animados",
+   "formato": "9:16",
+   "video": "r4/reels/a05-academias-online.mp4",
+   "portada": "r4/portadas/a05-academias-online-portada.jpg"
+  },
+  {
+   "id": "2026-11-animado-a06",
+   "tipo": "video",
+   "titulo": "Tu web a medida",
+   "mes": "2026-11",
+   "serie": "Reels animados",
+   "formato": "9:16",
+   "video": "r4/reels/a06-web-a-medida.mp4",
+   "portada": "r4/portadas/a06-web-a-medida-portada.jpg"
   }
  ]
 }
