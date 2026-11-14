@@ -64,9 +64,9 @@
     var c = o.utm_campaign ? o.utm_campaign.slice(0, 28) + (lp ? '/' + lp : '') : lp;
     return ' [ref:' + k + (c ? '|' + c.slice(0, 40) : '') + ']';
   })();
-  // Paso previo al WhatsApp (12/11/2026): antes de abrir el chat se pide el tipo de negocio y el email.
-  // Filtra los toques sin intención (banners de Display) y la consulta llega al bot con rubro y email.
-  // La conversión de Google Ads y Meta se cuenta al completar el paso, no al tocar el botón.
+  // Paso previo al WhatsApp (12/11/2026): antes de abrir el chat se ofrece dejar el tipo de negocio y el email.
+  // Desde el 14/11/2026 ningún dato es obligatorio: con el rubro obligatorio dejaron de entrar consultas.
+  // La conversión de Google Ads y Meta se cuenta al seguir a WhatsApp desde el recuadro, no al tocar el botón.
   var RUBROS = /\/(sistemas|comunidad)(\.html)?$/.test(location.pathname)
     ? ['Empresa o pyme', 'Institución, gremio u obra social', 'Salud', 'Comercio o servicios', 'Otro']
     : ['Comercio o tienda', 'Servicios o profesional', 'Gastronomía', 'Empresa o industria', 'Otro'];
@@ -92,16 +92,16 @@
     g.className = 'wa-paso'; g.setAttribute('aria-labelledby', 'wa-paso-t');
     g.innerHTML = '<form method="dialog" novalidate>'
       + '<button type="button" class="wa-paso-x" aria-label="Cerrar">×</button>'
-      + '<h3 id="wa-paso-t">Dos datos y te respondemos mejor</h3>'
-      + '<p class="wa-paso-s">Así te contestamos por WhatsApp con ejemplos y precios de tu rubro.</p>'
+      + '<h3 id="wa-paso-t">Te respondemos por WhatsApp</h3>'
+      + '<p class="wa-paso-s">Si querés, contanos el rubro y te contestamos con ejemplos y precios. Es opcional.</p>'
       + '<fieldset><legend>¿Para qué tipo de negocio es?</legend><div class="wa-paso-r">'
-      + RUBROS.map(function (r, i) { return '<label><input type="radio" name="rubro" value="' + r + '"' + (i ? '' : ' required') + '><span>' + r + '</span></label>'; }).join('')
+      + RUBROS.map(function (r) { return '<label><input type="radio" name="rubro" value="' + r + '"><span>' + r + '</span></label>'; }).join('')
       + '</div></fieldset>'
-      + '<label class="wa-paso-l" for="wa-paso-e">Tu email, para mandarte la propuesta por escrito</label>'
+      + '<label class="wa-paso-l" for="wa-paso-e">Tu email (opcional), para mandarte la propuesta por escrito</label>'
       + '<input id="wa-paso-e" type="email" name="email" autocomplete="email" inputmode="email" placeholder="nombre@tuempresa.com" maxlength="120">'
       + '<p class="wa-paso-err" role="alert" hidden></p>'
       + '<button type="submit" class="btn btn-red wa-paso-ok">Abrir WhatsApp</button>'
-      + '<button type="button" class="wa-paso-sin">Seguir sin email</button>'
+      + '<button type="button" class="wa-paso-sin">Seguir sin completar</button>'
       + '<p class="wa-paso-n">Lo usamos para responderte y mandarte la propuesta.</p>'
       + '</form>';
     document.body.appendChild(g);
@@ -110,14 +110,16 @@
     var rubro = function () { var r = f.querySelector('input[name="rubro"]:checked'); return r ? r.value : ''; };
     var ir = function (conEmail) {
       var r = rubro(), e = conEmail ? em.value.trim() : '';
-      if (!r) { aviso('Elegí el tipo de negocio para seguir.'); return; }
-      if (conEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) { aviso('Escribí un email válido, o tocá «Seguir sin email».'); em.focus(); return; }
+      // Nada es obligatorio; solo se avisa si escribió un email con error, para que no se pierda
+      if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) { aviso('Revisá el email, o tocá «Seguir sin completar».'); em.focus(); return; }
       aviso('');
       try { sessionStorage.setItem('db_paso', JSON.stringify({ r: r, e: e })); } catch (x) {}
       medir(pasoMsg, r, e);
       var u = urlWa(pasoMsg, r, e);
       g.close();
-      var w = window.open(u, '_blank', 'noopener'); if (!w) location.href = u;
+      // Sin 'noopener' en window.open: con esa opción devuelve siempre null y WhatsApp se abría dos veces
+      var w = null; try { w = window.open(u, '_blank'); } catch (x) {}
+      if (w) { try { w.opener = null; } catch (x) {} } else location.href = u;
     };
     f.addEventListener('submit', function (ev) { ev.preventDefault(); ir(true); });
     g.querySelector('.wa-paso-sin').addEventListener('click', function () { ir(false); });
