@@ -1,6 +1,197 @@
-export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: string; dateTxt: string; kicker: string; title: string; desc: string; body: string[]; box?: string[]; sources: { t: string; u: string }[] }
+export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: string; dateTxt: string; kicker: string; title: string; desc: string; body: string[]; box?: string[]; link?: { t: string; u: string }; sources: { t: string; u: string }[] }
 
+// El cuerpo admite subtítulos: un párrafo que empieza con "## " se muestra como subtítulo (h2).
+// `link` es el enlace interno al servicio relacionado (se muestra antes del formulario de la nota).
 export const posts: Post[] = [
+  {
+    "slug": "mensajes-automaticos-whatsapp-business",
+    "seoTitle": "Mensajes automáticos en WhatsApp Business: guía",
+    "seoDesc": "Cómo poner mensajes automáticos en WhatsApp Business: bienvenida, ausencia y respuestas rápidas, paso a paso, con sus límites.",
+    "date": "2026-11-15",
+    "dateTxt": "15 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "Cómo poner mensajes automáticos en WhatsApp Business: bienvenida, ausencia y respuestas rápidas",
+    "desc": "La aplicación WhatsApp Business trae tres herramientas para responder cuando no hay nadie del otro lado. Cómo se configura cada una, qué límites tiene y cuándo conviene dar el paso siguiente.",
+    "body": [
+      "Quien atiende clientes por WhatsApp conoce el problema: los mensajes llegan a cualquier hora y no siempre hay alguien para responder. La aplicación WhatsApp Business incluye tres herramientas para cubrir ese hueco sin instalar nada más: el mensaje de bienvenida, el mensaje de ausencia y las respuestas rápidas. Las tres se configuran desde la pestaña Herramientas.",
+      "## Mensaje de bienvenida: la primera respuesta",
+      "Según el Centro de ayuda de WhatsApp, el mensaje de bienvenida se envía solo cuando un cliente escribe por primera vez o cuando vuelve a escribir después de 14 días sin actividad en el chat. Para activarlo, en Herramientas tocá Mensaje de bienvenida, activá Enviar mensaje de bienvenida, editá el texto y elegí los destinatarios: todos, solo quienes no están en tu libreta de contactos, todos excepto algunos o solo contactos específicos.",
+      "Un buen mensaje de bienvenida dice quién responde, en qué horario y qué dato conviene que el cliente mande primero. Por ejemplo: «Hola, gracias por escribirnos. Atendemos de lunes a viernes de 9 a 18. Contanos tu nombre y qué necesitás, y te respondemos a la brevedad».",
+      "## Mensaje de ausencia: avisar cuando no hay nadie",
+      "El mensaje de ausencia responde automáticamente cuando no podés contestar. Se configura en Herramientas, Mensaje de ausencia, y tiene tres modos: enviarlo siempre, en un horario personalizado o solo fuera del horario comercial. Esta última opción aparece únicamente si cargaste el horario en el perfil de la empresa. También se puede elegir a quiénes se les envía.",
+      "## Respuestas rápidas: atajos para lo que se repite",
+      "Las respuestas rápidas no se envían solas: son textos guardados que se insertan escribiendo «/» en el chat. Sirven para la dirección, los medios de pago o los requisitos de un trámite. WhatsApp permite guardar hasta 50 y aclara que en WhatsApp Web y en la versión de escritorio no admiten archivos multimedia.",
+      "## Los límites que conviene conocer",
+      "Estas herramientas tienen tres límites. Primero, el teléfono tiene que estar conectado a internet para que los mensajes automáticos salgan. Segundo, son textos fijos: no entienden la consulta, no buscan un dato ni reservan un turno. Tercero, el Centro de ayuda indica que el mensaje de bienvenida se desactiva cuando la cuenta tiene conectado Meta Business Agent, el asistente de Meta.",
+      "Si recibís pocas consultas y parecidas entre sí, con esto alcanza. Cuando el volumen crece, o cuando cada consulta necesita un dato distinto, el paso siguiente es un asistente con inteligencia artificial conectado a la Plataforma de WhatsApp Business, que responde con la información real de la organización y deriva a una persona cuando hace falta.",
+      "Qué significa para tu empresa: empezá por lo simple. Cargá el horario comercial en el perfil, activá bienvenida y ausencia, y guardá como respuesta rápida las cinco preguntas que más se repiten. Medí durante un mes cuántas consultas quedan sin resolver con esos textos: ese número indica si necesitás automatizar más. En DEVISEBIT desarrollamos asistentes de WhatsApp con IA que responden, toman datos y dan turnos con la información de cada organización."
+    ],
+    "box": [
+      "¿Tu perfil de WhatsApp Business tiene cargado el horario comercial?",
+      "¿Qué recibe hoy un cliente que escribe un sábado a la noche?",
+      "¿Cuáles son las cinco preguntas que más se repiten?",
+      "¿Cuántas consultas por semana quedan sin respuesta en el día?",
+      "¿Las consultas de WhatsApp quedan registradas en algún sistema?"
+    ],
+    "link": {
+      "t": "Asistente de WhatsApp con IA para empresas",
+      "u": "/whatsapp"
+    },
+    "sources": [
+      {
+        "t": "Centro de ayuda de WhatsApp: Cómo usar los mensajes de bienvenida",
+        "u": "https://faq.whatsapp.com/501866148528310/?locale=es_LA"
+      },
+      {
+        "t": "Centro de ayuda de WhatsApp: Cómo usar los mensajes de ausencia",
+        "u": "https://faq.whatsapp.com/2565868990219715/?locale=es_LA"
+      },
+      {
+        "t": "Centro de ayuda de WhatsApp: Cómo usar las respuestas rápidas",
+        "u": "https://faq.whatsapp.com/es/android/26000101/"
+      }
+    ]
+  },
+  {
+    "slug": "api-de-whatsapp-business-que-es",
+    "seoTitle": "API de WhatsApp Business: qué es y cómo se cobra",
+    "seoDesc": "Qué es la API de WhatsApp Business, cómo funciona la ventana de 24 horas, qué cambió en el cobro desde octubre de 2026 y cuándo conviene.",
+    "date": "2026-11-15",
+    "dateTxt": "15 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "API de WhatsApp Business: qué es, cómo se cobra y cuándo conviene",
+    "desc": "La API es lo que permite conectar WhatsApp a un sistema, un CRM o un asistente con IA. Cómo funciona la ventana de 24 horas y qué cambió en el cobro desde el 1 de octubre de 2026.",
+    "body": [
+      "WhatsApp tiene dos productos para empresas que suelen confundirse. La aplicación WhatsApp Business se usa desde un teléfono y está pensada para negocios chicos. La Plataforma de WhatsApp Business, conocida como «la API de WhatsApp», no tiene pantalla propia: es la conexión que permite que un sistema, un CRM o un asistente con IA envíe y reciba mensajes en nombre de la empresa.",
+      "## Para qué sirve",
+      "Con la API, varias personas atienden el mismo número desde un sistema, las consultas quedan registradas y se pueden automatizar avisos como confirmaciones de turno, estados de pedido o recordatorios. También es la base de los asistentes con inteligencia artificial que responden las 24 horas.",
+      "## La ventana de 24 horas",
+      "La regla central está en la documentación de Meta: cuando un usuario le escribe a la empresa se abre una ventana de atención de 24 horas, que se reinicia con cada mensaje nuevo del usuario. Mientras está abierta, la empresa puede responder con mensajes libres. Fuera de la ventana solo puede escribir con plantillas, que son mensajes con un formato aprobado de antemano.",
+      "## Cómo se cobra",
+      "Meta cobra por mensaje entregado, no por mensaje enviado, y la tarifa depende de dos cosas: la categoría del mensaje y el país del número que lo recibe. Las categorías son cuatro: marketing (plantillas promocionales), utilidad (plantillas transaccionales o informativas, como un aviso de turno), autenticación (códigos de verificación) y servicio (respuestas libres dentro de la ventana, escritas por una persona o por una IA de terceros).",
+      "## Qué cambió en octubre de 2026",
+      "Según la documentación oficial, desde el 1 de octubre de 2026 Meta volvió a cobrar los mensajes de servicio y las plantillas de utilidad enviados dentro de la ventana abierta, que hasta entonces eran gratuitos. Para los mensajes de servicio hay un cupo de 1.000 mensajes sin cargo por mes para cada número de la empresa: se cobra a partir del 1.001 y el cupo no se acumula de un mes a otro.",
+      "Hay otra excepción útil para quien hace publicidad. Si el usuario escribe desde un anuncio que abre un chat de WhatsApp y la empresa responde dentro de la ventana, se abre un período sin cargo de hasta 7 días para los mensajes de marketing, utilidad, autenticación y servicio.",
+      "## Cuándo conviene",
+      "La API conviene cuando atiende más de una persona, cuando hace falta registrar las consultas en un sistema, cuando hay que enviar avisos automáticos o cuando se quiere un asistente con IA. Si el negocio recibe pocas consultas y las atiende una sola persona, la aplicación WhatsApp Business suele alcanzar.",
+      "Qué significa para tu empresa: antes de contratar, estimá cuántas conversaciones tenés por mes y de qué tipo. Con el cambio de octubre, el costo depende de cuántas respuestas se envían, así que conviene diseñar respuestas completas en lugar de muchos mensajes cortos y revisar las tarifas vigentes para la Argentina en la documentación de Meta. En DEVISEBIT desarrollamos asistentes de WhatsApp con IA que responden, toman datos y derivan a una persona, con cada conversación registrada."
+    ],
+    "box": [
+      "¿Cuántas personas atienden hoy el mismo número de WhatsApp?",
+      "¿Cuántas conversaciones recibís por mes?",
+      "¿Qué avisos repetís a mano (turnos, pedidos, vencimientos)?",
+      "¿Las consultas quedan registradas con su origen?",
+      "¿Sabés cuántos mensajes de respuesta envía tu empresa por mes?"
+    ],
+    "link": {
+      "t": "Asistente de WhatsApp con IA para empresas",
+      "u": "/whatsapp"
+    },
+    "sources": [
+      {
+        "t": "Meta for Developers: Pricing on the WhatsApp Business Platform",
+        "u": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
+      },
+      {
+        "t": "WhatsApp Business: Plataforma de WhatsApp Business",
+        "u": "https://whatsappbusiness.com/es-la/products/business-platform/"
+      }
+    ]
+  },
+  {
+    "slug": "como-crear-una-pagina-web-con-ia",
+    "seoTitle": "Cómo crear una página web con IA: guía práctica",
+    "seoDesc": "Cómo crear una página web con IA: pasos, qué dice Google sobre el contenido generado con IA y qué revisar antes de publicar.",
+    "date": "2026-11-15",
+    "dateTxt": "15 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "Cómo crear una página web con IA: qué resuelve y qué hay que revisar",
+    "desc": "La inteligencia artificial acorta el diseño, los textos y la programación de una web. Qué pasos seguir, qué dice Google sobre el contenido generado con IA y qué controlar antes de publicar.",
+    "body": [
+      "Hoy se puede tener una página web publicada en muy poco tiempo con ayuda de la inteligencia artificial: la IA propone la estructura, redacta los textos y genera el código. Lo que no hace sola es conocer tu negocio ni verificar que lo que escribió sea cierto. Esta guía repasa los pasos y los controles que no conviene saltear.",
+      "## Qué resuelve la IA y qué no",
+      "La IA acelera lo que antes llevaba semanas: el primer diseño, la redacción de base y la programación. Lo que sigue dependiendo de una persona es definir qué se ofrece, a quién y con qué prueba: casos reales, fotos propias, condiciones del servicio y datos de contacto.",
+      "## Los pasos, en orden",
+      "Primero, definí un objetivo por página: que te escriban, que pidan un presupuesto o que reserven un turno. Segundo, reuní el contenido propio antes de generar nada: servicios, zona de atención, preguntas frecuentes y fotos reales. Tercero, generá la estructura y los textos con IA a partir de ese material, no desde cero.",
+      "Cuarto, revisá cada dato: nombres, direcciones, horarios y todo lo que se promete. Quinto, publicá con el dominio registrado a nombre de la empresa y con certificado de seguridad (SSL). Sexto, medí cuántas visitas terminan en consulta y cuánto tarda en cargar la página.",
+      "Un punto que suele pasarse por alto es la propiedad: el dominio, el hosting y el código tienen que quedar a nombre de la empresa, con los accesos documentados. Así la web se puede mover o modificar sin depender de quien la armó.",
+    "## Qué dice Google sobre el contenido hecho con IA",
+      "Google no prohíbe el contenido generado con IA. En sus directrices para sitios web señala que la IA generativa es útil para investigar un tema y darle estructura a contenido original, pero advierte que usarla para producir muchas páginas sin aportar valor puede infringir su política de spam sobre abuso de contenido a gran escala.",
+      "El mismo documento recuerda que los modelos generativos predicen secuencias probables de palabras y que por eso pueden incluir datos inexactos. La recomendación es verificar y revisar todo antes de publicar, incluidos el título de la página, la metadescripción, los datos estructurados y los textos alternativos de las imágenes. También sugiere contarle al lector cómo se creó el contenido cuando eso le aporta contexto.",
+      "## Velocidad: lo que se mide",
+      "Una web generada con IA puede verse bien y cargar mal. Google propone tres métricas, las Core Web Vitals, medidas en el percentil 75 de las cargas: que el contenido principal aparezca en 2,5 segundos o menos (LCP), que la página responda a una interacción en 200 milisegundos o menos (INP) y que el diseño no se mueva mientras carga, con un valor de 0,1 o menos (CLS).",
+      "Qué significa para tu empresa: la IA baja el tiempo de tener una web, pero el resultado depende del material que le des y de la revisión posterior. Pedí siempre que el dominio quede a tu nombre, que alguien verifique los textos y que la página se pruebe en el celular antes de publicarla. En DEVISEBIT diseñamos páginas web a medida con IA y revisión de especialistas."
+    ],
+    "box": [
+      "¿Cuál es la única acción que querés que haga quien entra a tu web?",
+      "¿Tenés fotos y casos propios para mostrar?",
+      "¿El dominio está registrado a nombre de tu empresa?",
+      "¿Alguien revisó cada dato que escribió la IA?",
+      "¿Probaste cuánto tarda en cargar desde un celular?"
+    ],
+    "link": {
+      "t": "Diseño de páginas web a medida para empresas",
+      "u": "/webs"
+    },
+    "sources": [
+      {
+        "t": "Google Search Central: Directrices de la Búsqueda de Google sobre el uso de contenido generado por IA en tu sitio web (actualizado el 05/10/2026)",
+        "u": "https://developers.google.com/search/docs/fundamentals/using-gen-ai-content?hl=es"
+      },
+      {
+        "t": "web.dev: Web Vitals, métricas esenciales para un sitio en buen estado",
+        "u": "https://web.dev/articles/vitals?hl=es-419"
+      }
+    ]
+  },
+  {
+    "slug": "landing-page-ejemplos-que-debe-tener",
+    "seoTitle": "Landing page: ejemplos y qué debe tener",
+    "seoDesc": "Qué es una landing page, ejemplos según el objetivo, qué debe tener para generar consultas y cómo influye en el Nivel de calidad de Google Ads.",
+    "date": "2026-11-15",
+    "dateTxt": "15 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "Landing page: qué es, ejemplos y qué debe tener para generar consultas",
+    "desc": "Una landing page es una página pensada para una sola acción. Ejemplos según el objetivo, los elementos que no pueden faltar y por qué pesa en el resultado de la publicidad.",
+    "body": [
+      "Una landing page, o página de destino, es una página pensada para una sola acción: que el visitante escriba, pida un presupuesto, reserve un turno o se inscriba. A diferencia de la página de inicio, no presenta toda la empresa: responde a una búsqueda o a un anuncio concreto.",
+      "## Ejemplos de landing page según el objetivo",
+      "Consulta por WhatsApp: presenta un servicio, sus beneficios, dos o tres casos y un botón que abre el chat con un mensaje ya escrito. Es un formato habitual en comercios y servicios profesionales.",
+      "Pedido de presupuesto: explica el alcance, muestra trabajos anteriores y termina en un formulario corto, de tres o cuatro campos.",
+      "Reserva de turno: muestra especialidades, horarios y cobertura, y lleva directo a la agenda. Es frecuente en consultorios y centros de salud.",
+      "Descarga o inscripción: ofrece una guía, un curso o un evento a cambio del email, con la fecha y el temario a la vista.",
+      "## Qué debe tener",
+      "Un título que repita lo que la persona buscó, una explicación en dos líneas, una prueba (casos, cifras propias, opiniones verificables), respuestas a las dudas más comunes y un único llamado a la acción que se repite a lo largo de la página. Lo que no suma a esa acción, distrae.",
+      "## Errores frecuentes",
+    "Los más comunes son tres: mandar el anuncio a la página de inicio, donde el visitante tiene que buscar lo que le prometieron; pedir demasiados datos en el formulario; y sumar menús o enlaces que sacan a la persona de la página antes de que consulte. También conviene que el texto del anuncio y el título de la landing digan lo mismo, con las mismas palabras.",
+    "## Por qué importa si hacés publicidad",
+      "En Google Ads, la página de destino influye en el Nivel de calidad, un diagnóstico que va de 1 a 10 y se calcula por palabra clave. Tiene tres componentes: la tasa de clics esperada, la relevancia del anuncio y la experiencia en la página de destino, que Google define como el grado de relevancia y utilidad de la página para quien hizo clic en el anuncio. Cada componente se califica como superior al promedio, promedio o inferior al promedio.",
+      "## Velocidad en el celular",
+      "La mayoría de las visitas que llegan desde un anuncio entran por el celular, y una página lenta pierde consultas. Google propone tres métricas, las Core Web Vitals, medidas en el percentil 75 de las cargas: contenido principal visible en 2,5 segundos o menos (LCP), respuesta a una interacción en 200 milisegundos o menos (INP) y estabilidad visual de 0,1 o menos (CLS).",
+      "Qué significa para tu empresa: una landing por servicio rinde más que mandar todos los anuncios a la página de inicio. Empezá por el servicio que más consultas recibe, escribí el título con las palabras que usa tu cliente y dejá un solo botón. Después medí cuántas visitas terminan en consulta y ajustá. En DEVISEBIT diseñamos páginas web y landings a medida, conectadas a WhatsApp y al sistema donde quedan registradas las consultas."
+    ],
+    "box": [
+      "¿Cada anuncio lleva a una página que habla solo de ese servicio?",
+      "¿El título repite lo que busca tu cliente?",
+      "¿Hay un único botón o varios caminos que compiten?",
+      "¿Mostrás una prueba concreta: casos, cifras u opiniones?",
+      "¿Sabés cuántas visitas terminan en consulta?"
+    ],
+    "link": {
+      "t": "Diseño de páginas web y landings a medida",
+      "u": "/webs"
+    },
+    "sources": [
+      {
+        "t": "Ayuda de Google Ads: Acerca del Nivel de calidad de las campañas de Búsqueda",
+        "u": "https://support.google.com/google-ads/answer/6167118?hl=es-419"
+      },
+      {
+        "t": "web.dev: Web Vitals, métricas esenciales para un sitio en buen estado",
+        "u": "https://web.dev/articles/vitals?hl=es-419"
+      }
+    ]
+  },
   {
     "slug": "ia-argentina-2026-de-asistentes-a-agentes",
     "seoTitle": "IA en Argentina 2026: de asistentes a agentes",

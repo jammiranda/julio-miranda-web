@@ -26,8 +26,8 @@ const interTight = Inter_Tight({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   ...pageMeta(
-    "DEVISEBIT · Software e IA para salud e instituciones",
-    "Software e IA desde 2009. Desarrollamos software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas, con precio fijo.",
+    "DEVISEBIT · Software a medida e IA para salud e instituciones",
+    "Desarrollo de software a medida, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Desde 2009, con precio fijo.",
     "/",
   ),
   icons: {

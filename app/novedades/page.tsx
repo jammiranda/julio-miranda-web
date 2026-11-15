@@ -7,8 +7,8 @@ import DbHero from "@/components/db-hero"
 import { posts } from "@/lib/posts"
 
 export const metadata = pageMeta(
-  "Novedades sobre software, IA y salud digital · DEVISEBIT",
-  "Notas semanales sobre software, inteligencia artificial y salud digital, siempre con sus fuentes. El blog de DEVISEBIT.",
+  "Novedades y guías de software, IA y WhatsApp · DEVISEBIT",
+  "Notas y guías prácticas sobre software, inteligencia artificial, WhatsApp y páginas web, siempre con sus fuentes. El blog de DEVISEBIT.",
   "/novedades",
 )
 

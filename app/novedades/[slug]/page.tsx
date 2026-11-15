@@ -37,6 +37,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           headline: p.title,
           description: p.seoDesc ?? p.desc,
           datePublished: p.date,
+          wordCount: p.body.filter((t) => !t.startsWith("## ")).join(" ").split(/\s+/).length,
           dateModified: p.date,
           inLanguage: "es-AR",
           mainEntityOfPage: `${SITE_URL}/novedades/${p.slug}`,
@@ -61,7 +62,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <article className="max-w-[860px] mx-auto px-4 md:px-8 py-14">
           <p className="m-0 mb-8 text-xl leading-relaxed text-[#4A515C] font-medium">{p.desc}</p>
           <div className="flex flex-col gap-5 text-lg leading-[1.75]">
-            {p.body.map((t, i) => (<p key={i} className="m-0">{t}</p>))}
+            {p.body.map((t, i) => t.startsWith("## ")
+              ? (<h2 key={i} className="m-0 mt-4 font-tight text-[26px] md:text-[30px] leading-tight font-extrabold">{t.slice(3)}</h2>)
+              : (<p key={i} className="m-0">{t}</p>))}
           </div>
           {p.box && (
             <div className="mt-10 rounded-[20px] bg-[#0B0D12] text-white p-7">
@@ -70,6 +73,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 {p.box.map((t, i) => (<li key={i} className="flex gap-3"><span className="text-[#FF6A63] font-extrabold" aria-hidden="true">{i + 1}.</span>{t}</li>))}
               </ul>
             </div>
+          )}
+          {p.link && (
+            <p className="m-0 mt-10 text-lg">Servicio relacionado: <Link href={p.link.u} className="font-bold text-[#C8231F] underline hover:text-[#9E1A17]">{p.link.t} →</Link></p>
           )}
           <NotaCta titulo={p.title} slug={p.slug} />
           <div className="mt-6 flex flex-wrap gap-3">
