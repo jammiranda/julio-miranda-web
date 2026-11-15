@@ -84,6 +84,9 @@
     var t = msg + (rubro ? '. Rubro: ' + rubro : '') + (email ? '. Email: ' + email : '');
     return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(t + REF);
   }
+  // 14/11/2026 (noche): el recuadro queda apagado. Con él, incluso opcional, no entró ninguna consulta;
+  // el botón vuelve a abrir WhatsApp directo y la conversión se cuenta al tocarlo, como antes del 12/11.
+  var PASO_ACTIVO = false;
   var paso = null, pasoMsg = '';
   function armarPaso() {
     if (paso) return paso;
@@ -140,7 +143,7 @@
     // Palabras clave del bot (por ejemplo INICIO) van directo: el texto tiene que llegar tal cual
     var directo = /^[A-ZÁÉÍÓÚÑ]{3,}$/.test(msg);
     a.addEventListener('click', function (ev) {
-      var g = directo ? null : armarPaso();
+      var g = directo || !PASO_ACTIVO ? null : armarPaso();
       if (!g) { medir(msg, '', ''); return; }
       ev.preventDefault();
       pasoMsg = msg;
