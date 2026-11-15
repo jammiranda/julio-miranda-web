@@ -4,9 +4,74 @@
   "Videos con Bit": "Bit es nuestro asistente con inteligencia artificial. Los chats y los números que aparecen son ejemplos.",
   "Carruseles continuos": "Pensados para verse de corrido: deslizá placa por placa.",
   "LinkedIn": "Videos y carruseles en formato 4:5.",
-  "Reels animados": "Textos, números y demos en movimiento. Por ahora sin voz ni música. Los chats y los números de las demos son ejemplos."
+  "Reels animados": "Textos, números y demos en movimiento. Por ahora sin voz ni música. Los chats y los números de las demos son ejemplos.",
+  "Guías del blog": "Cada carrusel resume una guía de Novedades. La guía completa, con sus fuentes, está en devisebit.com/novedades."
  },
  "piezas": [
+  {
+   "id": "2026-11-guia-g1",
+   "tipo": "carrusel",
+   "titulo": "Mensajes automáticos en WhatsApp",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g1-mensajes-automaticos-whatsapp/placa-1.jpg",
+    "r5/guias/g1-mensajes-automaticos-whatsapp/placa-2.jpg",
+    "r5/guias/g1-mensajes-automaticos-whatsapp/placa-3.jpg",
+    "r5/guias/g1-mensajes-automaticos-whatsapp/placa-4.jpg",
+    "r5/guias/g1-mensajes-automaticos-whatsapp/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g1-mensajes-automaticos-whatsapp/g1-mensajes-automaticos-whatsapp.pdf"
+  },
+  {
+   "id": "2026-11-guia-g2",
+   "tipo": "carrusel",
+   "titulo": "API de WhatsApp: qué es y cómo se cobra",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g2-api-de-whatsapp-business/placa-1.jpg",
+    "r5/guias/g2-api-de-whatsapp-business/placa-2.jpg",
+    "r5/guias/g2-api-de-whatsapp-business/placa-3.jpg",
+    "r5/guias/g2-api-de-whatsapp-business/placa-4.jpg",
+    "r5/guias/g2-api-de-whatsapp-business/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g2-api-de-whatsapp-business/g2-api-de-whatsapp-business.pdf"
+  },
+  {
+   "id": "2026-11-guia-g3",
+   "tipo": "carrusel",
+   "titulo": "Cómo crear una página web con IA",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g3-pagina-web-con-ia/placa-1.jpg",
+    "r5/guias/g3-pagina-web-con-ia/placa-2.jpg",
+    "r5/guias/g3-pagina-web-con-ia/placa-3.jpg",
+    "r5/guias/g3-pagina-web-con-ia/placa-4.jpg",
+    "r5/guias/g3-pagina-web-con-ia/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g3-pagina-web-con-ia/g3-pagina-web-con-ia.pdf"
+  },
+  {
+   "id": "2026-11-guia-g4",
+   "tipo": "carrusel",
+   "titulo": "Landing page: qué debe tener",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g4-landing-page/placa-1.jpg",
+    "r5/guias/g4-landing-page/placa-2.jpg",
+    "r5/guias/g4-landing-page/placa-3.jpg",
+    "r5/guias/g4-landing-page/placa-4.jpg",
+    "r5/guias/g4-landing-page/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g4-landing-page/g4-landing-page.pdf"
+  },
   {
    "id": "2026-11-bit-b09",
    "tipo": "video",
