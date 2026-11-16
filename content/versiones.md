@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 15/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (473 cambios publicados desde el 17 de octubre).
+Última actualización: 16/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (478 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,8 +12,8 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.9.0** | 14/11/2026 | Serie nueva en la biblioteca de contenidos: seis reels animados de noviembre, con sus portadas |
-| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.4.1** | 14/11/2026 | El paso previo al WhatsApp pasa a ser opcional y WhatsApp ya no se abre dos veces |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.10.0** | 15/11/2026 | Cuatro guías nuevas en Novedades (WhatsApp Business, páginas web con IA y landing pages), con sus carruseles para redes |
+| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.4.2** | 15/11/2026 | El botón vuelve a abrir WhatsApp directo (el paso previo queda apagado) y los títulos se ajustaron a lo que la gente busca en Google |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.12.0** | 14/11/2026 | Material: grupo nuevo «Reels animados · noviembre 2026», con seis videos para ver, copiar el link y compartir |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.8.0** | 13/11/2026 | Ya no vuelve a preguntar el rubro ni el email a quien los dejó en la landing |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
@@ -26,13 +26,13 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 **Dos aclaraciones sobre cómo se separó:**
 
-- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 14 cambios propios (del 12/11 al 14/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
+- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 16 cambios propios (del 12/11 al 15/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
 - **Bot, Academia, Portal, Panel y Oficina** viven en el mismo código que el Sistema. Cada cambio se contó una sola vez, en el producto al que apunta su título. Cuando un cambio tocó dos productos, se anota en el otro como "compartido".
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 91 | 11 |
-| Landings de anuncios | 14 | 6 (3 de ellas con cambios compartidos con el sitio) |
+| Sitio web DEVISEBIT | 94 | 12 |
+| Landings de anuncios | 16 | 7 (3 de ellas con cambios compartidos con el sitio) |
 | Sistema (CRM y gestión) | 166 | 26 |
 | Bot de WhatsApp (Bit) | 22 | 9 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
@@ -40,9 +40,9 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 | Panel de Contenido | 45 | 9 |
 | Oficina | 20 | 2 |
 | Sitio personal de Julio | 61 | 6 |
-| **Total** | **473** | **80** |
+| **Total** | **478** | **82** |
 
-Los 473 se reparten así: 105 en el código del sitio web (91 + 14), 307 en el código del Sistema (166 + 22 + 40 + 14 + 45 + 20) y 61 en el sitio personal.
+Los 478 se reparten así: 110 en el código del sitio web (94 + 16), 307 en el código del Sistema (166 + 22 + 40 + 14 + 45 + 20) y 61 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-91 cambios · 11 versiones · versión actual **1.9.0**
+94 cambios · 12 versiones · versión actual **1.10.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.10.0** | 15/11/2026 | • Cuatro guías nuevas en Novedades: mensajes automáticos en WhatsApp Business, qué es la API de WhatsApp Business y cómo se cobra, cómo crear una página web con IA, y qué debe tener una landing page<br>• Las notas ahora pueden llevar subtítulos y, al final, un enlace al servicio relacionado<br>• El título de la página de inicio suma «software a medida», para aparecer en esas búsquedas<br>• Serie nueva en la biblioteca de contenidos, «Guías del blog»: un carrusel de 5 placas por cada guía, en PDF y placa por placa<br>• Bing, DuckDuckGo y Yahoo ya pueden recibir el aviso cuando se publica una página nueva | Novedad | `9636df1..7dedbbd` (3) |
 | **1.9.0** | 14/11/2026 | • Serie nueva en la biblioteca de contenidos: «Reels animados» de noviembre<br>• Son seis videos verticales con animación, uno de la marca y uno por producto (asistente de WhatsApp con IA, sistema para clínicas, tableros de control, academias online y web a medida)<br>• Cada uno con su portada, para ver y descargar | Novedad | `6134742..6134742` (1) |
 | **1.8.0** | 13/11/2026 | • Tanda nueva de material para redes con Bit, en la carpeta no listada: 10 videos verticales con sus portadas y 4 carruseles para deslizar (en PDF y placa por placa)<br>• Página para ver y descargar los videos y los carruseles desde el celular o la computadora<br>• Biblioteca de contenidos ordenada por mes, con los carruseles deslizables<br>• Quedan guardadas las fuentes del personaje Bit, de los videos y de los carruseles (no se publican en la web) | Novedad | `c1ec17f..2a51aad` (4) |
 | **1.7.0** | 12/11/2026 | • Juego de videos para redes en versión sin precios, en una carpeta no listada: 17 verticales, 4 videos para LinkedIn, 4 carruseles en PDF y 21 portadas<br>• Es de donde toman el material las publicaciones programadas de Instagram, Facebook, YouTube y LinkedIn<br>• Página interna para bajar los 17 videos verticales al celular y copiar el texto de cada uno para TikTok | Novedad | `35e2cd0..8ec0e3b` (2) |
@@ -90,10 +91,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.2 Landings de anuncios — /webs, /redes, /whatsapp, /sistemas, /comunidad
 
-14 cambios propios · 6 versiones · versión actual **1.4.1**
+16 cambios propios · 7 versiones · versión actual **1.4.2**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.4.2** | 15/11/2026 | • El botón vuelve a abrir WhatsApp directo: el recuadro previo (tipo de negocio y email) queda apagado, porque con él, aun siendo opcional, no entró ninguna consulta<br>• La conversión vuelve a contarse al tocar el botón<br>• Títulos y descripciones de /webs, /whatsapp y /sistemas con las palabras que la gente busca en Google («diseño de páginas web», «chatbot de WhatsApp», «software a medida»); lo que se ve en la página no cambia | Mejora | `3cdd4cd..cea9ca4` (2) |
 | **1.4.1** | 14/11/2026 | • El paso previo al WhatsApp deja de ser obligatorio: se puede seguir sin elegir el tipo de negocio ni dejar el email (con el rubro obligatorio habían dejado de entrar consultas)<br>• El recuadro lo dice claro: «Es opcional», y el botón pasa a ser «Seguir sin completar»<br>• Solo avisa si el email quedó mal escrito<br>• WhatsApp se abre una sola vez (antes podía abrirse dos veces) | Corrección | `058d8b3..058d8b3` (1) |
 | **1.4.0** | 13/11/2026 | • Paso previo al WhatsApp: antes de abrir el chat se pide el tipo de negocio y el email (se puede seguir sin email)<br>• El mensaje llega a Bit con el rubro y el email ya cargados<br>• La conversión de Google y de Meta se cuenta al completar ese paso, no al tocar el botón<br>• El origen de cada consulta dice de qué cuenta de Google Ads vino y por qué página entró | Novedad | `fdadea7..7324f89` (2) |
 | **1.3.0** | 12/11/2026 | • El mensaje de WhatsApp ahora dice de qué anuncio vino la persona (antes todo figuraba como «WhatsApp directo»)<br>• Los formularios entran al Sistema con el origen de la visita, además de salir por correo<br>• Precio y plazo a la vista en la portada; el formulario de /webs pide solo 3 datos para empezar<br>• Cargan más rápido y funcionan aunque falle el navegador: tipografía propia, casos e imágenes servidos desde el sitio, video a demanda | Mejora | `e0fae1b..f44853c` (11) |
@@ -240,6 +242,7 @@ En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un 
 - **12/11** — **Seguimiento automático** de Bit. Las landings empiezan a informar de qué anuncio vino cada consulta. Tanda grande de seguridad y correcciones en todos los productos. A la tarde: pase al CRM de varias consultas a la vez, envío de material por email y la separación entre «Pasaron al CRM» y «Ganadas».
 - **13/11** — **Tablero diario** en el Panel: el informe de la mañana y el de cierre en una pantalla, con decisiones para tildar. TikTok entra a las mediciones del Panel. Las landings suman un paso previo al WhatsApp (tipo de negocio y email) y la conversión se cuenta al completarlo. Finanzas del Sistema: importación de Mercado Pago y de extractos bancarios.
 - **14/11** — El paso previo al WhatsApp de las landings pasa a ser opcional, porque con el rubro obligatorio habían dejado de entrar consultas. Seis reels animados nuevos, en Material y en la biblioteca de contenidos.
+- **15/11** — Cuatro **guías** nuevas en Novedades, pensadas para aparecer en las búsquedas de Google, con sus carruseles para redes. En las landings el botón vuelve a abrir WhatsApp directo: el paso previo queda apagado.
 
 ---
 
@@ -321,5 +324,5 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 | Rama | Último cambio incluido |
 |---|---|
 | `devisebit-sistema` | `23a2ec3` |
-| `devisebit-web` | `6134742` |
+| `devisebit-web` | `7dedbbd` |
 | `main` | `3e6a2dc` |
