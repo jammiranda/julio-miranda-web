@@ -4,6 +4,54 @@ export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: st
 // `link` es el enlace interno al servicio relacionado (se muestra antes del formulario de la nota).
 export const posts: Post[] = [
   {
+    "slug": "gobierno-digital-ia-atencion-ciudadana",
+    "seoTitle": "IA en la atención ciudadana: qué enseñan Boti y la Provincia",
+    "seoDesc": "Ciudad y Provincia de Buenos Aires ya atienden con IA por WhatsApp. Qué normas lo respaldan y qué lecciones sirven a cualquier organismo.",
+    "date": "2026-11-16",
+    "dateTxt": "16 de noviembre de 2026",
+    "kicker": "Gobierno digital",
+    "title": "Gobierno digital: la atención ciudadana con inteligencia artificial ya es política pública",
+    "desc": "La Ciudad y la Provincia de Buenos Aires formalizaron en 2026 el uso de inteligencia artificial para atender a los vecinos. Qué dicen las normas y qué lecciones deja la experiencia de Boti.",
+    "body": [
+      "Durante años, los asistentes virtuales en el Estado fueron pruebas piloto. En 2026 eso cambió: dos de los gobiernos más grandes del país pasaron a tratar la inteligencia artificial en la atención ciudadana como una política con norma propia, autoridad responsable y canales oficiales.",
+      "## La Ciudad: prioridad por decreto",
+      "El Decreto 97/2026 de la Ciudad de Buenos Aires, publicado en el Boletín Oficial porteño el 9 de marzo, ordena a las áreas del gobierno potenciar y asegurar la implementación de soluciones de IA en la gestión y en la relación con la ciudadanía. Define como trámites prioritarios las habilitaciones de actividades económicas, los permisos y avisos de obra, la tramitación de actas de infracción y todos los procedimientos que pasan por los canales de atención. La Secretaría de Innovación y Transformación Digital queda a cargo de ejecutar y reglamentar la medida.",
+      "## La Provincia: un asistente oficial por WhatsApp y web",
+      "En abril, la Provincia de Buenos Aires oficializó por la Resolución 147/2026 del Ministerio de Gobierno el «Asistente Virtual de Consultas y Atención Ciudadana». Según informó Ámbito, funciona por WhatsApp Business con número verificado y por webchat en los sitios oficiales, y responde trámites, reclamos y consultas. El punto clave es su diseño: un «modelo híbrido» que combina respuestas automáticas con intervención humana y deriva a las áreas específicas cuando hace falta. La Subsecretaría de Gobierno Digital es la autoridad de aplicación, y el tratamiento de datos se rige por la Ley de Protección de Datos Personales.",
+      "## Lo que enseña Boti después de siete años",
+      "La Ciudad no empieza de cero. Su chatbot Boti se lanzó oficialmente en WhatsApp en febrero de 2019, y el documento «Caso Boti», publicado por el propio gobierno porteño en 2025, repasa su recorrido: en el primer trimestre de 2022 superó los 26 millones de interacciones y cerró ese año con 58 millones. El informe deja lecciones que sirven a cualquier organismo:",
+      "Primero, ir adonde ya está la gente. El documento cuenta que, antes del salto a WhatsApp, el 80% de los usuarios consultaba por la web, y que ese 80% migró al nuevo canal. Segundo, la tecnología sola no alcanza: el informe sostiene que el bot «solo funciona con humanos detrás» que le indican qué está bien y qué está mal. Tercero, hay que probar siempre, porque quedan situaciones sin cubrir o mal cubiertas. Y cuarto, una sola voz: mensajes concisos, claros y ordenados, con una guía de estilo escrita.",
+      "## Del chatbot de menús al asistente que resuelve",
+      "El cambio de fondo es que el objetivo ya no es contestar preguntas frecuentes, sino resolver trámites: iniciar un reclamo, consultar un expediente, pedir un turno. Eso exige conectar el asistente con los sistemas internos, registrar cada interacción y definir con claridad cuándo interviene una persona.",
+      "Qué significa para tu organismo o empresa: municipios, entes, colegios profesionales y prestadores de salud pueden aplicar la misma receta a su escala. Conviene empezar por los tres o cuatro trámites que más consultas generan, usar un número oficial de WhatsApp verificado, prever siempre la derivación a una persona y cumplir la Ley 25.326 desde el diseño. En DEVISEBIT desarrollamos asistentes de WhatsApp con IA y sistemas de gestión para organismos y empresas, pensados para resolver y no solo para responder."
+    ],
+    "box": [
+      "¿Cuáles son los tres trámites que más consultas generan en tu organización?",
+      "¿Tu canal de WhatsApp es un número oficial y verificado?",
+      "¿Qué pasa hoy cuando el asistente no sabe la respuesta?",
+      "¿Las consultas quedan registradas y conectadas con tus sistemas?",
+      "¿Quién revisa y mejora las respuestas cada mes?"
+    ],
+    "link": {
+      "t": "Asistente de WhatsApp con IA para organismos y empresas",
+      "u": "/whatsapp"
+    },
+    "sources": [
+      {
+        "t": "Liga del Consorcista: CABA – Decreto 97/26, IA en la gestión gubernamental (texto del decreto)",
+        "u": "https://ligadelconsorcista.org/caba-decreto-97-2026-inteligencia-artificial-en-gestion-gubernamental"
+      },
+      {
+        "t": "Ámbito: La provincia de Buenos Aires lanzó un asistente virtual con inteligencia artificial para trámites y consultas",
+        "u": "https://www.ambito.com/la-provincia-buenos-aires-lanzo-un-asistente-virtual-inteligencia-artificial-tramites-y-consultas-n6272448"
+      },
+      {
+        "t": "Gobierno de la Ciudad de Buenos Aires: Caso Boti (julio de 2025)",
+        "u": "https://static.buenosaires.gob.ar/sites/default/files/2025-07/Caso_Boti.pdf"
+      }
+    ]
+  },
+  {
     "slug": "mensajes-automaticos-whatsapp-business",
     "seoTitle": "Mensajes automáticos en WhatsApp Business: guía",
     "seoDesc": "Cómo poner mensajes automáticos en WhatsApp Business: bienvenida, ausencia y respuestas rápidas, paso a paso, con sus límites.",
