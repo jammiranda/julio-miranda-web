@@ -32,7 +32,7 @@ export const TIPOS = ["Sitio web institucional", "Tienda online / venta por web"
 export const FUNCIONES = ["Catálogo de productos", "Pagos online (Mercado Pago, tarjetas)", "Turnos / reservas", "Usuarios y permisos", "Panel para cargar contenido", "Formularios y CRM", "WhatsApp integrado", "Facturación / AFIP", "Reportes y tableros", "Varios idiomas", "Integración con mi sistema actual", "Inteligencia artificial"]
 export const PLAZOS = ["Lo antes posible", "En 1 mes", "En 2 a 3 meses", "Más adelante / evaluando"]
 /**
- * Inversión inicial en pesos, alineada con la lista de precios (lib/precios.ts): hasta $500.000 entran Landing Express, Web PyME y los agentes Respuestas y Ventas;
+ * Inversión inicial en pesos, alineada con la lista de precios (lib/precios.ts): hasta $500.000 entran Web PyME y los agentes Respuestas y Ventas;
  * hasta $1.000.000, Web + Agente, Web Autoadministrable, Agente Turnos y los sistemas de CRM o turnos; hasta $2.500.000, gestión y tableros y las plataformas
  * para comunidades; más arriba, sistemas a medida. La respuesta se guarda como texto en consultas.brief y nada depende del valor: los briefs viejos (en USD) se siguen viendo tal cual.
  */

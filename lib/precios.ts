@@ -130,6 +130,17 @@ async function asegurar() {
       [p.linea, p.producto, p.precio, p.abono, p.condicion, p.incluye, p.mercado_desde, p.mercado_hasta, p.fuente, p.argumento, p.link, 1000 + i])
     await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ($1,'alta',$2,'Producto nuevo','Sistema')", [p.producto, String(p.precio ?? "")])
   }
+  // 17/11: la entrada a páginas web pasa a ser Web por Suscripción; Landing Express sale de la lista (una sola vez)
+  if (!(await one("select 1 from db_precios where producto='Web por Suscripción'"))) {
+    await q("insert into db_precios(linea,producto,precio,abono,condicion,incluye,mercado_desde,mercado_hasta,fuente,argumento,link,orden) values ('Páginas web','Web por Suscripción',null,27900,$1,$2,null,null,null,$3,'https://tuweb.devisebit.com',5)",
+      ["Sin costo de armado · $27.900 por mes · sin permanencia · lista en 48 horas · pago mensual con Mercado Pago",
+       "Un modelo a elección entre 11 según el rubro, dominio .com, botón de WhatsApp, formulario y asistente, textos redactados por nosotros, un cambio por mes, adaptada a celular",
+       "No hay pago inicial ni permanencia: el negocio tiene web propia en 48 horas por el valor de un abono."])
+    await q("insert into db_precios_hist(producto,campo,despues,motivo,usuario) values ('Web por Suscripción','alta','27900','Producto nuevo: entrada a páginas web','Sistema')")
+    await q("update db_precios set activo=false where producto='Landing Express'")
+    await q("insert into db_precios_hist(producto,campo,antes,despues,motivo,usuario) values ('Landing Express','activo','sí','no','La reemplaza Web por Suscripción','Sistema')")
+    await q("update db_precios set incluye=replace(incluye,'y todo lo de Landing Express','diseño único con IA, botón de WhatsApp, formulario y SEO básico') where producto='Web PyME'")
+  }
   // 28/10: el taller pasa a "básico hasta 5 personas" y el diagnóstico a cotizar (solo si nadie los editó desde el sistema)
   await q("update db_precios set precio=290000, condicion=$1 where producto='Taller de Transformación Digital' and precio=390000", ["Taller básico: una jornada de 3 horas · hasta 5 personas · virtual o presencial (CABA y GBA). Para equipos más grandes, a cotizar"])
   await q("update db_precios set precio=null, condicion='A cotizar según el tamaño de la organización' where producto='Diagnóstico y hoja de ruta' and precio=890000")
