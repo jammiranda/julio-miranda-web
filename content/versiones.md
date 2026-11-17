@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 16/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (478 cambios publicados desde el 17 de octubre).
+Última actualización: 17/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (480 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,7 +12,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.10.0** | 15/11/2026 | Cuatro guías nuevas en Novedades (WhatsApp Business, páginas web con IA y landing pages), con sus carruseles para redes |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.11.0** | 16/11/2026 | Nota nueva en Novedades sobre gobierno digital: la atención ciudadana con inteligencia artificial |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.4.2** | 15/11/2026 | El botón vuelve a abrir WhatsApp directo (el paso previo queda apagado) y los títulos se ajustaron a lo que la gente busca en Google |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.12.0** | 14/11/2026 | Material: grupo nuevo «Reels animados · noviembre 2026», con seis videos para ver, copiar el link y compartir |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.8.0** | 13/11/2026 | Ya no vuelve a preguntar el rubro ni el email a quien los dejó en la landing |
@@ -31,7 +31,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 94 | 12 |
+| Sitio web DEVISEBIT | 95 | 13 |
 | Landings de anuncios | 16 | 7 (3 de ellas con cambios compartidos con el sitio) |
 | Sistema (CRM y gestión) | 166 | 26 |
 | Bot de WhatsApp (Bit) | 22 | 9 (1 de ellas con cambios compartidos con el Sistema) |
@@ -39,10 +39,10 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 | Portal de clientes y alumnos | 14 | 4 |
 | Panel de Contenido | 45 | 9 |
 | Oficina | 20 | 2 |
-| Sitio personal de Julio | 61 | 6 |
-| **Total** | **478** | **82** |
+| Sitio personal de Julio | 62 | 6 |
+| **Total** | **480** | **83** |
 
-Los 478 se reparten así: 110 en el código del sitio web (94 + 16), 307 en el código del Sistema (166 + 22 + 40 + 14 + 45 + 20) y 61 en el sitio personal.
+Los 480 se reparten así: 111 en el código del sitio web (95 + 16), 307 en el código del Sistema (166 + 22 + 40 + 14 + 45 + 20) y 62 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-94 cambios · 12 versiones · versión actual **1.10.0**
+95 cambios · 13 versiones · versión actual **1.11.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.11.0** | 16/11/2026 | • Nota nueva en Novedades: «Gobierno digital: la atención ciudadana con inteligencia artificial ya es política pública»<br>• Cuenta cómo la Ciudad y la Provincia de Buenos Aires ya atienden a los vecinos con IA por WhatsApp, qué normas lo respaldan y qué lecciones le sirven a cualquier organismo | Novedad | `14efa7a..14efa7a` (1) |
 | **1.10.0** | 15/11/2026 | • Cuatro guías nuevas en Novedades: mensajes automáticos en WhatsApp Business, qué es la API de WhatsApp Business y cómo se cobra, cómo crear una página web con IA, y qué debe tener una landing page<br>• Las notas ahora pueden llevar subtítulos y, al final, un enlace al servicio relacionado<br>• El título de la página de inicio suma «software a medida», para aparecer en esas búsquedas<br>• Serie nueva en la biblioteca de contenidos, «Guías del blog»: un carrusel de 5 placas por cada guía, en PDF y placa por placa<br>• Bing, DuckDuckGo y Yahoo ya pueden recibir el aviso cuando se publica una página nueva | Novedad | `9636df1..7dedbbd` (3) |
 | **1.9.0** | 14/11/2026 | • Serie nueva en la biblioteca de contenidos: «Reels animados» de noviembre<br>• Son seis videos verticales con animación, uno de la marca y uno por producto (asistente de WhatsApp con IA, sistema para clínicas, tableros de control, academias online y web a medida)<br>• Cada uno con su portada, para ver y descargar | Novedad | `6134742..6134742` (1) |
 | **1.8.0** | 13/11/2026 | • Tanda nueva de material para redes con Bit, en la carpeta no listada: 10 videos verticales con sus portadas y 4 carruseles para deslizar (en PDF y placa por placa)<br>• Página para ver y descargar los videos y los carruseles desde el celular o la computadora<br>• Biblioteca de contenidos ordenada por mes, con los carruseles deslizables<br>• Quedan guardadas las fuentes del personaje Bit, de los videos y de los carruseles (no se publican en la web) | Novedad | `c1ec17f..2a51aad` (4) |
@@ -206,13 +207,13 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.9 Sitio personal de Julio — julio.devisebit.com
 
-61 cambios · 6 versiones · versión actual **1.5.0**
+62 cambios · 6 versiones · versión actual **1.5.0**
 
 En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un cliente), y también imágenes para redes de DEVISEBIT. Esos cambios están contados acá porque comparten historial, pero no tienen versión propia.
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
-| **1.5.0** | 12/11/2026 | • LinkedIn en la sección de contacto y en el pie; el CV online se enlaza desde el inicio<br>• El CV se imprime en dos hojas limpias<br>• Datos alineados en todo el sitio: 17 años de trayectoria, 7 sectores, roles vigentes<br>• Mejor en celular y para Google: sin desplazamiento lateral, mejor contraste, mapa del sitio y página de «no encontrado» | Mejora | `fd3e2a9..3e6a2dc` (18) |
+| **1.5.0** | 12/11/2026 | • LinkedIn en la sección de contacto y en el pie; el CV online se enlaza desde el inicio<br>• El CV se imprime en dos hojas limpias<br>• Datos alineados en todo el sitio: 17 años de trayectoria, 7 sectores, roles vigentes<br>• Mejor en celular y para Google: sin desplazamiento lateral, mejor contraste, mapa del sitio y página de «no encontrado» | Mejora | `fd3e2a9..7bab8d6` (19) |
 | **1.4.0** | 09/11/2026 | • Versión en inglés del perfil, la historia y el portfolio, con selector de idioma y CV en inglés<br>• Textos al día (proyectos de software e IA) | Novedad | `37b4a92..6752bf0` (2) |
 | **1.3.0** | 02/11/2026 | • CV de gestión en PDF, con link directo<br>• El bloque «Hoy» ya no se limita a salud | Novedad | `8fd15a4..6e2c194` (3) |
 | **1.2.0** | 26/10/2026 | • El perfil se reordena: San Patricio queda como etapa cumplida, con sus logros<br>• Nueva portada de LinkedIn e imágenes para compartir<br>• San Patricio: página de enlaces para Instagram y nota nueva | Mejora | `a2e662d..bbfe66c` (13) |
@@ -324,5 +325,5 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 | Rama | Último cambio incluido |
 |---|---|
 | `devisebit-sistema` | `23a2ec3` |
-| `devisebit-web` | `7dedbbd` |
-| `main` | `3e6a2dc` |
+| `devisebit-web` | `14efa7a` |
+| `main` | `7bab8d6` |
