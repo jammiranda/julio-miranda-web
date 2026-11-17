@@ -33,7 +33,8 @@ const COND: Record<Vista, string> = {
   decidir: `estado='borrador' and seguimiento is null`,
   proximos: `(estado='borrador' and seguimiento > ${HOY}) or (estado='respondio' and seguimiento > ${HOY})`,
   esperando: `estado='enviado' and (seguimiento is null or seguimiento > ${HOY})`,
-  hecho: `id in (select prospeccion_id from g_prospeccion_eventos where (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
+  // Solo lo que hizo una persona (botones o edición), no las altas ni las cargas de las tareas
+  hecho: `id in (select prospeccion_id from g_prospeccion_eventos where tipo in ('estado','seguimiento','contestado','aprobado','pospuesto','nota') and (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
   todos: `true`,
 }
 const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
@@ -69,7 +70,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
     editar
       ? "select e.*, p.organizacion, p.persona from g_prospeccion_eventos e join g_prospeccion p on p.id=e.prospeccion_id where p.id=$1 order by e.fecha desc, e.id desc"
       : `select e.*, p.organizacion, p.persona from g_prospeccion_eventos e join g_prospeccion p on p.id=e.prospeccion_id
-         where (e.fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY} order by e.fecha desc, e.id desc limit 60`,
+         where e.tipo in ('estado','seguimiento','contestado','aprobado','pospuesto','nota') and (e.fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY} order by e.fecha desc, e.id desc limit 60`,
     editar ? [editar] : [],
   )
 
