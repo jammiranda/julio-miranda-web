@@ -1264,6 +1264,81 @@ update g_prospeccion set notas = regexp_replace(regexp_replace(regexp_replace(re
 where estado in ('borrador','respondio') and notas ~ '(charlamos (15|20) minutos|que lo charlemos[.]|café virtual de 15 minutos)'
   and not exists (select 1 from config where clave='acercamiento_sin_reunion_2026_11_17');
 insert into config(clave,valor) values ('acercamiento_sin_reunion_2026_11_17','1') on conflict (clave) do nothing;
+-- 17/11/2026: los prospectos de LatAm (antes en la planilla Seguimiento LatAm) pasan a Acercamientos, la bandeja comercial única.
+insert into g_prospeccion(ref,campania,tanda,tipo,canal,sentido,organizacion,persona,cargo,destino,asunto,estado,enviado_en,respondio_en,seguimiento,notas)
+select * from (values
+('latam:tasisoft','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Tasisoft','Bernardo Rosas Reyes','Gerente de Consultoría y Proyectos · México',null,null,'enviado',date '2026-11-13',null::date,date '2026-11-18','SUGERENCIA:
+Sí · LatAm (México). Buscá en LinkedIn a la persona del cargo indicado en Tasisoft y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola Bernardo, ¿cómo va? Gracias por conectar. Vi que en Tasisoft hacen software a medida con mantenimiento y soporte. En DEVISEBIT (Buenos Aires) solemos sumarnos como refuerzo de desarrollo cuando hay picos de demanda. Me gustaría seguir en contacto: ¿cómo vienen de capacidad este fin de año?'),
+('latam:syca','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Syca',null,'Dueño, CTO o gerente de proyectos · México',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (México). Buscá en LinkedIn a la persona del cargo indicado en Syca y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que en Syca desarrollan soluciones sobre Zoho Creator, SAP Business One y Odoo. En DEVISEBIT (Buenos Aires) construimos integraciones y agentes de WhatsApp con IA que se conectan a esos sistemas. Me gustaría conectar.'),
+('latam:thinktic','LatAm · noviembre',null::int,'cliente','linkedin','saliente','ThinkTIC',null,'Dueño, CTO o gerente de proyectos · Colombia',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Colombia). Buscá en LinkedIn a la persona del cargo indicado en ThinkTIC y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que ThinkTIC trabaja con clientes en Colombia y presta servicios al mercado hispano de EE.UU. con alineación horaria. En DEVISEBIT (Buenos Aires) aportamos desarrolladores senior en un huso horario compatible. Me encantaría conectar.'),
+('latam:gintic','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Gintic',null,'Dueño, CTO o gerente de proyectos · Colombia',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Colombia). Buscá en LinkedIn a la persona del cargo indicado en Gintic y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi el enfoque de Gintic en arquitectura composable desde Bogotá. En DEVISEBIT (Buenos Aires) apoyamos a empresas de software con capacidad extra de desarrollo web, apps e IA. Un gusto conectar.'),
+('latam:blackend','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Blackend',null,'Dueño, CTO o gerente de proyectos · Chile',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Chile). Buscá en LinkedIn a la persona del cargo indicado en Blackend y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Blackend opera con squads dedicados para empresas con backlog activo. En DEVISEBIT (Buenos Aires) podemos sumar desarrolladores senior a un squad cuando el backlog crece. Me encantaría conectar.'),
+('latam:garage-labs','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Garage Labs',null,'Dueño, CTO o gerente de proyectos · Chile',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Chile). Buscá en LinkedIn a la persona del cargo indicado en Garage Labs y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Garage Labs combina software factory con staff augmentation. En DEVISEBIT (Buenos Aires) tenemos desarrolladores y gestión de proyectos que pueden complementar su oferta. Un gusto conectar.'),
+('latam:forcast','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Forcast',null,'Dueño, CTO o gerente de proyectos · Chile',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Chile). Buscá en LinkedIn a la persona del cargo indicado en Forcast y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Forcast desarrolla web, apps móviles, APIs y microservicios a medida. En DEVISEBIT (Buenos Aires) sumamos capacidad de desarrollo y automatización con IA para proyectos de agencias y factories. Me encantaría conectar.'),
+('latam:apside-chile','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Apside Chile',null,'Dueño, CTO o gerente de proyectos · Chile',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Chile). Buscá en LinkedIn a la persona del cargo indicado en Apside Chile y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Apside ofrece Staff Aumentado IA y servicios de IA para banca, seguros y educación. En DEVISEBIT (Buenos Aires) tenemos experiencia en IA aplicada a gestión y salud y podemos ser refuerzo en proyectos. Un gusto conectar.'),
+('latam:hospitales-joya','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Hospitales Joya',null,'Director de TI o de innovación · México',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (México). Buscá en LinkedIn a la persona del cargo indicado en Hospitales Joya y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Grupo Médico Joya opera una red hospitalaria de alta especialidad en varios destinos de México. En DEVISEBIT (Buenos Aires) desarrollamos agentes de WhatsApp para turnos y consultas y sistemas de gestión para salud. Me encantaría conectar.'),
+('latam:clinica-general-del-norte','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Clínica General del Norte',null,'Director de TI o gerente administrativo · Colombia',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Colombia). Buscá en LinkedIn a la persona del cargo indicado en Clínica General del Norte y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Clínica General del Norte atiende en varias ciudades del Caribe colombiano. En DEVISEBIT (Buenos Aires) desarrollamos agentes de WhatsApp para turnos y atención y sistemas de gestión para salud. Un gusto conectar.'),
+('latam:empresa-de-software-co','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Empresa de Software (Colombia)',null,'Dueño, CTO o gerente de proyectos · Colombia',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Colombia). Buscá en LinkedIn a la persona del cargo indicado en Empresa de Software (Colombia) y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que en Empresa de Software hacen desarrollo a medida y SaaS para transformación digital. En DEVISEBIT (Buenos Aires) podemos sumar capacidad de desarrollo e IA cuando la demanda crece. Me gustaría conectar.'),
+('latam:dprime','LatAm · noviembre',null::int,'cliente','linkedin','saliente','DPRIME',null,'CTO o gerente de proyectos · Chile',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Chile). Buscá en LinkedIn a la persona del cargo indicado en DPRIME y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que DPRIME construye software crítico para banca, seguros y grandes empresas de LatAm. En DEVISEBIT (Buenos Aires) sumamos capacidad de desarrollo senior para proyectos puntuales. Me gustaría conectar.'),
+('latam:hospitales-polanco','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Hospitales Polanco',null,'Director de TI o de innovación · México',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (México). Buscá en LinkedIn a la persona del cargo indicado en Hospitales Polanco y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Hospitales Polanco es un grupo hospitalario privado en México. En DEVISEBIT (Buenos Aires) desarrollamos agentes de WhatsApp para turnos y tableros de gestión para salud. Me gustaría conectar.'),
+('latam:clinica-colombia-es','LatAm · noviembre',null::int,'cliente','linkedin','saliente','Clínica Colombia ES',null,'Director de TI o gerente administrativo · Colombia',null,null,'borrador',null::date,null::date,(now() at time zone 'America/Argentina/Buenos_Aires')::date,'SUGERENCIA:
+Sí · LatAm (Colombia). Buscá en LinkedIn a la persona del cargo indicado en Clínica Colombia ES y mandale la invitación con esta nota.
+
+MENSAJE:
+Hola {Nombre}, vi que Clínica Colombia ES brinda atención de alta complejidad. En DEVISEBIT (Buenos Aires) desarrollamos agentes de WhatsApp para turnos y atención en salud. Me gustaría conectar.')
+) v where not exists (select 1 from config where clave='semilla_latam_2026_11_17') on conflict (ref) do nothing;
+insert into config(clave,valor) values ('semilla_latam_2026_11_17','1') on conflict (clave) do nothing;
 `
 
 let ready: Promise<void> | null = null
