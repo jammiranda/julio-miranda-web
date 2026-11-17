@@ -121,7 +121,7 @@ REGLAS:
 - SIN EMPRESA: si la persona es un profesional independiente, un particular o no tiene un negocio constituido, no le pidas "nombre de la empresa" ni insistas con eso: alcanza con su nombre y qué necesita. Tratala igual de bien, ofrecé el paso que corresponda y no la dejes sin seguimiento.
 - LEAD LISTO: cuando ya tenés nombre y qué necesita y ya le pediste el email (aunque no tenga empresa ni lo haya dado), o después de 3 intercambios con interés claro, marcá derivar=true para que una persona del equipo siga la conversación, y avisale con naturalidad quién le escribe.
 
-- AGENDA: cuando la persona elija un horario que esté EXACTAMENTE en HORARIOS LIBRES, poné su clave en "reunion" (por ejemplo "2026-10-27T10:00") y en "respuesta" solo una línea de confirmación (el sistema agrega fecha, link y recordatorio). Si pide un día u hora que no está, ofrecé los más cercanos de la lista o el link de agenda. Nunca inventes horarios.
+- AGENDA: cuando la persona elija un horario que esté EXACTAMENTE en HORARIOS LIBRES, poné su clave en "reunion" (por ejemplo "2026-10-27T10:00") y en "respuesta" solo una línea de confirmación (el sistema agrega fecha, link y recordatorio). Si pide un día u hora que no está, ofrecé los más cercanos de la lista o el link de agenda. Nunca inventes horarios. Poné "reunion" UNA SOLA VEZ, en el mensaje donde la persona elige el horario. Si ya tiene reunión agendada, dejá "reunion" en null aunque la nombre, confirme, diga "ok" o "ya quedó": respondé breve y cálido, sin volver a ofrecer horarios ni decir que algo se ocupó. Si la persona avisa que ya está conectada o esperando, decile que enseguida alguien del equipo la atiende y marcá "derivar": true. Para agendar, primero preguntá qué día y franja le queda mejor y ofrecé como mucho 2 o 3 opciones; nunca cambies un horario que la persona no pidió cambiar.
 
 - DEMOS: hay demos interactivas privadas (con datos de ejemplo) de: ${DEMOS.map((d) => `${d.slug} = ${d.titulo}`).join("; ")}. Si la persona quiere ver cómo funciona un producto, ofrecéle la demo. Para mandarla necesitás su email (pedíselo si no lo dio). Cuando tengas el email, poné en "demo" el slug del producto (o "todas") y en "respuesta" decile que se la mandaste a su correo con un link personal y que también puede pedir una presentación con el sistema completo. Nunca escribas links de demos vos: los genera el sistema. Los autodiagnósticos gratuitos son públicos y van en 3 niveles: www.devisebit.com/diagnostico (nivel 1, madurez digital; al terminarlo llega por email el link al nivel 2, procesos, y después al nivel 3, automatización e IA). Si escriben DIAGNOSTICO, PROCESOS o IA, el sistema les manda el link solo
 
@@ -450,11 +450,27 @@ ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; c
     // Los mensajes que la IA leyó y contesta en esta respuesta (los audios todavía sin transcribir no cuentan)
     if (ia) atendidos = [...new Set([mid, ...hist.filter((m) => m.id && esPendiente(m) && !(m.tipo === "audio" && !m.texto)).map((m) => String(m.id))])]
     res = ia ?? sinIA(e, texto ?? "", primero, est, brief, agenda)
+    // Arreglo 17/11 (caso Fungigesell): si la persona YA tiene reunión confirmada, nunca se reserva otra ni se contesta
+    // "ese horario se acaba de ocupar" (pasaba con mensajes como "Ok" o "ya quedó agendada": la IA repetía el horario,
+    // el turno ya era de ella y la reserva fallaba, o se creaba un segundo turno con dos recordatorios).
+    if (res.reunion && yaReunion) {
+      const hora = new Date(yaReunion.inicio).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "long", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })
+      const pideCambio = /\b(cambi|mov|reprogram|otro (d[ií]a|horario)|no puedo|posterg|correr)/i.test(texto ?? "")
+      res.reunion = null
+      if (pideCambio) res.respuestas = [`Dale, la movemos sin problema. Hoy la tenés el ${hora} h. Elegí el nuevo horario acá: ${agenda ?? "o decime qué día y horario te queda bien"} y te confirmo.`]
+      else if (!res.respuestas?.length || res.respuestas.some((x) => /ocup|eleg[ií] otro/i.test(x))) res.respuestas = [`¡Perfecto! Te esperamos el ${hora} h. Cualquier cosa, escribime por acá.`]
+    }
     if (res.reunion && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(res.reunion)) {
       const [f, h] = res.reunion.split("T")
       const rv = await reservar(cid, deLocal(f, h), { nombre: res.datos?.nombre ?? null, email: res.datos?.email ?? null }).catch(() => null)
       if (rv?.ok) res.respuestas = [rv.confirmacion]
-      else res.respuestas = [`Uy, ese horario se acaba de ocupar 🙈 Elegí otro acá: ${agenda ?? "o decime otro día y horario"}`]
+      else {
+        // Antes de decir "ocupado", ver si el turno ya es de esta misma persona (doble envío o mensaje de confirmación)
+        const suyo = await one<{ inicio: Date }>("select inicio from db_reuniones where consulta_id=$1 and estado='confirmada' and inicio > now() order by inicio limit 1", [cid]).catch(() => null)
+        res.respuestas = suyo
+          ? [`¡Listo! Ya quedó agendada para el ${new Date(suyo.inicio).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "long", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })} h. Te esperamos.`]
+          : [`Ese horario justo se tomó recién. ¿Te queda bien alguno de estos? ${agenda ?? "Decime otro día y horario y lo vemos."}`]
+      }
     }
   }
 

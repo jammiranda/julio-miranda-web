@@ -19,17 +19,45 @@ const volverA = (fd: FormData) => {
  */
 export async function accionAcercamiento(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
-  const por = u.nombre ?? u.usuario
   const id = Number(fd.get("_id") ?? 0)
   const acc = String(fd.get("_acc") ?? "")
+  await aplicar(id, acc, u.nombre ?? u.usuario)
+  await audit(u, `acercamiento:${acc}`, "prospeccion", id)
+  revalidatePath("/prospeccion")
+  revalidatePath("/")
+  redirect(volverA(fd).replace(/[?&](ok|error)=[^&]*/g, ""))
+}
+
+/** Lo mismo para varios a la vez: los tildados en la lista (selección múltiple). */
+export async function accionLote(fd: FormData) {
+  const u = await requerir(["gerente", "coordinacion"])
+  const acc = String(fd.get("_acc") ?? "")
+  const ids = [...new Set(fd.getAll("ids").map((x) => Number(x)).filter((x) => x > 0))].slice(0, 300)
+  for (const id of ids) await aplicar(id, acc, u.nombre ?? u.usuario)
+  await audit(u, `acercamiento-lote:${acc}`, "prospeccion", ids.length, ids.join(","))
+  revalidatePath("/prospeccion")
+  revalidatePath("/")
+  const v = volverA(fd).replace(/[?&](ok|error)=[^&]*/g, "")
+  redirect(ids.length ? `${v}${v.includes("?") ? "&" : "?"}ok=${encodeURIComponent(`${ids.length} actualizados`)}` : v)
+}
+
+async function aplicar(id: number, acc: string, por: string) {
   const r = await one<any>("select * from g_prospeccion where id=$1", [id])
-  if (!r) redirect(volverA(fd))
+  if (!r) return
+  // En lote se mezclan estados: cada acción solo toca a los que corresponde
+  const valeEn: Record<string, string[]> = { enviado: ["borrador"], si: ["borrador"], no: ["borrador"], hoy: ["borrador", "enviado", "respondio"], manana: ["borrador", "enviado", "respondio"],
+    seguimiento: ["enviado"], respondio: ["borrador", "enviado"], contestado: ["respondio"], reunion: ["respondio", "enviado"], ganado: ["reunion", "respondio"], sin_respuesta: ["enviado"], descartar: ["borrador", "enviado", "respondio", "reunion"] }
+  if (valeEn[acc] && !valeEn[acc].includes(r.estado)) return
   const estado = async (nuevo: string, extra = "") => {
     await q(`update g_prospeccion set estado=$2, actualizado=now() ${extra} where id=$1`, [id, nuevo])
     await registrarCambios(id, r, por)
   }
   switch (acc) {
     case "enviado": await marcarEnviado(id, por); break
+    case "hoy":
+      await q(`update g_prospeccion set seguimiento=${HOY}, actualizado=now() where id=$1`, [id])
+      await evento(id, "aprobado", "Aprobado para escribirle hoy", por)
+      break
     case "respondio": await estado("respondio", `, seguimiento=${HOY}`); break
     case "contestado":
       // Ya le contestamos: sale de "Contestar" y vuelve a aparecer en 3 días para ver si sigue la charla
@@ -62,10 +90,6 @@ export async function accionAcercamiento(fd: FormData) {
       break
     }
     case "no": await estado("descartado", ", seguimiento=null"); break
-    default: redirect(volverA(fd))
+    default: return
   }
-  await audit(u, `acercamiento:${acc}`, "prospeccion", id)
-  revalidatePath("/prospeccion")
-  revalidatePath("/")
-  redirect(volverA(fd).replace(/[?&](ok|error)=[^&]*/g, ""))
 }

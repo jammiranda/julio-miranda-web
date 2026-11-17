@@ -7,6 +7,7 @@ import { accionAcercamiento } from "@/lib/prospeccion-acciones"
 import { fecha, hoyISO } from "@/lib/util"
 import { TablaRegistro, Aviso, Kpi } from "@/components/Registro"
 import Indice from "@/components/Indice"
+import Lote from "@/components/Lote"
 
 export const dynamic = "force-dynamic"
 
@@ -16,7 +17,9 @@ export const dynamic = "force-dynamic"
  * La ruta sigue siendo /prospeccion (y la tabla g_prospeccion) para no romper las tareas programadas ni la API.
  */
 
-type SP = { editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string }
+type SP = { editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string; sug?: string }
+const SUG: Record<string, string> = { si: "Sí", tal: "Tal vez", no: "No", otro: "Otro" }
+const sugDe = (notas: string | null) => { const m = /SUGERENCIA:\s*\n\s*(\S+)/i.exec(notas ?? ""); const w = (m?.[1] ?? "").toLowerCase(); return w.startsWith("sí") || w.startsWith("si") ? "si" : w.startsWith("tal") ? "tal" : w.startsWith("no") ? "no" : "otro" }
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
 const VISTAS = ["hoy", "decidir", "proximos", "esperando", "hecho", "todos"] as const
 type Vista = (typeof VISTAS)[number]
@@ -36,6 +39,14 @@ const COND: Record<Vista, string> = {
   // Solo lo que hizo una persona (botones o edición), no las altas ni las cargas de las tareas
   hecho: `id in (select prospeccion_id from g_prospeccion_eventos where tipo in ('estado','seguimiento','contestado','aprobado','pospuesto','nota') and (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
   todos: `true`,
+}
+const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
+  decidir: [{ acc: "si", t: "✓ Sí, escribirles", p: true }, { acc: "hoy", t: "Escribir hoy" }, { acc: "no", t: "✕ No" }],
+  hoy: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "seguimiento", t: "Seguimiento enviado" }, { acc: "contestado", t: "Les contesté" }, { acc: "manana", t: "Pasar a mañana" }, { acc: "descartar", t: "Descartar" }],
+  proximos: [{ acc: "hoy", t: "Pasar a hoy", p: true }, { acc: "descartar", t: "Descartar" }],
+  esperando: [{ acc: "seguimiento", t: "Seguimiento enviado", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "sin_respuesta", t: "Cerrar sin respuesta" }],
+  hecho: [{ acc: "descartar", t: "Descartar" }],
+  todos: [{ acc: "hoy", t: "Pasar a hoy" }, { acc: "descartar", t: "Descartar" }],
 }
 const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
 
@@ -63,7 +74,11 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
     params.push(`%${b}%`)
     where += ` and (coalesce(persona,'') || ' ' || coalesce(organizacion,'') || ' ' || coalesce(cargo,'') || ' ' || coalesce(destino,'') || ' ' || coalesce(campania,'') || ' ' || coalesce(notas,'')) ilike $1`
   }
-  const filas = await q<any>(`select * from g_prospeccion where ${where} order by ${ORDEN} limit 600`, params)
+  const todas = await q<any>(`select * from g_prospeccion where ${where} order by ${ORDEN} limit 600`, params)
+  const sug = vista === "decidir" && SUG[sp.sug ?? ""] ? sp.sug! : ""
+  const cantSug: Record<string, number> = {}
+  if (vista === "decidir") for (const r of todas) { const k = sugDe(r.notas); cantSug[k] = (cantSug[k] ?? 0) + 1 }
+  const filas = sug ? todas.filter((r) => sugDe(r.notas) === sug) : todas
 
   const editar = Number(sp.editar) || null
   const historia = await q<any>(
@@ -76,7 +91,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
 
   const url = (extra: Record<string, string | undefined>) => {
     const p = new URLSearchParams()
-    const base = { vista: vista === "hoy" ? undefined : vista, b: b || undefined, ...extra }
+    const base = { vista: vista === "hoy" ? undefined : vista, b: b || undefined, sug: sug || undefined, ...extra }
     for (const [k, v] of Object.entries(base)) if (v) p.set(k, v)
     const s = p.toString()
     return `/prospeccion${s ? "?" + s : ""}`
@@ -131,14 +146,23 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
       </form>
 
       {vista === "decidir" && !b && (
-        <p className="m-0 text-sm text-[var(--gris)]">Marcá <b>Sí</b> a quien querés escribirle: se reparte solo en los próximos días hábiles, de a {CUPO_DIA} por día, y aparece en <b>Hoy</b> el día que toca. <b>No</b> lo saca de la lista (queda como descartado).</p>
+        <>
+          <p className="m-0 text-sm text-[var(--gris)]">Filtrá por sugerencia, tildá varios (o «Seleccionar todos») y resolvelos de una: <b>Sí, escribirles</b> los reparte de a {CUPO_DIA} por día hábil y aparecen en <b>Hoy</b> el día que toca; <b>No</b> los saca de la lista.</p>
+          <nav aria-label="Filtrar por sugerencia" className="flex flex-wrap gap-1.5">
+            {[["", "Todos", todas.length], ...Object.entries(SUG).map(([k, n]) => [k, n, cantSug[k] ?? 0])].filter((x) => x[0] === "" || Number(x[2]) > 0).map(([k, n, c]) => (
+              <Link key={String(k)} href={`/prospeccion?vista=decidir${k ? `&sug=${k}` : ""}`} aria-current={sug === k ? "true" : undefined}
+                className={`chip text-sm px-3 py-1.5 border ${sug === k ? "bg-[var(--tinta)] text-white border-[var(--tinta)]" : "bg-[var(--sup)] border-[var(--borde-fuerte)]"}`}>{n} · {c}</Link>
+            ))}
+          </nav>
+        </>
       )}
+      {edita && filas.length > 0 && <Lote volver={volver} acciones={ACC_LOTE[vista]} />}
 
       <Indice sel="h2.grupo" filtra="article.card" placeholder="Filtrar esta vista" />
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
         abierto={(r) => !["ganado", "sin_respuesta", "descartado"].includes(r.estado)}
         copiar={textoParaCopiar}
-        tarjeta={(r) => <Tarjeta r={r} />}
+        tarjeta={(r) => <Tarjeta r={r} compacta={vista === "decidir"} sel={edita} />}
         grupo={(r) => grupoDe(r, vista)}
         enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
         acciones={(r) => <Acciones r={r} volver={volver} />}
@@ -244,7 +268,7 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
 }
 
 /** Tarjeta: quién es, en qué está, qué nos escribió y el texto que toca mandar. */
-function Tarjeta({ r }: { r: any }) {
+function Tarjeta({ r, compacta, sel }: { r: any; compacta?: boolean; sel?: boolean }) {
   const org = r.organizacion && !/^sin dato/i.test(r.organizacion) ? r.organizacion : ""
   const titulo = r.persona || org || "Sin nombre"
   const sub = [r.cargo, r.persona ? org : ""].filter(Boolean).join(" · ")
@@ -255,10 +279,13 @@ function Tarjeta({ r }: { r: any }) {
   return (
     <>
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5">
-        <div className="min-w-0">
+        <div className="min-w-0 flex items-start gap-2.5">
+          {sel && <input type="checkbox" form="lote" name="ids" value={r.id} aria-label={`Seleccionar a ${titulo}`} className="w-5 h-5 mt-0.5 shrink-0 cursor-pointer" />}
+          <div className="min-w-0">
           <div className="font-semibold text-base leading-snug">{titulo}</div>
           {sub && <div className="text-sm text-[var(--gris)]">{sub}</div>}
           {r.destino && !esLink && <div className="text-sm text-[var(--gris)] break-all">{r.destino}</div>}
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           {chip(ESTADOS_PROS, r.estado)}{chip(CANALES_PROS, r.canal)}{chip(TIPOS_PROS, r.tipo)}
@@ -273,7 +300,9 @@ function Tarjeta({ r }: { r: any }) {
           <p className="m-0 text-sm whitespace-pre-line">{bl.recibido}</p>
         </div>
       )}
-      {t
+      {t && compacta
+        ? <details className="text-sm"><summary className="cursor-pointer text-[var(--gris)] w-fit">Ver el mensaje</summary><p className="m-0 mt-1.5 whitespace-pre-line">{t.texto}</p></details>
+        : t
         ? <div className="rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-3.5 py-2.5">
             <div className="text-xs font-bold uppercase tracking-wide text-[var(--gris)] mb-1">{t.etiqueta.replace(/^Copiar /, "")}</div>
             <p className="m-0 text-sm whitespace-pre-line">{t.texto}</p>
