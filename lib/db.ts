@@ -1345,6 +1345,17 @@ MENSAJE:
 Hola {Nombre}, vi que Clínica Colombia ES brinda atención de alta complejidad. En DEVISEBIT (Buenos Aires) desarrollamos agentes de WhatsApp para turnos y atención en salud. Me gustaría conectar.')
 ) v where not exists (select 1 from config where clave='semilla_latam_2026_11_17') on conflict (ref) do nothing;
 insert into config(clave,valor) values ('semilla_latam_2026_11_17','1') on conflict (clave) do nothing;
+create table if not exists web_suscripciones (
+  mp_id text primary key,
+  plan_id text, referencia text,
+  email text, pagador_id text, concepto text,
+  monto numeric, estado text not null,
+  proximo_cobro timestamptz, alta timestamptz,
+  ultimo_pago_estado text, ultimo_pago_en timestamptz,
+  contacto_id int references db_contactos(id),
+  creado timestamptz not null default now(), actualizado timestamptz not null default now()
+);
+create index if not exists web_suscripciones_estado on web_suscripciones(estado);
 `
 
 let ready: Promise<void> | null = null
