@@ -41,7 +41,7 @@ const COND: Record<Vista, string> = {
   todos: `true`,
 }
 const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
-  decidir: [{ acc: "si", t: "✓ Sí, escribirles", p: true }, { acc: "hoy", t: "Escribir hoy" }, { acc: "no", t: "✕ No" }],
+  decidir: [{ acc: "si", t: "✓ Sí, escribirles", p: true }, { acc: "hoy", t: "Escribir hoy" }, { acc: "enviado", t: "Ya los envié" }, { acc: "no", t: "✕ No" }],
   hoy: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "seguimiento", t: "Seguimiento enviado" }, { acc: "contestado", t: "Les contesté" }, { acc: "manana", t: "Pasar a mañana" }, { acc: "descartar", t: "Descartar" }],
   proximos: [{ acc: "hoy", t: "Pasar a hoy", p: true }, { acc: "descartar", t: "Descartar" }],
   esperando: [{ acc: "seguimiento", t: "Seguimiento enviado", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "sin_respuesta", t: "Cerrar sin respuesta" }],
@@ -147,7 +147,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
 
       {vista === "decidir" && !b && (
         <>
-          <p className="m-0 text-sm text-[var(--gris)]">Filtrá por sugerencia, tildá varios (o «Seleccionar todos») y resolvelos de una: <b>Sí, escribirles</b> los reparte de a {CUPO_DIA} por día hábil y aparecen en <b>Hoy</b> el día que toca; <b>No</b> los saca de la lista.</p>
+          <p className="m-0 text-sm text-[var(--gris)]">Filtrá por sugerencia, tildá varios (o «Seleccionar todos») y resolvelos de una: <b>Sí, escribirles</b> los reparte de a {CUPO_DIA} por día hábil y aparecen en <b>Hoy</b> el día que toca; <b>No</b> los saca de la lista. Si ya les escribiste por tu cuenta, tocá <b>Ya lo envié</b> (o <b>Ya respondió</b>) y pasan directo a Esperando o a Respondieron.</p>
           <nav aria-label="Filtrar por sugerencia" className="flex flex-wrap gap-1.5">
             {[["", "Todos", todas.length], ...Object.entries(SUG).map(([k, n]) => [k, n, cantSug[k] ?? 0])].filter((x) => x[0] === "" || Number(x[2]) > 0).map(([k, n, c]) => (
               <Link key={String(k)} href={`/prospeccion?vista=decidir${k ? `&sug=${k}` : ""}`} aria-current={sug === k ? "true" : undefined}
@@ -259,7 +259,7 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
     </form>
   )
   const d = isoD(r.seguimiento)
-  if (r.estado === "borrador" && !d) return <><B acc="si" t="✓ Sí, escribirle" p /><B acc="no" t="✕ No" /></>
+  if (r.estado === "borrador" && !d) return <><B acc="si" t="✓ Sí, escribirle" p /><B acc="enviado" t="Ya lo envié" /><B acc="respondio" t="Ya respondió" /><B acc="no" t="✕ No" /></>
   if (r.estado === "borrador") return <><B acc="enviado" t="✓ Enviado" p /><B acc="manana" t="Mañana" /><B acc="respondio" t="Ya respondió" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "enviado") return <><B acc="seguimiento" t="✓ Seguimiento enviado" p /><B acc="respondio" t="Respondió" /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>
   if (r.estado === "respondio") return <><B acc="contestado" t="✓ Le contesté" p /><B acc="reunion" t="Reunión agendada" /><B acc="descartar" t="No sigue" /></>
