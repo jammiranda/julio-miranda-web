@@ -111,8 +111,10 @@ function Celda({ c, r, refs, abiertos }: { c: Campo; r: any; refs: Refs; abierto
 }
 
 /** Tabla de registros con edición en la misma página (?editar=ID) y alta (?nuevo=1). */
-export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puedeEditar, abierto, vacio, rapido, enlace, copiar, tarjeta, grupo, borrar }: {
+export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puedeEditar, abierto, vacio, rapido, enlace, copiar, tarjeta, grupo, borrar, acciones }: {
   borrar?: boolean;
+  /** Con tarjetas: botones propios de la pantalla, después de abrir/copiar. */
+  acciones?: (r: any) => React.ReactNode;
   clave: string; filas: any[]; volver: string; editar?: number | null; nuevo?: boolean; puedeEditar: boolean
   abierto?: (r: any) => boolean; vacio: string; rapido?: { etiqueta: string; si: (r: any) => boolean }
   /** Link externo por fila (ej.: abrir el perfil de LinkedIn), en una pestaña nueva. */
@@ -157,6 +159,7 @@ export async function TablaRegistro({ clave, filas, volver, editar, nuevo, puede
                           <form action={resolverRapido}><input type="hidden" name="_ent" value={clave} /><input type="hidden" name="_id" value={r.id} /><input type="hidden" name="_volver" value={volver} />
                             <button className="btn-s py-2 px-4 text-sm">{e && c ? "3 · " : ""}✓ {rapido.etiqueta}</button></form>
                         )}
+                        {acciones?.(r)}
                         <Link scroll={false} href={urlEditar} className="ml-auto text-sm underline text-[var(--gris)]" aria-label={`Editar ${r[ent.titulo]}`}>Editar</Link>
                         {borrar && (
                             <details className="relative">

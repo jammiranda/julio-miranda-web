@@ -144,3 +144,6 @@ export async function prospeccionPanel() {
 
 export const CANAL_N = Object.fromEntries(CANALES_PROS.map((o) => [o.v, o.n])) as Record<string, string>
 export const TIPO_N = Object.fromEntries(TIPOS_PROS.map((o) => [o.v, o.n])) as Record<string, string>
+
+/** Cuántos mensajes nuevos se planifican por día hábil al aprobar contactos (para no amontonar todo en hoy). */
+export const CUPO_DIA = 20

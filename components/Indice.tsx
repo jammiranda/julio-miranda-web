@@ -54,6 +54,16 @@ export default function Indice({ sel = "h2", filtra, placeholder = "Buscar en es
       const suyos = els.filter((e) => s.contains(e))
       if (suyos.length) s.hidden = !!t && suyos.every((e) => e.hidden)
     })
+    // Títulos sueltos (listas agrupadas, sin <section>): se oculta el título si todo lo que tiene debajo quedó oculto
+    const tits = Array.from(document.querySelectorAll<HTMLElement>(`main ${sel}`)).filter((h) => !h.closest("[data-indice], aside, .lp-panel"))
+    const orden = [...tits, ...els].sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
+    let actual: HTMLElement | null = null, todosOcultos = true, tiene = false
+    const cerrar = () => { if (actual && tiene) actual.hidden = !!t && todosOcultos }
+    for (const x of orden) {
+      if (tits.includes(x)) { cerrar(); actual = x; todosOcultos = true; tiene = false }
+      else { tiene = true; if (!x.hidden) todosOcultos = false }
+    }
+    cerrar()
     setN(t ? visibles : null)
   }
 

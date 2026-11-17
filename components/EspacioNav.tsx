@@ -93,7 +93,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           { href: "/consultas", t: "Conversaciones", i: "chat" },
           { href: "/contactos", t: "Contactos", i: "personas" },
           { href: "/proyectos", t: "Proyectos", i: "maletin" },
-          ...(edita ? [{ href: "/prospeccion", t: "Prospección", i: "mail" }] : []),
+          ...(edita ? [{ href: "/prospeccion", t: "Acercamientos", i: "mail" }] : []),
           { href: "/licitaciones", t: "Licitaciones", i: "martillo" },
         ] },
         { t: "Catálogo", items: [

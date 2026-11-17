@@ -213,7 +213,7 @@ export const TIPOS_PROS: Op[] = [
   { v: "empleo", n: "Búsqueda laboral", c: C.violeta }, { v: "red", n: "Red y reconexión", c: C.cielo }, { v: "otro", n: "Otro", c: C.gris },
 ]
 export const PROSPECCION: Ent = {
-  tabla: "g_prospeccion", n: "Prospección", uno: "contacto", titulo: "organizacion", edita: EDITAN,
+  tabla: "g_prospeccion", n: "Acercamientos", uno: "contacto", titulo: "organizacion", edita: EDITAN,
   orden: "case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, coalesce(seguimiento, enviado_en, creado::date) nulls last, id desc",
   campos: [
     { k: "organizacion", n: "Organización", t: "text", req: true, lista: true },

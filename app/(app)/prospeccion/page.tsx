@@ -1,94 +1,180 @@
 import Link from "next/link"
 import { requerir } from "@/lib/auth"
-import { q } from "@/lib/db"
+import { q, one } from "@/lib/db"
 import { isoD, ESTADOS_PROS, CANALES_PROS, TIPOS_PROS } from "@/lib/gestion"
-import { prospeccionPanel, CANAL_N } from "@/lib/prospeccion"
+import { prospeccionPanel, CANAL_N, CUPO_DIA } from "@/lib/prospeccion"
+import { accionAcercamiento } from "@/lib/prospeccion-acciones"
 import { fecha, hoyISO } from "@/lib/util"
-import { TablaRegistro, Aviso, Kpi, Pestanias } from "@/components/Registro"
+import { TablaRegistro, Aviso, Kpi } from "@/components/Registro"
 import Indice from "@/components/Indice"
 
 export const dynamic = "force-dynamic"
 
-type SP = { editar?: string; nuevo?: string; ok?: string; error?: string; ver?: string; todos?: string }
-const CERRADOS = ["ganado", "sin_respuesta", "descartado"]
-const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—")
+/**
+ * ACERCAMIENTOS (antes «Prospección», renombrado el 17/11/2026 a pedido de Julio).
+ * Cada invitación, mensaje de LinkedIn, mail o postulación, ordenado por DÍA: qué toca hoy, qué viene, qué se hizo.
+ * La ruta sigue siendo /prospeccion (y la tabla g_prospeccion) para no romper las tareas programadas ni la API.
+ */
 
-export default async function Prospeccion({ searchParams: sp }: { searchParams: SP }) {
+type SP = { editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string }
+const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
+const VISTAS = ["hoy", "decidir", "proximos", "esperando", "hecho", "todos"] as const
+type Vista = (typeof VISTAS)[number]
+
+const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—")
+const diaLargo = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "numeric", timeZone: "America/Argentina/Buenos_Aires" })
+
+/** Qué entra en cada vista (todas sobre g_prospeccion). */
+const COND: Record<Vista, string> = {
+  hoy: `(estado='respondio' and (seguimiento is null or seguimiento <= ${HOY}))
+        or (estado='reunion')
+        or (estado='enviado' and seguimiento <= ${HOY})
+        or (estado='borrador' and seguimiento <= ${HOY})`,
+  decidir: `estado='borrador' and seguimiento is null`,
+  proximos: `(estado='borrador' and seguimiento > ${HOY}) or (estado='respondio' and seguimiento > ${HOY})`,
+  esperando: `estado='enviado' and (seguimiento is null or seguimiento > ${HOY})`,
+  hecho: `id in (select prospeccion_id from g_prospeccion_eventos where (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
+  todos: `true`,
+}
+const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
+
+export default async function Acercamientos({ searchParams: sp }: { searchParams: SP }) {
   const u = await requerir()
   const edita = u.rol === "gerente" || u.rol === "coordinacion"
-  const m = await prospeccionPanel()
-  const camp = sp.ver && m.porCampania.some((x: any) => x.campania === sp.ver) ? sp.ver : ""
-  const cond: string[] = []
+  const b = (sp.b ?? "").trim()
+  // Con búsqueda se busca en TODO (también cerrados), sin importar la vista
+  const vista: Vista = b ? "todos" : (VISTAS as readonly string[]).includes(sp.vista ?? "") ? (sp.vista as Vista) : "hoy"
+
+  const [m, cuentas, hechoHoy] = await Promise.all([
+    prospeccionPanel(),
+    one<Record<Vista, number>>(`select ${VISTAS.map((v) => `count(*) filter (where ${COND[v]})::int "${v}"`).join(", ")} from g_prospeccion`),
+    one<{ enviados: number; seguimientos: number; contestados: number; decididos: number }>(`select
+        count(*) filter (where tipo='estado' and detalle like 'Borrador → Enviado%')::int enviados,
+        count(*) filter (where tipo='seguimiento')::int seguimientos,
+        count(*) filter (where tipo in ('contestado'))::int contestados,
+        count(*) filter (where tipo in ('aprobado') or (tipo='estado' and detalle like 'Borrador → Descartado%'))::int decididos
+      from g_prospeccion_eventos where (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY}`),
+  ])
+
   const params: unknown[] = []
-  if (camp) { params.push(camp); cond.push(`campania=$${params.length}`) }
-  if (!sp.todos) cond.push(`estado not in ('ganado','sin_respuesta','descartado')`)
-  const filas = await q<any>(`select * from g_prospeccion ${cond.length ? "where " + cond.join(" and ") : ""} order by case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, coalesce(seguimiento, enviado_en, creado::date) nulls last, id desc`, params)
+  let where = `(${COND[vista]})`
+  if (b) {
+    params.push(`%${b}%`)
+    where += ` and (coalesce(persona,'') || ' ' || coalesce(organizacion,'') || ' ' || coalesce(cargo,'') || ' ' || coalesce(destino,'') || ' ' || coalesce(campania,'') || ' ' || coalesce(notas,'')) ilike $1`
+  }
+  const filas = await q<any>(`select * from g_prospeccion where ${where} order by ${ORDEN} limit 600`, params)
+
   const editar = Number(sp.editar) || null
   const historia = await q<any>(
     editar
       ? "select e.*, p.organizacion, p.persona from g_prospeccion_eventos e join g_prospeccion p on p.id=e.prospeccion_id where p.id=$1 order by e.fecha desc, e.id desc"
-      : "select e.*, p.organizacion, p.persona from g_prospeccion_eventos e join g_prospeccion p on p.id=e.prospeccion_id order by e.fecha desc, e.id desc limit 25",
+      : `select e.*, p.organizacion, p.persona from g_prospeccion_eventos e join g_prospeccion p on p.id=e.prospeccion_id
+         where (e.fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY} order by e.fecha desc, e.id desc limit 60`,
     editar ? [editar] : [],
   )
-  const qs = (extra: Record<string, string | undefined>) => {
+
+  const url = (extra: Record<string, string | undefined>) => {
     const p = new URLSearchParams()
-    const base = { ver: camp || undefined, todos: sp.todos, ...extra }
+    const base = { vista: vista === "hoy" ? undefined : vista, b: b || undefined, ...extra }
     for (const [k, v] of Object.entries(base)) if (v) p.set(k, v)
     const s = p.toString()
     return `/prospeccion${s ? "?" + s : ""}`
   }
-  const volver = qs({})
+  const volver = url({})
+  const C = cuentas ?? ({} as Record<Vista, number>)
+  const H = hechoHoy ?? { enviados: 0, seguimientos: 0, contestados: 0, decididos: 0 }
+  const tabs: { v: Vista; n: string; d: string }[] = [
+    { v: "hoy", n: "Hoy", d: "Contestar, seguir y enviar" },
+    { v: "decidir", n: "Para decidir", d: "¿Le escribimos o no?" },
+    { v: "proximos", n: "Próximos días", d: "Ya planificados" },
+    { v: "esperando", n: "Esperando respuesta", d: "Enviados, sin plazo vencido" },
+    { v: "hecho", n: "Hecho hoy", d: "Lo que se movió hoy" },
+    { v: "todos", n: "Todos", d: "Incluye cerrados" },
+  ]
 
   return (
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
-        <div><div className="eyebrow">Ventas</div><h1 className="m-0">Prospección</h1>
-          <p>Cada mail, invitación de LinkedIn o postulación, de punta a punta: cuándo se preparó, cuándo salió, cuándo respondieron y qué pasó después. Las estadísticas están en panel.devisebit.com/prospeccion.</p></div>
+        <div><div className="eyebrow">Ventas</div><h1 className="m-0">Acercamientos</h1>
+          <p>Invitaciones, mensajes de LinkedIn, mails y seguimientos, día por día. Arrancá por <b>Hoy</b>: primero contestar, después seguimientos, después mensajes nuevos. Cada botón queda anotado en la historia.</p></div>
         {edita && <div className="pag-acc"><Link href={`${volver}${volver.includes("?") ? "&" : "?"}nuevo=1`} className="btn-p">+ Contacto</Link></div>}
       </header>
       <Aviso ok={sp.ok} error={sp.error} />
 
-      <section aria-label="Resumen de prospección" className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <Kpi t="Enviados" v={m.salieron} d={`${m.E.borrador ?? 0} borradores esperan envío`} />
-        <Kpi t="Respondieron" v={m.respondieron} d={`${pct(m.respondieron, m.salieron)} de los enviados${m.diasRespuesta != null ? ` · ${m.diasRespuesta} días promedio` : ""}`} tono={m.respondieron ? "verde" : undefined} />
+      <section aria-label="Resumen" className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <Kpi t="Para hacer hoy" v={C.hoy ?? 0} d={`${C.decidir ?? 0} esperan tu sí o no`} tono={(C.hoy ?? 0) ? "ambar" : undefined} />
+        <Kpi t="Hecho hoy" v={H.enviados + H.seguimientos + H.contestados} d={`${H.enviados} enviados · ${H.seguimientos} seguimientos · ${H.contestados} contestados`} tono={H.enviados + H.seguimientos + H.contestados ? "verde" : undefined} />
+        <Kpi t="Enviados (total)" v={m.salieron} d={`${m.E.borrador ?? 0} todavía en borrador`} />
+        <Kpi t="Respondieron" v={m.respondieron} d={`${pct(m.respondieron, m.salieron)} de los enviados`} tono={m.respondieron ? "verde" : undefined} />
         <Kpi t="Reuniones" v={(m.E.reunion ?? 0) + (m.E.ganado ?? 0)} d={`${m.E.ganado ?? 0} ganados`} />
-        <Kpi t="Seguimientos vencidos" v={m.vencidos.length} d={m.vencidos[0] ? `${m.vencidos[0].organizacion} · ${fecha(isoD(m.vencidos[0].seguimiento))}` : "Al día"} tono={m.vencidos.length ? "ambar" : undefined} />
-        <Kpi t="Sin respuesta" v={m.E.sin_respuesta ?? 0} d="Cerrados tras el seguimiento" />
       </section>
 
-      <Pestanias base="/prospeccion" actual={camp} items={[{ v: "", n: "Todas", cant: m.total }, ...m.porCampania.map((x: any) => ({ v: x.campania, n: x.campania, cant: x.total }))]} />
+      <nav aria-label="Vistas" className="flex flex-wrap gap-1 border-b border-[var(--borde)]">
+        {tabs.map((t) => {
+          const on = t.v === vista && !b
+          return (
+            <Link key={t.v} href={`/prospeccion${t.v === "hoy" ? "" : `?vista=${t.v}`}`} aria-current={on ? "page" : undefined} title={t.d}
+              className={`px-3.5 py-2 -mb-px text-sm font-semibold border-b-2 ${on ? "border-[var(--ac)] text-[var(--tinta)]" : "border-transparent text-[var(--gris)] hover:text-[var(--tinta)]"}`}>
+              {t.n}<span className="ml-1.5 text-xs font-bold text-[var(--gris)] tabular-nums">{C[t.v] ?? 0}</span>
+            </Link>
+          )
+        })}
+      </nav>
 
-      <Indice sel="h2.grupo" filtra="article.card" placeholder="Buscar persona, empresa o cargo" />
+      <form method="get" action="/prospeccion" className="flex flex-wrap items-center gap-2" role="search">
+        <label htmlFor="b-acerc" className="sr-only">Buscar en todos los acercamientos</label>
+        <input id="b-acerc" name="b" type="search" defaultValue={b} placeholder="Buscar en todo: nombre, empresa, cargo, campaña…" className="inp !w-[min(100%,420px)]" />
+        <button className="btn-s py-2 px-4 text-sm">Buscar</button>
+        {b && <><span className="text-sm text-[var(--gris)]">{filas.length === 1 ? "1 resultado" : `${filas.length} resultados`} para «{b}» en todos los estados</span>
+          <Link href="/prospeccion" className="text-sm underline text-[var(--gris)]">Limpiar</Link></>}
+      </form>
+
+      {vista === "decidir" && !b && (
+        <p className="m-0 text-sm text-[var(--gris)]">Marcá <b>Sí</b> a quien querés escribirle: se reparte solo en los próximos días hábiles, de a {CUPO_DIA} por día, y aparece en <b>Hoy</b> el día que toca. <b>No</b> lo saca de la lista (queda como descartado).</p>
+      )}
+
+      <Indice sel="h2.grupo" filtra="article.card" placeholder="Filtrar esta vista" />
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
-        abierto={(r) => !CERRADOS.includes(r.estado)}
-        rapido={{ etiqueta: "Enviado", si: (r) => r.estado === "borrador" }}
+        abierto={(r) => !["ganado", "sin_respuesta", "descartado"].includes(r.estado)}
         copiar={textoParaCopiar}
         tarjeta={(r) => <Tarjeta r={r} />}
-        grupo={grupoDe}
+        grupo={(r) => grupoDe(r, vista)}
         enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
-        vacio="Sin contactos en esta vista. Cargá cada mail o invitación al prepararla (estado Borrador) y marcala Enviado cuando salga: el seguimiento se agenda solo a los 7 días." />
-      <Link href={sp.todos ? qs({ todos: undefined }) : qs({ todos: "1" })} className="text-sm underline text-[var(--gris)] w-fit">{sp.todos ? "Ocultar ganados, sin respuesta y descartados" : "Ver también ganados, sin respuesta y descartados"}</Link>
+        acciones={(r) => <Acciones r={r} volver={volver} />}
+        vacio={vacioDe(vista, b)} />
 
       <section className="card" aria-label="Historia">
-        <h2 className="m-0 mb-3 text-base">{editar ? `Historia de ${historia[0]?.organizacion ?? "este contacto"}` : "Últimos movimientos"}</h2>
+        <h2 className="m-0 mb-3 text-base">{editar ? `Historia de ${historia[0]?.persona ?? historia[0]?.organizacion ?? "este contacto"}` : `Lo que se hizo hoy (${historia.length})`}</h2>
         {historia.length ? (
           <ul className="flex flex-col gap-2 m-0 p-0 list-none">
             {historia.map((e) => (
               <li key={e.id} className="text-sm border-b border-[var(--borde)] pb-2">
                 <b>{new Date(e.fecha).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })}</b>
-                {!editar && <> · {e.organizacion}{e.persona ? ` (${e.persona})` : ""}</>} · {e.detalle ?? e.tipo}
+                {!editar && <> · {e.persona || e.organizacion}{e.persona && e.organizacion ? ` (${e.organizacion})` : ""}</>} · {e.detalle ?? e.tipo}
                 {e.por ? <span className="text-[var(--gris)]"> · {e.por}</span> : null}
               </li>
             ))}
           </ul>
-        ) : <p className="vacio">Todavía no hay movimientos.</p>}
+        ) : <p className="vacio">Hoy todavía no se movió nada.</p>}
       </section>
-      <p className="text-xs text-[var(--gris)]">Canales: {Object.values(CANAL_N).join(", ")}. LinkedIn se envía siempre a mano desde la cuenta de Julio; acá solo se registra.</p>
+      <p className="text-xs text-[var(--gris)]">Canales: {Object.values(CANAL_N).join(", ")}. LinkedIn se envía siempre a mano desde la cuenta de Julio; acá se registra con un clic.</p>
     </div>
   )
 }
 
-/** Bloques de las notas armadas para LinkedIn: «ENCABEZADO:» en una línea y el texto debajo, separados por una línea en blanco. */
+function vacioDe(v: Vista, b: string) {
+  if (b) return `No hay nada que coincida con «${b}».`
+  return {
+    hoy: "Nada pendiente para hoy. Mirá «Para decidir» o «Próximos días».",
+    decidir: "No hay contactos esperando tu decisión.",
+    proximos: "No hay nada planificado para los próximos días.",
+    esperando: "No hay enviados esperando respuesta.",
+    hecho: "Hoy todavía no se movió nada.",
+    todos: "Sin contactos cargados.",
+  }[v]
+}
+
+/** Bloques de las notas: «ENCABEZADO:» en una línea y el texto debajo, separados por una línea en blanco. */
 function bloques(notas: string): Record<string, string> {
   const out: Record<string, string> = {}
   for (const b of notas.split(/\n\s*\n/)) {
@@ -100,11 +186,14 @@ function bloques(notas: string): Record<string, string> {
     else if (k.startsWith("PASO 1")) out.invitacion = t
     else if (k.startsWith("PASO 2")) out.paso2 = t
     else if (k.startsWith("SEGUIMIENTO")) out.seguimiento = t
+    else if (k.startsWith("RESPUESTA")) out.respuesta = t
+    else if (k.startsWith("NOS ESCRIBI")) out.recibido = t
+    else if (k.startsWith("SUGERENCIA")) out.sugerencia = t
   }
   return out
 }
 
-/** Qué copiar según el estado: primero la invitación o el mensaje; ya enviado, el mensaje al aceptar o el seguimiento. */
+/** Qué copiar según el estado. */
 function textoParaCopiar(r: any): { texto: string; etiqueta: string } | null {
   if (!r.notas) return null
   const b = bloques(String(r.notas))
@@ -113,30 +202,53 @@ function textoParaCopiar(r: any): { texto: string; etiqueta: string } | null {
     if (b.mensaje) return { texto: b.mensaje, etiqueta: "Copiar mensaje" }
   }
   if (r.estado === "enviado") {
-    if (b.paso2) return { texto: b.paso2, etiqueta: "Copiar mensaje" }
     if (b.seguimiento) return { texto: b.seguimiento, etiqueta: "Copiar seguimiento" }
+    if (b.paso2) return { texto: b.paso2, etiqueta: "Copiar mensaje" }
   }
+  if (r.estado === "respondio" && b.respuesta) return { texto: b.respuesta, etiqueta: "Copiar respuesta" }
   return null
 }
 
 const chip = (ops: { v: string; n: string; c?: string }[], v: string) => { const o = ops.find((x) => x.v === v); return o ? <span className={`chip ${o.c ?? ""}`}>{o.n}</span> : null }
 
-/** Grupo de la lista: lo que hay que hacer y cuándo. */
-function grupoDe(r: any): string {
+/** Grupo de la lista según la vista: lo que hay que hacer y cuándo. */
+function grupoDe(r: any, vista: Vista): string {
   const d = isoD(r.seguimiento)
-  if (r.estado === "respondio") return "Respondieron: contestar"
-  if (r.estado === "reunion") return "Con reunión"
-  if (r.estado === "enviado") return d && d <= hoyISO() ? "Enviados: toca seguimiento" : "Enviados: esperando respuesta"
-  if (r.estado === "borrador") return !d ? "Para enviar · sin fecha" : d < hoyISO() ? "Para enviar · atrasados" : d === hoyISO() ? "Para enviar · hoy" : `Para enviar · ${fecha(d)}`
-  return "Cerrados"
+  const hoy = hoyISO()
+  if (vista === "decidir") return r.campania || "Sin campaña"
+  if (vista === "hecho" || vista === "todos") return ESTADOS_PROS.find((o) => o.v === r.estado)?.n ?? r.estado
+  if (vista === "proximos") return d ? diaLargo(d) : "Sin fecha"
+  if (vista === "esperando") return d ? `Seguimiento el ${diaLargo(d)}` : "Sin fecha de seguimiento"
+  if (r.estado === "respondio") return "1 · Contestar (respondieron)"
+  if (r.estado === "reunion") return "2 · Con reunión: preparar o confirmar"
+  if (r.estado === "enviado") return "3 · Seguimientos de hoy"
+  return d && d < hoy ? "4 · Mensajes nuevos · atrasados" : "5 · Mensajes nuevos · hoy"
 }
 
-/** Tarjeta de un contacto: quién es, en qué está y el texto que toca mandar, todo a la vista. */
+/** Botones según el estado: un clic y queda en la historia. */
+function Acciones({ r, volver }: { r: any; volver: string }) {
+  const B = ({ acc, t, p }: { acc: string; t: string; p?: boolean }) => (
+    <form action={accionAcercamiento}>
+      <input type="hidden" name="_id" value={r.id} /><input type="hidden" name="_acc" value={acc} /><input type="hidden" name="_volver" value={volver} />
+      <button className={`${p ? "btn-p" : "btn-s"} py-2 px-3.5 text-sm`}>{t}</button>
+    </form>
+  )
+  const d = isoD(r.seguimiento)
+  if (r.estado === "borrador" && !d) return <><B acc="si" t="✓ Sí, escribirle" p /><B acc="no" t="✕ No" /></>
+  if (r.estado === "borrador") return <><B acc="enviado" t="✓ Enviado" p /><B acc="manana" t="Mañana" /><B acc="respondio" t="Ya respondió" /><B acc="descartar" t="Descartar" /></>
+  if (r.estado === "enviado") return <><B acc="seguimiento" t="✓ Seguimiento enviado" p /><B acc="respondio" t="Respondió" /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>
+  if (r.estado === "respondio") return <><B acc="contestado" t="✓ Le contesté" p /><B acc="reunion" t="Reunión agendada" /><B acc="descartar" t="No sigue" /></>
+  if (r.estado === "reunion") return <><B acc="ganado" t="✓ Ganado" p /><B acc="descartar" t="No sigue" /></>
+  return null
+}
+
+/** Tarjeta: quién es, en qué está, qué nos escribió y el texto que toca mandar. */
 function Tarjeta({ r }: { r: any }) {
   const org = r.organizacion && !/^sin dato/i.test(r.organizacion) ? r.organizacion : ""
   const titulo = r.persona || org || "Sin nombre"
   const sub = [r.cargo, r.persona ? org : ""].filter(Boolean).join(" · ")
   const t = textoParaCopiar(r)
+  const bl = r.notas ? bloques(String(r.notas)) : {}
   const d = isoD(r.seguimiento)
   const esLink = /^https?:/i.test(r.destino ?? "")
   return (
@@ -149,9 +261,17 @@ function Tarjeta({ r }: { r: any }) {
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           {chip(ESTADOS_PROS, r.estado)}{chip(CANALES_PROS, r.canal)}{chip(TIPOS_PROS, r.tipo)}
-          {d && r.estado === "enviado" && <span className="text-xs text-[var(--gris)] whitespace-nowrap">Seguimiento {fecha(d)}</span>}
+          {d && <span className="text-xs text-[var(--gris)] whitespace-nowrap">{r.estado === "borrador" ? "Enviar" : r.estado === "respondio" ? "Volver a ver" : "Seguimiento"} {fecha(d)}</span>}
+          {r.enviado_en && <span className="text-xs text-[var(--gris)] whitespace-nowrap">Enviado {fecha(isoD(r.enviado_en))}</span>}
         </div>
       </div>
+      {bl.sugerencia && <p className="m-0 text-sm"><b>Sugerencia:</b> {bl.sugerencia}</p>}
+      {bl.recibido && (
+        <div className="rounded-xl border border-[var(--borde)] px-3.5 py-2.5">
+          <div className="text-xs font-bold uppercase tracking-wide text-[var(--gris)] mb-1">Nos escribió</div>
+          <p className="m-0 text-sm whitespace-pre-line">{bl.recibido}</p>
+        </div>
+      )}
       {t
         ? <div className="rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-3.5 py-2.5">
             <div className="text-xs font-bold uppercase tracking-wide text-[var(--gris)] mb-1">{t.etiqueta.replace(/^Copiar /, "")}</div>

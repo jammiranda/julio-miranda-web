@@ -183,7 +183,7 @@ export default async function Ayuda() {
     { icono: "📚", t: "Cargar o editar un curso", d: "Cursos, ediciones, clases y certificados", href: "/sistema/cursos" },
   ] : [
     { icono: "💬", t: "Responder una consulta", d: "Lo que entra por WhatsApp, Instagram y la web", href: "/consultas" },
-    { icono: "🤝", t: "Enviar los mensajes de hoy", d: "Prospección: abrir perfil, copiar y marcar enviado", href: "/prospeccion" },
+    { icono: "🤝", t: "Enviar los mensajes de hoy", d: "Acercamientos → Hoy: abrir perfil, copiar y marcar enviado", href: "/prospeccion" },
     { icono: "👤", t: "Buscar o cargar un contacto", d: "Con filtros por email, teléfono o LinkedIn", href: "/contactos" },
     { icono: "✉️", t: "Preparar un envío de email", d: "Elegí una plantilla y a quién va", href: "/email/plantillas", roles: ["gerente", "coordinacion"] },
     { icono: "📎", t: "Mandarle material a un cliente", d: "Folletos, PDF y videos con link para copiar", href: "/material", roles: ["gerente", "coordinacion"] },

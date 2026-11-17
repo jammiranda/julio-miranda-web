@@ -37,7 +37,7 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
     // Prospección: lo que toca mandar o contestar hoy (fecha de Buenos Aires)
     q<{ enviar: number; respondieron: number; seguir: number }>(
       `select count(*) filter (where estado='borrador' and seguimiento <= (now() at time zone 'America/Argentina/Buenos_Aires')::date)::int enviar,
-              count(*) filter (where estado='respondio')::int respondieron,
+              count(*) filter (where estado='respondio' and (seguimiento is null or seguimiento <= (now() at time zone 'America/Argentina/Buenos_Aires')::date))::int respondieron,
               count(*) filter (where estado='enviado' and seguimiento <= (now() at time zone 'America/Argentina/Buenos_Aires')::date)::int seguir
        from g_prospeccion`).catch(() => [{ enviar: 0, respondieron: 0, seguir: 0 }]),
     q<{ n: number }>("select count(*)::int n from db_contactos where clase is null").catch(() => [{ n: 0 }]),
@@ -66,9 +66,9 @@ export default async function Resumen({ searchParams }: { searchParams: { dias?:
         { n: sinPasar.length, t: "Consultas del bot sin atender", d: "Pasalas a contacto o descartalas", href: "/consultas", accion: "Abrir" },
         { n: proximos.filter((c: any) => { const f = iso(c.proximo_fecha); return f && f < hoy }).length, t: "Próximos pasos vencidos", d: "Contactos con una acción atrasada", href: "/contactos", accion: "Ver", tono: "av" },
         { n: todas.filter((r) => local(r.ini).fecha === hoy).length, t: "Reuniones de hoy", d: "Entrá desde la lista de abajo", href: "#reuniones", accion: "Ver", tono: "ok" },
-        { n: P.respondieron, t: "Respondieron en Prospección", d: "Contestales hoy: es cuando más interés hay", href: "/prospeccion", accion: "Contestar", tono: "ok" },
+        { n: P.respondieron, t: "Respondieron en Acercamientos", d: "Contestales hoy: es cuando más interés hay", href: "/prospeccion", accion: "Contestar", tono: "ok" },
         { n: P.enviar, t: "Mensajes para enviar hoy", d: "LinkedIn y mails ya armados: abrir, copiar y enviar", href: "/prospeccion", accion: "Enviar" },
-        { n: P.seguir, t: "Seguimientos de Prospección", d: "Enviados sin respuesta que ya cumplieron el plazo", href: "/prospeccion", accion: "Seguir", tono: "av" },
+        { n: P.seguir, t: "Seguimientos de Acercamientos", d: "Enviados sin respuesta que ya cumplieron el plazo", href: "/prospeccion", accion: "Seguir", tono: "av" },
         { n: sinClas[0]?.n ?? 0, t: "Contactos por clasificar", d: "Ubicalos en su lista para poder trabajarlos", href: "/contactos/clasificar", accion: "Clasificar", tono: "av" },
       ]} />
       <Indice />
