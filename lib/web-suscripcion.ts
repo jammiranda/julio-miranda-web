@@ -133,3 +133,22 @@ export async function estadoSuscripciones() {
   const activas = await one<{ n: string }>("select count(*)::text n from web_suscripciones where estado='activa'").catch(() => null)
   return { token: true, consulta: !!b, plan, registradas: Number(n?.n ?? 0), activas: Number(activas?.n ?? 0) }
 }
+
+/**
+ * Respaldo del aviso: le pregunta a Mercado Pago por las últimas suscripciones y
+ * registra las que el sistema todavía no tiene o cambiaron de estado. Lo llaman la
+ * página de "gracias" al terminar la compra y el cron diario.
+ */
+export async function sincronizarSuscripciones() {
+  if (!process.env.MP_ACCESS_TOKEN) return { ok: false, vistas: 0, cambios: 0 }
+  const b = await mp(`/preapproval/search?limit=50&sort=date_created:desc`)
+  const propias = ((b?.results ?? []) as any[]).filter(esDeEstePlan)
+  let cambios = 0
+  for (const p of propias) {
+    const ya = await one<{ estado: string }>("select estado from web_suscripciones where mp_id=$1", [String(p.id)])
+    if (ya && ya.estado === (ESTADOS[String(p.status)] ?? String(p.status))) continue
+    const r = await avisoSuscripcion(String(p.id)).catch(() => null)
+    if (r && (r as any).cambio !== false) cambios++
+  }
+  return { ok: !!b, vistas: propias.length, cambios }
+}

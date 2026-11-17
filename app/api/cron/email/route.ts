@@ -4,6 +4,7 @@ import { recordatoriosDelDia } from "@/lib/agenda"
 import { asegurarPerfil } from "@/lib/waperfil"
 import { generarAbonos } from "@/lib/cobros"
 import { recordatoriosCobro } from "@/lib/pagos"
+import { sincronizarSuscripciones } from "@/lib/web-suscripcion"
 import { recordatoriosClases } from "@/lib/cursos"
 import { revisionSemanal } from "@/lib/revision"
 import { sincronizarMeta } from "@/lib/ads"
@@ -43,6 +44,7 @@ export async function GET(req: NextRequest) {
   const wa = await asegurarPerfil().catch((e) => String(e))
   const abonos = await generarAbonos().catch((e) => String(e))
   const cobros = await recordatoriosCobro().catch((e) => String(e))
+  await sincronizarSuscripciones().catch((e) => console.error("sinc web suscripcion", e))
   const clases = await recordatoriosClases().catch((e) => String(e))
   const revision = await revisionSemanal().catch((e) => String(e))
   const anuncios = await sincronizarMeta().catch((e) => String(e))
