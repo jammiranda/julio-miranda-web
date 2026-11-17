@@ -7,6 +7,9 @@ import { GRUPOS } from "@/lib/material"
 
 export const dynamic = "force-dynamic"
 
+const BIBLIOTECA = "https://www.devisebit.com/mv-8f92ddf28895/videos.html"
+const TIKTOK = "https://www.devisebit.com/mv-8f92ddf28895/r2/tiktok.html"
+
 export default async function Piezas() {
   await requerir(["gerente", "coordinacion", "profesional"])
   const feed = PIEZAS.filter((p) => p.formato === "feed")
@@ -15,8 +18,16 @@ export default async function Piezas() {
   return (
     <div className="flex flex-col gap-6">
       <header className="pag-cab">
-        <div><div className="eyebrow">Comunicación</div><h1 className="m-0">Piezas para redes</h1><p>Listas para usar a mano desde el celular: tocá <b>Compartir</b> para mandarlas directo a Instagram, Facebook o LinkedIn, o <b>Descargar</b>. Abajo de cada una está el texto para copiar, en español e inglés.</p></div>
+        <div><div className="eyebrow">Comunicación</div><h1 className="m-0">Piezas para redes</h1><p>Esta es la <b>biblioteca en vivo</b>: es la misma página donde se publican los reels, videos y carruseles nuevos, así que siempre está al día y no hay que cargar nada dos veces.</p></div>
+        <div className="flex flex-wrap gap-2">
+          <a className="btn" href={BIBLIOTECA} target="_blank" rel="noreferrer">Abrir la biblioteca</a>
+          <a className="btn-s" href={TIKTOK} target="_blank" rel="noreferrer">Videos para TikTok</a>
+        </div>
       </header>
+      <iframe src={BIBLIOTECA} title="Biblioteca de contenidos DEVISEBIT" loading="lazy" className="w-full rounded-xl border border-[var(--borde)] bg-white" style={{ height: "80vh" }} />
+      <details className="card">
+        <summary className="cursor-pointer font-bold">Piezas viejas del sistema (placas fijas de octubre)</summary>
+        <div className="flex flex-col gap-6 mt-4">
       <Indice filtra="article.card, li.card" placeholder="Buscar una pieza" />
       <section className="flex flex-col gap-3">
         <h2 className="m-0 text-lg font-bold">Feed ({feed.length})</h2>
@@ -46,6 +57,8 @@ export default async function Piezas() {
           </ul>
         </section>
       )}
+        </div>
+      </details>
     </div>
   )
 }
