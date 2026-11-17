@@ -5,9 +5,47 @@
   "Carruseles continuos": "Pensados para verse de corrido: deslizá placa por placa.",
   "LinkedIn": "Videos y carruseles en formato 4:5.",
   "Reels animados": "Textos, números y demos en movimiento. Por ahora sin voz ni música. Los chats y los números de las demos son ejemplos.",
-  "Guías del blog": "Cada carrusel resume una guía de Novedades. La guía completa, con sus fuentes, está en devisebit.com/novedades."
+  "Guías del blog": "Cada carrusel resume una guía de Novedades. La guía completa, con sus fuentes, está en devisebit.com/novedades.",
+  "MateBot": "Nuestro asistente gratuito por audio en Telegram (muy pronto en WhatsApp). Más info en matebot.devisebit.com."
  },
  "piezas": [
+  {
+   "id": "2026-11-matebot-placas",
+   "tipo": "carrusel",
+   "titulo": "MateBot: lanzamiento (6 placas)",
+   "mes": "2026-11",
+   "serie": "MateBot",
+   "formato": "4:5",
+   "placas": [
+    "r6/matebot/01-lanzamiento.jpg",
+    "r6/matebot/02-audio.jpg",
+    "r6/matebot/03-calendar.jpg",
+    "r6/matebot/04-familia.jpg",
+    "r6/matebot/05-privacidad.jpg",
+    "r6/matebot/06-empresas.jpg"
+   ],
+   "pdf": "r6/matebot/matebot-ficha.pdf"
+  },
+  {
+   "id": "2026-11-matebot-reel",
+   "tipo": "video",
+   "titulo": "MateBot en 24 segundos",
+   "mes": "2026-11",
+   "serie": "MateBot",
+   "formato": "9:16",
+   "video": "r6/matebot/matebot-reel.mp4",
+   "portada": "r6/matebot/matebot-reel-portada.jpg"
+  },
+  {
+   "id": "2026-11-matebot-youtube",
+   "tipo": "video",
+   "titulo": "MateBot: cómo funciona",
+   "mes": "2026-11",
+   "serie": "MateBot",
+   "formato": "16:9",
+   "video": "r6/matebot/matebot-youtube.mp4",
+   "portada": "r6/matebot/matebot-youtube-portada.jpg"
+  },
   {
    "id": "2026-11-guia-g1",
    "tipo": "carrusel",

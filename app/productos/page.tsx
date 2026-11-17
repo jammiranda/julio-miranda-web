@@ -47,6 +47,20 @@ export default function ProductosPage() {
           <div className="db-scan"><i /></div>
         </section>
 
+        <section className="bg-[#0B0D12] text-white border-t border-white/10">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-10 flex flex-col md:flex-row md:items-center gap-6 justify-between">
+            <div className="flex items-center gap-5">
+              <img src="https://matebot.devisebit.com/matebot.svg" alt="" width={64} height={64} />
+              <div>
+                <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Nuevo · Gratis</p>
+                <h2 className="m-0 font-tight text-2xl md:text-[28px] font-extrabold">MateBot: tu agenda por audio</h2>
+                <p className="m-0 mt-1 text-[#C3C8D1]">Le hablás como a un amigo y te ordena turnos, recordatorios y listas. En Telegram, muy pronto en WhatsApp.</p>
+              </div>
+            </div>
+            <a href="https://matebot.devisebit.com" className="shrink-0 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Probalo gratis →</a>
+          </div>
+        </section>
+
         <section className="bg-[#F5F6F8]">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-[72px] grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PRODUCTS.map((p) => (

@@ -4,6 +4,49 @@ export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: st
 // `link` es el enlace interno al servicio relacionado (se muestra antes del formulario de la nota).
 export const posts: Post[] = [
   {
+    "slug": "matebot-asistente-personal-por-audio",
+    "seoTitle": "Asistente personal por audio con IA: así funciona MateBot",
+    "seoDesc": "MateBot convierte tus audios en turnos, recordatorios y listas. Así funciona el asistente personal con IA que lanzamos gratis en DEVISEBIT.",
+    "date": "2026-11-23",
+    "dateTxt": "23 de noviembre de 2026",
+    "kicker": "Lanzamiento",
+    "title": "Asistente personal por audio: cómo la IA convierte un mensaje de voz en tu agenda",
+    "desc": "Mandamos audios todo el día. Con inteligencia artificial, ese mismo gesto puede ordenar turnos, recordatorios y listas sin abrir otra app. Así funciona MateBot, el asistente gratuito que lanzamos en DEVISEBIT.",
+    "body": [
+      "## Hablamos más de lo que escribimos",
+      "El audio se volvió la forma más natural de comunicarnos por chat. Meta informó en 2022 que en WhatsApp se envían en promedio 7.000 millones de mensajes de voz por día, y lo presentó como una de las funciones preferidas de sus usuarios. Telegram, por su parte, superó en marzo de 2025 los 1.000 millones de usuarios activos mensuales, según anunció su fundador, Pavel Durov.",
+      "La conclusión es simple: la gente ya está en el chat y ya habla. Lo que faltaba era que alguien escuchara esos audios y los convirtiera en algo útil.",
+      "## De un audio a un evento en el calendario",
+      "Detrás de un asistente como MateBot hay tres pasos que hoy se resuelven en segundos. Primero, un modelo de reconocimiento de voz transcribe el audio a texto. Segundo, un modelo de lenguaje interpreta lo que la persona quiso decir: entiende que «el jueves a las 10» es una fecha concreta, que «recordame» pide un aviso y que «agregá yerba» va a una lista. Tercero, el sistema guarda el resultado donde corresponde, por ejemplo en Google Calendar, y programa los avisos.",
+      "La clave está en el último detalle: antes de agendar, el asistente muestra lo que entendió y pide confirmación. Si algo se superpone con otro compromiso, lo advierte. La IA hace el trabajo pesado, pero la decisión sigue siendo de la persona.",
+      "## Qué hace MateBot",
+      "MateBot funciona por Telegram y muy pronto también por WhatsApp. Recibe audios o textos y los transforma en eventos, recordatorios, cumpleaños y listas. Cada mañana manda un resumen del día, avisa un rato antes de cada compromiso y permite compartir la lista del súper y las fechas importantes con la familia. No hay que instalar nada ni crear contraseñas, y es gratis.",
+      "## Privacidad desde el diseño",
+      "Un asistente que escucha tu agenda tiene que ganarse la confianza. Por eso definimos reglas claras: la agenda, los audios y las listas se usan solo para prestar el servicio, no se venden ni se comparten, y los audios se descartan después de transcribirlos. Los datos de contacto se usan para la cuenta y, solo si la persona lo acepta, para enviarle novedades. Con un comando se borra todo.",
+      "Qué significa para tu empresa: la misma tecnología que ordena la agenda de una familia puede ordenar la de un negocio. Confirmar turnos de pacientes, recordar vencimientos a clientes, tomar pedidos por audio o coordinar la agenda de un equipo, todo desde el chat que la gente ya usa. En DEVISEBIT diseñamos estas automatizaciones conversacionales a medida, integradas con el CRM y los sistemas de cada organización. MateBot es la demostración más directa: probalo gratis en matebot.devisebit.com."
+    ],
+    "box": [
+      "¿Cuántos turnos o citas se pierden por olvidos en tu negocio?",
+      "¿Tus clientes ya te mandan audios por WhatsApp?",
+      "¿Los recordatorios hoy los manda una persona a mano?",
+      "¿Tu agenda está conectada con tu CRM?"
+    ],
+    "link": {
+      "t": "Probá MateBot gratis",
+      "u": "https://matebot.devisebit.com"
+    },
+    "sources": [
+      {
+        "t": "Meta: New Voice Message Features on WhatsApp (30 de marzo de 2022)",
+        "u": "https://about.fb.com/news/2022-03/new-voice-message-features-on-whatsapp/"
+      },
+      {
+        "t": "TechCrunch: Telegram founder Pavel Durov says app now has 1B users (19 de marzo de 2025)",
+        "u": "https://techcrunch.com/2025/03/19/telegram-founder-pavel-durov-says-app-now-has-1b-users-calls-whatsapp-a-cheap-watered-down-imitation"
+      }
+    ]
+  },
+  {
     "slug": "gobierno-digital-ia-atencion-ciudadana",
     "seoTitle": "IA en la atención ciudadana: qué enseñan Boti y la Provincia",
     "seoDesc": "Ciudad y Provincia de Buenos Aires ya atienden con IA por WhatsApp. Qué normas lo respaldan y qué lecciones sirven a cualquier organismo.",
