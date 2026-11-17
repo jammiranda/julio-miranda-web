@@ -5,9 +5,70 @@
   "Carruseles continuos": "Pensados para verse de corrido: deslizá placa por placa.",
   "LinkedIn": "Videos y carruseles en formato 4:5.",
   "Reels animados": "Textos, números y demos en movimiento. Por ahora sin voz ni música. Los chats y los números de las demos son ejemplos.",
-  "Guías del blog": "Cada carrusel resume una guía de Novedades. La guía completa, con sus fuentes, está en devisebit.com/novedades."
+  "Guías del blog": "Cada carrusel resume una guía de Novedades. La guía completa, con sus fuentes, está en devisebit.com/novedades.",
+  "Reels con voz": "Voces de hombre y mujer, subtítulos palabra por palabra y cierre con palabra clave para comentar. Los chats y los ejemplos son ilustrativos."
  },
  "piezas": [
+  {
+   "id": "2026-11-maquina-r02",
+   "tipo": "video",
+   "titulo": "La misma pregunta, todos los días",
+   "mes": "2026-11",
+   "serie": "Reels con voz",
+   "formato": "9:16",
+   "video": "r6/reels/r02-whatsapp-misma-pregunta.mp4",
+   "portada": "r6/portadas/r02-whatsapp-misma-pregunta-portada.jpg"
+  },
+  {
+   "id": "2026-11-maquina-r03",
+   "tipo": "video",
+   "titulo": "¿Landing o web completa?",
+   "mes": "2026-11",
+   "serie": "Reels con voz",
+   "formato": "9:16",
+   "video": "r6/reels/r03-landing-o-web.mp4",
+   "portada": "r6/portadas/r03-landing-o-web-portada.jpg"
+  },
+  {
+   "id": "2026-11-maquina-r04",
+   "tipo": "video",
+   "titulo": "23:47. Vos dormís, el asistente no",
+   "mes": "2026-11",
+   "serie": "Reels con voz",
+   "formato": "9:16",
+   "video": "r6/reels/r04-bit-mientras-dormis.mp4",
+   "portada": "r6/portadas/r04-bit-mientras-dormis-portada.jpg"
+  },
+  {
+   "id": "2026-11-maquina-r06",
+   "tipo": "video",
+   "titulo": "El informe del lunes, solo",
+   "mes": "2026-11",
+   "serie": "Reels con voz",
+   "formato": "9:16",
+   "video": "r6/reels/r06-informe-del-lunes.mp4",
+   "portada": "r6/portadas/r06-informe-del-lunes-portada.jpg"
+  },
+  {
+   "id": "2026-11-maquina-r05",
+   "tipo": "video",
+   "titulo": "Si no pasa este control, no sale",
+   "mes": "2026-11",
+   "serie": "Reels con voz",
+   "formato": "9:16",
+   "video": "r6/reels/r05-control-contenido-ia.mp4",
+   "portada": "r6/portadas/r05-control-contenido-ia-portada.jpg"
+  },
+  {
+   "id": "2026-11-maquina-r01",
+   "tipo": "video",
+   "titulo": "Agentes de IA que trabajan de noche",
+   "mes": "2026-11",
+   "serie": "Reels con voz",
+   "formato": "9:16",
+   "video": "r6/reels/r01-oficina-de-agentes.mp4",
+   "portada": "r6/portadas/r01-oficina-de-agentes-portada.jpg"
+  },
   {
    "id": "2026-11-guia-g1",
    "tipo": "carrusel",
