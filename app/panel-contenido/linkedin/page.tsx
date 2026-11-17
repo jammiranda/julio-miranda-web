@@ -4,6 +4,7 @@ import { safe } from "@/lib/panel"
 import { acceso, base, Head, Sec, Kpi, Delta, Columnas, SinDatos, fmt, fechaCorta, fechaHora } from "../_ui"
 import SubirLinkedin from "./_subir"
 import SubirPerfil from "./_subir-perfil"
+import CargarManual from "./_cargar-manual"
 import { historial, redDiario, interacciones } from "@/lib/publicaciones"
 
 export const dynamic = "force-dynamic"
@@ -128,6 +129,7 @@ async function PerfilJulio({ b }: { b: string }) {
           </table></div>
         ) : <div className="pc-empty">Todavía no hay publicaciones del perfil. Se suman las que salen por Buffer y las de la exportación.</div>}
       </div>
+      <CargarManual />
       <SubirPerfil />
       <Sec t="Buffer (perfil de Julio)" />
       {li.ok ? (
