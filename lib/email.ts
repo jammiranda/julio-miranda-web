@@ -11,6 +11,57 @@ export const REMITENTE = { name: process.env.EMAIL_FROM_NOMBRE ?? "DEVISEBIT", e
 export const RESPONDER_A = process.env.EMAIL_REPLY_TO ?? "info@devisebit.com"
 export const brevoConfigurado = () => !!process.env.BREVO_API_KEY
 
+/**
+ * Varios proveedores para mandar más de 300 por día (pedido de Julio, 13/11 y 17/11/2026).
+ * Cada uno con su tope diario gratis; la cola usa el primero con cupo y pasa al siguiente.
+ * Para sumar uno alcanza con cargar su clave en Vercel (y verificar el dominio devisebit.com en ese proveedor):
+ * - Brevo: BREVO_API_KEY (300/día) · Resend: RESEND_API_KEY (100/día) · Mailjet: MAILJET_API_KEY + MAILJET_SECRET_KEY (200/día)
+ * - SMTP2GO: SMTP2GO_API_KEY (200/día). Los topes se pueden cambiar con EMAIL_LIMITE_<PROVEEDOR>.
+ */
+type Proveedor = { id: "brevo" | "resend" | "mailjet" | "smtp2go"; tope: number; ok: boolean }
+export function proveedores(): Proveedor[] {
+  const n = (k: string, d: number) => Number(process.env[`EMAIL_LIMITE_${k}`] ?? d)
+  return [
+    { id: "brevo" as const, tope: n("BREVO", Number(process.env.EMAIL_LIMITE_DIARIO ?? 300)), ok: !!process.env.BREVO_API_KEY },
+    { id: "mailjet" as const, tope: n("MAILJET", 200), ok: !!(process.env.MAILJET_API_KEY && process.env.MAILJET_SECRET_KEY) },
+    { id: "smtp2go" as const, tope: n("SMTP2GO", 200), ok: !!process.env.SMTP2GO_API_KEY },
+    { id: "resend" as const, tope: n("RESEND", 100), ok: !!process.env.RESEND_API_KEY },
+  ].filter((x) => x.ok)
+}
+export const algunProveedor = () => proveedores().length > 0
+export const limiteDiarioTotal = () => proveedores().reduce((a, p) => a + p.tope, 0)
+
+async function enviadosHoyPor(id: string) {
+  const r = await one<{ n: number }>("select count(*)::int n from em_log where tipo='enviado' and coalesce(proveedor,'brevo')=$1 and creado >= date_trunc('day', now() at time zone 'America/Argentina/Buenos_Aires') at time zone 'America/Argentina/Buenos_Aires'", [id])
+  return r?.n ?? 0
+}
+
+/** Manda por el proveedor indicado, con el mismo remitente, respuesta y baja en un clic. */
+export async function enviarCon(prov: Proveedor["id"], to: { email: string; name?: string | null }, asunto: string, html: string, baja?: string | null): Promise<{ ok: boolean; id?: string; error?: string }> {
+  if (prov === "brevo") return enviarBrevo(to, asunto, html, baja)
+  const unsub = baja ? `<${baja.replace("/baja/", "/api/e/baja/")}>` : null
+  const reg = async (ok: boolean) => { await q("insert into em_log(tipo,email,proveedor) values ($1,$2,$3)", [ok ? "enviado" : "error", to.email, prov]).catch(() => {}) }
+  try {
+    if (prov === "resend") {
+      const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: `${REMITENTE.name} <${REMITENTE.email}>`, to: [to.email], reply_to: RESPONDER_A, subject: asunto, html, ...(unsub ? { headers: { "List-Unsubscribe": unsub, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}) }) })
+      const j: any = await r.json().catch(() => ({})); await reg(r.ok)
+      return r.ok ? { ok: true, id: j.id } : { ok: false, error: j.message ?? `Error ${r.status}` }
+    }
+    if (prov === "mailjet") {
+      const auth = Buffer.from(`${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`).toString("base64")
+      const r = await fetch("https://api.mailjet.com/v3.1/send", { method: "POST", headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ Messages: [{ From: { Email: REMITENTE.email, Name: REMITENTE.name }, To: [{ Email: to.email, ...(to.name ? { Name: to.name } : {}) }], ReplyTo: { Email: RESPONDER_A }, Subject: asunto, HTMLPart: html, ...(unsub ? { Headers: { "List-Unsubscribe": unsub, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}) }] }) })
+      const j: any = await r.json().catch(() => ({})); const ok = r.ok && j?.Messages?.[0]?.Status === "success"; await reg(ok)
+      return ok ? { ok: true, id: String(j.Messages[0].To?.[0]?.MessageID ?? "") } : { ok: false, error: j?.Messages?.[0]?.Errors?.[0]?.ErrorMessage ?? j?.ErrorMessage ?? `Error ${r.status}` }
+    }
+    const r = await fetch("https://api.smtp2go.com/v3/email/send", { method: "POST", headers: { "X-Smtp2go-Api-Key": String(process.env.SMTP2GO_API_KEY), "Content-Type": "application/json" },
+      body: JSON.stringify({ sender: `${REMITENTE.name} <${REMITENTE.email}>`, to: [to.email], subject: asunto, html_body: html, custom_headers: [{ header: "Reply-To", value: RESPONDER_A }, ...(unsub ? [{ header: "List-Unsubscribe", value: unsub }, { header: "List-Unsubscribe-Post", value: "List-Unsubscribe=One-Click" }] : [])] }) })
+    const j: any = await r.json().catch(() => ({})); const ok = r.ok && (j?.data?.succeeded ?? 0) > 0; await reg(ok)
+    return ok ? { ok: true, id: j?.data?.email_id } : { ok: false, error: j?.data?.error ?? `Error ${r.status}` }
+  } catch (e) { await reg(false); return { ok: false, error: (e as Error).message } }
+}
+
 /** Reemplaza {{nombre}}; si no hay nombre, también saca el espacio de adelante ("Hola {{nombre}}," → "Hola,"). */
 export const conNombre = (t: string, n: string) => t.replace(/\s?\{\{nombre\}\}/g, (m: string) => (!n ? "" : m.startsWith("{") ? n : " " + n))
 
@@ -102,7 +153,7 @@ export async function enviarBrevo(to: { email: string; name?: string | null }, a
       }),
     })
     const j = await r.json().catch(() => ({}))
-    await q("insert into em_log(tipo,email) values ($1,$2)", [r.ok ? "enviado" : "error", to.email])
+    await q("insert into em_log(tipo,email,proveedor) values ($1,$2,'brevo')", [r.ok ? "enviado" : "error", to.email])
     return r.ok ? { ok: true, id: j.messageId as string | undefined } : { ok: false, error: j.message ?? `Error ${r.status}` }
   } catch (e) { return { ok: false, error: (e as Error).message } }
 }
@@ -165,11 +216,13 @@ export async function encolar(cid: number) {
 }
 
 /** Manda lo pendiente respetando el límite diario. Devuelve cuántos salieron. */
-export async function procesarCola(max = LIMITE_DIARIO) {
-  if (!brevoConfigurado()) return { enviados: 0, motivo: "Brevo no configurado" }
+export async function procesarCola(max = 5000) {
+  if (!algunProveedor()) return { enviados: 0, motivo: "Ningún proveedor de email configurado" }
   // Lo excluido que ya estaba en cola no sale
   await q(`update em_envios e set estado='omitido', error='Excluido de los envíos' where e.estado='pendiente' and (${EMAIL_EXCLUIDO("e.email")} or exists (select 1 from db_contactos c where c.id=e.contacto_id and (${EXCLUIDOS_SQL} or 'no-enviar' = any(c.tags))))`).catch(() => {})
-  const cupo = Math.max(0, Math.min(max, LIMITE_DIARIO - (await enviadosHoy())))
+  // Cupo de hoy por proveedor (el primero con lugar manda; cuando se llena, sigue el próximo)
+  const provs = await Promise.all(proveedores().map(async (p) => ({ ...p, libre: Math.max(0, p.tope - (await enviadosHoyPor(p.id))) })))
+  const cupo = Math.max(0, Math.min(max, provs.reduce((a, p) => a + p.libre, 0)))
   if (!cupo) return { enviados: 0, motivo: "Límite diario alcanzado" }
   const lote = await q<any>(
     `select e.id, e.email, e.campania_id, ct.nombre, ct.email_token, k.asunto, k.preheader, k.contenido, k.estilo, k.portada
@@ -186,10 +239,18 @@ export async function procesarCola(max = LIMITE_DIARIO) {
     // Se toma el envío antes de mandarlo: si la cola corre dos veces a la vez (cron y botón, o doble clic), solo una lo manda
     const mio = await q("update em_envios set estado='enviado', enviado_en=now() where id=$1 and estado='pendiente' returning id", [x.id])
     if (!mio.length) continue
-    const r = await enviarBrevo({ email: x.email, name: x.nombre }, conNombre(x.asunto, x.nombre ? x.nombre.split(" ")[0] : "").replace(/^[,\s]+/, "").trim(), html, baja)
+    const p = provs.find((z) => z.libre > 0)
+    if (!p) { await q("update em_envios set estado='pendiente', enviado_en=null where id=$1", [x.id]); break }
+    const r = await enviarCon(p.id, { email: x.email, name: x.nombre }, conNombre(x.asunto, x.nombre ? x.nombre.split(" ")[0] : "").replace(/^[,\s]+/, "").trim(), html, baja)
+    p.libre--
     await q("update em_envios set estado=$1, error=$2, proveedor_id=$3, enviado_en=case when $1='enviado' then now() else null end where id=$4", [r.ok ? "enviado" : "error", r.ok ? null : r.error, r.ok ? r.id ?? null : null, x.id])
     if (r.ok) enviados++
-    else if (/key|unauthorized|forbidden|limit|quota|sender|not valid|activat|blocked|suspend/i.test(r.error ?? "")) break
+    // Un proveedor con problema de cuenta (clave, cupo, remitente sin verificar) se saltea y siguen los demás
+    else if (/key|unauthorized|forbidden|limit|quota|sender|not valid|activat|blocked|suspend|domain|verif/i.test(r.error ?? "")) {
+      p.libre = 0
+      await q("update em_envios set estado='pendiente', error=null, enviado_en=null where id=$1", [x.id])
+      if (!provs.some((z) => z.libre > 0)) break
+    }
   }
   await q(`update em_campanias k set estado='enviada', terminada=now() where estado='enviando' and not exists (select 1 from em_envios e where e.campania_id=k.id and e.estado='pendiente')`)
   return { enviados, motivo: lote.length < cupo ? "Cola vacía" : "Sigue mañana" }

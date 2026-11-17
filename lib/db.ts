@@ -208,6 +208,7 @@ create table if not exists em_envios (
 );
 create index if not exists em_envios_cola on em_envios(estado, campania_id);
 create table if not exists em_log (id bigserial primary key, tipo text not null, email text, creado timestamptz not null default now());
+alter table em_log add column if not exists proveedor text;
 create table if not exists am_guias (
   id serial primary key, slug text unique not null, titulo text not null, bajada text, categoria text, contenido text not null default '',
   exclusiva boolean not null default false, publicada boolean not null default false, destacada boolean not null default false,

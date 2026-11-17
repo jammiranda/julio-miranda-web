@@ -2,7 +2,8 @@ import Link from "next/link"
 import { requerir } from "@/lib/auth"
 import { q, one } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { brevoConfigurado, enviadosHoy, LIMITE_DIARIO, REMITENTE, diagnosticoBrevo, procesarCola } from "@/lib/email"
+import { brevoConfigurado, enviadosHoy, limiteDiarioTotal, proveedores, REMITENTE, diagnosticoBrevo, procesarCola } from "@/lib/email"
+const LIMITE_DIARIO = limiteDiarioTotal()
 import { audit } from "@/lib/db"
 import { fechaHora } from "@/lib/consultas"
 import { asegurarRelanzamiento, lanzarRelanzamientoSiCorresponde } from "@/lib/campania-relanzamiento"
@@ -169,7 +170,7 @@ export default async function Email() {
       <section className="card flex flex-col gap-2">
         <h2 className="m-0 text-base">Cómo funciona</h2>
         <ul className="m-0 pl-5 text-sm flex flex-col gap-1 text-[#262C37]">
-          <li>Remitente: <strong>{REMITENTE.name} &lt;{REMITENTE.email}&gt;</strong>. Brevo gratis permite {LIMITE_DIARIO} por día: si la campaña tiene más destinatarios, sigue sola cada día a las 8 h.</li>
+          <li>Remitente: <strong>{REMITENTE.name} &lt;{REMITENTE.email}&gt;</strong>. Hoy se pueden mandar {LIMITE_DIARIO} por día entre {proveedores().map((p) => `${p.id} (${p.tope})`).join(", ")}; si la campaña tiene más destinatarios, sigue sola cada día a las 8 h. Para mandar más, sumá la clave de otro proveedor (Mailjet, SMTP2GO o Resend) en Vercel.</li>
           <li>Cada correo lleva link de baja en un clic; quien se da de baja no vuelve a recibir nada. Se miden aperturas y clics.</li>
           <li>Para elegir a quién mandar, usá etapa, sector, categoría, origen o <strong>etiquetas</strong> (se cargan al importar con una columna «Etiquetas»).</li>
         </ul>
