@@ -28,7 +28,7 @@ export const EQUIPO_PIE = "Cada líder coordina su propio equipo: análisis, des
 
 // ── Soluciones con precio publicado: cada una tiene su landing (servida en la misma web) ──
 export const SOLUCIONES = [
-  { id: "webs", tag: "Páginas web", title: "Tu web a medida, lista en días", text: "Diseño único con IA, dominio a tu nombre y WhatsApp conectado.", price: "Desde $199.000", href: "/webs", img: "/images/landings/og-webs.jpg", productos: [] as string[] },
+  { id: "webs", tag: "Páginas web", title: "Tu web propia, lista en 48 horas", text: "Por suscripción, sin costo de armado y sin permanencia. O a medida, con diseño único.", price: "Desde $27.900 por mes", href: "/webs", img: "/images/landings/og-webs.jpg", productos: [] as string[] },
   { id: "whatsapp", tag: "WhatsApp con IA", title: "Un asistente que atiende 24 h", text: "Responde, vende y da turnos por WhatsApp sin sumar personal.", price: "Desde $290.000", href: "/whatsapp", img: "/images/landings/og-whatsapp.jpg", productos: ["whatsapp"] },
   { id: "redes", tag: "Redes y anuncios", title: "Tus redes y tu pauta, resueltas", text: "Reels, placas, historias y campañas en Meta y Google.", price: "Desde $299.000/mes", href: "/redes", img: "/images/landings/og-redes.jpg", productos: [] as string[] },
   { id: "sistemas", tag: "Sistemas", title: "CRM, turnos y tableros", text: "Partimos de módulos probados: menos costo y menos tiempo.", price: "Desde $890.000", href: "/sistemas", img: "/images/landings/og-sistemas.jpg", productos: ["clinicas", "crm", "tableros", "documental"] },

@@ -39,6 +39,7 @@ const SERVICIOS = [
   { href: "/transformacion-digital", label: "Transformación digital", desc: "Consultoría, talleres y diagnóstico" },
   { href: "/asesoria", label: "Asesoría en tecnología e IA", desc: "Por horas o con abono mensual" },
   { href: "/kit-digital", label: "Kits DEVISEBIT", desc: "Tecnología con alcance cerrado y ayuda de financiamiento" },
+  { href: "/webs", label: "Páginas web", desc: "Por suscripción desde $27.900 por mes, o a medida", plain: true },
   { href: AUTODIAG, label: "Autodiagnóstico gratis", desc: "3 niveles: madurez, procesos e IA", plain: true },
 ]
 

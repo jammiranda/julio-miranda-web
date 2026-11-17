@@ -12,6 +12,7 @@ const COLUMNAS = [
       { href: "/asesoria", label: "Asesoría en tecnología e IA" },
       { href: "/kit-digital", label: "Kits DEVISEBIT" },
       { href: "/webs", label: "Páginas web" },
+      { href: "https://tuweb.devisebit.com", label: "Web por Suscripción" },
       { href: "/whatsapp", label: "WhatsApp con IA" },
       { href: "/sistemas", label: "Sistemas a medida" },
       { href: "/redes", label: "Redes y anuncios" },

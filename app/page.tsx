@@ -124,6 +124,34 @@ export default function HomePage() {
         {/* Integración (la clave de la venta) */}
         <Integracion lang="es" />
 
+        {/* Web por Suscripción: la entrada para negocios chicos */}
+        <section id="web-suscripcion" className="bg-[#F5F6F8]">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-10 lg:gap-14 items-center">
+            <div className="flex flex-col gap-4">
+              <p className={kicker + " text-[#C8231F]"}>Web por Suscripción</p>
+              <h2 className={h2}>¿Tu negocio todavía no tiene web? <span className="text-[#C8231F]">$27.900 por mes.</span></h2>
+              <p className="m-0 text-lg leading-relaxed text-[#4A515C] max-w-[560px]">Elegís un modelo según tu rubro y en 48 horas está publicada, con dominio .com, WhatsApp, formulario y asistente. Los textos los escribimos nosotros.</p>
+              <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
+                {["Sin costo de armado", "Sin permanencia", "Lista en 48 horas", "11 modelos"].map((x) => (
+                  <li key={x} className="rounded-full border border-[#D9DDE3] bg-white px-3.5 py-1.5 text-[14px] font-semibold text-[#0B0D12]">{x}</li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <a href="https://tuweb.devisebit.com/?utm_source=devisebit&utm_medium=web&utm_campaign=inicio" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Ver modelos y contratar</a>
+                <a href="/webs" className="rounded-xl border-2 border-[#0B0D12] hover:bg-[#0B0D12] hover:text-white px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Webs a medida</a>
+              </div>
+            </div>
+            <a href="https://tuweb.devisebit.com/?utm_source=devisebit&utm_medium=web&utm_campaign=inicio" aria-label="Ver los modelos de Web por Suscripción" className="group grid grid-cols-2 gap-3">
+              {[["la-esquina", "Gastronomía"], ["barberia-norte", "Barberías y estética"], ["centro-medico-los-olivos", "Salud"], ["electricidad-rivas", "Oficios"]].map(([s, r]) => (
+                <span key={s} className="block rounded-2xl overflow-hidden border border-[#D9DDE3] bg-white shadow-[0_14px_40px_-22px_rgba(11,13,18,.45)] transition-transform group-hover:-translate-y-0.5 motion-reduce:transform-none">
+                  <img src={`/images/landings/suscripcion-${s}.jpg`} alt={`Modelo de web para ${r.toLowerCase()}`} width={1000} height={671} loading="lazy" decoding="async" className="block w-full h-auto" />
+                  <span className="block px-3.5 py-2.5 text-[14px] font-bold text-[#0B0D12]">{r}</span>
+                </span>
+              ))}
+            </a>
+          </div>
+        </section>
+
         {/* Productos */}
         <section id="productos" className="bg-white">
           <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-wrap gap-12">
