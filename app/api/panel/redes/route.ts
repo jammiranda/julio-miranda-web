@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { claveOk } from "@/lib/clave"
+import { usuarioActual } from "@/lib/auth"
 import { q } from "@/lib/db"
 import { guardarFacebook, type FilaFB } from "@/lib/facebook"
 import { guardarRespaldoYouTube } from "@/lib/panel"
@@ -25,7 +26,9 @@ const autorizado = (k: string | null) => claveOk(k, "REDES_INGESTA_KEY") || clav
 const anotar = (v: object) => q("insert into config(clave,valor) values ('redes_ultima_ingesta',$1) on conflict (clave) do update set valor=excluded.valor", [JSON.stringify({ cuando: new Date().toISOString(), ...v })]).catch(() => {})
 
 export async function POST(req: NextRequest) {
-  if (!autorizado(req.headers.get("x-api-key"))) return NextResponse.json({ ok: false, error: "no autorizado" }, { status: 401 })
+  // También con la sesión del sistema (Dirección o Comercial): así la tarea que lee el LinkedIn de Julio desde su Chrome carga sin claves
+  const sesion = autorizado(req.headers.get("x-api-key")) ? null : await usuarioActual().catch(() => null)
+  if (!autorizado(req.headers.get("x-api-key")) && !(sesion && ["gerente", "coordinacion"].includes(sesion.rol))) return NextResponse.json({ ok: false, error: "no autorizado" }, { status: 401 })
   const b: any = await req.json().catch(() => ({}))
   const posts = (red: string, origen: string) => (Array.isArray(b.posts) ? guardarPublicaciones(b.posts.map((p: any) => ({ red, id: String(p.id ?? p.url ?? ""), fecha: p.fecha ?? null, texto: p.texto ?? "", tipo: p.tipo ?? null, url: p.url ?? null, impresiones: p.impresiones, alcance: p.alcance, me_gusta: p.reacciones ?? p.meGusta ?? p.me_gusta, comentarios: p.comentarios, compartidos: p.compartidos, clics: p.clics, vistas: p.vistas, interacciones: p.interacciones })), origen) : Promise.resolve(0))
   if (b.red === "facebook" && (Array.isArray(b.filas) || Array.isArray(b.posts))) {
