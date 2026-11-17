@@ -7,20 +7,20 @@ export const posts: Post[] = [
     "slug": "matebot-asistente-personal-por-audio",
     "seoTitle": "Asistente personal por audio con IA: así funciona MateBot",
     "seoDesc": "MateBot convierte tus audios en turnos, recordatorios y listas. Así funciona el asistente personal con IA que lanzamos gratis en DEVISEBIT.",
-    "date": "2026-11-23",
-    "dateTxt": "23 de noviembre de 2026",
+    "date": "2026-11-17",
+    "dateTxt": "17 de noviembre de 2026",
     "kicker": "Lanzamiento",
     "title": "Asistente personal por audio: cómo la IA convierte un mensaje de voz en tu agenda",
     "desc": "Mandamos audios todo el día. Con inteligencia artificial, ese mismo gesto puede ordenar turnos, recordatorios y listas sin abrir otra app. Así funciona MateBot, el asistente gratuito que lanzamos en DEVISEBIT.",
     "body": [
       "## Hablamos más de lo que escribimos",
-      "El audio se volvió la forma más natural de comunicarnos por chat. Meta informó en 2022 que en WhatsApp se envían en promedio 7.000 millones de mensajes de voz por día, y lo presentó como una de las funciones preferidas de sus usuarios. Telegram, por su parte, superó en marzo de 2025 los 1.000 millones de usuarios activos mensuales, según anunció su fundador, Pavel Durov.",
+      "El audio se volvió la forma más natural de comunicarnos por chat. WhatsApp informó en marzo de 2022 que sus usuarios envían en promedio 7.000 millones de mensajes de voz por día. Telegram, por su parte, superó en marzo de 2025 los 1.000 millones de usuarios activos mensuales, según anunció su fundador, Pavel Durov.",
       "La conclusión es simple: la gente ya está en el chat y ya habla. Lo que faltaba era que alguien escuchara esos audios y los convirtiera en algo útil.",
       "## De un audio a un evento en el calendario",
-      "Detrás de un asistente como MateBot hay tres pasos que hoy se resuelven en segundos. Primero, un modelo de reconocimiento de voz transcribe el audio a texto. Segundo, un modelo de lenguaje interpreta lo que la persona quiso decir: entiende que «el jueves a las 10» es una fecha concreta, que «recordame» pide un aviso y que «agregá yerba» va a una lista. Tercero, el sistema guarda el resultado donde corresponde, por ejemplo en Google Calendar, y programa los avisos.",
+      "Detrás de un asistente como MateBot hay tres pasos que hoy se resuelven en segundos. Primero, un modelo de reconocimiento de voz transcribe el audio a texto. Segundo, un modelo de lenguaje interpreta lo que la persona quiso decir: entiende que «el jueves a las 10» es una fecha concreta, que «recordame» pide un aviso y que «agregá yerba» va a una lista. Tercero, el sistema guarda el resultado, programa los avisos y ofrece un botón para sumar el evento al calendario que cada uno use: Google Calendar, iPhone u Outlook, sin conectar cuentas.",
       "La clave está en el último detalle: antes de agendar, el asistente muestra lo que entendió y pide confirmación. Si algo se superpone con otro compromiso, lo advierte. La IA hace el trabajo pesado, pero la decisión sigue siendo de la persona.",
       "## Qué hace MateBot",
-      "MateBot funciona por Telegram y muy pronto también por WhatsApp. Recibe audios o textos y los transforma en eventos, recordatorios, cumpleaños y listas. Cada mañana manda un resumen del día, avisa un rato antes de cada compromiso y permite compartir la lista del súper y las fechas importantes con la familia. No hay que instalar nada ni crear contraseñas, y es gratis.",
+      "MateBot funciona por Telegram y muy pronto también por WhatsApp. Recibe audios o textos y los transforma en eventos, recordatorios, cumpleaños y listas. Cada mañana manda un resumen del día, avisa un rato antes de cada compromiso y permite compartir la lista del súper y las fechas importantes con la familia. No hay que instalar nada más que Telegram ni crear contraseñas, y es gratis.",
       "## Privacidad desde el diseño",
       "Un asistente que escucha tu agenda tiene que ganarse la confianza. Por eso definimos reglas claras: la agenda, los audios y las listas se usan solo para prestar el servicio, no se venden ni se comparten, y los audios se descartan después de transcribirlos. Los datos de contacto se usan para la cuenta y, solo si la persona lo acepta, para enviarle novedades. Con un comando se borra todo.",
       "Qué significa para tu empresa: la misma tecnología que ordena la agenda de una familia puede ordenar la de un negocio. Confirmar turnos de pacientes, recordar vencimientos a clientes, tomar pedidos por audio o coordinar la agenda de un equipo, todo desde el chat que la gente ya usa. En DEVISEBIT diseñamos estas automatizaciones conversacionales a medida, integradas con el CRM y los sistemas de cada organización. MateBot es la demostración más directa: probalo gratis en matebot.devisebit.com."
@@ -37,12 +37,162 @@ export const posts: Post[] = [
     },
     "sources": [
       {
-        "t": "Meta: New Voice Message Features on WhatsApp (30 de marzo de 2022)",
-        "u": "https://about.fb.com/news/2022-03/new-voice-message-features-on-whatsapp/"
+        "t": "Blog de WhatsApp: We’re Making Voice Messages Even Better (30 de marzo de 2022)",
+        "u": "https://blog.whatsapp.com/making-voice-messages-better"
       },
       {
         "t": "TechCrunch: Telegram founder Pavel Durov says app now has 1B users (19 de marzo de 2025)",
         "u": "https://techcrunch.com/2025/03/19/telegram-founder-pavel-durov-says-app-now-has-1b-users-calls-whatsapp-a-cheap-watered-down-imitation"
+      }
+    ]
+  },
+  {
+    "slug": "bot-de-telegram-para-empresas",
+    "seoTitle": "Bot de Telegram para empresas: qué es y para qué sirve",
+    "seoDesc": "Qué es un bot de Telegram, qué puede hacer por una empresa, cuánto cuesta la plataforma y en qué se diferencia de un asistente de WhatsApp.",
+    "date": "2026-11-17",
+    "dateTxt": "17 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "Bot de Telegram para empresas: qué es, para qué sirve y en qué se diferencia de WhatsApp",
+    "desc": "Telegram ya supera los 1.000 millones de usuarios y su plataforma de bots es gratuita. Qué puede hacer un bot por una organización, qué límites tiene y cuándo conviene sumarlo a WhatsApp.",
+    "body": [
+      "Cuando una empresa piensa en atender por chat, piensa en WhatsApp. Tiene sentido: es donde está la mayoría de sus clientes. Pero hay otra plataforma que creció en silencio y que resuelve muy bien un tipo de tarea: Telegram y sus bots.",
+      "## Qué es un bot de Telegram",
+      "La documentación oficial de Telegram define a los bots como pequeñas aplicaciones que funcionan dentro de la propia app. El usuario no instala nada: abre un enlace, toca «Iniciar» y conversa con el bot como con cualquier contacto. Del otro lado no hay una persona, sino un programa que responde, guarda datos o ejecuta una tarea.",
+      "Según esa misma documentación, la plataforma aloja más de 10 millones de bots y es gratuita tanto para los usuarios como para quienes los desarrollan. Un bot se registra con @BotFather, la herramienta oficial, que entrega una clave de acceso. A partir de ahí, lo que el bot sepa hacer depende del sistema que tenga detrás.",
+      "## Para qué le sirve a una empresa",
+      "Un bot bien diseñado cubre tareas concretas: responder preguntas frecuentes, tomar pedidos o reservas, enviar recordatorios, avisar al equipo cuando entra una consulta o entregar un informe diario. Telegram suma herramientas propias: botones y menús de comandos, mini aplicaciones dentro del chat y la posibilidad de cobrar productos y servicios.",
+      "La documentación también contempla los asistentes con inteligencia artificial, que se integran de forma nativa, y un modo para negocios que permite conectar un bot a una cuenta de Telegram Business para que responda mensajes en su nombre.",
+      "Hay un uso menos visible y muy valioso: los avisos internos. Un bot puede mandarle al dueño o al equipo cada consulta nueva, cada pago y cada alerta de un sistema, con sonido solo cuando hace falta. En DEVISEBIT lo usamos así todos los días.",
+      "## En qué se diferencia de WhatsApp",
+      "La primera diferencia es de alcance. Telegram anunció en marzo de 2025 que superó los 1.000 millones de usuarios activos por mes; WhatsApp tiene más de 2.000 millones. Conviene preguntarles a los propios clientes qué usan antes de elegir.",
+      "La segunda es de costo de plataforma. Según su documentación, la plataforma de bots de Telegram es gratuita para usuarios y desarrolladores. En la Plataforma de WhatsApp Business, Meta cobra por mensaje entregado según la categoría y el país, como explicamos en nuestra guía sobre la API de WhatsApp. En los dos casos hay que sumar el desarrollo y, si el bot usa inteligencia artificial, el consumo de esos modelos.",
+      "La tercera es una regla que comparten con matices: en Telegram un bot no puede iniciar una conversación; la persona tiene que escribirle primero o abrir su enlace. En WhatsApp, fuera de la ventana de 24 horas, la empresa solo puede escribir con plantillas aprobadas.",
+      "## Cuándo conviene",
+      "Telegram conviene cuando el público ya lo usa, para comunidades y canales de difusión, para herramientas internas del equipo y para probar una idea rápido y sin costo de mensajería. WhatsApp conviene para la atención al cliente masiva. No son excluyentes: el mismo asistente puede atender en los dos canales con la misma información y el mismo registro.",
+      "Qué significa para tu empresa: empezá por una tarea, no por la tecnología. Elegí algo que hoy se hace a mano y se repite todos los días, como confirmar turnos, avisar vencimientos o reportar las ventas del día, y probalo con un grupo chico. Para ver cómo se siente hablarle a un bot, MateBot, nuestro asistente gratuito por audio, está disponible en Telegram: se le dicta un compromiso y lo ordena. En DEVISEBIT desarrollamos bots de Telegram y asistentes de WhatsApp con IA a medida, integrados con el CRM y los sistemas de cada organización."
+    ],
+    "box": [
+      "¿Tus clientes o tu equipo ya usan Telegram?",
+      "¿Qué aviso o respuesta repetís a mano todos los días?",
+      "¿Cómo se entera hoy tu equipo de que entró una consulta?",
+      "¿Tu atención por chat depende de una sola persona y de un solo canal?"
+    ],
+    "link": {
+      "t": "Probá MateBot gratis en Telegram",
+      "u": "https://matebot.devisebit.com"
+    },
+    "sources": [
+      {
+        "t": "Telegram: Bots: An introduction for developers",
+        "u": "https://core.telegram.org/bots"
+      },
+      {
+        "t": "TechCrunch: Telegram founder Pavel Durov says app now has 1B users (19 de marzo de 2025)",
+        "u": "https://techcrunch.com/2025/03/19/telegram-founder-pavel-durov-says-app-now-has-1b-users-calls-whatsapp-a-cheap-watered-down-imitation"
+      },
+      {
+        "t": "Meta for Developers: Pricing on the WhatsApp Business Platform",
+        "u": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
+      }
+    ]
+  },
+  {
+    "slug": "pasar-audios-de-whatsapp-a-texto",
+    "seoTitle": "Cómo pasar audios de WhatsApp a texto, paso a paso",
+    "seoDesc": "Cómo activar la transcripción de mensajes de voz en WhatsApp, qué límites tiene y cómo una empresa puede atender audios con inteligencia artificial.",
+    "date": "2026-11-17",
+    "dateTxt": "17 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "Cómo pasar audios de WhatsApp a texto: la función oficial y qué puede hacer una empresa",
+    "desc": "WhatsApp ya transcribe los mensajes de voz desde la propia aplicación. Cómo se activa, qué límites tiene y por qué una empresa que atiende por chat necesita algo más para entender los audios de sus clientes.",
+    "body": [
+      "El audio es cómodo para quien lo manda y no siempre para quien lo recibe. WhatsApp informó que sus usuarios envían en promedio 7.000 millones de mensajes de voz por día. Para una persona, escucharlos lleva tiempo; para una empresa que atiende por chat, además, es información que queda fuera de sus registros.",
+      "## La función oficial: transcripciones de mensajes de voz",
+      "Desde noviembre de 2024 WhatsApp incluye una función propia para leer los audios en lugar de escucharlos. Según el blog oficial, se activa en Ajustes, Chats, Transcripciones de mensajes de voz. Ahí se enciende la opción y se elige el idioma; el español está entre los disponibles desde el lanzamiento.",
+      "Una vez activada, se mantiene presionado el mensaje de voz y se toca «Transcribir». El texto aparece en el mismo chat, junto al audio.",
+      "## Qué pasa con la privacidad",
+      "WhatsApp explica que las transcripciones se generan en el propio teléfono. Por eso nadie más, ni siquiera WhatsApp, puede escuchar ni leer esos mensajes, que siguen protegidos con cifrado de extremo a extremo.",
+      "## Los límites que conviene conocer",
+      "La función viene desactivada: hay que encenderla a mano. Funciona con una lista acotada de idiomas, que WhatsApp publica en su Centro de ayuda y va ampliando. Y, como toda transcripción automática, puede fallar con ruido de fondo, nombres propios o varias personas hablando.",
+      "Hay otro límite menos evidente: es una herramienta para la persona que recibe el audio en su teléfono. No resuelve el caso de una empresa que atiende un número con varias personas o con un asistente automático.",
+      "## Qué cambia cuando la que recibe audios es una empresa",
+      "Cuando una organización atiende por la Plataforma de WhatsApp Business, los mensajes llegan a un sistema, no a un teléfono. Si ese sistema no sabe qué hacer con un audio, pasa lo peor: el asistente contesta cualquier cosa o le pide al cliente que escriba, y muchos no vuelven.",
+      "La solución es la misma tecnología, aplicada del lado de la empresa. Un modelo de reconocimiento de voz convierte el audio en texto en segundos y un modelo de lenguaje interpreta lo que la persona pidió. Con eso el asistente puede responder, tomar un pedido o dar un turno, y la consulta queda escrita en el historial para quien la retome después.",
+      "Tres cuidados hacen la diferencia. Avisarle al cliente qué se hace con sus audios y no guardarlos más de lo necesario. Mostrar lo que se entendió y pedir confirmación antes de agendar o cobrar algo. Y derivar a una persona cuando el audio no se entiende, en lugar de insistir.",
+      "Qué significa para tu empresa: revisá cuántos de los mensajes que recibís por semana son audios y qué pasa hoy con ellos. Si los escucha una persona, medí cuánto tiempo le lleva. Si atiende un asistente, mandale vos un audio y mirá qué responde. En DEVISEBIT los asistentes de WhatsApp con IA que desarrollamos entienden los audios de los clientes, y con MateBot, nuestro asistente gratuito, llevamos la misma idea a la agenda personal: se le dicta un compromiso y lo ordena."
+    ],
+    "box": [
+      "¿Qué porcentaje de las consultas te llega por audio?",
+      "¿Quién escucha esos audios y cuánto tarda en responder?",
+      "¿Lo que el cliente dice en un audio queda registrado en algún sistema?",
+      "¿Qué responde tu asistente cuando recibe un mensaje de voz?",
+      "¿Tus clientes saben qué hacés con sus audios?"
+    ],
+    "link": {
+      "t": "Asistente de WhatsApp con IA para empresas",
+      "u": "/whatsapp"
+    },
+    "sources": [
+      {
+        "t": "Blog de WhatsApp: Presentamos las transcripciones de mensajes de voz (21 de noviembre de 2024)",
+        "u": "https://blog.whatsapp.com/introducing-voice-message-transcripts?lang=es"
+      },
+      {
+        "t": "Blog de WhatsApp: We’re Making Voice Messages Even Better (30 de marzo de 2022)",
+        "u": "https://blog.whatsapp.com/making-voice-messages-better"
+      },
+      {
+        "t": "Xataka México: Las transcripciones de voz llegan a WhatsApp, de forma oficial y en español",
+        "u": "https://www.xataka.com.mx/aplicaciones/transcripciones-voz-llegan-a-whatsapp-asi-puedes-convertir-audios-a-texto-forma-oficial-espanol"
+      }
+    ]
+  },
+  {
+    "slug": "recordatorios-de-turnos-por-whatsapp",
+    "seoTitle": "Recordatorios de turnos por WhatsApp: guía y evidencia",
+    "seoDesc": "Qué dice la evidencia sobre los recordatorios de turnos, cómo se envían por WhatsApp con plantillas y qué debe tener un buen recordatorio.",
+    "date": "2026-11-17",
+    "dateTxt": "17 de noviembre de 2026",
+    "kicker": "Guía",
+    "title": "Recordatorios de turnos por WhatsApp: qué dice la evidencia y cómo implementarlos",
+    "desc": "Un turno al que nadie va es una hora perdida para el profesional y para otro paciente que lo necesitaba. Qué mostró la investigación sobre los recordatorios por mensaje y cómo armarlos bien en WhatsApp.",
+    "body": [
+      "Consultorios, centros de salud, estudios y talleres conviven con el mismo problema: turnos dados a los que la persona no llega. Muchas veces no hay mala voluntad, hay olvido. Y el olvido se puede prevenir con un mensaje a tiempo.",
+      "## Qué dice la evidencia",
+      "La referencia más citada es una revisión Cochrane de 2013, que reunió ocho ensayos controlados con 6.615 participantes. Comparó los recordatorios por mensaje de texto con no recordar, con el correo postal y con la llamada telefónica.",
+      "El resultado: los recordatorios por mensaje aumentaron la asistencia frente a no enviar nada. En los estudios incluidos, la asistencia fue de 67,8 % sin recordatorio, 78,6 % con mensaje y 80,3 % con llamada. Es decir, el mensaje rindió casi lo mismo que el llamado, y los dos estudios que midieron costos lo encontraron más económico.",
+      "Conviene leerlo con cuidado. Los autores califican la evidencia como de calidad baja a moderada, y los estudios se hicieron con SMS, no con WhatsApp. Lo que se puede trasladar es la conclusión de fondo: un recordatorio escrito, enviado a tiempo al teléfono de la persona, mejora la asistencia.",
+      "## Cómo funcionan en WhatsApp",
+      "Un recordatorio se envía uno o dos días antes del turno, cuando el cliente no le está escribiendo a la empresa. En la Plataforma de WhatsApp Business, fuera de la ventana de 24 horas solo se puede escribir con plantillas: mensajes con un formato aprobado de antemano por Meta. Un aviso de turno entra en la categoría de utilidad, y Meta cobra por cada mensaje entregado, con una tarifa que depende del país.",
+      "Dos condiciones previas: la persona tiene que haber aceptado recibir mensajes por ese canal, y el sistema de turnos tiene que estar conectado, para que el aviso salga solo y con los datos correctos.",
+      "## Qué debe tener un buen recordatorio",
+      "Lo justo: día, hora, lugar y con quién. Si es un turno de salud, sin datos clínicos: alcanza con «tenés un turno», no hace falta decir para qué.",
+      "Botones para responder: Confirmo, Cancelo, Reprogramar. Ese es el salto frente al SMS, porque el mensaje deja de ser un aviso y pasa a ser una gestión. Si la persona cancela, el turno se libera y puede ofrecerse a otra.",
+      "Un segundo aviso corto, el mismo día, para turnos tomados con mucha anticipación. Y una salida a una persona del equipo para lo que el mensaje no resuelve.",
+      "## Qué medir",
+      "Antes de empezar, registrá el ausentismo actual: cuántos turnos dados no se concretan por semana. Después medí cuántos recordatorios se entregan, cuántos se confirman, cuántos se cancelan con tiempo y cuántos de esos turnos se reasignan. Sin el número de partida no hay forma de saber si funcionó.",
+      "Qué significa para tu empresa: si hoy los recordatorios los manda una persona de a uno, ese es el primer proceso para automatizar. Devuelve horas al equipo y turnos a la agenda. En DEVISEBIT desarrollamos asistentes de WhatsApp con IA que dan turnos, los recuerdan y toman la confirmación, integrados con la agenda y el sistema de cada organización. Y para la agenda personal lanzamos MateBot, un asistente gratuito que avisa antes de cada compromiso."
+    ],
+    "box": [
+      "¿Cuántos turnos por semana se pierden por ausencias?",
+      "¿Quién manda hoy los recordatorios y cuánto tiempo le lleva?",
+      "¿Tus clientes pueden confirmar o cancelar con un toque?",
+      "¿Un turno cancelado vuelve a ofrecerse a otra persona?",
+      "¿Tu agenda está conectada con WhatsApp y con tu sistema?"
+    ],
+    "link": {
+      "t": "Asistente de WhatsApp con IA para empresas",
+      "u": "/whatsapp"
+    },
+    "sources": [
+      {
+        "t": "Cochrane: Mobile phone messaging reminders for attendance at healthcare appointments (Gurol-Urganci y otros, 2013)",
+        "u": "https://www.cochrane.org/evidence/CD007458_mobile-phone-messaging-reminders-attendance-healthcare-appointments"
+      },
+      {
+        "t": "Meta for Developers: Pricing on the WhatsApp Business Platform",
+        "u": "https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing"
       }
     ]
   },
