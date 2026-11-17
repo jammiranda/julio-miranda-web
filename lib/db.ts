@@ -1264,6 +1264,12 @@ update g_prospeccion set notas = regexp_replace(regexp_replace(regexp_replace(re
 where estado in ('borrador','respondio') and notas ~ '(charlamos (15|20) minutos|que lo charlemos[.]|café virtual de 15 minutos)'
   and not exists (select 1 from config where clave='acercamiento_sin_reunion_2026_11_17');
 insert into config(clave,valor) values ('acercamiento_sin_reunion_2026_11_17','1') on conflict (clave) do nothing;
+delete from em_clics where envio_id in (select id from em_envios where not bot and clic_en is not null and enviado_en is not null and clic_en - enviado_en < interval '2 minutes' and aperturas=0)
+  and not exists (select 1 from config where clave='robots_clic_rapido_2026_11_17');
+update em_envios set bot=true, bot_en=now(), bot_clics=bot_clics+clics, clics=0, clic_en=null, abierto_en=null
+where not bot and clic_en is not null and enviado_en is not null and clic_en - enviado_en < interval '2 minutes' and aperturas=0
+  and not exists (select 1 from config where clave='robots_clic_rapido_2026_11_17');
+insert into config(clave,valor) values ('robots_clic_rapido_2026_11_17','1') on conflict (clave) do nothing;
 -- 17/11/2026: los prospectos de LatAm (antes en la planilla Seguimiento LatAm) pasan a Acercamientos, la bandeja comercial única.
 insert into g_prospeccion(ref,campania,tanda,tipo,canal,sentido,organizacion,persona,cargo,destino,asunto,estado,enviado_en,respondio_en,seguimiento,notas)
 select * from (values

@@ -75,8 +75,10 @@ export async function marcarBot(envioId: number) {
 /** Revisa lo ya registrado: ráfagas de 3 links o más en 3 minutos son robots. */
 export async function limpiarRobots() {
   const x = await q<{ envio_id: number }>("select envio_id from em_clics where envio_id is not null group by envio_id having count(distinct url) >= 3 and max(creado) - min(creado) < interval '3 minutes'")
-  for (const r of x) await marcarBot(r.envio_id).catch(() => {})
-  return x.length
+  // Clic en los primeros 2 minutos sin apertura: filtro de seguridad del servidor de correo, no una persona
+  const y = await q<{ envio_id: number }>("select id envio_id from em_envios where not bot and clic_en is not null and enviado_en is not null and clic_en - enviado_en < interval '2 minutes' and aperturas=0")
+  for (const r of [...x, ...y]) await marcarBot(r.envio_id).catch(() => {})
+  return x.length + y.length
 }
 
 /** Casillas automáticas o de servicios (bancos, compras, avisos): a Descartados, nunca reciben envíos. */
