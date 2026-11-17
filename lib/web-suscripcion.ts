@@ -1,6 +1,7 @@
 import { q, one, audit } from "./db"
 import { notificar } from "./push"
 import { primeraVez } from "./telegram"
+import { aHtml, plantilla, enviarBrevo } from "./email"
 
 /**
  * Web por Suscripción (tuweb.devisebit.com): seguimiento de las suscripciones de Mercado Pago.
@@ -49,6 +50,27 @@ async function contactoPara(email: string | null) {
   return n?.id ?? null
 }
 
+/** Correo de bienvenida al que se acaba de suscribir: qué datos mandar y por dónde. */
+async function bienvenida(email: string) {
+  const wa = "https://wa.me/5491173466490?text=" + encodeURIComponent("Hola, ya me suscribí a Web por Suscripción. Les paso los datos de mi negocio: ")
+  const md = `# ¡Ya arrancamos con tu web!
+
+Recibimos tu suscripción a **Web por Suscripción DEVISEBIT**. En 48 horas desde que tengamos tus datos, tu web está publicada.
+
+Para armarla necesitamos que nos mandes por WhatsApp:
+
+- Nombre del negocio, rubro y ciudad
+- Qué modelo elegiste (los ves en tuweb.devisebit.com)
+- Servicios o productos, con precios si querés mostrarlos
+- Horarios, dirección y teléfono o WhatsApp de contacto
+- Fotos y logo, si tenés (si no, arrancamos con fotos de tu rubro)
+
+[[Mandar los datos por WhatsApp|${wa}]]
+
+Si preferís, respondé este correo con los datos. Cualquier duda, estamos en el 11 7346-6490.`
+  return enviarBrevo({ email }, "Tu web ya está en marcha: mandanos los datos de tu negocio", plantilla(aHtml(md), { preheader: "Qué necesitamos para publicar tu web en 48 horas" }))
+}
+
 /** Aviso de alta, cambio o cancelación de una suscripción. */
 export async function avisoSuscripcion(id: string) {
   const p = await mp(`/preapproval/${encodeURIComponent(id)}`)
@@ -68,8 +90,9 @@ export async function avisoSuscripcion(id: string) {
   await audit({ id: 0, usuario: "Mercado Pago" }, "web_suscripcion_" + estado, "web_suscripcion", String(p.id), `${email ?? "sin email"} · ${plata(p.auto_recurring?.transaction_amount)}`)
   const quien = email ?? "Cliente sin email"
   const monto = plata(p.auto_recurring?.transaction_amount)
+  if (!antes && estado === "activa" && email) await bienvenida(email).catch((e) => console.error("bienvenida web", e))
   if (!antes && estado === "activa")
-    await notificar(["gerente", "coordinacion"], "🟢 Nueva suscripción de web", `${quien} se suscribió a Web por Suscripción (${monto} por mes). Falta pedirle los datos y armar el sitio.`, "/crm").catch(() => {})
+    await notificar(["gerente", "coordinacion"], "🟢 Nueva suscripción de web", `${quien} se suscribió a Web por Suscripción (${monto} por mes). Ya se le mandó el correo pidiendo los datos. Falta armar el sitio.`, "/crm").catch(() => {})
   else if (estado === "cancelada")
     await notificar(["gerente", "coordinacion"], "🔴 Canceló una suscripción de web", `${quien} canceló su Web por Suscripción (${monto} por mes). Revisar si corresponde dar de baja el sitio.`, "/crm").catch(() => {})
   else if (estado === "pausada")
