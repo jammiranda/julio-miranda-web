@@ -46,6 +46,7 @@ export async function marcarEnviado(id: number, por: string | null) {
 
 export type ItemApi = {
   ref: string
+  id?: number
   campania?: string; tanda?: number | null; tipo?: string; canal?: string; sentido?: string
   organizacion?: string; persona?: string | null; cargo?: string | null; destino?: string | null; asunto?: string | null
   estado?: string; enviado_en?: string | null; respondio_en?: string | null; seguimiento?: string | null
@@ -66,7 +67,8 @@ export async function guardarDesdeApi(items: ItemApi[], por: string) {
   for (const it of items.slice(0, 500)) {
     const ref = txt(it?.ref, 200)
     if (!ref) { res.rechazados.push({ ref: "?", motivo: "falta ref" }); continue }
-    const antes = await one<any>("select * from g_prospeccion where ref=$1", [ref])
+    // Si viene `id` (registro ya cargado con otra ref), se actualiza ese mismo y no se duplica
+    const antes = (await one<any>("select * from g_prospeccion where ref=$1", [ref])) ?? (Number(it.id) > 0 ? await one<any>("select * from g_prospeccion where id=$1", [Number(it.id)]) : null)
     if (!antes && !txt(it.organizacion)) { res.rechazados.push({ ref, motivo: "falta organizacion" }); continue }
     const v = {
       campania: txt(it.campania, 120), tanda: it.tanda != null && Number.isFinite(Number(it.tanda)) ? Math.round(Number(it.tanda)) : null,
