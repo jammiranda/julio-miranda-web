@@ -1251,7 +1251,18 @@ select 'egreso',v.concepto,'Software y servicios',6000,'ARS','pendiente',null,v.
 ) v(concepto,vence,externo_id)
 where not exists (select 1 from config where clave='seed_linkedin_2026_11')
 on conflict (externo_id) where externo_id is not null do nothing;
-insert into config(clave,valor) values ('seed_linkedin_2026_11','ok') on conflict (clave) do nothing
+insert into config(clave,valor) values ('seed_linkedin_2026_11','ok') on conflict (clave) do nothing;
+-- 17/11/2026 (pedido de Julio): el primer mensaje de un acercamiento NO propone reunión. Primero interés y seguir en contacto;
+-- la reunión recién cuando la persona muestra interés. Se reescriben una sola vez los borradores y respuestas sin enviar.
+update g_prospeccion set notas = regexp_replace(regexp_replace(regexp_replace(regexp_replace(notas,
+    'con gusto lo charlamos (15|20) minutos, sin compromiso[.]', 'me encantaría seguir en contacto: ¿están trabajando en algo de esto hoy?', 'g'),
+    'me encantaría que lo charlemos[.]', 'me interesa seguir en contacto. ¿En qué estás enfocado hoy?', 'g'),
+    'Si te interesa, lo charlamos 15 minutos esta semana[.]', 'Me encantaría seguir en contacto e ir compartiendo lo que vamos haciendo.', 'g'),
+    '(Si te parece, tomemos un café virtual de 15 minutos para ver si podemos sumarnos en algún proyecto[.]|¿Te parece si lo charlamos 20 minutos esta semana o la próxima[?])', '¿En qué estás trabajando hoy? Me gustaría seguir en contacto y ver si en algún momento podemos sumar.', 'g'),
+  actualizado = now()
+where estado in ('borrador','respondio') and notas ~ '(charlamos (15|20) minutos|que lo charlemos[.]|café virtual de 15 minutos)'
+  and not exists (select 1 from config where clave='acercamiento_sin_reunion_2026_11_17');
+insert into config(clave,valor) values ('acercamiento_sin_reunion_2026_11_17','1') on conflict (clave) do nothing;
 `
 
 let ready: Promise<void> | null = null
