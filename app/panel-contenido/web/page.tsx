@@ -1,5 +1,5 @@
 import { panelWeb, panelMetricas, safe } from "@/lib/panel"
-import { q } from "@/lib/db"
+import { q, one } from "@/lib/db"
 import { acceso, Head, Sec, Kpi, Barras, Columnas, SinDatos, fmt, fechaCorta } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -15,6 +15,14 @@ export default async function Web() {
     // Visitas del blog: por nota (total y últimos 30 días) y la portada de Novedades
     safe(q<{ path: string; total: number; d30: number }>(`select path, sum(n)::int total, coalesce(sum(n) filter (where dia > current_date - 30),0)::int d30 from pv_visitas where host='www.devisebit.com' and (path='/novedades' or path like '/novedades/%') group by path`)),
   ])
+  // Web por Suscripción: suscripciones de Mercado Pago, visitas a la landing y clics en "Quiero mi web"
+  const [ws, wsVis, wsClic, wsLista] = await Promise.all([
+    safe(one<{ activas: number; altas30: number; bajas: number; total: number; mensual: number }>(`select count(*) filter (where estado='activa')::int activas, count(*) filter (where alta > now()-interval '30 days')::int altas30, count(*) filter (where estado='cancelada')::int bajas, count(*)::int total, coalesce(sum(monto) filter (where estado='activa'),0)::float mensual from web_suscripciones`)),
+    safe(q<{ dia: string; c: number }>(`select dia::text dia, sum(n)::int c from pv_visitas where host='tuweb.devisebit.com' and path='/' and dia > current_date - 30 group by 1 order by 1`)),
+    safe(one<{ c: number }>(`select coalesce(sum(n),0)::int c from pv_clics where host='tuweb.devisebit.com' and accion='compra' and dia > current_date - 30`)),
+    safe(q<{ email: string | null; estado: string; alta: string | null; ultimo_pago_estado: string | null }>(`select email, estado, to_char(alta,'DD/MM/YYYY') alta, ultimo_pago_estado from web_suscripciones order by creado desc limit 20`)),
+  ])
+  const wsVisTot = (wsVis ?? []).reduce((x, r) => x + Number(r.c), 0)
   const visNota = new Map((blog ?? []).map((r) => [r.path.replace(/\/$/, ""), r]))
   const blogTotal = (blog ?? []).reduce((a, r) => a + Number(r.total), 0)
   const blog30 = (blog ?? []).reduce((a, r) => a + Number(r.d30), 0)
@@ -55,6 +63,21 @@ export default async function Web() {
           <div className="pc-tw"><table><thead><tr><th>Página</th><th className="n">Visitas</th></tr></thead>
             <tbody>{v.paginas.map((p) => <tr key={p.host + p.path}><td style={{ overflowWrap: "anywhere" }}><span className="pc-muted">{p.host}</span>{p.path}</td><td className="n">{fmt(Number(p.c))}</td></tr>)}</tbody></table></div>
         ) : <div className="pc-empty">Sin visitas registradas.</div>}
+      </div>
+
+      <Sec t="Web por Suscripción" />
+      <div className="pc-kpis">
+        <Kpi k="Suscripciones activas" v={ws ? fmt(ws.activas) : null} ft={ws ? `${fmt(ws.total)} registradas en total` : ""} color="var(--ok)" />
+        <Kpi k="Altas (30 días)" v={ws ? fmt(ws.altas30) : null} ft={ws ? `${fmt(ws.bajas)} canceladas` : ""} />
+        <Kpi k="Ingreso mensual" v={ws ? `$${fmt(ws.mensual)}` : null} ft="Suma de las suscripciones activas" color="var(--ok)" />
+        <Kpi k="Visitas a la landing (30 días)" v={wsVis ? fmt(wsVisTot) : null} serie={(wsVis ?? []).map((d) => Number(d.c))} color="var(--info)" ft="tuweb.devisebit.com" />
+        <Kpi k="Clics en Quiero mi web (30 días)" v={wsClic ? fmt(wsClic.c) : null} ft={wsVisTot ? `${fmt((Number(wsClic?.c ?? 0) / wsVisTot) * 100, 1)}% de las visitas` : "Van a Mercado Pago"} color="var(--violet)" />
+      </div>
+      <div className="pc-card"><div className="pc-ch"><h2>Suscripciones</h2><span className="pc-k">últimas 20</span></div>
+        {wsLista?.length ? (
+          <div className="pc-tw"><table><thead><tr><th>Correo</th><th>Estado</th><th>Alta</th><th>Último cobro</th></tr></thead>
+            <tbody>{wsLista.map((r, i) => <tr key={i}><td>{r.email ?? "sin correo"}</td><td>{r.estado}</td><td>{r.alta ?? ""}</td><td>{r.ultimo_pago_estado ?? ""}</td></tr>)}</tbody></table></div>
+        ) : <div className="pc-empty">Todavía no hay suscripciones registradas.</div>}
       </div>
 
       <Sec t="Blog · Novedades" />

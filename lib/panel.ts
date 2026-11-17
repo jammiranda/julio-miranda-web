@@ -14,6 +14,7 @@ export const SITIOS = [
   { id: "academia", nombre: "academia.devisebit.com", url: "https://academia.devisebit.com/" },
   { id: "desarrollo", nombre: "desarrollo.devisebit.com", url: "https://desarrollo.devisebit.com/desarrollo" },
   { id: "sistema", nombre: "sistema.devisebit.com", url: "https://sistema.devisebit.com/login" },
+  { id: "tuweb", nombre: "tuweb.devisebit.com (Web por Suscripción)", url: "https://tuweb.devisebit.com/" },
 ]
 
 async function medir(url: string) {
