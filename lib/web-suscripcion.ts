@@ -74,7 +74,7 @@ Si preferís, respondé este correo con los datos. Cualquier duda, estamos en el
 /** Aviso de alta, cambio o cancelación de una suscripción. */
 export async function avisoSuscripcion(id: string) {
   const p = await mp(`/preapproval/${encodeURIComponent(id)}`)
-  if (!p || !esDeEstePlan(p)) return { ok: true, propia: false }
+  if (!p || !(esDeEstePlan(p) || p.preapproval_plan_id)) return { ok: true, propia: false }
   const estado = ESTADOS[String(p.status)] ?? String(p.status)
   const email = p.payer_email ? String(p.payer_email) : null
   const antes = await one<{ estado: string }>("select estado from web_suscripciones where mp_id=$1", [String(p.id)])
@@ -141,8 +141,14 @@ export async function estadoSuscripciones() {
  */
 export async function sincronizarSuscripciones() {
   if (!process.env.MP_ACCESS_TOKEN) return { ok: false, vistas: 0, cambios: 0 }
+  // Primero por el plan (más preciso); si no aparece, por las últimas de la cuenta
+  const planes = await mp(`/preapproval_plan/search?limit=50`)
+  const plan = ((planes?.results ?? []) as any[]).find(esDeEstePlan)
+  const delPlan = plan?.id ? await mp(`/preapproval/search?limit=50&preapproval_plan_id=${encodeURIComponent(plan.id)}`) : null
   const b = await mp(`/preapproval/search?limit=50&sort=date_created:desc`)
-  const propias = ((b?.results ?? []) as any[]).filter(esDeEstePlan)
+  const vistos = new Map<string, any>()
+  for (const x of [...((delPlan?.results ?? []) as any[]), ...((b?.results ?? []) as any[]).filter(esDeEstePlan)]) vistos.set(String(x.id), x)
+  const propias = [...vistos.values()]
   let cambios = 0
   for (const p of propias) {
     const ya = await one<{ estado: string }>("select estado from web_suscripciones where mp_id=$1", [String(p.id)])
@@ -150,5 +156,5 @@ export async function sincronizarSuscripciones() {
     const r = await avisoSuscripcion(String(p.id)).catch(() => null)
     if (r && (r as any).cambio !== false) cambios++
   }
-  return { ok: !!b, vistas: propias.length, cambios }
+  return { ok: !!b, plan: !!plan, enCuenta: (b?.results ?? []).length, delPlan: (delPlan?.results ?? []).length, vistas: propias.length, cambios }
 }
