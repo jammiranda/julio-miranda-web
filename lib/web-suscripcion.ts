@@ -72,9 +72,9 @@ Si preferís, respondé este correo con los datos. Cualquier duda, estamos en el
 }
 
 /** Aviso de alta, cambio o cancelación de una suscripción. */
-export async function avisoSuscripcion(id: string) {
+export async function avisoSuscripcion(id: string, planId?: string) {
   const p = await mp(`/preapproval/${encodeURIComponent(id)}`)
-  if (!p || !(esDeEstePlan(p) || p.preapproval_plan_id)) return { ok: true, propia: false }
+  if (!p || !(esDeEstePlan(p) || (planId && p.preapproval_plan_id === planId))) return { ok: true, propia: false }
   const estado = ESTADOS[String(p.status)] ?? String(p.status)
   const email = p.payer_email ? String(p.payer_email) : null
   const antes = await one<{ estado: string }>("select estado from web_suscripciones where mp_id=$1", [String(p.id)])
@@ -153,7 +153,7 @@ export async function sincronizarSuscripciones() {
   for (const p of propias) {
     const ya = await one<{ estado: string }>("select estado from web_suscripciones where mp_id=$1", [String(p.id)])
     if (ya && ya.estado === (ESTADOS[String(p.status)] ?? String(p.status))) continue
-    const r = await avisoSuscripcion(String(p.id)).catch(() => null)
+    const r = await avisoSuscripcion(String(p.id), plan?.id).catch(() => null)
     if (r && (r as any).cambio !== false) cambios++
   }
   return { ok: !!b, plan: !!plan, enCuenta: (b?.results ?? []).length, delPlan: (delPlan?.results ?? []).length, vistas: propias.length, cambios }
