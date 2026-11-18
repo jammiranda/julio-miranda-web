@@ -5,9 +5,9 @@ export function bloques(notas: string): Record<string, string> {
   let k: string | null = null
   // Notas cargadas en una sola línea («… MENSAJE (si responde): Hola…»): se separan en bloques igual que las demás
   const texto = notas.replace(/\r/g, "")
-    .replace(/[ \t]+MENSAJE \(si responde\):[ \t]*/g, "\nRESPUESTA:\n")
-    .replace(/([^\n])[ \t]+(MENSAJE|SEGUIMIENTO|RESPUESTA|PASO 1|PASO 2|ASUNTO|NOS ESCRIBI[OÓ])( \([^)\n]{0,40}\))?:[ \t]+(?=\S)/g, "$1\n$2:\n")
-    .replace(/^(SUGERENCIA|MENSAJE|SEGUIMIENTO|RESPUESTA|PASO 1|PASO 2|ASUNTO|NOS ESCRIBI[OÓ])( \([^)\n]{0,40}\))?:[ \t]+(?=\S)/gm, "$1:\n")
+    .replace(/[^\S\n]*MENSAJE[^\S\n]*\(si responde\)[^\S\n]*:[^\S\n]*/g, "\nRESPUESTA:\n")
+    .replace(/([^\n])[^\S\n]+(MENSAJE|SEGUIMIENTO|RESPUESTA|PASO 1|PASO 2|ASUNTO|NOS ESCRIBI[OÓ])([^\S\n]\([^)\n]{0,40}\))?:[^\S\n]+(?=\S)/g, "$1\n$2:\n")
+    .replace(/^(SUGERENCIA|MENSAJE|SEGUIMIENTO|RESPUESTA|PASO 1|PASO 2|ASUNTO|NOS ESCRIBI[OÓ])([^\S\n]\([^)\n]{0,40}\))?:[^\S\n]+(?=\S)/gm, "$1:\n")
   for (const l of texto.split("\n")) {
     const t = l.trim()
     // Un encabezado es una línea corta en mayúsculas que termina en «:» (o una de las claves conocidas sola)
