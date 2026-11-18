@@ -7,7 +7,7 @@ import { q, one, audit } from "@/lib/db"
 import { evento, marcarEnviado, registrarCambios, CUPO_DIA } from "@/lib/prospeccion"
 import { bloques } from "@/lib/prospeccion-bloques"
 import { proveedores, enviarCon, plantilla, aHtml } from "@/lib/email"
-import { linkBrief } from "@/lib/brief"
+import { conLinks, cidDeRef } from "@/lib/recuperar"
 import { retomarPorWhatsApp } from "@/lib/waperfil"
 
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
@@ -104,9 +104,7 @@ async function aplicar(id: number, acc: string, por: string): Promise<boolean> {
       const bl = bloques(String(r.notas ?? ""))
       const prov = proveedores()[0]
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to) || !bl.mensaje || !prov) return false
-      let texto = bl.mensaje
-      const cid = /^consulta:(\d+)/.exec(String(r.ref ?? ""))?.[1]
-      if (texto.includes("{{brief}}")) texto = texto.replaceAll("{{brief}}", cid ? await linkBrief(Number(cid)) : "https://sistema.devisebit.com/agendar")
+      const texto = await conLinks(bl.mensaje, cidDeRef(r.ref))
       const res = await enviarCon(prov.id, { email: to, name: r.persona }, bl.asunto || r.asunto || "DEVISEBIT", plantilla(aHtml(texto)), null)
       if (!res.ok) { await evento(id, "nota", `No se pudo enviar el email: ${res.error ?? "error"}`, por); return false }
       await evento(id, "nota", `Email enviado desde el sistema a ${to}`, por)

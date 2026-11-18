@@ -9,6 +9,7 @@ import { TablaRegistro, Aviso, Kpi } from "@/components/Registro"
 import Indice from "@/components/Indice"
 import Lote from "@/components/Lote"
 import { bloques } from "@/lib/prospeccion-bloques"
+import { conLinks, cidDeRef } from "@/lib/recuperar"
 
 export const dynamic = "force-dynamic"
 
@@ -90,6 +91,8 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   // Pendiente = todavía hay algo para hacer con este contacto hoy (o decidir). Lo demás ya está resuelto por ahora.
   const pend = (r: any) => { const d = isoD(r.seguimiento); return r.estado === "reunion" || (r.estado === "borrador" && (!d || d <= hoyD)) || (r.estado === "respondio" && (!d || d <= hoyD)) || (r.estado === "enviado" && !!d && d <= hoyD) }
   const salto = Math.max(0, Number(sp.s) || 0)
+  // Los mensajes muestran y copian los links reales de la consulta (no «{{brief}}»)
+  for (const r of todas) if (typeof r.notas === "string" && r.notas.includes("{{")) r.notas = await conLinks(r.notas, cidDeRef(r.ref))
   const base = sug ? todas.filter((r) => sugDe(r.notas) === sug) : todas
   // En la búsqueda, lo ya resuelto (contestado, enviado en espera, cerrado) se pliega abajo: la lista se va limpiando
   const resueltas = b ? base.filter((r) => !pend(r)) : []

@@ -15,6 +15,7 @@ import { enviarTexto } from "@/lib/whatsapp"
 import { borrarConsultas } from "@/lib/consultas-borrar"
 import BotonConfirmar from "@/components/BotonConfirmar"
 import { enviarAConsulta, type Envio } from "@/lib/consultas-email"
+import { linksConsulta, prepararRecuperacion } from "@/lib/recuperar"
 
 export const dynamic = "force-dynamic"
 
@@ -81,6 +82,16 @@ async function mandarBrief(fd: FormData) {
   if (r.ok) await atendidaPor(id, u.nombre)
   await audit(u, "envia_brief", "consulta", id)
   redirect(`/consultas/${id}?${r.ok ? "env=1" : "enverr=" + encodeURIComponent(r.error ?? "error")}`)
+}
+
+async function recuperar(fd: FormData) {
+  "use server"
+  const u = await requerir(["gerente", "coordinacion"])
+  const id = Number(fd.get("id"))
+  const r = await prepararRecuperacion(id, u.nombre ?? u.usuario)
+  await audit(u, "prepara_recuperacion", "consulta", id)
+  if (!r) redirect(`/consultas/${id}?enverr=${encodeURIComponent("La consulta no tiene email ni teléfono")}`)
+  redirect(`/prospeccion?b=${encodeURIComponent(r!.buscar)}`)
 }
 
 async function mandarAgenda(fd: FormData) {
@@ -164,6 +175,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const tel = c.telefono ? String(c.telefono).replace(/\D/g, "") : null
   const correos = ed ? await q<{ ts: string; usuario: string | null; detalle: string | null }>("select ts, usuario, detalle from auditoria where entidad='consulta' and entidad_id=$1 and accion in ('envia_agenda_email','envia_brief_email','envia_material_email') order by ts desc limit 8", [String(id)]) : []
   const mats = materialesPara(lineaDe(c.motivo, c.mensaje))
+  const links = await linksConsulta(c.id)
   const canalChat = String(c.chat_id ?? "").startsWith("ig:") ? "Instagram" : "WhatsApp"
   const otras = c.telefono ? await q<any>("select id, creado, estado, motivo from consultas where telefono=$1 and id<>$2 and empresa=$3 order by creado desc limit 10", [c.telefono, id, c.empresa]) : []
   return (
@@ -324,6 +336,19 @@ export default async function Consulta({ params, searchParams }: { params: { id:
                 </div>
               )}
             </form>
+          )}
+          {ed && (
+            <section className="card flex flex-col gap-2 text-sm">
+              <h2 className="m-0 text-base">🔗 Links de este cliente</h2>
+              <p className="m-0 text-xs text-[#4A515C]">Son propios de esta consulta. Copialos y mandalos por donde quieras.</p>
+              <div className="flex items-center justify-between gap-2"><span><strong>Formulario (3 min)</strong><br /><span className="text-xs break-all text-[#4A515C]">{links.brief}</span></span><Copiar texto={links.brief} /></div>
+              <div className="flex items-center justify-between gap-2"><span><strong>Agenda</strong><br /><span className="text-xs break-all text-[#4A515C]">{links.agenda}</span></span><Copiar texto={links.agenda} /></div>
+              <form action={recuperar} className="border-t border-[#E2E5EA] pt-2 flex flex-col gap-1.5">
+                <input type="hidden" name="id" value={c.id} />
+                <button className="btn-s">♻️ Recuperar esta consulta</button>
+                <span className="text-xs text-[#4A515C]">Arma el email y el WhatsApp con el modelo base y los deja en Acercamientos para revisar y enviar.</span>
+              </form>
+            </section>
           )}
           {contacto ? <Link href={`/contactos/${contacto.id}`} className="btn-s">Ver contacto en el CRM</Link>
             : ed && <Link href={`/contactos/nuevo?consulta=${c.id}`} className="btn-s">Pasar a contacto del CRM</Link>}
