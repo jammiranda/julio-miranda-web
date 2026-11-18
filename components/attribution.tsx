@@ -12,11 +12,12 @@ function codigo(o: O) {
   const s = (o.utm_source || "").toLowerCase(), m = (o.utm_medium || "").toLowerCase()
   const k = o.gclid || o.gbraid || o.wbraid || (s.includes("google") && /cpc|ppc|paid|ads/.test(m)) ? "gads"
     : (/facebook|instagram|meta/.test(s) && /cpc|paid|ads/.test(m)) ? "meta"
-    : /facebook|instagram|linkedin|social/.test(s) || o.fbclid ? "social"
+    : /facebook|instagram|linkedin|tiktok|youtube|social/.test(s) || o.fbclid || /tiktok\.com|youtube\.com/.test(o.referrer || "") ? "social"
     : /google|bing/.test(s) || /google\./.test(o.referrer || "") ? "seo" : ""
   // Campaña (sufijo de URL de cada cuenta de Google Ads) más la página de entrada: «cuenta1/webs», «pmax-cuenta2/webs»
   const lp = (o.landing || "").split("/")[1] || ""
-  const c = o.utm_campaign ? o.utm_campaign.slice(0, 28) + (lp ? "/" + lp : "") : lp
+  const camp = o.utm_campaign || (/tiktok/.test(s) || /tiktok\.com/.test(o.referrer || "") ? "tiktok" : "")
+  const c = camp ? camp.slice(0, 28) + (lp ? "/" + lp : "") : lp
   return k ? `[ref:${k}${c ? "|" + c.slice(0, 40) : ""}]` : ""
 }
 
