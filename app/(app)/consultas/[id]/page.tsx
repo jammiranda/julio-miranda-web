@@ -16,6 +16,7 @@ import { borrarConsultas } from "@/lib/consultas-borrar"
 import BotonConfirmar from "@/components/BotonConfirmar"
 import { enviarAConsulta, type Envio } from "@/lib/consultas-email"
 import { linksConsulta, prepararRecuperacion } from "@/lib/recuperar"
+import { modelos } from "@/lib/modelos"
 
 export const dynamic = "force-dynamic"
 
@@ -88,9 +89,10 @@ async function recuperar(fd: FormData) {
   "use server"
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("id"))
-  const r = await prepararRecuperacion(id, u.nombre ?? u.usuario)
+  const m = String(fd.get("modelo") ?? "")
+  const r = await prepararRecuperacion(id, u.nombre ?? u.usuario, m ? [m] : undefined)
   await audit(u, "prepara_recuperacion", "consulta", id)
-  if (!r) redirect(`/consultas/${id}?enverr=${encodeURIComponent("La consulta no tiene email ni teléfono")}`)
+  if (!r) redirect(`/consultas/${id}?enverr=${encodeURIComponent("Falta el email o el teléfono que ese modelo necesita")}`)
   redirect(`/prospeccion?b=${encodeURIComponent(r!.buscar)}`)
 }
 
@@ -176,6 +178,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const correos = ed ? await q<{ ts: string; usuario: string | null; detalle: string | null }>("select ts, usuario, detalle from auditoria where entidad='consulta' and entidad_id=$1 and accion in ('envia_agenda_email','envia_brief_email','envia_material_email') order by ts desc limit 8", [String(id)]) : []
   const mats = materialesPara(lineaDe(c.motivo, c.mensaje))
   const links = await linksConsulta(c.id)
+  const listaModelos = await modelos()
   const canalChat = String(c.chat_id ?? "").startsWith("ig:") ? "Instagram" : "WhatsApp"
   const otras = c.telefono ? await q<any>("select id, creado, estado, motivo from consultas where telefono=$1 and id<>$2 and empresa=$3 order by creado desc limit 10", [c.telefono, id, c.empresa]) : []
   return (
@@ -345,8 +348,14 @@ export default async function Consulta({ params, searchParams }: { params: { id:
               <div className="flex items-center justify-between gap-2"><span><strong>Agenda</strong><br /><span className="text-xs break-all text-[#4A515C]">{links.agenda}</span></span><Copiar texto={links.agenda} /></div>
               <form action={recuperar} className="border-t border-[#E2E5EA] pt-2 flex flex-col gap-1.5">
                 <input type="hidden" name="id" value={c.id} />
-                <button className="btn-s">♻️ Recuperar esta consulta</button>
-                <span className="text-xs text-[#4A515C]">Arma el email y el WhatsApp con el modelo base y los deja en Acercamientos para revisar y enviar.</span>
+                <label className="lbl">Mensaje con modelo
+                  <select name="modelo" className="inp" defaultValue="">
+                    <option value="">Recuperar consulta (email + WhatsApp)</option>
+                    {listaModelos.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                  </select>
+                </label>
+                <button className="btn-s">♻️ Preparar en Acercamientos</button>
+                <span className="text-xs text-[#4A515C]">Lo arma con los datos y links de esta consulta y lo deja listo para revisar y enviar. Los textos se cambian en <Link href="/modelos" className="underline">Modelos de mensaje</Link>.</span>
               </form>
             </section>
           )}

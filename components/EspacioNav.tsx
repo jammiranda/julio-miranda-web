@@ -107,6 +107,7 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
           { href: "/piezas", t: "Piezas para redes", i: "demo" },
           { href: "/bot", t: "Bot · Conocimiento", i: "bot" },
           { href: "/whatsapp-business", t: "WhatsApp Business", i: "whatsapp" },
+          { href: "/modelos", t: "Modelos de mensaje", i: "whatsapp" },
           // Correo (/correos) salió del menú hasta que el conector de Google vuelva a leer Gmail; la pantalla sigue existiendo
         ] : [] },
         { t: "Documentos", items: [
