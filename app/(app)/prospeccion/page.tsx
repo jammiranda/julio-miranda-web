@@ -8,6 +8,7 @@ import { fecha, hoyISO } from "@/lib/util"
 import { TablaRegistro, Aviso, Kpi } from "@/components/Registro"
 import Indice from "@/components/Indice"
 import Lote from "@/components/Lote"
+import { bloques } from "@/lib/prospeccion-bloques"
 
 export const dynamic = "force-dynamic"
 
@@ -186,7 +187,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         copiar={textoParaCopiar}
         tarjeta={(r) => <Tarjeta r={r} compacta={vista === "decidir"} sel={edita && vista !== "foco" && vista !== "hecho"} />}
         grupo={(r) => grupoDe(r, vista)}
-        enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
+        enlace={(r) => enlaceDe(r)}
         acciones={(r) => vista === "hecho" ? null : <Acciones r={r} volver={volver} />}
         vacio={b && resueltas.length ? `Nada pendiente con «${b}»: los ${resueltas.length} que coinciden ya están resueltos o cerrados (link de arriba para verlos).` : vacioDe(vista, b)} /></>}
 
@@ -209,6 +210,15 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   )
 }
 
+const esEmail = (d: string | null) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((d ?? "").trim())
+/** Botón principal de la tarjeta: perfil de LinkedIn o WhatsApp con el mensaje ya escrito. */
+function enlaceDe(r: any): { href: string; etiqueta: string } | null {
+  if (/^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "")) return { href: r.destino, etiqueta: "Abrir perfil" }
+  const tel = String(r.destino ?? "").replace(/\D/g, "")
+  if (r.canal === "whatsapp" && tel.length >= 10) { const t = textoParaCopiar(r); return { href: `https://wa.me/${tel}${t ? `?text=${encodeURIComponent(t.texto)}` : ""}`, etiqueta: "Abrir WhatsApp con el mensaje" } }
+  return null
+}
+
 function vacioDe(v: Vista, b: string) {
   if (b) return `No hay nada que coincida con «${b}».`
   return {
@@ -224,23 +234,6 @@ function vacioDe(v: Vista, b: string) {
 }
 
 /** Bloques de las notas: «ENCABEZADO:» en una línea y el texto debajo, separados por una línea en blanco. */
-function bloques(notas: string): Record<string, string> {
-  const out: Record<string, string> = {}
-  for (const b of notas.split(/\n\s*\n/)) {
-    const [cab, ...resto] = b.split("\n")
-    const k = cab.trim().toUpperCase()
-    const t = resto.join("\n").trim()
-    if (!t) continue
-    if (k.startsWith("MENSAJE")) out.mensaje = t
-    else if (k.startsWith("PASO 1")) out.invitacion = t
-    else if (k.startsWith("PASO 2")) out.paso2 = t
-    else if (k.startsWith("SEGUIMIENTO")) out.seguimiento = t
-    else if (k.startsWith("RESPUESTA")) out.respuesta = t
-    else if (k.startsWith("NOS ESCRIBI")) out.recibido = t
-    else if (k.startsWith("SUGERENCIA")) out.sugerencia = t
-  }
-  return out
-}
 
 /** Qué copiar según el estado. */
 function textoParaCopiar(r: any): { texto: string; etiqueta: string } | null {
@@ -331,6 +324,7 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
   )
   const d = isoD(r.seguimiento)
   if (r.estado === "borrador" && !d) return <><B acc="si" t="✓ Sí, escribirle" p /><B acc="enviado" t="Ya lo envié" /><B acc="respondio" t="Ya respondió" /><B acc="no" t="✕ No" /></>
+  if (r.estado === "borrador" && esEmail(r.destino) && r.canal === "gmail") return <><B acc="email" t="✉ Enviar el email ahora" p /><B acc="enviado" t="Ya lo envié yo" /><B acc="manana" t="Mañana" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "borrador") return <><B acc="enviado" t="✓ Enviado" p /><B acc="manana" t="Mañana" /><B acc="respondio" t="Ya respondió" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "enviado") return <><B acc="seguimiento" t="✓ Seguimiento enviado" p /><B acc="respondio" t="Respondió" /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>
   if (r.estado === "respondio") return <><B acc="contestado" t="✓ Le contesté" p /><B acc="reunion" t="Reunión agendada" /><B acc="descartar" t="No sigue" /></>
@@ -378,6 +372,7 @@ function Tarjeta({ r, compacta, sel }: { r: any; compacta?: boolean; sel?: boole
         : t
         ? <div className="rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-3.5 py-2.5">
             <div className="text-xs font-bold uppercase tracking-wide text-[var(--gris)] mb-1">{t.etiqueta.replace(/^Copiar /, "")}</div>
+            {bl.asunto && r.estado === "borrador" && <p className="m-0 mb-1.5 text-sm"><b>Asunto:</b> {bl.asunto}</p>}
             <p className="m-0 text-sm whitespace-pre-line">{t.texto}</p>
           </div>
         : r.asunto ? <p className="m-0 text-sm text-[var(--gris)]">{r.asunto}</p> : null}

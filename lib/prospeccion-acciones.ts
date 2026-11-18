@@ -5,6 +5,9 @@ import { redirect } from "next/navigation"
 import { requerir } from "@/lib/auth"
 import { q, one, audit } from "@/lib/db"
 import { evento, marcarEnviado, registrarCambios, CUPO_DIA } from "@/lib/prospeccion"
+import { bloques } from "@/lib/prospeccion-bloques"
+import { proveedores, enviarCon, plantilla, aHtml } from "@/lib/email"
+import { linkBrief } from "@/lib/brief"
 
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
 
@@ -21,11 +24,13 @@ export async function accionAcercamiento(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const id = Number(fd.get("_id") ?? 0)
   const acc = String(fd.get("_acc") ?? "")
-  await aplicar(id, acc, u.nombre ?? u.usuario)
+  const hecho = await aplicar(id, acc, u.nombre ?? u.usuario)
   await audit(u, `acercamiento:${acc}`, "prospeccion", id)
   revalidatePath("/prospeccion")
   revalidatePath("/")
-  redirect(volverA(fd).replace(/[?&](ok|error)=[^&]*/g, ""))
+  const v = volverA(fd).replace(/[?&](ok|error)=[^&]*/g, "")
+  const aviso = acc === "email" ? (hecho ? "ok=Email enviado" : "error=" + encodeURIComponent("No se pudo enviar el email (revisá que tenga dirección, asunto y mensaje)")) : hecho ? "" : "error=" + encodeURIComponent("No cambió: esa acción no corresponde a su estado")
+  redirect(aviso ? `${v}${v.includes("?") ? "&" : "?"}${aviso}` : v)
 }
 
 /** Lo mismo para varios a la vez: los tildados en la lista (selección múltiple). */
@@ -47,7 +52,7 @@ async function aplicar(id: number, acc: string, por: string): Promise<boolean> {
   const r = await one<any>("select * from g_prospeccion where id=$1", [id])
   if (!r) return false
   // En lote se mezclan estados: cada acción solo toca a los que corresponde
-  const valeEn: Record<string, string[]> = { enviado: ["borrador"], si: ["borrador"], no: ["borrador"], hoy: ["borrador", "enviado", "respondio"], manana: ["borrador", "enviado", "respondio"],
+  const valeEn: Record<string, string[]> = { email: ["borrador"], enviado: ["borrador"], si: ["borrador"], no: ["borrador"], hoy: ["borrador", "enviado", "respondio"], manana: ["borrador", "enviado", "respondio"],
     seguimiento: ["enviado"], respondio: ["borrador", "enviado", "descartado", "sin_respuesta"], reabrir: ["descartado", "sin_respuesta"], contestado: ["respondio"], reunion: ["respondio", "enviado"], ganado: ["reunion", "respondio"], sin_respuesta: ["enviado"], descartar: ["borrador", "enviado", "respondio", "reunion"] }
   if (valeEn[acc] && !valeEn[acc].includes(r.estado)) return false
   const estado = async (nuevo: string, extra = "") => {
@@ -92,6 +97,21 @@ async function aplicar(id: number, acc: string, por: string): Promise<boolean> {
       break
     }
     case "no": await estado("descartado", ", seguimiento=null"); break
+    case "email": {
+      // Email personal desde el sistema (remitente info@devisebit.com): sale el ASUNTO y el MENSAJE de la ficha
+      const to = String(r.destino ?? "").trim()
+      const bl = bloques(String(r.notas ?? ""))
+      const prov = proveedores()[0]
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to) || !bl.mensaje || !prov) return false
+      let texto = bl.mensaje
+      const cid = /^consulta:(\d+)/.exec(String(r.ref ?? ""))?.[1]
+      if (texto.includes("{{brief}}")) texto = texto.replaceAll("{{brief}}", cid ? await linkBrief(Number(cid)) : "https://sistema.devisebit.com/agendar")
+      const res = await enviarCon(prov.id, { email: to, name: r.persona }, bl.asunto || r.asunto || "DEVISEBIT", plantilla(aHtml(texto)), null)
+      if (!res.ok) { await evento(id, "nota", `No se pudo enviar el email: ${res.error ?? "error"}`, por); return false }
+      await evento(id, "nota", `Email enviado desde el sistema a ${to}`, por)
+      await marcarEnviado(id, por)
+      break
+    }
     case "reabrir": await estado("borrador", `, seguimiento=${HOY}`); break
     default: return false
   }
