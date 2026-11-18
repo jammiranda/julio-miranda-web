@@ -23,26 +23,37 @@ type SP = { s?: string; cerrados?: string; editar?: string; nuevo?: string; ok?:
 const SUG: Record<string, string> = { si: "Sí", tal: "Tal vez", no: "No", otro: "Otro" }
 const sugDe = (notas: string | null) => { const m = /SUGERENCIA:\s*(\S+)/i.exec(notas ?? ""); const w = (m?.[1] ?? "").toLowerCase(); return w.startsWith("sí") || w.startsWith("si") ? "si" : w.startsWith("tal") ? "tal" : w.startsWith("no") ? "no" : "otro" }
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
-const VISTAS = ["hoy", "foco", "tablero", "decidir", "proximos", "esperando", "hecho", "todos"] as const
+const VISTAS = ["hoy", "foco", "tablero", "decidir", "proximos", "esperando", "hecho", "todos", "resto", "incompletos"] as const
 type Vista = (typeof VISTAS)[number]
 
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—")
 const diaLargo = (d: string) => new Date(d + "T12:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "numeric", timeZone: "America/Argentina/Buenos_Aires" })
 
 /** Qué entra en cada vista (todas sobre g_prospeccion). */
+/** Borrador que no se puede trabajar: sin a quién escribirle (ni nombre ni dato de contacto) o sin el dato que su canal necesita. */
+const INCOMPLETO = `(estado='borrador' and coalesce(destino,'')='' and (coalesce(persona,'')='' or canal in ('gmail','whatsapp','telefono')))`
+/** Tope de mensajes nuevos por día: lo que ya salió hoy descuenta del cupo. */
+const TOPE_NUEVOS = 20
+const NUEVO_HOY = `estado='borrador' and seguimiento <= ${HOY} and not ${INCOMPLETO}`
+const CUPO_HOY = `(select id from g_prospeccion where ${NUEVO_HOY}
+  order by (canal in ('whatsapp','gmail')) desc, seguimiento, id
+  limit greatest(0, ${TOPE_NUEVOS} - (select count(*) from g_prospeccion_eventos where tipo='estado' and detalle like 'Borrador → Enviado%' and (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})))`
 const COND: Record<Vista, string> = {
   hoy: `(estado='respondio' and (seguimiento is null or seguimiento <= ${HOY}))
         or (estado='reunion')
         or (estado='enviado' and seguimiento <= ${HOY})
-        or (estado='borrador' and seguimiento <= ${HOY})`,
-  decidir: `estado='borrador' and seguimiento is null`,
-  proximos: `(estado='borrador' and seguimiento > ${HOY}) or (estado='respondio' and seguimiento > ${HOY})`,
+        or (${NUEVO_HOY} and id in ${CUPO_HOY})`,
+  decidir: `estado='borrador' and seguimiento is null and not ${INCOMPLETO}`,
+  proximos: `(estado='borrador' and seguimiento > ${HOY} and not ${INCOMPLETO}) or (estado='respondio' and seguimiento > ${HOY})`,
   esperando: `estado='enviado' and (seguimiento is null or seguimiento > ${HOY})`,
   // Solo lo que hizo una persona (botones o edición), no las altas ni las cargas de las tareas
   hecho: `id in (select prospeccion_id from g_prospeccion_eventos where tipo in ('estado','seguimiento','contestado','aprobado','pospuesto','nota') and (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
   todos: `true`,
   foco: `true`,
-  tablero: `estado in ('borrador','enviado','respondio','reunion')`,
+  tablero: `estado in ('borrador','enviado','respondio','reunion') and not ${INCOMPLETO}`,
+  // Mensajes nuevos que ya tocaban pero quedaron fuera del tope del día
+  resto: `${NUEVO_HOY} and id not in ${CUPO_HOY}`,
+  incompletos: INCOMPLETO,
 }
 COND.foco = COND.hoy
 const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
@@ -53,12 +64,12 @@ const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   hecho: [{ acc: "descartar", t: "Descartar" }],
   todos: [{ acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "reabrir", t: "Reabrir (cerrados)" }, { acc: "descartar", t: "Descartar" }],
   foco: [],
+  resto: [{ acc: "manana", t: "Pasar a mañana", p: true }, { acc: "descartar", t: "Descartar" }],
+  incompletos: [{ acc: "descartar", t: "Descartar los elegidos", p: true }],
   tablero: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "descartar", t: "Descartar" }],
 }
 /** Vistas de consulta: van como links chicos a la derecha, para que arriba quede solo el trabajo del día. */
-const SECUNDARIAS: Vista[] = ["foco", "tablero", "hecho", "todos"]
-/** Cuántas tarjetas se muestran de entrada en «Hoy» (el resto, con un clic). */
-const TOPE_HOY = 20
+const SECUNDARIAS: Vista[] = ["foco", "tablero", "hecho", "todos", "resto", "incompletos"]
 const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
 
 export default async function Acercamientos({ searchParams: sp }: { searchParams: SP }) {
@@ -69,7 +80,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   const vista: Vista = b ? "todos" : (VISTAS as readonly string[]).includes(sp.vista ?? "") ? (sp.vista as Vista) : "hoy"
 
   // Tandas (campañas) con mensajes listos para mandar hoy: acceso directo, para no buscarlas entre todo lo de «Hoy»
-  const campHoy = await q<{ campania: string; n: number }>(`select campania, count(*)::int n from g_prospeccion where estado='borrador' and seguimiento <= ${HOY} and coalesce(campania,'')<>'' group by 1 order by max(creado) desc limit 6`).catch(() => [] as { campania: string; n: number }[])
+  const campHoy = await q<{ campania: string; n: number }>(`select campania, count(*)::int n from g_prospeccion where ${NUEVO_HOY} and coalesce(campania,'')<>'' group by 1 order by max(creado) desc limit 6`).catch(() => [] as { campania: string; n: number }[])
   const [m, cuentas, hechoHoy] = await Promise.all([
     prospeccionPanel(),
     one<Record<Vista, number>>(`select ${VISTAS.map((v) => `count(*) filter (where ${COND[v]})::int "${v}"`).join(", ")} from g_prospeccion`),
@@ -101,9 +112,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   // En la búsqueda, lo ya resuelto (contestado, enviado en espera, cerrado) se pliega abajo: la lista se va limpiando
   const resueltas = b ? base.filter((r) => !pend(r)) : []
   const filasTodas = vista === "foco" ? base.slice(Math.min(salto, Math.max(0, base.length - 1))).slice(0, 1) : b && !sp.cerrados ? base.filter(pend) : base
-  // «Hoy» arranca con las primeras (ya vienen por prioridad): una lista de 180 no se puede trabajar
-  const recorta = vista === "hoy" && !b && !sp.todo && filasTodas.length > TOPE_HOY
-  const filas = recorta ? filasTodas.slice(0, TOPE_HOY) : filasTodas
+  const filas = filasTodas
 
   const editar = Number(sp.editar) || null
   const historia = await q<any>(
@@ -133,6 +142,8 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
     { v: "tablero", n: "Tablero", d: "Todo por etapa, en columnas" },
     { v: "hecho", n: "Hecho hoy", d: "Lo que se movió hoy" },
     { v: "todos", n: "Todos", d: "Incluye cerrados" },
+    { v: "resto", n: "Fuera del tope", d: `Mensajes nuevos que ya tocaban y no entraron en los ${TOPE_NUEVOS} de hoy` },
+    { v: "incompletos", n: "Incompletos", d: "Sin nombre o sin dato de contacto: completarlos o descartarlos" },
   ]
 
   return (
@@ -214,7 +225,9 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         acciones={(r) => vista === "hecho" ? null : <Acciones r={r} volver={volver} />}
         vacio={b && resueltas.length ? `Nada pendiente con «${b}»: los ${resueltas.length} que coinciden ya están resueltos o cerrados (link de arriba para verlos).` : vacioDe(vista, b)} /></>}
 
-      {recorta && <p className="m-0 text-sm text-center"><Link href="/prospeccion?todo=1" className="btn-s py-2 px-4 text-sm">Mostrar los {filasTodas.length} de hoy</Link> <span className="text-[var(--gris)] ml-2">Estás viendo los primeros {TOPE_HOY}, por prioridad. Al resolverlos aparecen los siguientes.</span></p>}
+      {vista === "hoy" && !b && (C.resto ?? 0) > 0 && <p className="m-0 text-sm text-center text-[var(--gris)]">Tope del día: {TOPE_NUEVOS} mensajes nuevos. Quedan {C.resto} más que ya tocaban. <Link href="/prospeccion?vista=resto" className="underline">Seguir con esos</Link></p>}
+      {vista === "resto" && <p className="m-0 text-sm rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-4 py-3"><b>Estos ya tocaban pero quedaron fuera del tope de {TOPE_NUEVOS} por día.</b> Van entrando solos en «Hoy» a medida que resolvés los de adelante. Si querés avanzar más hoy, trabajalos desde acá.</p>}
+      {vista === "incompletos" && <p className="m-0 text-sm rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-4 py-3"><b>A estos les falta el nombre de la persona o el dato para escribirle</b> (perfil, email o teléfono), así que no aparecen en ninguna otra pantalla. Con «Editar» los completás y vuelven a la lista; si no valen la pena, tildalos y descartalos.</p>}
 
       <section className="card" aria-label="Historia">
         <h2 className="m-0 mb-3 text-base">{editar ? `Historia de ${historia[0]?.persona ?? historia[0]?.organizacion ?? "este contacto"}` : `Lo que se hizo hoy (${historia.length})`}</h2>
@@ -260,6 +273,8 @@ function vacioDe(v: Vista, b: string) {
     todos: "Sin contactos cargados.",
     tablero: "No hay acercamientos abiertos.",
     foco: "¡Listo! No queda nada pendiente para hoy.",
+    resto: "No quedó nada fuera del tope de hoy.",
+    incompletos: "No hay contactos incompletos.",
   }[v]
 }
 
@@ -287,7 +302,7 @@ const chip = (ops: { v: string; n: string; c?: string }[], v: string) => { const
 function grupoDe(r: any, vista: Vista): string {
   const d = isoD(r.seguimiento)
   const hoy = hoyISO()
-  if (vista === "decidir") return r.campania || "Sin campaña"
+  if (vista === "decidir" || vista === "incompletos" || vista === "resto") return r.campania || "Sin campaña"
   if (vista === "hecho" || vista === "todos") return ESTADOS_PROS.find((o) => o.v === r.estado)?.n ?? r.estado
   if (vista === "proximos") return d ? diaLargo(d) : "Sin fecha"
   if (vista === "esperando") return d ? `Seguimiento el ${diaLargo(d)}` : "Sin fecha de seguimiento"
