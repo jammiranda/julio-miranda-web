@@ -63,6 +63,8 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   // Con búsqueda se busca en TODO (también cerrados), sin importar la vista
   const vista: Vista = b ? "todos" : (VISTAS as readonly string[]).includes(sp.vista ?? "") ? (sp.vista as Vista) : "hoy"
 
+  // Tandas (campañas) con mensajes listos para mandar hoy: acceso directo, para no buscarlas entre todo lo de «Hoy»
+  const campHoy = await q<{ campania: string; n: number }>(`select campania, count(*)::int n from g_prospeccion where estado='borrador' and seguimiento <= ${HOY} and coalesce(campania,'')<>'' group by 1 order by max(creado) desc limit 6`).catch(() => [] as { campania: string; n: number }[])
   const [m, cuentas, hechoHoy] = await Promise.all([
     prospeccionPanel(),
     one<Record<Vista, number>>(`select ${VISTAS.map((v) => `count(*) filter (where ${COND[v]})::int "${v}"`).join(", ")} from g_prospeccion`),
@@ -159,6 +161,13 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         {b && <><span className="text-sm text-[var(--gris)]">{sp.cerrados ? `${base.length} resultados para «${b}» (todos los estados)` : `${filas.length} pendientes para «${b}»`}{!sp.cerrados && resueltas.length > 0 && <> · <Link className="underline" href={`/prospeccion?b=${encodeURIComponent(b)}&cerrados=1`}>ver también los {resueltas.length} ya resueltos o cerrados</Link></>}</span>
           <Link href="/prospeccion" className="text-sm underline text-[var(--gris)]">Limpiar</Link></>}
       </form>
+
+      {campHoy.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-[var(--gris)]">Tandas para hoy:</span>
+          {campHoy.map((c) => <Link key={c.campania} href={`/prospeccion?b=${encodeURIComponent(c.campania)}`} className={`btn-s py-1.5 px-3 text-sm ${b === c.campania ? "!border-[var(--rojo)]" : ""}`}>{c.campania} · {c.n}</Link>)}
+        </div>
+      )}
 
       {vista === "decidir" && !b && (
         <>
