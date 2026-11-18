@@ -1270,6 +1270,11 @@ update em_envios set bot=true, bot_en=now(), bot_clics=bot_clics+clics, clics=0,
 where not bot and clic_en is not null and enviado_en is not null and clic_en - enviado_en < interval '2 minutes' and aperturas=0
   and not exists (select 1 from config where clave='robots_clic_rapido_2026_11_17');
 insert into config(clave,valor) values ('robots_clic_rapido_2026_11_17','1') on conflict (clave) do nothing;
+-- 18/11/2026: los enviados que quedaron con el seguimiento el mismo día del envío (seguían en «Hoy») pasan a 7 días.
+update g_prospeccion set seguimiento = enviado_en + 7, actualizado = now()
+where estado='enviado' and enviado_en is not null and seguimiento is not null and seguimiento <= enviado_en
+  and not exists (select 1 from config where clave='enviado_seguimiento_7d_2026_11_18');
+insert into config(clave,valor) values ('enviado_seguimiento_7d_2026_11_18','1') on conflict (clave) do nothing;
 -- 17/11/2026: los prospectos de LatAm (antes en la planilla Seguimiento LatAm) pasan a Acercamientos, la bandeja comercial única.
 insert into g_prospeccion(ref,campania,tanda,tipo,canal,sentido,organizacion,persona,cargo,destino,asunto,estado,enviado_en,respondio_en,seguimiento,notas)
 select * from (values

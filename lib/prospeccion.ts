@@ -40,7 +40,8 @@ export async function registrarCambios(id: number, antes: any | null, por: strin
 export async function marcarEnviado(id: number, por: string | null) {
   const antes = await one<any>("select * from g_prospeccion where id=$1", [id])
   if (!antes || antes.estado !== "borrador") return
-  await q("update g_prospeccion set estado='enviado', actualizado=now() where id=$1", [id])
+  // La fecha que tenía era «cuándo escribirle»; al enviarlo se limpia para que el seguimiento quede a 7 días y salga de «Hoy»
+  await q("update g_prospeccion set estado='enviado', seguimiento=null, actualizado=now() where id=$1", [id])
   await registrarCambios(id, antes, por)
 }
 
