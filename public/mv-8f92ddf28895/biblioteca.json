@@ -11,6 +11,54 @@
  },
  "piezas": [
   {
+   "id": "2026-11-guia-g5",
+   "tipo": "carrusel",
+   "titulo": "Bot de Telegram para empresas",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g5-bot-de-telegram/placa-1.jpg",
+    "r5/guias/g5-bot-de-telegram/placa-2.jpg",
+    "r5/guias/g5-bot-de-telegram/placa-3.jpg",
+    "r5/guias/g5-bot-de-telegram/placa-4.jpg",
+    "r5/guias/g5-bot-de-telegram/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g5-bot-de-telegram/g5-bot-de-telegram.pdf"
+  },
+  {
+   "id": "2026-11-guia-g6",
+   "tipo": "carrusel",
+   "titulo": "Audios de WhatsApp a texto",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g6-audios-de-whatsapp-a-texto/placa-1.jpg",
+    "r5/guias/g6-audios-de-whatsapp-a-texto/placa-2.jpg",
+    "r5/guias/g6-audios-de-whatsapp-a-texto/placa-3.jpg",
+    "r5/guias/g6-audios-de-whatsapp-a-texto/placa-4.jpg",
+    "r5/guias/g6-audios-de-whatsapp-a-texto/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g6-audios-de-whatsapp-a-texto/g6-audios-de-whatsapp-a-texto.pdf"
+  },
+  {
+   "id": "2026-11-guia-g7",
+   "tipo": "carrusel",
+   "titulo": "Recordatorios de turnos por WhatsApp",
+   "mes": "2026-11",
+   "serie": "Guías del blog",
+   "formato": "4:5",
+   "placas": [
+    "r5/guias/g7-recordatorios-de-turnos/placa-1.jpg",
+    "r5/guias/g7-recordatorios-de-turnos/placa-2.jpg",
+    "r5/guias/g7-recordatorios-de-turnos/placa-3.jpg",
+    "r5/guias/g7-recordatorios-de-turnos/placa-4.jpg",
+    "r5/guias/g7-recordatorios-de-turnos/placa-5.jpg"
+   ],
+   "pdf": "r5/guias/g7-recordatorios-de-turnos/g7-recordatorios-de-turnos.pdf"
+  },
+  {
    "id": "2026-11-matebot-placas",
    "tipo": "carrusel",
    "titulo": "MateBot: lanzamiento (6 placas)",
