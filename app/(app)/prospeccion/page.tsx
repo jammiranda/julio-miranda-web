@@ -21,7 +21,7 @@ type SP = { editar?: string; nuevo?: string; ok?: string; error?: string; vista?
 const SUG: Record<string, string> = { si: "Sí", tal: "Tal vez", no: "No", otro: "Otro" }
 const sugDe = (notas: string | null) => { const m = /SUGERENCIA:\s*\n\s*(\S+)/i.exec(notas ?? ""); const w = (m?.[1] ?? "").toLowerCase(); return w.startsWith("sí") || w.startsWith("si") ? "si" : w.startsWith("tal") ? "tal" : w.startsWith("no") ? "no" : "otro" }
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
-const VISTAS = ["hoy", "decidir", "proximos", "esperando", "hecho", "todos"] as const
+const VISTAS = ["hoy", "tablero", "decidir", "proximos", "esperando", "hecho", "todos"] as const
 type Vista = (typeof VISTAS)[number]
 
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—")
@@ -39,6 +39,7 @@ const COND: Record<Vista, string> = {
   // Solo lo que hizo una persona (botones o edición), no las altas ni las cargas de las tareas
   hecho: `id in (select prospeccion_id from g_prospeccion_eventos where tipo in ('estado','seguimiento','contestado','aprobado','pospuesto','nota') and (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
   todos: `true`,
+  tablero: `estado in ('borrador','enviado','respondio','reunion')`,
 }
 const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   decidir: [{ acc: "si", t: "✓ Sí, escribirles", p: true }, { acc: "hoy", t: "Escribir hoy" }, { acc: "enviado", t: "Ya los envié" }, { acc: "no", t: "✕ No" }],
@@ -46,7 +47,8 @@ const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   proximos: [{ acc: "hoy", t: "Pasar a hoy", p: true }, { acc: "descartar", t: "Descartar" }],
   esperando: [{ acc: "seguimiento", t: "Seguimiento enviado", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "sin_respuesta", t: "Cerrar sin respuesta" }],
   hecho: [{ acc: "descartar", t: "Descartar" }],
-  todos: [{ acc: "hoy", t: "Pasar a hoy" }, { acc: "descartar", t: "Descartar" }],
+  todos: [{ acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "reabrir", t: "Reabrir (cerrados)" }, { acc: "descartar", t: "Descartar" }],
+  tablero: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "descartar", t: "Descartar" }],
 }
 const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
 
@@ -74,7 +76,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
     params.push(`%${b}%`)
     where += ` and (coalesce(persona,'') || ' ' || coalesce(organizacion,'') || ' ' || coalesce(cargo,'') || ' ' || coalesce(destino,'') || ' ' || coalesce(campania,'') || ' ' || coalesce(notas,'')) ilike $1`
   }
-  const todas = await q<any>(`select * from g_prospeccion where ${where} order by ${ORDEN} limit 600`, params)
+  const todas = await q<any>(`select * from g_prospeccion where ${where} order by ${ORDEN} limit ${vista === "tablero" ? 3000 : 600}`, params)
   const sug = vista === "decidir" && SUG[sp.sug ?? ""] ? sp.sug! : ""
   const cantSug: Record<string, number> = {}
   if (vista === "decidir") for (const r of todas) { const k = sugDe(r.notas); cantSug[k] = (cantSug[k] ?? 0) + 1 }
@@ -101,6 +103,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   const H = hechoHoy ?? { enviados: 0, seguimientos: 0, contestados: 0, decididos: 0 }
   const tabs: { v: Vista; n: string; d: string }[] = [
     { v: "hoy", n: "Hoy", d: "Contestar, seguir y enviar" },
+    { v: "tablero", n: "Tablero", d: "Todo por etapa, en columnas" },
     { v: "decidir", n: "Para decidir", d: "¿Le escribimos o no?" },
     { v: "proximos", n: "Próximos días", d: "Ya planificados" },
     { v: "esperando", n: "Esperando respuesta", d: "Enviados, sin plazo vencido" },
@@ -158,6 +161,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
       )}
       {edita && filas.length > 0 && <Lote volver={volver} acciones={ACC_LOTE[vista]} />}
 
+      {vista === "tablero" ? <Tablero filas={filas} volver={volver} sel={edita} /> : <>
       <Indice sel="h2.grupo" filtra="article.card" placeholder="Filtrar esta vista" />
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
         abierto={(r) => !["ganado", "sin_respuesta", "descartado"].includes(r.estado)}
@@ -166,7 +170,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         grupo={(r) => grupoDe(r, vista)}
         enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
         acciones={(r) => <Acciones r={r} volver={volver} />}
-        vacio={vacioDe(vista, b)} />
+        vacio={vacioDe(vista, b)} /></>}
 
       <section className="card" aria-label="Historia">
         <h2 className="m-0 mb-3 text-base">{editar ? `Historia de ${historia[0]?.persona ?? historia[0]?.organizacion ?? "este contacto"}` : `Lo que se hizo hoy (${historia.length})`}</h2>
@@ -196,6 +200,7 @@ function vacioDe(v: Vista, b: string) {
     esperando: "No hay enviados esperando respuesta.",
     hecho: "Hoy todavía no se movió nada.",
     todos: "Sin contactos cargados.",
+    tablero: "No hay acercamientos abiertos.",
   }[v]
 }
 
@@ -250,6 +255,53 @@ function grupoDe(r: any, vista: Vista): string {
   return d && d < hoy ? "4 · Mensajes nuevos · atrasados" : "5 · Mensajes nuevos · hoy"
 }
 
+/** Tablero: una columna por etapa, con tarjetas cortas y sus botones. */
+function Tablero({ filas, volver, sel }: { filas: any[]; volver: string; sel: boolean }) {
+  const cols: { t: string; d: string; v: string; f: (r: any) => boolean }[] = [
+    { t: "Para decidir", d: "¿Le escribimos?", v: "decidir", f: (r) => r.estado === "borrador" && !r.seguimiento },
+    { t: "Para escribir", d: "Aprobados, por fecha", v: "proximos", f: (r) => r.estado === "borrador" && !!r.seguimiento },
+    { t: "Esperando respuesta", d: "Ya enviados", v: "esperando", f: (r) => r.estado === "enviado" },
+    { t: "Respondieron", d: "Hay que contestar", v: "hoy", f: (r) => r.estado === "respondio" },
+    { t: "Reunión", d: "Preparar o confirmar", v: "hoy", f: (r) => r.estado === "reunion" },
+  ]
+  return (
+    <div className="flex gap-3 overflow-x-auto pb-3" role="list" aria-label="Tablero de acercamientos">
+      {cols.map((c) => {
+        const lista = filas.filter(c.f).sort((a, b) => String(isoD(a.seguimiento) ?? "").localeCompare(String(isoD(b.seguimiento) ?? "")))
+        return (
+          <section key={c.t} role="listitem" className="shrink-0 w-[300px] flex flex-col gap-2 rounded-2xl bg-[var(--sup-2)] border border-[var(--borde)] p-2.5">
+            <header className="px-1"><h2 className="m-0 text-sm font-bold">{c.t} <span className="text-[var(--gris)] tabular-nums">{lista.length}</span></h2><p className="m-0 text-xs text-[var(--gris)]">{c.d}</p></header>
+            {lista.slice(0, 40).map((r) => {
+              const org = r.organizacion && !/^sin dato/i.test(r.organizacion) ? r.organizacion : ""
+              const titulo = r.persona || org || "Sin nombre"
+              const d = isoD(r.seguimiento)
+              const li = /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? r.destino : null
+              return (
+                <article key={r.id} className="card !p-3 flex flex-col gap-2" aria-label={titulo}>
+                  <div className="flex items-start gap-2">
+                    {sel && <input type="checkbox" form="lote" name="ids" value={r.id} aria-label={`Seleccionar a ${titulo}`} className="w-4 h-4 mt-1 shrink-0 cursor-pointer" />}
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm leading-snug">{titulo}</div>
+                      {(r.cargo || (r.persona && org)) && <div className="text-xs text-[var(--gris)] line-clamp-2">{[r.cargo, r.persona ? org : ""].filter(Boolean).join(" · ")}</div>}
+                      {d && <div className="text-xs text-[var(--gris)] mt-0.5">{r.estado === "borrador" ? "Enviar" : "Seguimiento"} {fecha(d)}</div>}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 [&_button]:!py-1 [&_button]:!px-2.5 [&_button]:!text-xs">
+                    {li && <a href={li} target="_blank" rel="noreferrer" className="btn-s !py-1 !px-2.5 !text-xs">Perfil ↗</a>}
+                    <Acciones r={r} volver={volver} />
+                    <Link href={`/prospeccion?b=${encodeURIComponent(titulo)}&editar=${r.id}`} className="text-xs underline text-[var(--gris)] self-center">Ver / editar</Link>
+                  </div>
+                </article>
+              )
+            })}
+            {lista.length > 40 && <Link href={`/prospeccion?vista=${c.v}`} className="text-xs underline text-[var(--gris)] px-1">Ver los {lista.length}</Link>}
+          </section>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Botones según el estado: un clic y queda en la historia. */
 function Acciones({ r, volver }: { r: any; volver: string }) {
   const B = ({ acc, t, p }: { acc: string; t: string; p?: boolean }) => (
@@ -264,6 +316,7 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
   if (r.estado === "enviado") return <><B acc="seguimiento" t="✓ Seguimiento enviado" p /><B acc="respondio" t="Respondió" /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>
   if (r.estado === "respondio") return <><B acc="contestado" t="✓ Le contesté" p /><B acc="reunion" t="Reunión agendada" /><B acc="descartar" t="No sigue" /></>
   if (r.estado === "reunion") return <><B acc="ganado" t="✓ Ganado" p /><B acc="descartar" t="No sigue" /></>
+  if (r.estado === "descartado" || r.estado === "sin_respuesta") return <><B acc="respondio" t="✓ Respondió" p /><B acc="reabrir" t="Reabrir (para hoy)" /></>
   return null
 }
 
@@ -293,6 +346,7 @@ function Tarjeta({ r, compacta, sel }: { r: any; compacta?: boolean; sel?: boole
           {r.enviado_en && <span className="text-xs text-[var(--gris)] whitespace-nowrap">Enviado {fecha(isoD(r.enviado_en))}</span>}
         </div>
       </div>
+      {["descartado", "sin_respuesta", "ganado"].includes(r.estado) && <p className="m-0 text-sm rounded-lg bg-[var(--sup-2)] px-3 py-2"><b>Cerrado.</b> {r.estado === "ganado" ? "Ya es cliente." : "Ya no aparece en Hoy ni en las demás vistas: solo en Todos y en la búsqueda. Si te volvió a escribir, tocá «Respondió»."}</p>}
       {bl.sugerencia && <p className="m-0 text-sm"><b>Sugerencia:</b> {bl.sugerencia}</p>}
       {bl.recibido && (
         <div className="rounded-xl border border-[var(--borde)] px-3.5 py-2.5">

@@ -33,21 +33,23 @@ export async function accionLote(fd: FormData) {
   const u = await requerir(["gerente", "coordinacion"])
   const acc = String(fd.get("_acc") ?? "")
   const ids = [...new Set(fd.getAll("ids").map((x) => Number(x)).filter((x) => x > 0))].slice(0, 300)
-  for (const id of ids) await aplicar(id, acc, u.nombre ?? u.usuario)
+  let hechos = 0
+  for (const id of ids) if (await aplicar(id, acc, u.nombre ?? u.usuario)) hechos++
   await audit(u, `acercamiento-lote:${acc}`, "prospeccion", ids.length, ids.join(","))
   revalidatePath("/prospeccion")
   revalidatePath("/")
   const v = volverA(fd).replace(/[?&](ok|error)=[^&]*/g, "")
-  redirect(ids.length ? `${v}${v.includes("?") ? "&" : "?"}ok=${encodeURIComponent(`${ids.length} actualizados`)}` : v)
+  const msj = hechos === ids.length ? `${hechos} actualizados` : `${hechos} actualizados · ${ids.length - hechos} no cambiaron porque esa acción no corresponde a su estado`
+  redirect(ids.length ? `${v}${v.includes("?") ? "&" : "?"}${hechos ? "ok" : "error"}=${encodeURIComponent(hechos ? msj : "Ninguno cambió: esa acción no corresponde al estado de los seleccionados")}` : v)
 }
 
-async function aplicar(id: number, acc: string, por: string) {
+async function aplicar(id: number, acc: string, por: string): Promise<boolean> {
   const r = await one<any>("select * from g_prospeccion where id=$1", [id])
-  if (!r) return
+  if (!r) return false
   // En lote se mezclan estados: cada acción solo toca a los que corresponde
   const valeEn: Record<string, string[]> = { enviado: ["borrador"], si: ["borrador"], no: ["borrador"], hoy: ["borrador", "enviado", "respondio"], manana: ["borrador", "enviado", "respondio"],
-    seguimiento: ["enviado"], respondio: ["borrador", "enviado"], contestado: ["respondio"], reunion: ["respondio", "enviado"], ganado: ["reunion", "respondio"], sin_respuesta: ["enviado"], descartar: ["borrador", "enviado", "respondio", "reunion"] }
-  if (valeEn[acc] && !valeEn[acc].includes(r.estado)) return
+    seguimiento: ["enviado"], respondio: ["borrador", "enviado", "descartado", "sin_respuesta"], reabrir: ["descartado", "sin_respuesta"], contestado: ["respondio"], reunion: ["respondio", "enviado"], ganado: ["reunion", "respondio"], sin_respuesta: ["enviado"], descartar: ["borrador", "enviado", "respondio", "reunion"] }
+  if (valeEn[acc] && !valeEn[acc].includes(r.estado)) return false
   const estado = async (nuevo: string, extra = "") => {
     await q(`update g_prospeccion set estado=$2, actualizado=now() ${extra} where id=$1`, [id, nuevo])
     await registrarCambios(id, r, por)
@@ -90,6 +92,8 @@ async function aplicar(id: number, acc: string, por: string) {
       break
     }
     case "no": await estado("descartado", ", seguimiento=null"); break
-    default: return
+    case "reabrir": await estado("borrador", `, seguimiento=${HOY}`); break
+    default: return false
   }
+  return true
 }
