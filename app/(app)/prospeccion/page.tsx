@@ -17,11 +17,11 @@ export const dynamic = "force-dynamic"
  * La ruta sigue siendo /prospeccion (y la tabla g_prospeccion) para no romper las tareas programadas ni la API.
  */
 
-type SP = { editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string; sug?: string }
+type SP = { s?: string; cerrados?: string; editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string; sug?: string }
 const SUG: Record<string, string> = { si: "Sí", tal: "Tal vez", no: "No", otro: "Otro" }
 const sugDe = (notas: string | null) => { const m = /SUGERENCIA:\s*\n\s*(\S+)/i.exec(notas ?? ""); const w = (m?.[1] ?? "").toLowerCase(); return w.startsWith("sí") || w.startsWith("si") ? "si" : w.startsWith("tal") ? "tal" : w.startsWith("no") ? "no" : "otro" }
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
-const VISTAS = ["hoy", "tablero", "decidir", "proximos", "esperando", "hecho", "todos"] as const
+const VISTAS = ["hoy", "foco", "tablero", "decidir", "proximos", "esperando", "hecho", "todos"] as const
 type Vista = (typeof VISTAS)[number]
 
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—")
@@ -39,8 +39,10 @@ const COND: Record<Vista, string> = {
   // Solo lo que hizo una persona (botones o edición), no las altas ni las cargas de las tareas
   hecho: `id in (select prospeccion_id from g_prospeccion_eventos where tipo in ('estado','seguimiento','contestado','aprobado','pospuesto','nota') and (fecha at time zone 'America/Argentina/Buenos_Aires')::date = ${HOY})`,
   todos: `true`,
+  foco: `true`,
   tablero: `estado in ('borrador','enviado','respondio','reunion')`,
 }
+COND.foco = COND.hoy
 const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   decidir: [{ acc: "si", t: "✓ Sí, escribirles", p: true }, { acc: "hoy", t: "Escribir hoy" }, { acc: "enviado", t: "Ya los envié" }, { acc: "no", t: "✕ No" }],
   hoy: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "seguimiento", t: "Seguimiento enviado" }, { acc: "contestado", t: "Les contesté" }, { acc: "manana", t: "Pasar a mañana" }, { acc: "descartar", t: "Descartar" }],
@@ -48,6 +50,7 @@ const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   esperando: [{ acc: "seguimiento", t: "Seguimiento enviado", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "sin_respuesta", t: "Cerrar sin respuesta" }],
   hecho: [{ acc: "descartar", t: "Descartar" }],
   todos: [{ acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "reabrir", t: "Reabrir (cerrados)" }, { acc: "descartar", t: "Descartar" }],
+  foco: [],
   tablero: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "descartar", t: "Descartar" }],
 }
 const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
@@ -80,7 +83,14 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   const sug = vista === "decidir" && SUG[sp.sug ?? ""] ? sp.sug! : ""
   const cantSug: Record<string, number> = {}
   if (vista === "decidir") for (const r of todas) { const k = sugDe(r.notas); cantSug[k] = (cantSug[k] ?? 0) + 1 }
-  const filas = sug ? todas.filter((r) => sugDe(r.notas) === sug) : todas
+  const hoyD = hoyISO()
+  // Pendiente = todavía hay algo para hacer con este contacto hoy (o decidir). Lo demás ya está resuelto por ahora.
+  const pend = (r: any) => { const d = isoD(r.seguimiento); return r.estado === "reunion" || (r.estado === "borrador" && (!d || d <= hoyD)) || (r.estado === "respondio" && (!d || d <= hoyD)) || (r.estado === "enviado" && !!d && d <= hoyD) }
+  const salto = Math.max(0, Number(sp.s) || 0)
+  const base = sug ? todas.filter((r) => sugDe(r.notas) === sug) : todas
+  // En la búsqueda, lo ya resuelto (contestado, enviado en espera, cerrado) se pliega abajo: la lista se va limpiando
+  const resueltas = b ? base.filter((r) => !pend(r)) : []
+  const filas = vista === "foco" ? base.slice(Math.min(salto, Math.max(0, base.length - 1))).slice(0, 1) : b && !sp.cerrados ? base.filter(pend) : base
 
   const editar = Number(sp.editar) || null
   const historia = await q<any>(
@@ -93,7 +103,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
 
   const url = (extra: Record<string, string | undefined>) => {
     const p = new URLSearchParams()
-    const base = { vista: vista === "hoy" ? undefined : vista, b: b || undefined, sug: sug || undefined, ...extra }
+    const base = { vista: vista === "hoy" ? undefined : vista, s: vista === "foco" && salto ? String(salto) : undefined, cerrados: sp.cerrados || undefined, b: b || undefined, sug: sug || undefined, ...extra }
     for (const [k, v] of Object.entries(base)) if (v) p.set(k, v)
     const s = p.toString()
     return `/prospeccion${s ? "?" + s : ""}`
@@ -103,6 +113,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   const H = hechoHoy ?? { enviados: 0, seguimientos: 0, contestados: 0, decididos: 0 }
   const tabs: { v: Vista; n: string; d: string }[] = [
     { v: "hoy", n: "Hoy", d: "Contestar, seguir y enviar" },
+    { v: "foco", n: "De a uno", d: "Uno por vez: resolvés y pasa al siguiente" },
     { v: "tablero", n: "Tablero", d: "Todo por etapa, en columnas" },
     { v: "decidir", n: "Para decidir", d: "¿Le escribimos o no?" },
     { v: "proximos", n: "Próximos días", d: "Ya planificados" },
@@ -144,7 +155,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         <label htmlFor="b-acerc" className="sr-only">Buscar en todos los acercamientos</label>
         <input id="b-acerc" name="b" type="search" defaultValue={b} placeholder="Buscar en todo: nombre, empresa, cargo, campaña…" className="inp !w-[min(100%,420px)]" />
         <button className="btn-s py-2 px-4 text-sm">Buscar</button>
-        {b && <><span className="text-sm text-[var(--gris)]">{filas.length === 1 ? "1 resultado" : `${filas.length} resultados`} para «{b}» en todos los estados</span>
+        {b && <><span className="text-sm text-[var(--gris)]">{sp.cerrados ? `${base.length} resultados para «${b}» (todos los estados)` : `${filas.length} pendientes para «${b}»`}{!sp.cerrados && resueltas.length > 0 && <> · <Link className="underline" href={`/prospeccion?b=${encodeURIComponent(b)}&cerrados=1`}>ver también los {resueltas.length} ya resueltos o cerrados</Link></>}</span>
           <Link href="/prospeccion" className="text-sm underline text-[var(--gris)]">Limpiar</Link></>}
       </form>
 
@@ -159,18 +170,25 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
           </nav>
         </>
       )}
-      {edita && filas.length > 0 && <Lote volver={volver} acciones={ACC_LOTE[vista]} />}
+      {vista === "foco" && base.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-4 py-3">
+          <span className="text-sm"><b>Quedan {base.length} para hoy.</b> Resolvé este con uno de sus botones y aparece el siguiente solo.</span>
+          {base.length > 1 && <Link href={`/prospeccion?vista=foco&s=${salto + 1 >= base.length ? 0 : salto + 1}`} className="btn-s py-2 px-4 text-sm">Saltar por ahora →</Link>}
+        </div>
+      )}
+      {vista === "hecho" && <p className="m-0 text-sm rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-4 py-3"><b>Esto es el registro de lo que ya resolviste hoy.</b> No hay nada para hacer acá: lo pendiente está en «Hoy» o «De a uno».</p>}
+      {edita && filas.length > 0 && ACC_LOTE[vista].length > 0 && vista !== "hecho" && <Lote volver={volver} acciones={ACC_LOTE[vista]} />}
 
       {vista === "tablero" ? <Tablero filas={filas} volver={volver} sel={edita} /> : <>
       <Indice sel="h2.grupo" filtra="article.card" placeholder="Filtrar esta vista" />
       <TablaRegistro clave="prospeccion" filas={filas} volver={volver} editar={editar} nuevo={!!sp.nuevo} puedeEditar={edita}
         abierto={(r) => !["ganado", "sin_respuesta", "descartado"].includes(r.estado)}
         copiar={textoParaCopiar}
-        tarjeta={(r) => <Tarjeta r={r} compacta={vista === "decidir"} sel={edita} />}
+        tarjeta={(r) => <Tarjeta r={r} compacta={vista === "decidir"} sel={edita && vista !== "foco" && vista !== "hecho"} />}
         grupo={(r) => grupoDe(r, vista)}
         enlace={(r) => /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "") ? { href: r.destino, etiqueta: "Abrir perfil" } : null}
-        acciones={(r) => <Acciones r={r} volver={volver} />}
-        vacio={vacioDe(vista, b)} /></>}
+        acciones={(r) => vista === "hecho" ? null : <Acciones r={r} volver={volver} />}
+        vacio={b && resueltas.length ? `Nada pendiente con «${b}»: los ${resueltas.length} que coinciden ya están resueltos o cerrados (link de arriba para verlos).` : vacioDe(vista, b)} /></>}
 
       <section className="card" aria-label="Historia">
         <h2 className="m-0 mb-3 text-base">{editar ? `Historia de ${historia[0]?.persona ?? historia[0]?.organizacion ?? "este contacto"}` : `Lo que se hizo hoy (${historia.length})`}</h2>
@@ -201,6 +219,7 @@ function vacioDe(v: Vista, b: string) {
     hecho: "Hoy todavía no se movió nada.",
     todos: "Sin contactos cargados.",
     tablero: "No hay acercamientos abiertos.",
+    foco: "¡Listo! No queda nada pendiente para hoy.",
   }[v]
 }
 
