@@ -3,7 +3,12 @@ const CLAVES: [RegExp, string][] = [[/^MENSAJE/, "mensaje"], [/^PASO 1/, "invita
 export function bloques(notas: string): Record<string, string> {
   const out: Record<string, string> = {}
   let k: string | null = null
-  for (const l of notas.replace(/\r/g, "").split("\n")) {
+  // Notas cargadas en una sola línea («… MENSAJE (si responde): Hola…»): se separan en bloques igual que las demás
+  const texto = notas.replace(/\r/g, "")
+    .replace(/[ \t]+MENSAJE \(si responde\):[ \t]*/g, "\nRESPUESTA:\n")
+    .replace(/([^\n])[ \t]+(MENSAJE|SEGUIMIENTO|RESPUESTA|PASO 1|PASO 2|ASUNTO|NOS ESCRIBI[OÓ])( \([^)\n]{0,40}\))?:[ \t]+(?=\S)/g, "$1\n$2:\n")
+    .replace(/^(SUGERENCIA|MENSAJE|SEGUIMIENTO|RESPUESTA|PASO 1|PASO 2|ASUNTO|NOS ESCRIBI[OÓ])( \([^)\n]{0,40}\))?:[ \t]+(?=\S)/gm, "$1:\n")
+  for (const l of texto.split("\n")) {
     const t = l.trim()
     // Un encabezado es una línea corta en mayúsculas que termina en «:» (o una de las claves conocidas sola)
     const cab = /^[A-ZÁÉÍÓÚÑ0-9 ·.º()/-]{3,60}:$/.test(t) || CLAVES.some(([re]) => re.test(t.toUpperCase()) && t.length < 40 && t === t.toUpperCase())

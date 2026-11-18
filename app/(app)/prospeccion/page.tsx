@@ -19,9 +19,9 @@ export const dynamic = "force-dynamic"
  * La ruta sigue siendo /prospeccion (y la tabla g_prospeccion) para no romper las tareas programadas ni la API.
  */
 
-type SP = { s?: string; cerrados?: string; editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string; sug?: string }
+type SP = { s?: string; cerrados?: string; editar?: string; nuevo?: string; ok?: string; error?: string; vista?: string; b?: string; ver?: string; todos?: string; todo?: string; sug?: string }
 const SUG: Record<string, string> = { si: "Sí", tal: "Tal vez", no: "No", otro: "Otro" }
-const sugDe = (notas: string | null) => { const m = /SUGERENCIA:\s*\n\s*(\S+)/i.exec(notas ?? ""); const w = (m?.[1] ?? "").toLowerCase(); return w.startsWith("sí") || w.startsWith("si") ? "si" : w.startsWith("tal") ? "tal" : w.startsWith("no") ? "no" : "otro" }
+const sugDe = (notas: string | null) => { const m = /SUGERENCIA:\s*(\S+)/i.exec(notas ?? ""); const w = (m?.[1] ?? "").toLowerCase(); return w.startsWith("sí") || w.startsWith("si") ? "si" : w.startsWith("tal") ? "tal" : w.startsWith("no") ? "no" : "otro" }
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
 const VISTAS = ["hoy", "foco", "tablero", "decidir", "proximos", "esperando", "hecho", "todos"] as const
 type Vista = (typeof VISTAS)[number]
@@ -55,6 +55,10 @@ const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   foco: [],
   tablero: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "descartar", t: "Descartar" }],
 }
+/** Vistas de consulta: van como links chicos a la derecha, para que arriba quede solo el trabajo del día. */
+const SECUNDARIAS: Vista[] = ["foco", "tablero", "hecho", "todos"]
+/** Cuántas tarjetas se muestran de entrada en «Hoy» (el resto, con un clic). */
+const TOPE_HOY = 20
 const ORDEN = `case estado when 'respondio' then 0 when 'reunion' then 1 when 'enviado' then 2 when 'borrador' then 3 else 4 end, seguimiento nulls last, coalesce(enviado_en, creado::date), id`
 
 export default async function Acercamientos({ searchParams: sp }: { searchParams: SP }) {
@@ -96,7 +100,10 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   const base = sug ? todas.filter((r) => sugDe(r.notas) === sug) : todas
   // En la búsqueda, lo ya resuelto (contestado, enviado en espera, cerrado) se pliega abajo: la lista se va limpiando
   const resueltas = b ? base.filter((r) => !pend(r)) : []
-  const filas = vista === "foco" ? base.slice(Math.min(salto, Math.max(0, base.length - 1))).slice(0, 1) : b && !sp.cerrados ? base.filter(pend) : base
+  const filasTodas = vista === "foco" ? base.slice(Math.min(salto, Math.max(0, base.length - 1))).slice(0, 1) : b && !sp.cerrados ? base.filter(pend) : base
+  // «Hoy» arranca con las primeras (ya vienen por prioridad): una lista de 180 no se puede trabajar
+  const recorta = vista === "hoy" && !b && !sp.todo && filasTodas.length > TOPE_HOY
+  const filas = recorta ? filasTodas.slice(0, TOPE_HOY) : filasTodas
 
   const editar = Number(sp.editar) || null
   const historia = await q<any>(
@@ -119,11 +126,11 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
   const H = hechoHoy ?? { enviados: 0, seguimientos: 0, contestados: 0, decididos: 0 }
   const tabs: { v: Vista; n: string; d: string }[] = [
     { v: "hoy", n: "Hoy", d: "Contestar, seguir y enviar" },
-    { v: "foco", n: "De a uno", d: "Uno por vez: resolvés y pasa al siguiente" },
-    { v: "tablero", n: "Tablero", d: "Todo por etapa, en columnas" },
+    { v: "esperando", n: "Esperando respuesta", d: "Enviados, sin plazo vencido" },
     { v: "decidir", n: "Para decidir", d: "¿Le escribimos o no?" },
     { v: "proximos", n: "Próximos días", d: "Ya planificados" },
-    { v: "esperando", n: "Esperando respuesta", d: "Enviados, sin plazo vencido" },
+    { v: "foco", n: "De a uno", d: "Uno por vez: resolvés y pasa al siguiente" },
+    { v: "tablero", n: "Tablero", d: "Todo por etapa, en columnas" },
     { v: "hecho", n: "Hecho hoy", d: "Lo que se movió hoy" },
     { v: "todos", n: "Todos", d: "Incluye cerrados" },
   ]
@@ -132,7 +139,7 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
     <div className="flex flex-col gap-5">
       <header className="pag-cab">
         <div><div className="eyebrow">Ventas</div><h1 className="m-0">Acercamientos</h1>
-          <p>Invitaciones, mensajes de LinkedIn, mails y seguimientos, día por día. Arrancá por <b>Hoy</b>: primero contestar, después seguimientos, después mensajes nuevos. Cada botón queda anotado en la historia.</p></div>
+          <p>Cada tarjeta tiene un botón rojo: es el paso que sigue. Al tocarlo, la tarjeta sale de la lista.</p></div>
         {edita && <div className="pag-acc"><Link href={`${volver}${volver.includes("?") ? "&" : "?"}nuevo=1`} className="btn-p">+ Contacto</Link></div>}
       </header>
       <Aviso ok={sp.ok} error={sp.error} />
@@ -145,8 +152,9 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         <Kpi t="Reuniones" v={(m.E.reunion ?? 0) + (m.E.ganado ?? 0)} d={`${m.E.ganado ?? 0} ganados`} />
       </section>
 
-      <nav aria-label="Vistas" className="flex flex-wrap gap-1 border-b border-[var(--borde)]">
+      <nav aria-label="Vistas" className="flex flex-wrap items-end gap-1 border-b border-[var(--borde)]">
         {tabs.map((t) => {
+          if (SECUNDARIAS.includes(t.v) && !(t.v === vista && !b)) return null
           const on = t.v === vista && !b
           return (
             <Link key={t.v} href={`/prospeccion${t.v === "hoy" ? "" : `?vista=${t.v}`}`} aria-current={on ? "page" : undefined} title={t.d}
@@ -155,6 +163,9 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
             </Link>
           )
         })}
+        <span className="ml-auto flex flex-wrap gap-3 pb-2 text-sm text-[var(--gris)]">
+          {tabs.filter((t) => SECUNDARIAS.includes(t.v) && !(t.v === vista && !b)).map((t) => <Link key={t.v} href={`/prospeccion?vista=${t.v}`} title={t.d} className="underline">{t.n}</Link>)}
+        </span>
       </nav>
 
       <form method="get" action="/prospeccion" className="flex flex-wrap items-center gap-2" role="search">
@@ -203,6 +214,8 @@ export default async function Acercamientos({ searchParams: sp }: { searchParams
         acciones={(r) => vista === "hecho" ? null : <Acciones r={r} volver={volver} />}
         vacio={b && resueltas.length ? `Nada pendiente con «${b}»: los ${resueltas.length} que coinciden ya están resueltos o cerrados (link de arriba para verlos).` : vacioDe(vista, b)} /></>}
 
+      {recorta && <p className="m-0 text-sm text-center"><Link href="/prospeccion?todo=1" className="btn-s py-2 px-4 text-sm">Mostrar los {filasTodas.length} de hoy</Link> <span className="text-[var(--gris)] ml-2">Estás viendo los primeros {TOPE_HOY}, por prioridad. Al resolverlos aparecen los siguientes.</span></p>}
+
       <section className="card" aria-label="Historia">
         <h2 className="m-0 mb-3 text-base">{editar ? `Historia de ${historia[0]?.persona ?? historia[0]?.organizacion ?? "este contacto"}` : `Lo que se hizo hoy (${historia.length})`}</h2>
         {historia.length ? (
@@ -226,6 +239,11 @@ const esEmail = (d: string | null) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((d ?? ""
 /** Botón principal de la tarjeta: perfil de LinkedIn o WhatsApp con el mensaje ya escrito. */
 function enlaceDe(r: any): { href: string; etiqueta: string } | null {
   if (/^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(r.destino ?? "")) return { href: r.destino, etiqueta: "Abrir perfil" }
+  // LinkedIn sin la dirección del perfil cargada: se abre la búsqueda de personas con el nombre y la empresa
+  if (r.canal === "linkedin" && r.persona) {
+    const org = r.organizacion && !/^sin dato/i.test(r.organizacion) && !String(r.organizacion).toLowerCase().includes(String(r.persona).toLowerCase()) ? ` ${String(r.organizacion).split(/[(·,]/)[0].trim()}` : ""
+    return { href: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${r.persona}${org}`)}`, etiqueta: "Buscar en LinkedIn" }
+  }
   const tel = String(r.destino ?? "").replace(/\D/g, "")
   if (r.canal === "whatsapp" && tel.length >= 10) { const t = textoParaCopiar(r); return { href: `https://wa.me/${tel}${t ? `?text=${encodeURIComponent(t.texto)}` : ""}`, etiqueta: "Abrir WhatsApp con el mensaje" } }
   return null
@@ -352,8 +370,12 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
 function Tarjeta({ r, compacta, sel }: { r: any; compacta?: boolean; sel?: boolean }) {
   const org = r.organizacion && !/^sin dato/i.test(r.organizacion) ? r.organizacion : ""
   const titulo = r.persona || org || "Sin nombre"
-  const sub = [r.cargo, r.persona ? org : ""].filter(Boolean).join(" · ")
+  // Sin repetir el nombre: si la organización es la misma persona («Teresa Guerrero (individual…)»), queda solo lo que agrega
+  const orgLimpia = r.persona && org.toLowerCase().startsWith(String(r.persona).toLowerCase()) ? org.slice(String(r.persona).length).replace(/^[\s(·,-]+|\)$/g, "").trim() : org
+  const sub = [r.cargo, r.persona ? orgLimpia : ""].filter(Boolean).join(" · ")
   const t = textoParaCopiar(r)
+  const enEspera = r.estado === "enviado" && !!isoD(r.seguimiento) && isoD(r.seguimiento)! > hoyISO()
+  const sugLarga = (bl0: string) => bl0.length > 170
   const bl = r.notas ? bloques(String(r.notas)) : {}
   const d = isoD(r.seguimiento)
   const esLink = /^https?:/i.test(r.destino ?? "")
@@ -369,20 +391,22 @@ function Tarjeta({ r, compacta, sel }: { r: any; compacta?: boolean; sel?: boole
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          {chip(ESTADOS_PROS, r.estado)}{chip(CANALES_PROS, r.canal)}{chip(TIPOS_PROS, r.tipo)}
+          {chip(ESTADOS_PROS, r.estado)}{chip(CANALES_PROS, r.canal)}
           {d && <span className="text-xs text-[var(--gris)] whitespace-nowrap">{r.estado === "borrador" ? "Enviar" : r.estado === "respondio" ? "Volver a ver" : "Seguimiento"} {fecha(d)}</span>}
           {r.enviado_en && <span className="text-xs text-[var(--gris)] whitespace-nowrap">Enviado {fecha(isoD(r.enviado_en))}</span>}
         </div>
       </div>
       {["descartado", "sin_respuesta", "ganado"].includes(r.estado) && <p className="m-0 text-sm rounded-lg bg-[var(--sup-2)] px-3 py-2"><b>Cerrado.</b> {r.estado === "ganado" ? "Ya es cliente." : "Ya no aparece en Hoy ni en las demás vistas: solo en Todos y en la búsqueda. Si te volvió a escribir, tocá «Respondió»."}</p>}
-      {bl.sugerencia && <p className="m-0 text-sm"><b>Sugerencia:</b> {bl.sugerencia}</p>}
+      {bl.sugerencia && (sugLarga(bl.sugerencia)
+        ? <details className="text-sm"><summary className="cursor-pointer list-none"><b>Por qué:</b> {bl.sugerencia.slice(0, 150).replace(/\s+\S*$/, "")}… <span className="underline text-[var(--gris)]">ver más</span></summary><p className="m-0 mt-1">{bl.sugerencia}</p></details>
+        : <p className="m-0 text-sm"><b>Por qué:</b> {bl.sugerencia}</p>)}
       {bl.recibido && (
         <div className="rounded-xl border border-[var(--borde)] px-3.5 py-2.5">
           <div className="text-xs font-bold uppercase tracking-wide text-[var(--gris)] mb-1">Nos escribió</div>
           <p className="m-0 text-sm whitespace-pre-line">{bl.recibido}</p>
         </div>
       )}
-      {t && compacta
+      {enEspera ? null : t && compacta
         ? <details className="text-sm"><summary className="cursor-pointer text-[var(--gris)] w-fit">Ver el mensaje</summary><p className="m-0 mt-1.5 whitespace-pre-line">{t.texto}</p></details>
         : t
         ? <div className="rounded-xl bg-[var(--sup-2)] border border-[var(--borde)] px-3.5 py-2.5">
