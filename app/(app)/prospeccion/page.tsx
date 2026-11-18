@@ -48,7 +48,7 @@ const ACC_LOTE: Record<Vista, { acc: string; t: string; p?: boolean }[]> = {
   decidir: [{ acc: "si", t: "✓ Sí, escribirles", p: true }, { acc: "hoy", t: "Escribir hoy" }, { acc: "enviado", t: "Ya los envié" }, { acc: "no", t: "✕ No" }],
   hoy: [{ acc: "enviado", t: "✓ Enviados", p: true }, { acc: "seguimiento", t: "Seguimiento enviado" }, { acc: "contestado", t: "Les contesté" }, { acc: "manana", t: "Pasar a mañana" }, { acc: "descartar", t: "Descartar" }],
   proximos: [{ acc: "hoy", t: "Pasar a hoy", p: true }, { acc: "descartar", t: "Descartar" }],
-  esperando: [{ acc: "seguimiento", t: "Seguimiento enviado", p: true }, { acc: "respondio", t: "Respondieron" }, { acc: "sin_respuesta", t: "Cerrar sin respuesta" }],
+  esperando: [{ acc: "respondio", t: "Respondieron", p: true }, { acc: "sin_respuesta", t: "Cerrar sin respuesta" }],
   hecho: [{ acc: "descartar", t: "Descartar" }],
   todos: [{ acc: "respondio", t: "Respondieron" }, { acc: "hoy", t: "Pasar a hoy" }, { acc: "reabrir", t: "Reabrir (cerrados)" }, { acc: "descartar", t: "Descartar" }],
   foco: [],
@@ -327,6 +327,8 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
   if (r.estado === "borrador" && r.canal === "whatsapp" && String(r.ref ?? "").startsWith("consulta:")) return <><B acc="wa" t="Enviar por el WhatsApp de DEVISEBIT" /><B acc="enviado" t="✓ Ya lo envié" p /><B acc="manana" t="Mañana" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "borrador" && esEmail(r.destino) && r.canal === "gmail") return <><B acc="email" t="✉ Enviar el email ahora" p /><B acc="enviado" t="Ya lo envié yo" /><B acc="manana" t="Mañana" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "borrador") return <><B acc="enviado" t="✓ Enviado" p /><B acc="manana" t="Mañana" /><B acc="respondio" t="Ya respondió" /><B acc="descartar" t="Descartar" /></>
+  // Enviado y con el seguimiento todavía por delante: no hay nada que hacer salvo que responda
+  if (r.estado === "enviado" && d && d > hoyISO()) return <><span className="text-sm text-[var(--gris)] self-center mr-1">Esperando respuesta · vuelve a «Para hoy» el {d.slice(8, 10)}/{d.slice(5, 7)}</span><B acc="respondio" t="✓ Respondió" p /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>
   if (r.estado === "enviado") return <><B acc="seguimiento" t="✓ Seguimiento enviado" p /><B acc="respondio" t="Respondió" /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>
   if (r.estado === "respondio") return <><B acc="contestado" t="✓ Le contesté" p /><B acc="reunion" t="Reunión agendada" /><B acc="descartar" t="No sigue" /></>
   if (r.estado === "reunion") return <><B acc="ganado" t="✓ Ganado" p /><B acc="descartar" t="No sigue" /></>
