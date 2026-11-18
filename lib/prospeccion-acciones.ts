@@ -8,6 +8,7 @@ import { evento, marcarEnviado, registrarCambios, CUPO_DIA } from "@/lib/prospec
 import { bloques } from "@/lib/prospeccion-bloques"
 import { proveedores, enviarCon, plantilla, aHtml } from "@/lib/email"
 import { linkBrief } from "@/lib/brief"
+import { retomarPorWhatsApp } from "@/lib/waperfil"
 
 const HOY = "(now() at time zone 'America/Argentina/Buenos_Aires')::date"
 
@@ -29,7 +30,7 @@ export async function accionAcercamiento(fd: FormData) {
   revalidatePath("/prospeccion")
   revalidatePath("/")
   const v = volverA(fd).replace(/[?&](ok|error)=[^&]*/g, "")
-  const aviso = acc === "email" ? (hecho ? "ok=Email enviado" : "error=" + encodeURIComponent("No se pudo enviar el email (revisá que tenga dirección, asunto y mensaje)")) : hecho ? "" : "error=" + encodeURIComponent("No cambió: esa acción no corresponde a su estado")
+  const aviso = acc === "wa" ? (hecho ? "ok=WhatsApp enviado" : "error=" + encodeURIComponent("No se pudo enviar por el número de DEVISEBIT (la plantilla todavía no está aprobada o el teléfono no es válido)")) : acc === "email" ? (hecho ? "ok=Email enviado" : "error=" + encodeURIComponent("No se pudo enviar el email (revisá que tenga dirección, asunto y mensaje)")) : hecho ? "" : "error=" + encodeURIComponent("No cambió: esa acción no corresponde a su estado")
   redirect(aviso ? `${v}${v.includes("?") ? "&" : "?"}${aviso}` : v)
 }
 
@@ -52,7 +53,7 @@ async function aplicar(id: number, acc: string, por: string): Promise<boolean> {
   const r = await one<any>("select * from g_prospeccion where id=$1", [id])
   if (!r) return false
   // En lote se mezclan estados: cada acción solo toca a los que corresponde
-  const valeEn: Record<string, string[]> = { email: ["borrador"], enviado: ["borrador"], si: ["borrador"], no: ["borrador"], hoy: ["borrador", "enviado", "respondio"], manana: ["borrador", "enviado", "respondio"],
+  const valeEn: Record<string, string[]> = { email: ["borrador"], wa: ["borrador"], enviado: ["borrador"], si: ["borrador"], no: ["borrador"], hoy: ["borrador", "enviado", "respondio"], manana: ["borrador", "enviado", "respondio"],
     seguimiento: ["enviado"], respondio: ["borrador", "enviado", "descartado", "sin_respuesta"], reabrir: ["descartado", "sin_respuesta"], contestado: ["respondio"], reunion: ["respondio", "enviado"], ganado: ["reunion", "respondio"], sin_respuesta: ["enviado"], descartar: ["borrador", "enviado", "respondio", "reunion"] }
   if (valeEn[acc] && !valeEn[acc].includes(r.estado)) return false
   const estado = async (nuevo: string, extra = "") => {
@@ -109,6 +110,17 @@ async function aplicar(id: number, acc: string, por: string): Promise<boolean> {
       const res = await enviarCon(prov.id, { email: to, name: r.persona }, bl.asunto || r.asunto || "DEVISEBIT", plantilla(aHtml(texto)), null)
       if (!res.ok) { await evento(id, "nota", `No se pudo enviar el email: ${res.error ?? "error"}`, por); return false }
       await evento(id, "nota", `Email enviado desde el sistema a ${to}`, por)
+      await marcarEnviado(id, por)
+      break
+    }
+    case "wa": {
+      // WhatsApp desde el número de DEVISEBIT con la plantilla aprobada «retomar_consulta»
+      const tema = String(r.asunto ?? "").replace(/^Recuperar consulta:\s*/i, "").trim() || "nuestros servicios"
+      const nombre = String(r.persona ?? r.organizacion ?? "").split(" ")[0] || "qué tal"
+      const cid = /^consulta:(\d+)/.exec(String(r.ref ?? ""))?.[1]
+      const res = await retomarPorWhatsApp(String(r.destino ?? ""), nombre, tema, cid ? Number(cid) : null)
+      if (!res.ok) { await evento(id, "nota", `No se pudo enviar el WhatsApp: ${res.error ?? "error"}`, por); return false }
+      await evento(id, "nota", "WhatsApp enviado desde el número de DEVISEBIT (plantilla retomar_consulta)", por)
       await marcarEnviado(id, por)
       break
     }

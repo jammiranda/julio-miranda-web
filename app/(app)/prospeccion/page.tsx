@@ -324,6 +324,7 @@ function Acciones({ r, volver }: { r: any; volver: string }) {
   )
   const d = isoD(r.seguimiento)
   if (r.estado === "borrador" && !d) return <><B acc="si" t="✓ Sí, escribirle" p /><B acc="enviado" t="Ya lo envié" /><B acc="respondio" t="Ya respondió" /><B acc="no" t="✕ No" /></>
+  if (r.estado === "borrador" && r.canal === "whatsapp" && String(r.ref ?? "").startsWith("consulta:")) return <><B acc="wa" t="Enviar por el WhatsApp de DEVISEBIT" /><B acc="enviado" t="✓ Ya lo envié" p /><B acc="manana" t="Mañana" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "borrador" && esEmail(r.destino) && r.canal === "gmail") return <><B acc="email" t="✉ Enviar el email ahora" p /><B acc="enviado" t="Ya lo envié yo" /><B acc="manana" t="Mañana" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "borrador") return <><B acc="enviado" t="✓ Enviado" p /><B acc="manana" t="Mañana" /><B acc="respondio" t="Ya respondió" /><B acc="descartar" t="Descartar" /></>
   if (r.estado === "enviado") return <><B acc="seguimiento" t="✓ Seguimiento enviado" p /><B acc="respondio" t="Respondió" /><B acc="sin_respuesta" t="Cerrar sin respuesta" /></>

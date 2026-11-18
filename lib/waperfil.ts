@@ -8,7 +8,7 @@ import { URL_SISTEMA } from "./brief"
  */
 const V = process.env.WA_GRAPH_VERSION ?? "v23.0"
 const G = `https://graph.facebook.com/${V}`
-export const PERFIL_VERSION = "2026-10-27c"
+export const PERFIL_VERSION = "2026-11-18a"
 
 export type Perfil = { about: string; description: string; address: string; email: string; websites: string[]; vertical: string }
 export const PERFIL: Perfil = {
@@ -34,7 +34,14 @@ export const PLANTILLAS = [
     text: "Hola {{1}}, te recordamos tu reunión de hoy con DEVISEBIT a las {{2}}. {{3}} Cualquier cambio, respondé este mensaje.",
     ejemplo: ["Julio", "10:00 h", "Entrás desde https://meet.jit.si/DEVISEBIT-abc123"],
   },
-]
+  {
+    // Para retomar una consulta pasadas las 24 h (Acercamientos → «Enviar por WhatsApp de DEVISEBIT»)
+    name: "retomar_consulta", category: "MARKETING",
+    text: "Hola {{1}}, soy Julio de DEVISEBIT. Hace unos días nos consultaste por {{2}} y no quiero que quede sin respuesta. ¿Seguís con la idea? Contame qué necesitás y te paso una propuesta concreta hoy.",
+    ejemplo: ["Carla", "la web para tu tienda de ropa"],
+    botones: ["Sí, sigo interesado", "Ya lo resolví"],
+  },
+] as { name: string; category: string; text: string; ejemplo: string[]; botones?: string[] }[]
 
 /** Datos del perfil: los editados en el sistema (Sistema → WhatsApp Business) o los de arriba. */
 export async function perfilActual(): Promise<Perfil> {
@@ -118,7 +125,7 @@ export async function asegurarPerfil(forzar = false) {
       if (ya.has(t.name)) { pl[t.name] = (ex.j.data.find((x: any) => x.name === t.name)?.status ?? "existe").toLowerCase(); continue }
       const c = await gj(`${G}/${waba}/message_templates`, {
         method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ name: t.name, language: "es_AR", category: t.category, components: [{ type: "BODY", text: t.text, example: { body_text: [t.ejemplo] } }] }),
+        body: JSON.stringify({ name: t.name, language: "es_AR", category: t.category, components: [{ type: "BODY", text: t.text, example: { body_text: [t.ejemplo] } }, ...(t.botones ? [{ type: "BUTTONS", buttons: t.botones.map((b) => ({ type: "QUICK_REPLY", text: b })) }] : [])] }),
       })
       pl[t.name] = c.ok ? (c.j?.status ?? "enviada").toLowerCase() : c.j?.error?.error_user_msg ?? c.j?.error?.message ?? "error"
     }
@@ -197,6 +204,19 @@ export async function avisarPorWhatsApp(cid: number, to: string, texto: string, 
     await q("insert into wa_chats(empresa,wa_id,nombre,consulta_id) values ('devisebit',$1,$2,$3) on conflict (empresa,wa_id) do update set consulta_id=coalesce(wa_chats.consulta_id, excluded.consulta_id)", [to, nombre ?? null, cid]).catch(() => {})
     await q("update consultas set chat_id=coalesce(chat_id,$1) where id=$2", [to, cid]).catch(() => {})
     await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ('devisebit',$1,'bot',$2,$3,'Bit (asistente IA)')", [to, enviado, (r as any).id ?? null]).catch(() => {})
+  }
+  return r
+}
+
+/** Retoma una consulta vieja con la plantilla aprobada y deja el mensaje en el chat del CRM. */
+export async function retomarPorWhatsApp(tel: string, nombre: string, tema: string, cid?: number | null) {
+  const to = waId(tel)
+  if (!to) return { ok: false, error: "teléfono inválido" }
+  const r = await enviarPlantilla(to, "retomar_consulta", [nombre, tema])
+  if (r.ok) {
+    const texto = PLANTILLAS.find((p) => p.name === "retomar_consulta")!.text.replace("{{1}}", nombre).replace("{{2}}", tema)
+    await q("insert into wa_chats(empresa,wa_id,nombre,consulta_id) values ('devisebit',$1,$2,$3) on conflict (empresa,wa_id) do update set consulta_id=coalesce(wa_chats.consulta_id, excluded.consulta_id)", [to, nombre, cid ?? null]).catch(() => {})
+    await q("insert into wa_mensajes(empresa,wa_id,autor,texto,meta_id,autor_nombre) values ('devisebit',$1,'bot',$2,$3,'Julio (plantilla)')", [to, texto, (r as any).id ?? null]).catch(() => {})
   }
   return r
 }
