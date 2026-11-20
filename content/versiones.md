@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 19/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (520 cambios publicados desde el 17 de octubre).
+Última actualización: 20/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (521 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -14,7 +14,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|---|---|
 | Sitio web DEVISEBIT | www.devisebit.com | **1.12.0** | 18/11/2026 | Tres guías nuevas en Novedades (bot de Telegram, audios de WhatsApp a texto y recordatorios de turnos) y el lanzamiento de MateBot |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.5.0** | 18/11/2026 | En /webs la oferta principal pasa a ser Web por Suscripción; a quien llega desde Google Ads se le muestra WhatsApp como botón principal |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.13.0** | 18/11/2026 | Prospección pasa a llamarse Acercamientos, con vistas por día y acciones de un clic; el Sistema registra las suscripciones de Web por Suscripción |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.14.0** | 19/11/2026 | En WhatsApp Business se puede mandar una prueba de las plantillas aprobadas a cualquier teléfono |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.9.0** | 18/11/2026 | Ofrece la Web por Suscripción, avisa que el folleto de webs ya trae precios y no reserva dos veces la misma reunión |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
@@ -33,16 +33,16 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 |---|---|---|
 | Sitio web DEVISEBIT | 100 | 14 |
 | Landings de anuncios | 19 | 8 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 194 | 27 |
+| Sistema (CRM y gestión) | 195 | 28 |
 | Bot de WhatsApp (Bit) | 23 | 10 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
 | Panel de Contenido | 48 | 10 |
 | Oficina | 20 | 2 |
 | Sitio personal de Julio | 62 | 6 |
-| **Total** | **520** | **88** |
+| **Total** | **521** | **89** |
 
-Los 520 se reparten así: 119 en el código del sitio web (100 + 19), 339 en el código del Sistema (194 + 23 + 40 + 14 + 48 + 20) y 62 en el sitio personal.
+Los 521 se reparten así: 119 en el código del sitio web (100 + 19), 340 en el código del Sistema (195 + 23 + 40 + 14 + 48 + 20) y 62 en el sitio personal.
 
 ---
 
@@ -108,10 +108,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-194 cambios · 27 versiones · versión actual **3.13.0**
+195 cambios · 28 versiones · versión actual **3.14.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **3.14.0** | 19/11/2026 | • WhatsApp Business: formulario nuevo «Probar una plantilla», que manda una plantilla aprobada desde el número de DEVISEBIT al teléfono que se elija<br>• Si se dejan campos vacíos, se usa el texto de ejemplo de la plantilla<br>• Solo lo puede usar gerencia y cada prueba queda anotada en la auditoría | Novedad | `d483332..d483332` (1) |
 | **3.13.0** | 18/11/2026 | • Prospección pasa a llamarse **Acercamientos** y se ordena por lo que hay que hacer: Hoy, Para decidir, Próximos días, Esperando respuesta, Hecho hoy y Todos; suma un Tablero por etapas y una pantalla «De a uno»<br>• Todo se resuelve con un clic y queda en la historia (Sí/No, Enviado, Respondió, Reunión, Ganado, Descartar); también se pueden marcar varios contactos y aplicar la acción a todos<br>• Tope de 20 mensajes nuevos por día, repartidos en días hábiles; al marcar «Enviado», el seguimiento pasa solo a 7 días<br>• Desde la ficha se manda un email personal, se abre WhatsApp con el mensaje ya escrito o se envía la plantilla «retomar consulta» por el número de DEVISEBIT<br>• Tarjetas más limpias, búsqueda en LinkedIn cuando falta el perfil y vista aparte para los contactos incompletos; los mensajes sin enviar ya no proponen reunión de entrada; se cargaron 14 contactos nuevos de Latinoamérica<br>• Consultas: links propios de formulario y agenda para copiar, botón «Recuperar esta consulta» y pantalla nueva «Modelos de mensaje» para editar y agregar modelos<br>• Web por Suscripción: el Sistema registra altas, cancelaciones y cobros rechazados de Mercado Pago, avisa, y manda solo el correo de bienvenida; entra en la lista de precios y sale Landing Express<br>• Envíos de email: salen por varios servicios, cada uno con su cupo diario, y si uno falla siguen por otro; los clics de los filtros de seguridad ya no se cuentan como personas<br>• Piezas para redes muestra la biblioteca de devisebit.com al día, sin duplicados | Novedad | `2640c3e..9cff9dd` (28) |
 | **3.12.0** | 14/11/2026 | • Material: grupo nuevo «Reels animados · noviembre 2026»<br>• Seis videos verticales con animación, uno de la marca y uno por producto, sin precios<br>• Se pueden ver, copiar el link y compartir<br>• No traen música ni voz: el audio se suma al publicar | Novedad | `23a2ec3..23a2ec3` (1) |
 | **3.11.1** | 13/11/2026 | • Finanzas: botón «Borrar» en cada movimiento, con confirmación<br>• Los gastos en dólares del mes se ven en «Lo que sale»<br>• Gastos encontrados en Gmail: Google AI Pro (Google One) y fondos de Meta cargados por App Store<br>• Cada pendiente se ve en el mes en que vence, junto con los vencidos sin pagar; el selector de período llega hasta 4 meses adelante<br>• Los textos de publicidad dicen cómo paga cada cuenta<br>• Cargas al día: estudio contable y oficina, abonos de octubre con su plan de cuotas, y LinkedIn Premium de noviembre y diciembre (a reconfirmar)<br>• Contactos: filtro «Canal» que deja aparte lo que llegó por redes sociales (cambio compartido con el Panel: `b7cd301`) | Mejora | `c96ad03..75ec298` (8) |
@@ -330,6 +331,6 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 
 | Rama | Último cambio incluido |
 |---|---|
-| `devisebit-sistema` | `9cff9dd` |
+| `devisebit-sistema` | `d483332` |
 | `devisebit-web` | `0f10db2` |
 | `main` | `7bab8d6` |
