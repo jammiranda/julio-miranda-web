@@ -4,6 +4,57 @@ export type Post = { slug: string; seoTitle?: string; seoDesc?: string; date: st
 // `link` es el enlace interno al servicio relacionado (se muestra antes del formulario de la nota).
 export const posts: Post[] = [
   {
+    "slug": "accesibilidad-web-2026-errores-y-ley",
+    "seoTitle": "Accesibilidad web en 2026: los errores más comunes y qué exige la ley",
+    "seoDesc": "El 95,9% de las páginas principales tiene errores de accesibilidad. Cuáles son los más comunes y qué pide la Ley 26.653 en Argentina.",
+    "date": "2026-11-23",
+    "dateTxt": "23 de noviembre de 2026",
+    "kicker": "Desarrollo web",
+    "title": "Accesibilidad web en 2026: casi todas las páginas fallan, y los errores son siempre los mismos",
+    "desc": "Un estudio sobre el millón de sitios más visitados encontró errores de accesibilidad en el 95,9% de sus páginas principales. Cuáles son, por qué empeoran y qué exige la ley argentina.",
+    "body": [
+      "## Un millón de páginas, casi todas con problemas",
+      "Cada año, la organización WebAIM analiza las páginas principales del millón de sitios más visitados del mundo para medir su accesibilidad, es decir, si pueden usarlas personas con discapacidad visual, auditiva, motriz o cognitiva. Los resultados de febrero de 2026 no son buenos: el 95,9% de esas páginas tenía fallas detectables según las pautas internacionales WCAG, contra el 94,8% de 2025. Después de seis años de pequeñas mejoras, el indicador volvió a empeorar.",
+      "El promedio fue de 56,1 errores por página, un 10,1% más que el año anterior. Y eso que el análisis es automático: solo detecta una parte de los problemas reales.",
+      "## Seis errores explican casi todo",
+      "Lo más llamativo del informe es que el 96% de los errores corresponde a solo seis tipos, los mismos de siempre:",
+      "Texto con poco contraste, en el 83,9% de las páginas. Imágenes sin texto alternativo, en el 53,1%. Campos de formulario sin etiqueta, en el 51%. Enlaces vacíos, en el 46,3%. Botones vacíos, en el 30,6%. Y documentos sin el idioma declarado, en el 13,5%.",
+      "Ninguno requiere tecnología sofisticada para resolverse. Un texto gris claro sobre fondo blanco, un ícono de WhatsApp sin descripción o un formulario de contacto cuyos campos un lector de pantalla no puede identificar son decisiones de diseño y desarrollo que se corrigen con criterio y revisión.",
+      "## Páginas cada vez más pesadas",
+      "El estudio también mide la complejidad. La página principal promedio tenía 1.437 elementos en febrero de 2026, un 14,3% más que un año antes, y casi el doble que en 2019. Más elementos, más componentes armados con plantillas y más código agregado sin revisar suelen traducirse en más barreras. WebAIM relaciona directamente ese crecimiento con el aumento de errores.",
+      "## Qué dice la ley en Argentina",
+      "En nuestro país rige desde 2010 la Ley 26.653 de Accesibilidad de la Información en las Páginas Web. Alcanza al Estado nacional en sus tres poderes, a sus organismos descentralizados, a las empresas del Estado y también a empresas privadas concesionarias de servicios públicos y prestadoras o contratistas de bienes y servicios del Estado. Además, incluye a las organizaciones de la sociedad civil que reciben subsidios o contratan con el Estado, y prevé que quienes no cumplan no puedan acceder a nuevas contrataciones ni subsidios.",
+      "Los requisitos técnicos los fija la Oficina Nacional de Tecnologías de Información. Su Disposición 6/2019 aprobó las Pautas de Accesibilidad de Contenido Web 2.0, que suman criterios de nivel AA y establecen un mínimo de cumplimiento creciente sobre 38 criterios.",
+      "## Accesible también es mejor para todos",
+      "Una web accesible no beneficia solo a personas con discapacidad. El buen contraste se lee mejor al sol desde el celular, las etiquetas claras reducen errores en los formularios y los textos alternativos ayudan a los buscadores a entender el contenido. Accesibilidad, usabilidad y posicionamiento van de la mano.",
+      "Qué significa para tu empresa: si tu organización trabaja con el Estado, la accesibilidad puede ser una obligación; si no, es una ventaja frente a la mayoría de los sitios que fallan. Un buen punto de partida es revisar los seis errores más comunes en tu página principal y en tus formularios de contacto. En DEVISEBIT diseñamos y desarrollamos sitios web rápidos, claros y accesibles desde el inicio, y auditamos los existentes para corregir lo que hoy deja afuera a parte de tus clientes."
+    ],
+    "box": [
+      "¿Tu web se lee bien desde el celular a pleno sol?",
+      "¿Tus formularios funcionan con un lector de pantalla?",
+      "¿Tus imágenes y botones tienen descripción?",
+      "¿Tu organización contrata o presta servicios al Estado?"
+    ],
+    "link": {
+      "t": "Conocé cómo hacemos webs",
+      "u": "https://www.devisebit.com/webs"
+    },
+    "sources": [
+      {
+        "t": "WebAIM: The WebAIM Million – The 2026 report on the accessibility of the top 1,000,000 home pages",
+        "u": "https://webaim.org/projects/million/"
+      },
+      {
+        "t": "Argentina.gob.ar: Ley 26.653 de Accesibilidad de la Información en las Páginas Web",
+        "u": "https://www.argentina.gob.ar/normativa/nacional/175694/texto"
+      },
+      {
+        "t": "Argentina.gob.ar: Disposición 6/2019 de la Oficina Nacional de Tecnologías de Información",
+        "u": "https://www.argentina.gob.ar/normativa/nacional/329284/texto"
+      }
+    ]
+  },
+  {
     "slug": "matebot-asistente-personal-por-audio",
     "seoTitle": "Asistente personal por audio con IA: así funciona MateBot",
     "seoDesc": "MateBot convierte tus audios en turnos, recordatorios y listas. Así funciona el asistente personal con IA que lanzamos gratis en DEVISEBIT.",
