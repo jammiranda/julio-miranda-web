@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 20/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (521 cambios publicados desde el 17 de octubre).
+Última actualización: 23/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (525 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,10 +12,10 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.12.0** | 18/11/2026 | Tres guías nuevas en Novedades (bot de Telegram, audios de WhatsApp a texto y recordatorios de turnos) y el lanzamiento de MateBot |
-| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad | **1.5.0** | 18/11/2026 | En /webs la oferta principal pasa a ser Web por Suscripción; a quien llega desde Google Ads se le muestra WhatsApp como botón principal |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.13.0** | 23/11/2026 | Nota nueva en Novedades sobre accesibilidad web en 2026: errores más comunes y qué exige la ley |
+| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad, /web-pyme | **1.6.0** | 23/11/2026 | Landing nueva /web-pyme con la promo Web PyME $299.000 y 3 meses de abono incluidos, para los anuncios de Google |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.14.0** | 19/11/2026 | En WhatsApp Business se puede mandar una prueba de las plantillas aprobadas a cualquier teléfono |
-| Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.9.0** | 18/11/2026 | Ofrece la Web por Suscripción, avisa que el folleto de webs ya trae precios y no reserva dos veces la misma reunión |
+| Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.10.0** | 23/11/2026 | Bit conoce la promo Web PyME $299.000 con 3 meses de abono y un solo precio por tipo de web |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
 | Panel de Contenido | panel.devisebit.com | **2.4.0** | 17/11/2026 | Carga a mano de las publicaciones del LinkedIn de Julio y estadísticas de Web por Suscripción |
@@ -26,23 +26,23 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 **Dos aclaraciones sobre cómo se separó:**
 
-- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 19 cambios propios (del 12/11 al 18/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
+- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 20 cambios propios (del 12/11 al 23/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
 - **Bot, Academia, Portal, Panel y Oficina** viven en el mismo código que el Sistema. Cada cambio se contó una sola vez, en el producto al que apunta su título. Cuando un cambio tocó dos productos, se anota en el otro como "compartido".
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 100 | 14 |
-| Landings de anuncios | 19 | 8 (3 de ellas con cambios compartidos con el sitio) |
+| Sitio web DEVISEBIT | 101 | 15 |
+| Landings de anuncios | 20 | 9 (3 de ellas con cambios compartidos con el sitio) |
 | Sistema (CRM y gestión) | 195 | 28 |
-| Bot de WhatsApp (Bit) | 23 | 10 (1 de ellas con cambios compartidos con el Sistema) |
+| Bot de WhatsApp (Bit) | 24 | 11 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
 | Panel de Contenido | 48 | 10 |
 | Oficina | 20 | 2 |
-| Sitio personal de Julio | 62 | 6 |
-| **Total** | **521** | **89** |
+| Sitio personal de Julio | 63 | 6 |
+| **Total** | **525** | **92** |
 
-Los 521 se reparten así: 119 en el código del sitio web (100 + 19), 340 en el código del Sistema (195 + 23 + 40 + 14 + 48 + 20) y 62 en el sitio personal.
+Los 525 se reparten así: 121 en el código del sitio web (101 + 20), 341 en el código del Sistema (195 + 24 + 40 + 14 + 48 + 20) y 63 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-100 cambios · 14 versiones · versión actual **1.12.0**
+101 cambios · 15 versiones · versión actual **1.13.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.13.0** | 23/11/2026 | • Nota nueva en Novedades: «Accesibilidad web en 2026, errores más comunes y qué exige la ley»<br>• Placa para compartir la nota en redes, en la biblioteca de contenidos (cambio del sitio personal: `2557bfb`) | Novedad | `dccbc8b..dccbc8b` (1) |
 | **1.12.0** | 18/11/2026 | • Tres guías nuevas en Novedades: bot de Telegram para empresas, cómo pasar audios de WhatsApp a texto, y recordatorios de turnos por WhatsApp<br>• Lanzamiento de MateBot, el asistente personal por audio: nota en Novedades y aviso en la página de Productos<br>• Biblioteca de contenidos: seis reels con voz, la serie de MateBot y un carrusel de 5 placas por cada guía nueva<br>• En el inicio, el menú y el pie aparece Web por Suscripción (cambio compartido con las Landings: `bc6b793`)<br>• Las visitas que llegan de TikTok y YouTube se cuentan como redes, y el mensaje de WhatsApp dice de qué página vinieron | Novedad | `b03a5f7..bab519b` (5) |
 | **1.11.0** | 16/11/2026 | • Nota nueva en Novedades: «Gobierno digital: la atención ciudadana con inteligencia artificial ya es política pública»<br>• Cuenta cómo la Ciudad y la Provincia de Buenos Aires ya atienden a los vecinos con IA por WhatsApp, qué normas lo respaldan y qué lecciones le sirven a cualquier organismo | Novedad | `14efa7a..14efa7a` (1) |
 | **1.10.0** | 15/11/2026 | • Cuatro guías nuevas en Novedades: mensajes automáticos en WhatsApp Business, qué es la API de WhatsApp Business y cómo se cobra, cómo crear una página web con IA, y qué debe tener una landing page<br>• Las notas ahora pueden llevar subtítulos y, al final, un enlace al servicio relacionado<br>• El título de la página de inicio suma «software a medida», para aparecer en esas búsquedas<br>• Serie nueva en la biblioteca de contenidos, «Guías del blog»: un carrusel de 5 placas por cada guía, en PDF y placa por placa<br>• Bing, DuckDuckGo y Yahoo ya pueden recibir el aviso cuando se publica una página nueva | Novedad | `9636df1..7dedbbd` (3) |
@@ -93,10 +94,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.2 Landings de anuncios — /webs, /redes, /whatsapp, /sistemas, /comunidad
 
-19 cambios propios · 8 versiones · versión actual **1.5.0**
+20 cambios propios · 9 versiones · versión actual **1.6.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.6.0** | 23/11/2026 | • Landing nueva /web-pyme para los anuncios de Google: promo Web PyME a $299.000 con 3 meses de abono incluidos | Novedad | `8f9c5ab..8f9c5ab` (1) |
 | **1.5.0** | 18/11/2026 | • /webs cambia de oferta: la principal pasa a ser Web por Suscripción (pago mensual, sin costo de armado) y sale Landing Express<br>• El folleto de páginas web, su versión marca blanca y el paquete de folletos quedan al día con la oferta nueva, igual que la imagen que se ve al compartir el link<br>• A quien llega desde un anuncio de Google, el botón principal de /webs pasa a ser WhatsApp | Novedad | `bc6b793..0f10db2` (3) |
 | **1.4.2** | 15/11/2026 | • El botón vuelve a abrir WhatsApp directo: el recuadro previo (tipo de negocio y email) queda apagado, porque con él, aun siendo opcional, no entró ninguna consulta<br>• La conversión vuelve a contarse al tocar el botón<br>• Títulos y descripciones de /webs, /whatsapp y /sistemas con las palabras que la gente busca en Google («diseño de páginas web», «chatbot de WhatsApp», «software a medida»); lo que se ve en la página no cambia | Mejora | `3cdd4cd..cea9ca4` (2) |
 | **1.4.1** | 14/11/2026 | • El paso previo al WhatsApp deja de ser obligatorio: se puede seguir sin elegir el tipo de negocio ni dejar el email (con el rubro obligatorio habían dejado de entrar consultas)<br>• El recuadro lo dice claro: «Es opcional», y el botón pasa a ser «Seguir sin completar»<br>• Solo avisa si el email quedó mal escrito<br>• WhatsApp se abre una sola vez (antes podía abrirse dos veces) | Corrección | `058d8b3..058d8b3` (1) |
@@ -145,10 +147,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.4 Bot de WhatsApp (Bit)
 
-23 cambios propios · 10 versiones · versión actual **1.9.0**
+24 cambios propios · 11 versiones · versión actual **1.10.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.10.0** | 23/11/2026 | • Bit conoce la promo Web PyME: $299.000 con 3 meses de abono incluidos y un solo precio por tipo de web | Mejora | `2c7468b` (1) |
 | **1.9.0** | 18/11/2026 | • Cuando alguien pide el folleto de páginas web, Bit avisa que ya trae los precios<br>• Ofrece la Web por Suscripción como primera opción de página web y ya no ofrece Landing Express (cambio del 17/11, compartido con el Sistema: `cc91048`)<br>• Si la persona ya tiene una reunión confirmada, no le reserva otra ni le dice que el horario se ocupó (cambio del 17/11, compartido con el Sistema: `73384d5`) | Mejora | `73c1fe7` (1) |
 | **1.8.0** | 13/11/2026 | • Bit reconoce las consultas que llegan desde el paso previo de las landings: guarda el email en la consulta y no vuelve a preguntar el rubro ni a pedir el email | Mejora | `48da03b` (1) |
 | **1.7.0** | 12/11/2026 | • Pide el email siempre en la segunda respuesta (en la primera no)<br>• Puede decir qué incluye cada plan según la lista de precios, y lo que el sitio publica sobre datos personales<br>• Un solo rango de largo para las respuestas | Mejora | `074dca2..89d02f1` (2) |
@@ -213,7 +216,7 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.9 Sitio personal de Julio — julio.devisebit.com
 
-62 cambios · 6 versiones · versión actual **1.5.0**
+63 cambios · 6 versiones · versión actual **1.5.0**
 
 En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un cliente), y también imágenes para redes de DEVISEBIT. Esos cambios están contados acá porque comparten historial, pero no tienen versión propia.
 
@@ -331,6 +334,6 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 
 | Rama | Último cambio incluido |
 |---|---|
-| `devisebit-sistema` | `d483332` |
-| `devisebit-web` | `0f10db2` |
-| `main` | `7bab8d6` |
+| `devisebit-sistema` | `2c7468b` |
+| `devisebit-web` | `8f9c5ab` |
+| `main` | `2557bfb` |
