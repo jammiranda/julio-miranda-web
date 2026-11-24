@@ -70,3 +70,11 @@ def grupos(chunks):
         if isinstance(c, str): out.append((c.replace("*", ""), c.upper().replace(".", "").replace(",", "").replace(":", "")))
         else: out.append((c[0], c[1]))
     return out
+
+# Serie "Casos reales" (prueba 24/11): Bit cuenta un caso real, anonimizado, con hechos publicados en julio.devisebit.com.
+G["c01-caso-prestadora"] = [
+ ("gancho", [["Caso real:", "*CASO REAL*"], "una prestadora", "de *salud*", "que hacía todo *a mano*."]),
+ ("s1", ["*Planillas*,", "*papeles*", "y un WhatsApp", "que *no paraba*."]),
+ ("s2", ["La ordenamos", "con un sistema *propio*:", "historia clínica *digital*", "y un cierre del mes", "*ordenado*."]),
+ ("s3", ["Hoy la gerencia", "mira un *tablero*", "y el WhatsApp", "lo atiende", "un asistente con *IA*."]),
+ ("cta", ["¿Tu empresa", "está *igual*?", ["Pedí tu diagnóstico:", ""]] + FIN)]

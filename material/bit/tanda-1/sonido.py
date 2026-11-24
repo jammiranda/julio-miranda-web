@@ -3,7 +3,7 @@ Uso: python3 sonido.py NOMBRE -> ../NOMBRE.mp4"""
 import sys, json, subprocess, pathlib, re, numpy as np, musica
 from playwright.sync_api import sync_playwright
 D = pathlib.Path(__file__).parent; OUT = D.parent; name = sys.argv[1]; W = OUT / "trabajo" / name; SR = musica.SR
-tl = json.load(open(W / "timeline.json")); T = tl["dur"]; n = int(SR * T); idx = sorted(p.name for p in (OUT / "trabajo").iterdir() if p.is_dir() and p.name.startswith("b")).index(name)
+tl = json.load(open(W / "timeline.json")); T = tl["dur"]; n = int(SR * T); idx = sorted(p.name for p in (OUT / "trabajo").iterdir() if p.is_dir() and p.name[0] in "bc").index(name)
 with sync_playwright() as p:
     br = p.chromium.launch(args=["--allow-file-access-from-files"]); pg = br.new_page(); pg.goto((D / "pieza.html").as_uri() + f"?p={name}"); pg.wait_for_timeout(500); SFX = pg.evaluate("window.SFX"); br.close()
 def dec(path): return np.frombuffer(subprocess.check_output(["ffmpeg", "-v", "error", "-i", str(path), "-f", "f32le", "-ac", "1", "-ar", str(SR), "-"]), "<f4").astype(np.float64)
