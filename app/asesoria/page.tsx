@@ -12,7 +12,7 @@ import Redes from "@/components/redes"
 import { ASESORIA } from "@/lib/marca"
 
 const TITULO = "Asesoría y consultoría en tecnología e IA · DEVISEBIT"
-const DESCRIPCION = "Un equipo de tecnología e IA para tu organización, por horas o por mes: horas sueltas, bolsas, abonos con responsable único, plan anual y licencias."
+const DESCRIPCION = "Consultor tecnológico para pymes e instituciones: un equipo de tecnología e IA por horas o por mes, con horas sueltas, bolsas, abonos con responsable único, plan anual y licencias."
 const OG = { url: "/images/landings/og-asesoria.jpg", width: 1200, height: 630, alt: "Asesoría y consultoría en tecnología e IA · DEVISEBIT" }
 const base = pageMeta(TITULO, DESCRIPCION, "/asesoria")
 export const metadata: Metadata = {
@@ -54,7 +54,7 @@ const LICENCIAS = [
 ]
 
 const DIRECCION = [
-  { area: "Dirección", titulo: "Estrategia de tecnología e IA", d: "Arquitectura, proveedores y presupuestos grandes. Lo atiende la dirección de DEVISEBIT." },
+  { area: "Dirección", titulo: "Estrategia de tecnología e IA", d: "Arquitectura, proveedores y presupuestos grandes. Lo atiende Julio Miranda, director de DEVISEBIT." },
   { area: "Transformación digital", titulo: "Diagnóstico y hoja de ruta", d: "Diagnóstico de madurez digital, hoja de ruta, gestión del cambio y Programa Kit 4.0. Lo atiende el equipo de transformación digital." },
 ]
 const AREAS = [
@@ -238,6 +238,15 @@ export default function AsesoriaPage() {
               <h2 id="t-eq" className={h2}>Un responsable único coordina tu cuenta.</h2>
               <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Las horas las da la persona del equipo que mejor conoce cada tema.</p>
             </div>
+            <article className="rounded-2xl border border-[#262C37] bg-[#161A22] p-6 md:p-7 flex flex-col sm:flex-row gap-5 sm:items-center">
+              <img src="/images/julio.jpg" alt="Julio Miranda" width={96} height={96} loading="lazy" className="w-24 h-24 rounded-full object-cover shrink-0" />
+              <div className="flex flex-col gap-1.5">
+                <p className="m-0 text-xs font-bold uppercase tracking-[0.14em] text-[#FF6A63]">Consultor tecnológico · Director de DEVISEBIT</p>
+                <h3 className="m-0 font-tight text-[24px] font-bold">Julio Miranda</h3>
+                <p className="m-0 text-[15px] leading-relaxed text-[#C3C8D1]">17 años ordenando tecnología en organizaciones públicas y privadas: asesor tecnológico en la UBA y en la Cámara de Diputados de la Nación, gerente operativo en el Gobierno de la Ciudad de Buenos Aires y coordinador tecnológico en el Ministerio de Ambiente de la Nación. Hoy coordina las asesorías de DEVISEBIT.</p>
+                <a href="https://julio.devisebit.com" target="_blank" rel="noopener" className="text-[15px] font-semibold text-white underline underline-offset-4 w-fit">Ver su perfil completo</a>
+              </div>
+            </article>
             <div className="grid md:grid-cols-2 gap-4">
               {DIRECCION.map((p) => (
                 <article key={p.area} className="rounded-2xl border border-[#262C37] bg-[#161A22] p-6 md:p-7 flex flex-col gap-2">
