@@ -3,7 +3,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { JsonLd } from "@/components/json-ld"
 import MapaProyectos from "@/components/mapa-proyectos"
-import Lanzamientos from "@/components/lanzamientos"
 import YoutubeUltimos from "@/components/youtube-ultimos"
 import { CASOS, SECTORES } from "@/lib/casos-datos"
 import { SITE_URL, breadcrumb } from "@/lib/seo"
@@ -62,17 +61,6 @@ export default function CasosDeExitoPage() {
                 ))}
               </ul>
             </details>
-          </div>
-        </section>
-
-        <section id="lanzamientos" aria-labelledby="t-lanz" className="scroll-mt-[72px] bg-[#0B0D12] text-white border-t border-white/10">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-14 flex flex-col gap-6">
-            <div className="flex flex-col gap-2.5 max-w-[780px]">
-              <p className={kicker}>Lanzamientos recientes</p>
-              <h2 id="t-lanz" className="m-0 font-tight text-[30px] md:text-[40px] leading-[1.1] font-extrabold">Productos propios, en producción.</h2>
-              <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Lo que construimos y pusimos a funcionar en las últimas semanas, con nuestro propio método de trabajo con IA. Son la mejor muestra de cómo trabajamos.</p>
-            </div>
-            <Lanzamientos oscuro />
           </div>
         </section>
 

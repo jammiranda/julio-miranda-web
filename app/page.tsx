@@ -5,7 +5,6 @@ import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
 import EscaleraMadurez from "@/components/escalera-madurez"
 import { WHATSAPP } from "@/lib/marca"
-import Lanzamientos from "@/components/lanzamientos"
 import CintaProyectos from "@/components/cinta-proyectos"
 import FraseGrande from "@/components/frase-grande"
 
@@ -32,7 +31,7 @@ const PRODUCT_IDS = ["clinicas", "whatsapp", "crm", "tableros", "app", "academia
 const CASES = [
   { img: "/images/case-tigre-new.webp", tag: "Gobierno municipal", title: "Municipio de Tigre · app Soy Tigre", text: "Más de 80.000 vecinos suscriptos. Desarrollo y soporte de la app municipal: más de 500 comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
   { img: "/images/case-comunidad-usl.webp", tag: "Comunidad y academia", title: "Comunidad USL · Academia", text: "Comunidad y academia online: cursos, inscripciones, beneficios y padrón en un solo panel. Más de 1.000 inscriptos en un año." },
-  { img: "/images/case-academia-new.webp", tag: "Gobierno y educación", title: "GCBA · Academia BA Emprende", text: "Oferta académica online para emprendedores de la Ciudad: WordPress y Moodle unificados con un solo ingreso y conexión al CRM." },
+  { img: "/images/case-uba-new.webp", tag: "Universidad", title: "UBA · Modernización y Transformación Digital", text: "Seguimiento y soporte de la gestión de la Subsecretaría: tableros en Power BI, reportes para la conducción y metodología ágil." },
 ]
 
 const QUE_HACEMOS = [
@@ -81,7 +80,7 @@ export default function HomePage() {
           <div className="db-scan"><i /></div>
         </section>
 
-        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Academia", "GCBA · BA Emprende"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
+        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Universidad", "UBA · Transformación digital"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
         <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
         {/* Qué hacemos: las mismas puertas de entrada que los anuncios de Google */}
         <section id="que-hacemos" className="bg-white">
@@ -123,7 +122,6 @@ export default function HomePage() {
               </ul>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link href="/transformacion-digital" className="rounded-xl bg-[#0B0D12] hover:bg-[#1B2029] px-6 py-4 font-bold text-[17px] text-white transition-colors">Conocé la consultoría →</Link>
-                <Link href="/kit-digital" className="rounded-xl border-2 border-[#0B0D12] hover:bg-[#0B0D12] hover:text-white px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Kits DEVISEBIT + financiamiento</Link>
               </div>
               <p className="m-0 text-[16px] text-[#3B424D]">¿Preferís un equipo de tecnología por horas o por mes? <Link href="/asesoria" className="font-bold text-[#C8231F] underline underline-offset-4">Asesoría en tecnología e IA →</Link></p>
             </div>
@@ -189,13 +187,6 @@ export default function HomePage() {
                   </div>
                 </Link>
               ))}
-            </div>
-            <div className="flex flex-col gap-4 pt-6">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <h3 className="m-0 font-tight text-[24px] md:text-[28px] font-extrabold">Recién lanzado, hecho por nosotros</h3>
-                <Link href="/casos-de-exito#lanzamientos" className="inline-flex items-center min-h-11 font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver todos los lanzamientos →</Link>
-              </div>
-              <Lanzamientos max={3} />
             </div>
           </div>
         </section>
