@@ -199,7 +199,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
     <span class="eyebrow"><img src="/matebot.svg" alt="">De la familia de MateBot · Gratis</span>
     <h1>Las cuentas de tu casa, <em>entre todos.</em></h1>
     <p class="lead">Como una ronda de mate: cada uno carga lo suyo y todos ven lo mismo. Contale tus gastos <b>por audio, con una foto del ticket o por WhatsApp</b> y MateCuentas los ordena solo.</p>
-    <div class="ctas"><a class="btn" href="/app#signup">Empezar gratis</a><a class="btn ghost" href="#matebot">🧉 Ver MateBot en acción</a></div>
+    <div class="ctas"><a class="btn" href="/app#signup" data-acc="registro">Empezar gratis</a><a class="btn ghost" href="#matebot">🧉 Ver MateBot en acción</a></div>
     <p class="fine">Sin tarjeta · Sin publicidad · En el celu y en la compu</p>
   </div>
   <div class="stage" id="hero3d" aria-label="MateCuentas, un mate verde con una moneda en la bombilla, rodeado de monedas" role="img">
@@ -281,7 +281,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
     <div class="ibox" data-reveal>
       <h3>Instalala en 10 segundos</h3>
       <p>Elegí tu equipo y seguí los pasos.</p>
-      <button class="btn" id="instalarYa" hidden>⬇️ Instalar MateCuentas</button>
+      <button class="btn" id="instalarYa" data-acc="instalar" hidden>⬇️ Instalar MateCuentas</button>
       <div class="itabs" role="tablist">
         <button role="tab" id="t-android" aria-selected="true" aria-controls="p-android">Android</button>
         <button role="tab" id="t-iphone" aria-selected="false" aria-controls="p-iphone">iPhone</button>
@@ -304,12 +304,12 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
     <div class="pc" data-reveal>
       <h3>Gratis</h3><div class="pr">$ 0<small> para siempre</small></div>
       <ul><li>1 espacio compartido con hasta 2 personas</li><li><b>5 cargas mágicas por mes</b> (audio, foto o WhatsApp) para probar</li><li>Movimientos manuales ilimitados</li><li>Fijos, notas y presupuesto por categoría</li><li>Resumen del mes y proyección de 4 meses</li><li>Cotización del dólar a la vista</li></ul>
-      <a class="btn ghost" href="/app#signup">Crear cuenta gratis</a>
+      <a class="btn ghost" href="/app#signup" data-acc="registro">Crear cuenta gratis</a>
     </div>
     <div class="pc pro" data-reveal>
       <h3>Pro <span class="badge">El más elegido</span></h3><div class="pr">$ 3.990<small> /mes</small></div>
       <ul><li><b>Cargas mágicas ilimitadas</b>: audio, foto del ticket y WhatsApp con MateBot</li><li><b>Tablero de control</b>: evolución, categorías, personas, medios de pago y alertas</li><li>Compras en cuotas que se proyectan solas</li><li>Gastos en dólares con cotización automática</li><li>Espacios ilimitados, hasta 12 personas cada uno</li><li>Proyección de 12 meses y exportar a Excel</li></ul>
-      <a class="btn pro" href="/app#signup">Empezar y pasarme a Pro</a>
+      <a class="btn pro" href="/app#signup" data-acc="pro">Empezar y pasarme a Pro</a>
     </div>
   </div>
   <p class="fine">Pago mensual en pesos con Mercado Pago. Cancelás cuando quieras desde la app y seguís con Pro hasta el final del mes pagado.</p>
@@ -334,7 +334,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
       <div class="kicker" style="color:#ff3b47">Hecho por DEVISEBIT</div>
       <h2 class="s" style="color:#fff">¿Querés esta tecnología en tu empresa?</h2>
       <p>MateCuentas y MateBot son nuestra carta de presentación. En DEVISEBIT llevamos inteligencia artificial, WhatsApp y tableros a consultorios, centros de salud, estudios y comercios: atención automática, turnos, cobranzas y datos para decidir.</p>
-      <a class="btn red" href="https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20vengo%20de%20MateCuentas">Hablemos por WhatsApp</a>
+      <a class="btn red" href="https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20vengo%20de%20MateCuentas" data-acc="empresas">Hablemos por WhatsApp</a>
     </div>
   </div>
 </div></section>
@@ -388,5 +388,6 @@ if(location.search.indexOf('bye=1')>-1){var d=document.createElement('div');d.te
   if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});
 })();
 </script>
+<script src="https://sistema.devisebit.com/v.js" defer></script>
 </body>
 </html>
