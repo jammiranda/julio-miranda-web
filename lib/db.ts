@@ -864,7 +864,7 @@ update bot_conocimiento set respuesta=replace(respuesta,'Para contratar se agend
 -- 25/11/2026: Web PyME en promo de fin de año ($299.000 con 3 meses de abono incluidos)
 update bot_conocimiento set respuesta=replace(respuesta,'Web PyME $349.000','Web PyME en promo a $299.000 con 3 meses de abono incluidos (hasta el 31/12, lista $349.000)') where empresa='devisebit' and respuesta like '%Web PyME $349.000%';
 update bot_conocimiento set respuesta=replace(respuesta,'*Web PyME* $349.000','*Web PyME* en promo a $299.000 con 3 meses de abono incluidos (hasta el 31/12, lista $349.000)') where empresa='devisebit' and respuesta like '%*Web PyME* $349.000%';
--- 25/11/2026: el autodiagnóstico deja de ser obligatorio para agendar; la reunión se agenda directo eligiendo día y horario
+-- 25/11/2026: el autodiagnóstico deja de ser obligatorio para agendar, la reunión se agenda directo eligiendo día y horario
 update bot_conocimiento set respuesta=replace(respuesta,'se agenda después de hacer el autodiagnóstico gratis en devisebit.com/diagnostico.','se agenda eligiendo día y horario en sistema.devisebit.com/agendar.') where empresa='devisebit' and respuesta like '%se agenda después de hacer el autodiagnóstico gratis en devisebit.com/diagnostico.%';
 update bot_conocimiento set respuesta=replace(respuesta,'una primera reunión gratuita de 30 minutos, después de hacer el autodiagnóstico gratis (devisebit.com/diagnostico).','una primera reunión gratuita de 30 minutos, eligiendo día y horario en sistema.devisebit.com/agendar.') where empresa='devisebit' and respuesta like '%después de hacer el autodiagnóstico gratis (devisebit.com/diagnostico).%';
 -- "Primer módulo gratis": cuántos módulos del curso (en orden) se cursan gratis con cuenta. 0 = sin parte gratis.
