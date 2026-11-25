@@ -1,5 +1,5 @@
 import { requerir } from "@/lib/auth"
-import { crearCodigos, borrarCodigo } from "./_acciones"
+import Codigos from "./Codigos"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -98,28 +98,9 @@ export default async function FamiliaMateSistema() {
       </section>
 
       <section className="card flex flex-col gap-3" id="codigos">
-        <strong>Códigos de regalo</strong>
-        <div className="text-sm flex flex-col gap-1 bg-[#F6F7F9] rounded-xl p-3">
-          <span><b>Cómo se usan:</b> la persona entra a <a href="https://matebot.devisebit.com/codigo" target="_blank" rel="noreferrer">matebot.devisebit.com/codigo</a> y escribe el código (o le mandás el link directo: matebot.devisebit.com/codigo?c=ABCD-2345). También vale escribirle a MateBot "codigo ABCD-2345".</span>
-          <span><b>¿Uno o varios?</b> "Personas por código" = 1 es lo normal: cuando alguien lo usa queda gastado. Si ponés 20, lo pueden usar 20 personas distintas.</span>
-          <span><b>Queda registrado:</b> abajo ves quién lo usó, cuándo y en qué producto. "Toda la familia Mate" activa los cuatro para la misma persona.</span>
-        </div>
-        <form action={crearCodigos} className="flex flex-wrap gap-2 items-end">
-          <label className="text-sm">Producto<br /><select name="producto" defaultValue="todos">{Object.entries(promo?.productos ?? { todos: "Toda la familia Mate" }).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-          <label className="text-sm">Días gratis (3650 = sin límite)<br /><input name="dias" type="number" defaultValue={90} min={1} max={3650} style={{ width: 110 }} /></label>
-          <label className="text-sm">Cuántos códigos<br /><input name="cantidad" type="number" defaultValue={10} min={1} max={200} style={{ width: 90 }} /></label>
-          <label className="text-sm">Personas por código<br /><input name="usos" type="number" defaultValue={1} min={1} max={10000} style={{ width: 90 }} /></label>
-          <label className="text-sm">Para quién (nota)<br /><input name="nota" placeholder="Ej: amigos del club" /></label>
-          <button className="btn">Crear códigos</button>
-        </form>
-        {promo?.codigos?.length ? (
-          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left"><th>Código</th><th>Producto</th><th>Días</th><th>Usaron</th><th>Estado</th><th>Quién y cuándo</th><th>Nota</th><th>Creado</th><th></th></tr></thead>
-            <tbody>{promo.codigos.map((c) => <tr key={c.code} className="border-t border-[#E6E8EC]">
-              <td><b style={{ fontFamily: "ui-monospace, monospace", letterSpacing: ".08em" }}>{c.code}</b></td><td>{promo.productos[c.producto] ?? c.producto}</td><td>{c.dias >= 3650 ? "Sin límite" : c.dias}</td><td>{c.usos} de {c.usos_max}</td>
-              <td>{c.usos >= c.usos_max ? "Usado" : c.usos ? "En uso" : "Libre"}</td>
-              <td>{c.canjes.length ? c.canjes.map((k) => `${k.quien || "—"} (${k.producto}, ${f(k.cuando)})`).join(" · ") : "—"}</td><td>{c.nota || ""}</td><td>{f(c.created_at)}</td>
-              <td><form action={borrarCodigo}><input type="hidden" name="code" value={c.code} /><button className="btn" title="Borrar código">✕</button></form></td></tr>)}</tbody></table></div>
-        ) : <p className="m-0 text-sm">Todavía no hay códigos.</p>}
+        <strong className="text-lg">Códigos de regalo</strong>
+        <p className="m-0 text-sm text-[#4A515C]">La persona entra al link que le mandás (matebot.devisebit.com/codigo?c=…) y se activa solo. También puede escribirle a MateBot "codigo ABCD-2345". Acá ves quién usó cada uno y cuándo.</p>
+        {promo ? <Codigos productos={promo.productos} codigos={promo.codigos} /> : <p className="m-0 text-sm">No pudimos traer los códigos de MateBot. Recargá en un rato.</p>}
       </section>
 
       <section className="card text-sm">
