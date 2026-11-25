@@ -37,6 +37,11 @@ export async function POST(req: NextRequest) {
   const r = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(String(id))}`, { headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` } })
   if (!r.ok) return NextResponse.json({ ok: true })
   const p = await r.json()
+  // MateEventos Pro (pago único): avisamos a MateBot, que consulta el pago por el puente
+  if (String(p.external_reference ?? "").startsWith("mateeventos:") && process.env.MATEBOT_MP_KEY) {
+    await fetch("https://matebot.devisebit.com/api/mp", { method: "POST", headers: { "content-type": "application/json", "x-matebot-key": process.env.MATEBOT_MP_KEY }, body: JSON.stringify({ type: "payment", data: { id: String(id) } }), signal: AbortSignal.timeout(8000) }).catch(() => {})
+    return NextResponse.json({ ok: true })
+  }
   if (String(p.external_reference ?? "").startsWith("cobro:")) { await pagoMPCobro(p).catch((e) => console.error("mp cobro", e)); return NextResponse.json({ ok: true }) }
   const orden = Number(p.external_reference)
   if (!orden || p.status !== "approved") return NextResponse.json({ ok: true })
