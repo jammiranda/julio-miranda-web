@@ -324,6 +324,33 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
   </div>
 </div></section>
 
+<section id="video"><div class="wrap">
+<style>
+.como{display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:center;max-width:980px;margin:0 auto;font-family:inherit}
+@media(max-width:760px){.como{grid-template-columns:1fr;gap:26px;justify-items:center;text-align:center}}
+.como .tel{width:270px;aspect-ratio:9/16;border-radius:38px;background:#0d0f12;padding:9px;box-shadow:0 40px 70px -30px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.25);transform:perspective(1200px) rotateY(9deg) rotateX(2deg);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.como .tel:hover{transform:none}
+@media(max-width:760px){.como .tel{transform:none;width:min(270px,74vw)}}
+.como video{width:100%;height:100%;border-radius:30px;display:block;object-fit:cover;background:#0d0f12}
+.como .ck{font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.7;display:block;margin-bottom:12px}
+.como h2{margin:0 0 14px!important}
+.como ol{margin:0 0 22px;padding:0;list-style:none;display:grid;gap:10px;counter-reset:c}
+.como li{counter-increment:c;display:flex;gap:12px;align-items:center;font-size:17px}
+@media(max-width:760px){.como li{justify-content:center}}
+.como li::before{content:counter(c);flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;border:1.5px solid currentColor;opacity:.75}
+.como .cb{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:760px){.como .cb{justify-content:center}}
+.como .cb a{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:10px 20px;border-radius:999px;border:1.5px solid currentColor;color:inherit;text-decoration:none;font-weight:600;font-size:15px}
+.como .cb a:hover{opacity:.75}
+</style>
+<div class="como">
+  <div class="tel"><video src="https://matebot.devisebit.com/reels/como-funciona-matecuentas.mp4" poster="https://matebot.devisebit.com/reels/como-funciona-matecuentas.jpg" controls playsinline preload="none" aria-label="Video: cómo funciona MateCuentas"></video></div>
+  <div><span class="ck">En 25 segundos</span><h2>Mirá cómo funciona MateCuentas</h2>
+    <ol><li>Contale el gasto y queda anotado</li><li>Lo previsto, al lado de lo gastado</li><li>El saldo real de la casa, entre todos</li></ol>
+    <div class="cb"><a href="https://matebot.devisebit.com/guias/Guia-MateCuentas.pdf" target="_blank" rel="noopener" data-acc="guia">Descargar la guía en PDF</a><a href="https://matebot.devisebit.com/reels/como-funciona-matecuentas.mp4" download data-acc="reel">Bajar el video</a></div>
+  </div></div>
+</div></section>
+
 <section><div class="wrap">
 <style>
 .ronda{--rbg:#13201A;--rcr:#F3ECDD;--rmu:#A9B5A6;--rac:#E2B76A;background:radial-gradient(900px 420px at 50% 0%,#24392D,var(--rbg) 70%);color:var(--rcr);border-radius:36px;padding:56px 22px 34px;position:relative;overflow:hidden;font-family:inherit;text-align:center}
