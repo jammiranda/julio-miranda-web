@@ -158,7 +158,7 @@ export default function ProductosPage() {
             </div>
           </div>
         </section>
-        <CasosRelacionados ids={[5, 9, 1]} lang="es" />
+        <CasosRelacionados ids={[5, 9, 3]} lang="es" />
       </main>
       <Footer />
     </div>
