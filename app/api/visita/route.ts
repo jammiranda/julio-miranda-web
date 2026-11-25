@@ -6,9 +6,9 @@ import { reengancharSiToca } from "@/lib/reenganche"
 export const dynamic = "force-dynamic"
 
 /** Contador de visitas propio, sin cookies ni datos personales: guarda día, sitio, página, de dónde vino y tipo de dispositivo. */
-const HOSTS = ["devisebit.com", "www.devisebit.com", "academia.devisebit.com", "desarrollo.devisebit.com", "sistema.devisebit.com", "tuweb.devisebit.com"]
+const HOSTS = ["devisebit.com", "www.devisebit.com", "academia.devisebit.com", "desarrollo.devisebit.com", "sistema.devisebit.com", "tuweb.devisebit.com", "matebot.devisebit.com", "matecuentas.devisebit.com"]
 const PROPIOS = /(^|\.)devisebit\.com$/
-const ACCIONES = ["suscripcion", "inscripcion", "compra"]
+const ACCIONES = ["suscripcion", "inscripcion", "compra", "whatsapp", "telegram", "plus", "pro", "registro", "instalar", "matecuentas", "empresas"]
 const BOT = /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|vercel/i
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" }

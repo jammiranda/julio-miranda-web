@@ -31,6 +31,7 @@ export const GRUPOS: GrupoNav[] = [
       { s: "crm", t: "CRM y ventas", claves: "consultas contactos proyectos reuniones whatsapp ventas clientes conversión embudo" },
       { s: "prospeccion", t: "Acercamientos", claves: "prospección mails gmail invitaciones linkedin socios comerciales búsqueda laboral postulaciones respuestas seguimiento trazabilidad campañas tandas" },
       { s: "academia", t: "Academia", claves: "cursos alumnos suscriptores guías ventas certificados órdenes" },
+      { s: "familia-mate", t: "Familia Mate", claves: "matebot matecuentas uso usuarios whatsapp telegram activos plus pro visitas seo google producto app sirve" },
       { s: "web", t: "Web", claves: "sitios estado visitas blog novedades notas velocidad" },
       { s: "usuarios", t: "Usuarios", claves: "portal clientes alumnos equipo accesos" },
     ],
