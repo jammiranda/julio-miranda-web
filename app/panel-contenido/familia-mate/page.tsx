@@ -213,16 +213,20 @@ export default async function FamiliaMate() {
       <Sec t="Códigos de regalo" id="codigos" />
       <div className="pc-card"><div className="pc-ch"><h2>Regalar Plus / Pro gratis</h2><span className="pc-k">para amigos, testers y promociones</span></div>
         <form action={crearCodigos} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "end", marginBottom: 14 }}>
-          <label>Producto<br /><select name="producto" defaultValue="todos">{Object.entries(promo?.productos ?? { todos: "Todos", matebot: "MateBot Plus", turnos: "MateTurnos Pro", eventos: "MateEventos Pro", cuentas: "MateCuentas Pro" }).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-          <label>Días gratis<br /><input name="dias" type="number" defaultValue={90} min={1} max={3650} style={{ width: 90 }} /></label>
+          <label>Producto<br /><select name="producto" defaultValue="todos">{Object.entries(promo?.productos ?? { todos: "Toda la familia Mate", matebot: "MateBot Plus", cuentas: "MateCuentas Pro", turnos: "MateTurnos Pro", eventos: "MateEventos Pro" }).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+          <label>Días gratis (3650 = sin límite)<br /><input name="dias" type="number" defaultValue={90} min={1} max={3650} style={{ width: 110 }} /></label>
           <label>Cuántos códigos<br /><input name="cantidad" type="number" defaultValue={10} min={1} max={200} style={{ width: 90 }} /></label>
           <label>Personas por código<br /><input name="usos" type="number" defaultValue={1} min={1} max={10000} style={{ width: 90 }} /></label>
           <label>Para quién (nota)<br /><input name="nota" placeholder="Ej: amigos del club" /></label>
           <button className="pc-btn">Crear códigos</button>
         </form>
-        <SinDatos>Cómo se usan: en MateBot escribís "codigo ABCD-2345"; en MateTurnos y MateEventos, botón "Tengo un código" del panel; en MateCuentas, en la ventana de Pro. "Todos" activa MateBot, MateTurnos y MateEventos (MateCuentas lleva su propio código).</SinDatos>
-        {promo?.codigos?.length ? <div className="pc-tw"><table><thead><tr><th>Código</th><th>Producto</th><th className="n">Días</th><th className="n">Usados</th><th>Quién lo usó</th><th>Nota</th><th>Creado</th><th></th></tr></thead>
-          <tbody>{promo.codigos.map((c) => <tr key={c.code}><td><b style={{ fontFamily: "ui-monospace, monospace", letterSpacing: ".08em" }}>{c.code}</b></td><td>{promo.productos[c.producto] ?? c.producto}</td><td className="n">{c.dias}</td><td className="n">{c.usos} de {c.usos_max}</td><td>{c.canjes.map((k) => k.quien || "—").filter((v, i, a) => a.indexOf(v) === i).join(", ") || "—"}</td><td>{c.nota || ""}</td><td>{String(c.created_at).slice(0, 10)}</td>
+        <div className="pc-card" style={{ background: "var(--bg2, #f7f7f9)", margin: "0 0 14px" }}>
+          <p style={{ margin: "0 0 6px" }}><b>Cómo se usan:</b> la persona entra a <a href="https://matebot.devisebit.com/codigo" target="_blank" rel="noreferrer">matebot.devisebit.com/codigo</a>, escribe el código y listo. También sirve escribirle a MateBot "codigo ABCD-2345". Mandales el link directo: matebot.devisebit.com/codigo?c=ABCD-2345</p>
+          <p style={{ margin: "0 0 6px" }}><b>¿Lo puede usar más de una persona?</b> Solo si lo creaste así. "Personas por código" = 1 (lo normal) significa que cuando alguien lo usa, queda gastado y nadie más puede. Si ponés 20, lo pueden usar 20 personas distintas (útil para un grupo o una promo).</p>
+          <p style={{ margin: 0 }}><b>¿Queda registrado?</b> Sí: en la tabla de abajo ves cuántas veces se usó, quién lo usó y en qué producto. "Toda la familia Mate" activa los cuatro productos para la misma persona.</p>
+        </div>
+        {promo?.codigos?.length ? <div className="pc-tw"><table><thead><tr><th>Código</th><th>Producto</th><th className="n">Días</th><th className="n">Personas que lo usaron</th><th>Quién lo usó</th><th>Estado</th><th>Nota</th><th>Creado</th><th></th></tr></thead>
+          <tbody>{promo.codigos.map((c) => <tr key={c.code}><td><b style={{ fontFamily: "ui-monospace, monospace", letterSpacing: ".08em" }}>{c.code}</b></td><td>{promo.productos[c.producto] ?? c.producto}</td><td className="n">{c.dias}</td><td className="n">{c.usos} de {c.usos_max}</td><td>{c.canjes.map((k) => k.quien || "—").filter((v, i, a) => a.indexOf(v) === i).join(", ") || "—"}</td><td><span className="pc-tag"><span className="pc-dot" style={{ background: c.usos >= c.usos_max ? "var(--red)" : c.usos ? "var(--warn, #e0a100)" : "var(--ok)" }} />{c.usos >= c.usos_max ? "Usado" : c.usos ? "En uso" : "Libre"}</span></td><td>{c.nota || ""}</td><td>{String(c.created_at).slice(0, 10)}</td>
             <td><form action={borrarCodigo}><input type="hidden" name="code" value={c.code} /><button className="pc-btn" style={{ padding: "2px 8px" }} title="Borrar código">✕</button></form></td></tr>)}</tbody></table></div> : <SinDatos>Todavía no creaste códigos.</SinDatos>}
       </div>
 
