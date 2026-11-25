@@ -1,5 +1,6 @@
 import { q, one } from "@/lib/db"
 import { safe } from "@/lib/panel"
+import { crearCodigos, borrarCodigo } from "./_acciones"
 import { acceso, Head, Sec, Kpi, Barras, Columnas, Embudo, Alerta, SinDatos, fmt, plata } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -12,7 +13,9 @@ export const maxDuration = 60
  */
 const MB = "matebot.devisebit.com"
 const MC = "matecuentas.devisebit.com"
-const ACC: Record<string, string> = { whatsapp: "Empezar en WhatsApp", telegram: "Empezar en Telegram", plus: "Quiero Plus", pro: "Pasarme a Pro", registro: "Crear cuenta", instalar: "Instalar app", matecuentas: "Ir a MateCuentas", empresas: "Hablar con DEVISEBIT" }
+const MT = "mateturnos.devisebit.com"
+const ME = "mateeventos.devisebit.com"
+const ACC: Record<string, string> = { demo: "Ver ejemplo", reserva: "Reservó un turno", recordatorio: "Pidió recordatorio", rsvp: "Respondió una invitación", compartir: "Compartió invitación", matebot: "Conocer MateBot", whatsapp: "Empezar en WhatsApp", telegram: "Empezar en Telegram", plus: "Quiero Plus", pro: "Pasarme a Pro", registro: "Crear cuenta", instalar: "Instalar app", matecuentas: "Ir a MateCuentas", empresas: "Hablar con DEVISEBIT" }
 const VIA: Record<string, string> = { app: "App / web", wa: "WhatsApp", whatsapp: "WhatsApp", tg: "Telegram", telegram: "Telegram" }
 const TIPO: Record<string, string> = { texto: "Texto", audio: "Audio", archivo: "Foto o PDF" }
 const KIND: Record<string, string> = { event: "Eventos y turnos", reminder: "Recordatorios", birthday: "Cumpleaños", list: "Ítems de listas" }
@@ -32,7 +35,12 @@ type MBStats = {
   tipos30: { tipo: string; n: number }[]
   usoMes: { agendado: number; fotos: number; avisos_wa: number }
   precioPlus: number
+  contactos?: { id: number; nombre: string; email: string | null; phone: string | null; wa_id: string | null; telegram: boolean; optin: boolean; alta: string; last_seen: string; plus: boolean; step: string; turnos: boolean; eventos: boolean }[]
+  turnos?: Record<string, number>
+  eventos?: Record<string, number>
+  infra?: { funciones: string | null; baseDeDatos: string }
 }
+type Promo = { productos: Record<string, string>; codigos: { code: string; producto: string; dias: number; usos_max: number; usos: number; nota: string | null; created_at: string; canjes: { producto: string; quien: string | null; cuando: string }[] }[] }
 type MCStats = Record<string, any>
 
 type Seo = { sitio: string; url: string; ok: boolean; ms: number; titulo: string; desc: string; og: boolean; robots: boolean; sitemap: boolean }
@@ -56,16 +64,19 @@ const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : null)
 
 export default async function FamiliaMate() {
   if (!(await acceso())) return null
-  const [mb, mc, visDia, visSitio, origen, clics, google, seoMb, seoMc] = await Promise.all([
+  const [mb, mc, visDia, visSitio, origen, clics, google, seoMb, seoMc, seoMt, seoMe, promo] = await Promise.all([
     safe(stats<MBStats>(`https://${MB}/api/admin/stats`)),
     safe(stats<MCStats>(`https://${MC}/api/admin?a=stats`)),
-    safe(q<{ dia: string; host: string; c: number }>(`select dia::text dia, host, sum(n)::int c from pv_visitas where host in ($1,$2) and dia > current_date - 30 group by 1,2 order by 1`, [MB, MC])),
-    safe(q<{ host: string; d30: number; d7: number; movil: number }>(`select host, sum(n)::int d30, coalesce(sum(n) filter (where dia > current_date - 7),0)::int d7, coalesce(sum(n) filter (where disp='movil'),0)::int movil from pv_visitas where host in ($1,$2) and dia > current_date - 30 group by 1`, [MB, MC])),
-    safe(q<{ ref: string; c: number }>(`select coalesce(nullif(ref,''),'Directo') ref, sum(n)::int c from pv_visitas where host in ($1,$2) and dia > current_date - 30 group by 1 order by 2 desc limit 10`, [MB, MC])),
-    safe(q<{ host: string; accion: string; c: number }>(`select host, accion, sum(n)::int c from pv_clics where host in ($1,$2) and dia > current_date - 30 group by 1,2 order by 3 desc`, [MB, MC])),
-    safe(q<{ host: string; c: number }>(`select host, sum(n)::int c from pv_visitas where host in ($1,$2) and dia > current_date - 30 and ref like '%google%' group by 1`, [MB, MC])),
+    safe(q<{ dia: string; host: string; c: number }>(`select dia::text dia, host, sum(n)::int c from pv_visitas where host in ($1,$2,$3,$4) and dia > current_date - 30 group by 1,2 order by 1`, [MB, MC, MT, ME])),
+    safe(q<{ host: string; d30: number; d7: number; movil: number }>(`select host, sum(n)::int d30, coalesce(sum(n) filter (where dia > current_date - 7),0)::int d7, coalesce(sum(n) filter (where disp='movil'),0)::int movil from pv_visitas where host in ($1,$2,$3,$4) and dia > current_date - 30 group by 1`, [MB, MC, MT, ME])),
+    safe(q<{ ref: string; c: number }>(`select coalesce(nullif(ref,''),'Directo') ref, sum(n)::int c from pv_visitas where host in ($1,$2,$3,$4) and dia > current_date - 30 group by 1 order by 2 desc limit 10`, [MB, MC, MT, ME])),
+    safe(q<{ host: string; accion: string; c: number }>(`select host, accion, sum(n)::int c from pv_clics where host in ($1,$2,$3,$4) and dia > current_date - 30 group by 1,2 order by 3 desc`, [MB, MC, MT, ME])),
+    safe(q<{ host: string; c: number }>(`select host, sum(n)::int c from pv_visitas where host in ($1,$2,$3,$4) and dia > current_date - 30 and ref like '%google%' group by 1`, [MB, MC, MT, ME])),
     safe(seo(MB)),
     safe(seo(MC)),
+    safe(seo(MT)),
+    safe(seo(ME)),
+    safe(fetch(`https://${MB}/api/admin/promo`, { headers: { "x-admin-key": process.env.STATS_KEY || "" }, cache: "no-store", signal: AbortSignal.timeout(15000) }).then((r) => (r.ok ? (r.json() as Promise<Promo>) : null))),
   ])
 
   const vis = (h: string) => (visSitio ?? []).find((r) => r.host === h)
@@ -119,11 +130,22 @@ export default async function FamiliaMate() {
   const sinGoogle = (google ?? []).reduce((a, r) => a + Number(r.c), 0) === 0
   if (sinGoogle) lecturas.push({ nivel: "medio", t: "Todavía no llegan visitas desde Google", d: "Es normal en sitios nuevos. Falta darlos de alta en Google Search Console para que se indexen antes y ver qué buscan." })
 
+  // Contactos de toda la familia (para hablarles, pedir feedback y regalar códigos)
+  type Contacto = { nombre: string; email: string; tel: string; producto: string; alta: string; novedades: boolean; paga: boolean }
+  const contactos: Contacto[] = [
+    ...(mb?.contactos ?? []).map((c) => ({ nombre: c.nombre || "", email: c.email || "", tel: c.phone || (c.wa_id ? `+${c.wa_id}` : ""), producto: ["MateBot " + (c.wa_id ? "WhatsApp" : "Telegram"), c.turnos ? "MateTurnos" : "", c.eventos ? "MateEventos" : ""].filter(Boolean).join(" · "), alta: String(c.alta).slice(0, 10), novedades: !!c.optin, paga: !!c.plus })),
+    ...((mc?.contactos ?? []) as any[]).map((c) => ({ nombre: c.nombre || "", email: c.email || "", tel: c.phone || "", producto: "MateCuentas" + (c.whatsapp ? " · con MateBot" : ""), alta: c.alta ? new Date(c.alta).toISOString().slice(0, 10) : "", novedades: !!c.optin, paga: !!c.pro })),
+  ].sort((a, b) => b.alta.localeCompare(a.alta))
+  const conEmail = contactos.filter((c) => c.email).length
+  const csvQ = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`
+  const csv = "\ufeff" + ["Nombre,Email,Teléfono,Producto,Alta,Acepta novedades,Paga", ...contactos.map((c) => [csvQ(c.nombre), csvQ(c.email), csvQ(c.tel), csvQ(c.producto), c.alta, c.novedades ? "Sí" : "No", c.paga ? "Sí" : "No"].join(","))].join("\n")
+  const mt = mb?.turnos, me = mb?.eventos
+
   const ingresosMes = (u?.plus ?? 0) * (mb?.precioPlus ?? 3500) + (mc?.pro ?? 0) * 3990
 
   return (
     <>
-      <Head t="Familia Mate" sub="MateBot y MateCuentas: si se usan, si se visitan y si sirven. Uso y visitas sin datos personales." />
+      <Head t="Familia Mate" sub="MateBot, MateCuentas, MateTurnos y MateEventos: si se usan, si se visitan y si sirven. Contactos y códigos de regalo." />
 
       <div className="pc-kpis">
         <Kpi k="Usuarios MateBot" v={u ? fmt(u.registrados) : null} ft={u ? `+${fmt(u.altas7)} esta semana · ${fmt(u.whatsapp)} WhatsApp · ${fmt(u.telegram)} Telegram` : "Sin conexión con MateBot"} serie={(mb?.altasDia ?? []).map((r) => Number(r.n))} />
@@ -170,6 +192,40 @@ export default async function FamiliaMate() {
         </>
       ) : <SinDatos>No se pudo leer MateCuentas. Revisar que STATS_KEY esté cargada en los dos proyectos.</SinDatos>}
 
+      <Sec t="MateTurnos y MateEventos · uso" id="turnos-eventos" />
+      {mt && me ? (
+        <div className="pc-kpis">
+          <Kpi k="Agendas MateTurnos" v={fmt(mt.agendas)} ft={`${fmt(mt.pro)} en Pro`} color="#0f6b63" />
+          <Kpi k="Turnos reservados" v={fmt(mt.reservas)} ft={`${fmt(mt.reservas30)} en 30 días · ${fmt(mt.con_recordatorio)} con recordatorio · ${fmt(mt.cancelados)} cancelados`} color="#0f6b63" />
+          <Kpi k="Eventos MateEventos" v={fmt(me.eventos)} ft={`${fmt(me.eventos30)} nuevos en 30 días · ${fmt(me.pro)} en Pro`} color="#c2187a" />
+          <Kpi k="Respuestas de invitados" v={fmt(me.respuestas)} ft={`${fmt(me.confirmados)} confirmaron · ${fmt(me.coorganizadores)} co-organizadores`} color="#c2187a" />
+        </div>
+      ) : <SinDatos>No se pudo leer MateTurnos y MateEventos (viven dentro de MateBot).</SinDatos>}
+
+      <Sec t="Contactos" id="contactos" />
+      <div className="pc-card"><div className="pc-ch"><h2>Todas las personas que se registraron</h2><span className="pc-k">{fmt(contactos.length)} contactos · {fmt(conEmail)} con email · {fmt(contactos.filter((c) => c.novedades).length)} aceptan novedades</span></div>
+        <p style={{ margin: "0 0 10px" }}><a className="pc-btn" href={`data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`} download="contactos-familia-mate.csv">Descargar en Excel (CSV)</a></p>
+        {contactos.length ? <div className="pc-tw"><table><thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Producto</th><th>Alta</th><th>Novedades</th><th>Paga</th></tr></thead>
+          <tbody>{contactos.slice(0, 300).map((c, i) => <tr key={i}><td>{c.nombre || "—"}</td><td>{c.email ? <a href={`mailto:${c.email}`}>{c.email}</a> : "—"}</td><td>{c.tel || "—"}</td><td>{c.producto}</td><td>{c.alta}</td><td>{c.novedades ? "Sí" : "No"}</td><td>{c.paga ? "Sí" : "—"}</td></tr>)}</tbody></table></div> : <SinDatos>Todavía no hay registros.</SinDatos>}
+        <SinDatos>Para mandar novedades por email usá solo a quienes dicen "Sí" en Novedades. MateBot pide el email al registrarse; MateCuentas lo tiene siempre.</SinDatos>
+      </div>
+
+      <Sec t="Códigos de regalo" id="codigos" />
+      <div className="pc-card"><div className="pc-ch"><h2>Regalar Plus / Pro gratis</h2><span className="pc-k">para amigos, testers y promociones</span></div>
+        <form action={crearCodigos} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "end", marginBottom: 14 }}>
+          <label>Producto<br /><select name="producto" defaultValue="todos">{Object.entries(promo?.productos ?? { todos: "Todos", matebot: "MateBot Plus", turnos: "MateTurnos Pro", eventos: "MateEventos Pro", cuentas: "MateCuentas Pro" }).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+          <label>Días gratis<br /><input name="dias" type="number" defaultValue={90} min={1} max={3650} style={{ width: 90 }} /></label>
+          <label>Cuántos códigos<br /><input name="cantidad" type="number" defaultValue={10} min={1} max={200} style={{ width: 90 }} /></label>
+          <label>Personas por código<br /><input name="usos" type="number" defaultValue={1} min={1} max={10000} style={{ width: 90 }} /></label>
+          <label>Para quién (nota)<br /><input name="nota" placeholder="Ej: amigos del club" /></label>
+          <button className="pc-btn">Crear códigos</button>
+        </form>
+        <SinDatos>Cómo se usan: en MateBot escribís "codigo ABCD-2345"; en MateTurnos y MateEventos, botón "Tengo un código" del panel; en MateCuentas, en la ventana de Pro. "Todos" activa MateBot, MateTurnos y MateEventos (MateCuentas lleva su propio código).</SinDatos>
+        {promo?.codigos?.length ? <div className="pc-tw"><table><thead><tr><th>Código</th><th>Producto</th><th className="n">Días</th><th className="n">Usados</th><th>Quién lo usó</th><th>Nota</th><th>Creado</th><th></th></tr></thead>
+          <tbody>{promo.codigos.map((c) => <tr key={c.code}><td><b style={{ fontFamily: "ui-monospace, monospace", letterSpacing: ".08em" }}>{c.code}</b></td><td>{promo.productos[c.producto] ?? c.producto}</td><td className="n">{c.dias}</td><td className="n">{c.usos} de {c.usos_max}</td><td>{c.canjes.map((k) => k.quien || "—").filter((v, i, a) => a.indexOf(v) === i).join(", ") || "—"}</td><td>{c.nota || ""}</td><td>{String(c.created_at).slice(0, 10)}</td>
+            <td><form action={borrarCodigo}><input type="hidden" name="code" value={c.code} /><button className="pc-btn" style={{ padding: "2px 8px" }} title="Borrar código">✕</button></form></td></tr>)}</tbody></table></div> : <SinDatos>Todavía no creaste códigos.</SinDatos>}
+      </div>
+
       <Sec t="Webs · visitas y conversión" id="web" />
       <div className="pc-grid pc-g2">
         <div className="pc-card"><div className="pc-ch"><h2>MateBot · visitas por día</h2><span className="pc-k">{fmt(mbVis)} en 30 días · {fmt(pct(Number(vis(MB)?.movil ?? 0), mbVis))}% celular</span></div><Columnas filas={dias(MB)} titulo="Visitas MateBot" color="var(--red)" /></div>
@@ -191,15 +247,18 @@ export default async function FamiliaMate() {
       <Sec t="SEO" id="seo" />
       <div className="pc-card"><div className="pc-ch"><h2>Cómo los ve Google</h2><span className="pc-k">revisado al abrir esta página</span></div>
         <div className="pc-tw"><table><thead><tr><th>Sitio</th><th>Título</th><th>Descripción</th><th>Imagen al compartir</th><th>robots.txt</th><th>Mapa del sitio</th><th className="n">Visitas desde Google</th></tr></thead>
-          <tbody>{[seoMb, seoMc].filter(Boolean).map((s) => {
+          <tbody>{[seoMb, seoMc, seoMt, seoMe].filter(Boolean).map((s) => {
             const x = s as Seo
             const g = Number((google ?? []).find((r) => r.host === x.sitio)?.c ?? 0)
             const okc = (b: boolean) => <span className="pc-tag"><span className="pc-dot" style={{ background: b ? "var(--ok)" : "var(--red)" }} />{b ? "Sí" : "Falta"}</span>
             return <tr key={x.sitio}><td><a href={x.url} target="_blank" rel="noreferrer">{x.sitio}</a></td><td>{x.titulo || "—"}</td><td>{x.desc ? `${x.desc.slice(0, 90)}${x.desc.length > 90 ? "…" : ""}` : okc(false)}</td><td>{okc(x.og)}</td><td>{okc(x.robots)}</td><td>{okc(x.sitemap)}</td><td className="n">{fmt(g)}</td></tr>
           })}</tbody>
         </table></div>
-        <SinDatos>Para ver en qué búsquedas aparecen, falta dar de alta los dos sitios en Google Search Console.</SinDatos>
+        <SinDatos>MateBot y MateCuentas ya están en Google Search Console (dominio devisebit.com). Las invitaciones de MateEventos son privadas y no se indexan a propósito.</SinDatos>
       </div>
+
+      <Sec t="Dónde están los servidores" id="infra" />
+      <div className="pc-card"><p style={{ margin: 0 }}>Funciones (Vercel): <b>{mb?.infra?.funciones === "iad1" ? "Washington D.C., Estados Unidos (iad1)" : mb?.infra?.funciones ?? "—"}</b> · Base de datos de MateBot, MateTurnos y MateEventos: <b>{mb?.infra?.baseDeDatos ?? "—"}</b> (Virginia, Estados Unidos) · Datos de MateCuentas: Vercel Blob, región {mc?.region ?? "—"}. Todo cifrado en tránsito (HTTPS) y en reposo.</p></div>
     </>
   )
 }
