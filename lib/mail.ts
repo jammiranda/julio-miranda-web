@@ -5,7 +5,7 @@ export async function enviarMail(to: string, asunto: string, html: string) {
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: process.env.MAIL_FROM ?? "San Patricio <sistema@sanpatricio.ar>", to, subject: asunto, html }),
+    body: JSON.stringify({ from: process.env.MAIL_FROM ?? "Salud Digital <sistema@sanpatricio.ar>", to, subject: asunto, html }),
   })
   return r.ok
 }

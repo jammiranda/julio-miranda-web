@@ -7,7 +7,7 @@ export const TIPOS = [
   { v: "cuidador", n: "Cuidador" },
 ] as const
 export const TIPO_NOMBRE: Record<string, string> = Object.fromEntries(TIPOS.map((t) => [t.v, t.n]))
-export const LOCALIDADES = ["San Luis", "Villa Mercedes", "Justo Daract", "Quines", "Merlo", "Tilisarao", "Concarán", "La Toma", "La Punta", "San Francisco del Monte de Oro"]
+export const LOCALIDADES = ["Ciudad", "Zona Norte", "Zona Sur", "Zona Oeste", "Villa del Parque", "Barrio Jardín", "Los Álamos", "San Martín", "Las Rosas", "El Mirador"]
 
 export const pesos = (n: number | string | null | undefined) =>
   n == null || n === "" ? "—" : "$ " + Math.round(Number(n)).toLocaleString("es-AR")

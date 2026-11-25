@@ -2,6 +2,20 @@ import { neon } from "@neondatabase/serverless"
 
 type Row = Record<string, any>
 
+import { sembrarDemo } from "./demo-seed"
+
+/** Demo en marca blanca: base Postgres en memoria (PGlite) con datos ficticios, sin tocar ninguna base real. */
+export const DEMO = process.env.DEMO === "1"
+let _pg: Promise<{ query: (t: string, p?: unknown[]) => Promise<{ rows: Row[] }> }> | null = null
+function pglite() {
+  if (!_pg) _pg = import("@electric-sql/pglite").then(({ PGlite }) => new PGlite() as never)
+  return _pg
+}
+async function ejecutar(text: string, params: unknown[] = []): Promise<Row[]> {
+  if (DEMO) return (await (await pglite()).query(text, params)).rows
+  return (await client().query(text, params)) as Row[]
+}
+
 let _sql: ReturnType<typeof neon> | null = null
 function client() {
   if (!_sql) {
@@ -15,7 +29,7 @@ function client() {
 /** Consulta parametrizada: q("select * from x where id=$1", [id]) */
 export async function q<T = Row>(text: string, params: unknown[] = []): Promise<T[]> {
   await ensureSchema()
-  return (await client().query(text, params)) as T[]
+  return (await ejecutar(text, params)) as T[]
 }
 export async function one<T = Row>(text: string, params: unknown[] = []): Promise<T | null> {
   const r = await q<T>(text, params)
@@ -218,10 +232,10 @@ let ready: Promise<void> | null = null
 export function ensureSchema() {
   if (!ready) {
     ready = (async () => {
-      const sql = client()
       for (const stmt of SCHEMA.split(";").map((s) => s.trim()).filter(Boolean)) {
-        await sql.query(stmt)
+        await ejecutar(stmt)
       }
+      if (DEMO) await sembrarDemo((t, p) => ejecutar(t, p ?? []))
     })().catch((e) => {
       ready = null
       throw e

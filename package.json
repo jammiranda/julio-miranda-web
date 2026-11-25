@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.16",
     "@neondatabase/serverless": "1.0.2",
     "@vercel/functions": "^1.5.2",
     "bcryptjs": "3.0.3",

@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next"
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Sistema San Patricio",
-    short_name: "San Patricio",
+    name: "Salud Digital · Demo",
+    short_name: "Salud Digital",
     description: "Gestión de internación domiciliaria",
     start_url: "/",
     display: "standalone",

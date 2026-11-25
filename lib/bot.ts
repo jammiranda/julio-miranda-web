@@ -25,7 +25,7 @@ const INICIAN: Record<Empresa, string[]> = {
 
 function cierre(e: Empresa, d: Record<string, string>) {
   const nombre = d.nombre ? `, ${d.nombre.split(" ")[0]}` : ""
-  return `¡Muchas gracias${nombre}! ✅ Ya registramos el pedido. Una persona del equipo de San Patricio te contacta por acá (lunes a viernes de 8 a 20 h) para coordinar. Si tenés la orden o indicación médica, podés mandarnos una foto 📷 ☘️`
+  return `¡Muchas gracias${nombre}! ✅ Ya registramos el pedido. Una persona del equipo de Salud Digital te contacta por acá (lunes a viernes de 8 a 20 h) para coordinar. Si tenés la orden o indicación médica, podés mandarnos una foto 📷 ☘️`
 }
 
 /** Lo que el equipo le fue enseñando al bot (Sistema → Bot · Conocimiento). */
@@ -36,7 +36,7 @@ export async function aprendido(e: Empresa) {
 
 function sistema(e: Empresa, extra = "") {
   const b = BOTS[e]
-  const objetivo = "Tu objetivo es atender como la mejor recepcionista de una empresa de salud: con calidez y precisión, entender qué necesita el paciente, explicar cómo trabaja San Patricio y tomar los datos para que coordinación inicie el pedido. Hacé una pregunta por mensaje y siempre terminá con el próximo paso."
+  const objetivo = "Tu objetivo es atender como la mejor recepcionista de una empresa de salud: con calidez y precisión, entender qué necesita el paciente, explicar cómo trabaja Salud Digital y tomar los datos para que coordinación inicie el pedido. Hacé una pregunta por mensaje y siempre terminá con el próximo paso."
   return `Sos el asistente de WhatsApp de ${b.nombre}. Conversás con personas reales.
 ${objetivo}
 
@@ -157,7 +157,7 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado):
 /** Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat). */
 export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp") {
   const roles = ["gerente", "coordinacion"]
-  const marca = "San Patricio"
+  const marca = "Salud Digital"
   const red = canal === "instagram" ? "Instagram" : "WhatsApp"
   if (await one("select 1 from wa_mensajes where meta_id=$1", [metaId])) return // reintento de Meta
   await q("insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,meta_id,autor_nombre) values ($1,$2,'cliente',$3,$4,$5,$6)", [e, waId, texto, tipo, metaId, perfil])

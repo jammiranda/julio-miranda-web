@@ -77,13 +77,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
       </header>
+      {process.env.DEMO === "1" && <div className="bg-[#0B0D12] text-white text-center text-xs sm:text-sm px-4 py-2">Demo en marca blanca de <a href="https://www.devisebit.com/productos" className="underline font-bold">DEVISEBIT</a> · todos los datos son ficticios y los cambios se reinician</div>}
       <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
       <nav aria-label="Accesos rápidos" className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t border-[#E1E6E3] grid grid-cols-4 pb-[env(safe-area-inset-bottom)]">
         {[{ href: "/", t: "Tablero", i: "▦" }, { href: "/consultas", t: "Consultas", i: "✉" }, { href: "/pacientes", t: "Pacientes", i: "♥" }, { href: "/agenda", t: "Agenda", i: "▤" }].map((i) => (
           <Link key={i.href} href={i.href} className="flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold text-[#33414F] active:bg-[#E3F2E8]"><span className="text-lg leading-none text-[#0B7A3B]" aria-hidden="true">{i.i}</span>{i.t}</Link>
         ))}
       </nav>
-      <footer className="text-center text-xs text-[#4F5C69] py-6">San Patricio Servicios de Salud · Sistema de gestión · Datos de salud protegidos (Ley 25.326) · Desarrollado por DEVISEBIT SRL</footer>
+      <footer className="text-center text-xs text-[#4F5C69] py-6">Salud Digital · Sistema de gestión · Datos de salud protegidos (Ley 25.326) · Desarrollado por DEVISEBIT SRL</footer>
     </div>
   )
 }

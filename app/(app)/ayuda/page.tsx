@@ -9,7 +9,7 @@ const SECCIONES: Sec[] = [
   {
     id: "inicio", t: "Primeros pasos", para: ["todos"], link: "/cuenta",
     pasos: [
-      "Ingresá en sistema.sanpatricio.ar con tu usuario y clave. Si es la primera vez, usá el enlace de activación que te mandó la gerencia y elegí tu clave.",
+      "Ingresá en tu dominio con tu usuario y clave. Si es la primera vez, usá el enlace de activación que te mandó la gerencia y elegí tu clave.",
       "Tocá tu nombre arriba a la derecha para entrar a *Mi cuenta*: ahí cambiás la clave y cargás tu email (sirve para recuperarla si te la olvidás).",
       "Desde el celular: abrí el sistema en el navegador y elegí *Agregar a pantalla de inicio*. Queda como una app, con una barra abajo para Tablero, Consultas, Pacientes y Agenda.",
       "¿Te olvidaste la clave? En el ingreso tocá *¿Olvidaste tu clave?*, o pedile a la gerencia un enlace nuevo desde Usuarios.",
@@ -86,7 +86,7 @@ const SECCIONES: Sec[] = [
   {
     id: "datos", t: "Importar y exportar", para: ["gerente", "coordinacion"], link: "/importar",
     pasos: [
-      "La planilla mensual de Drive se sube con el menú *San Patricio → Enviar este mes al sistema* dentro de la misma planilla, o desde *Importar planilla*.",
+      "La planilla mensual de Drive se sube con el menú *Salud Digital → Enviar este mes al sistema* dentro de la misma planilla, o desde *Importar planilla*.",
       "En Pacientes, OP, Agenda, Profesionales y Consultas están los botones *Importar* y *Exportar*: aceptan Excel o CSV y reconocen las columnas por su nombre. Si el registro ya existe, se actualiza.",
       "Si no sabés qué columnas usar, al importar aparece *Descargar plantilla con las columnas*.",
     ],

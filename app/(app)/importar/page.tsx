@@ -14,9 +14,9 @@ export default async function Importar() {
     <div className="flex flex-col gap-4 max-w-3xl">
       <h1 className="m-0">Importar la planilla mensual</h1>
       <div className="card text-sm leading-relaxed">
-        <p className="m-0">Débora sigue cargando como siempre en la planilla de Drive <strong>“San Patricio · Carga mensual de prestaciones ID”</strong>. Hay dos formas de pasar los datos al sistema:</p>
+        <p className="m-0">La coordinación sigue cargando como siempre en la planilla de Drive <strong>“Salud Digital · Carga mensual de prestaciones ID”</strong>. Hay dos formas de pasar los datos al sistema:</p>
         <ol className="mb-0">
-          <li><strong>Desde la planilla:</strong> menú <em>San Patricio → Enviar al sistema</em> (un clic, sin descargar nada).</li>
+          <li><strong>Desde la planilla:</strong> menú <em>Salud Digital → Enviar al sistema</em> (un clic, sin descargar nada).</li>
           <li><strong>Desde acá:</strong> en Drive, <em>Archivo → Descargar → Microsoft Excel (.xlsx)</em> y subí ese archivo abajo.</li>
         </ol>
         <p className="mb-0">Cada importación reemplaza el mes completo con lo que dice la planilla. Los pacientes nuevos se crean solos.</p>

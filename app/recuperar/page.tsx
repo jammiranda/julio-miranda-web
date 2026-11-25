@@ -19,7 +19,7 @@ async function pedir(fd: FormData) {
     const tok = randomBytes(24).toString("base64url")
     await q("update usuarios set invite_token=$1, invite_expira=now() + interval '2 hours' where id=$2", [tok, u.id])
     const link = `https://${headers().get("host")}/activar/${tok}`
-    await enviarMail(u.email, "Recuperar tu clave · Sistema San Patricio",
+    await enviarMail(u.email, "Recuperar tu clave · Salud Digital · Demo",
       `<p>Hola ${u.nombre}:</p><p>Para elegir una clave nueva entrá a este enlace (vale 2 horas y se usa una sola vez):</p><p><a href="${link}">${link}</a></p><p>Si no lo pediste, ignorá este mail.</p>`)
     await audit({ id: u.id, usuario: u.usuario }, "pedido_recuperacion", "usuario", u.id)
   }

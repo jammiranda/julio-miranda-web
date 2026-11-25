@@ -8,7 +8,7 @@ export type Usuario = { id: number; usuario: string; nombre: string; rol: Rol }
 
 const COOKIE = "sp_sesion"
 function secret() {
-  const s = process.env.AUTH_SECRET
+  const s = process.env.AUTH_SECRET || (process.env.DEMO === "1" ? "demo-salud-digital-devisebit-solo-datos-ficticios" : "")
   if (!s || s.length < 32) throw new Error("Falta AUTH_SECRET")
   return new TextEncoder().encode(s)
 }

@@ -2,10 +2,10 @@ import "./globals.css"
 import type { Metadata, Viewport } from "next"
 
 export const metadata: Metadata = {
-  title: "Sistema San Patricio",
-  description: "Gestión de internación domiciliaria · San Patricio Servicios de Salud",
+  title: "Salud Digital · Demo",
+  description: "Demo de sistema de salud digital · DEVISEBIT",
   robots: { index: false, follow: false },
-  appleWebApp: { capable: true, title: "San Patricio", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Salud Digital", statusBarStyle: "default" },
 }
 export const dynamic = "force-dynamic"
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0B5E31" }
