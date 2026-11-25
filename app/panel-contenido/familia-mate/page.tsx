@@ -1,6 +1,5 @@
 import { q, one } from "@/lib/db"
 import { safe } from "@/lib/panel"
-import { crearCodigos, borrarCodigo } from "./_acciones"
 import { acceso, Head, Sec, Kpi, Barras, Columnas, Embudo, Alerta, SinDatos, fmt, plata } from "../_ui"
 
 export const dynamic = "force-dynamic"
@@ -137,15 +136,13 @@ export default async function FamiliaMate() {
     ...((mc?.contactos ?? []) as any[]).map((c) => ({ nombre: c.nombre || "", email: c.email || "", tel: c.phone || "", producto: "MateCuentas" + (c.whatsapp ? " · con MateBot" : ""), alta: c.alta ? new Date(c.alta).toISOString().slice(0, 10) : "", novedades: !!c.optin, paga: !!c.pro })),
   ].sort((a, b) => b.alta.localeCompare(a.alta))
   const conEmail = contactos.filter((c) => c.email).length
-  const csvQ = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`
-  const csv = "\ufeff" + ["Nombre,Email,Teléfono,Producto,Alta,Acepta novedades,Paga", ...contactos.map((c) => [csvQ(c.nombre), csvQ(c.email), csvQ(c.tel), csvQ(c.producto), c.alta, c.novedades ? "Sí" : "No", c.paga ? "Sí" : "No"].join(","))].join("\n")
   const mt = mb?.turnos, me = mb?.eventos
 
   const ingresosMes = (u?.plus ?? 0) * (mb?.precioPlus ?? 3500) + (mc?.pro ?? 0) * 3990
 
   return (
     <>
-      <Head t="Familia Mate" sub="MateBot, MateCuentas, MateTurnos y MateEventos: si se usan, si se visitan y si sirven. Contactos y códigos de regalo." />
+      <Head t="Familia Mate" sub="MateBot, MateCuentas, MateTurnos y MateEventos: si se usan, si se visitan y si sirven. Solo números; el detalle está en el sistema." />
 
       <div className="pc-kpis">
         <Kpi k="Usuarios MateBot" v={u ? fmt(u.registrados) : null} ft={u ? `+${fmt(u.altas7)} esta semana · ${fmt(u.whatsapp)} WhatsApp · ${fmt(u.telegram)} Telegram` : "Sin conexión con MateBot"} serie={(mb?.altasDia ?? []).map((r) => Number(r.n))} />
@@ -202,33 +199,8 @@ export default async function FamiliaMate() {
         </div>
       ) : <SinDatos>No se pudo leer MateTurnos y MateEventos (viven dentro de MateBot).</SinDatos>}
 
-      <Sec t="Contactos" id="contactos" />
-      <div className="pc-card"><div className="pc-ch"><h2>Todas las personas que se registraron</h2><span className="pc-k">{fmt(contactos.length)} contactos · {fmt(conEmail)} con email · {fmt(contactos.filter((c) => c.novedades).length)} aceptan novedades</span></div>
-        <p style={{ margin: "0 0 10px" }}><a className="pc-btn" href={`data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`} download="contactos-familia-mate.csv">Descargar en Excel (CSV)</a></p>
-        {contactos.length ? <div className="pc-tw"><table><thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Producto</th><th>Alta</th><th>Novedades</th><th>Paga</th></tr></thead>
-          <tbody>{contactos.slice(0, 300).map((c, i) => <tr key={i}><td>{c.nombre || "—"}</td><td>{c.email ? <a href={`mailto:${c.email}`}>{c.email}</a> : "—"}</td><td>{c.tel || "—"}</td><td>{c.producto}</td><td>{c.alta}</td><td>{c.novedades ? "Sí" : "No"}</td><td>{c.paga ? "Sí" : "—"}</td></tr>)}</tbody></table></div> : <SinDatos>Todavía no hay registros.</SinDatos>}
-        <SinDatos>Para mandar novedades por email usá solo a quienes dicen "Sí" en Novedades. MateBot pide el email al registrarse; MateCuentas lo tiene siempre.</SinDatos>
-      </div>
-
-      <Sec t="Códigos de regalo" id="codigos" />
-      <div className="pc-card"><div className="pc-ch"><h2>Regalar Plus / Pro gratis</h2><span className="pc-k">para amigos, testers y promociones</span></div>
-        <form action={crearCodigos} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "end", marginBottom: 14 }}>
-          <label>Producto<br /><select name="producto" defaultValue="todos">{Object.entries(promo?.productos ?? { todos: "Toda la familia Mate", matebot: "MateBot Plus", cuentas: "MateCuentas Pro", turnos: "MateTurnos Pro", eventos: "MateEventos Pro" }).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-          <label>Días gratis (3650 = sin límite)<br /><input name="dias" type="number" defaultValue={90} min={1} max={3650} style={{ width: 110 }} /></label>
-          <label>Cuántos códigos<br /><input name="cantidad" type="number" defaultValue={10} min={1} max={200} style={{ width: 90 }} /></label>
-          <label>Personas por código<br /><input name="usos" type="number" defaultValue={1} min={1} max={10000} style={{ width: 90 }} /></label>
-          <label>Para quién (nota)<br /><input name="nota" placeholder="Ej: amigos del club" /></label>
-          <button className="pc-btn">Crear códigos</button>
-        </form>
-        <div className="pc-card" style={{ background: "var(--bg2, #f7f7f9)", margin: "0 0 14px" }}>
-          <p style={{ margin: "0 0 6px" }}><b>Cómo se usan:</b> la persona entra a <a href="https://matebot.devisebit.com/codigo" target="_blank" rel="noreferrer">matebot.devisebit.com/codigo</a>, escribe el código y listo. También sirve escribirle a MateBot "codigo ABCD-2345". Mandales el link directo: matebot.devisebit.com/codigo?c=ABCD-2345</p>
-          <p style={{ margin: "0 0 6px" }}><b>¿Lo puede usar más de una persona?</b> Solo si lo creaste así. "Personas por código" = 1 (lo normal) significa que cuando alguien lo usa, queda gastado y nadie más puede. Si ponés 20, lo pueden usar 20 personas distintas (útil para un grupo o una promo).</p>
-          <p style={{ margin: 0 }}><b>¿Queda registrado?</b> Sí: en la tabla de abajo ves cuántas veces se usó, quién lo usó y en qué producto. "Toda la familia Mate" activa los cuatro productos para la misma persona.</p>
-        </div>
-        {promo?.codigos?.length ? <div className="pc-tw"><table><thead><tr><th>Código</th><th>Producto</th><th className="n">Días</th><th className="n">Personas que lo usaron</th><th>Quién lo usó</th><th>Estado</th><th>Nota</th><th>Creado</th><th></th></tr></thead>
-          <tbody>{promo.codigos.map((c) => <tr key={c.code}><td><b style={{ fontFamily: "ui-monospace, monospace", letterSpacing: ".08em" }}>{c.code}</b></td><td>{promo.productos[c.producto] ?? c.producto}</td><td className="n">{c.dias}</td><td className="n">{c.usos} de {c.usos_max}</td><td>{c.canjes.map((k) => k.quien || "—").filter((v, i, a) => a.indexOf(v) === i).join(", ") || "—"}</td><td><span className="pc-tag"><span className="pc-dot" style={{ background: c.usos >= c.usos_max ? "var(--red)" : c.usos ? "var(--warn, #e0a100)" : "var(--ok)" }} />{c.usos >= c.usos_max ? "Usado" : c.usos ? "En uso" : "Libre"}</span></td><td>{c.nota || ""}</td><td>{String(c.created_at).slice(0, 10)}</td>
-            <td><form action={borrarCodigo}><input type="hidden" name="code" value={c.code} /><button className="pc-btn" style={{ padding: "2px 8px" }} title="Borrar código">✕</button></form></td></tr>)}</tbody></table></div> : <SinDatos>Todavía no creaste códigos.</SinDatos>}
-      </div>
+      <Sec t="Personas, pagos y códigos" id="contactos" />
+      <div className="pc-card"><p style={{ margin: 0 }}>{fmt(contactos.length)} personas registradas ({fmt(conEmail)} con email) · {fmt(promo?.codigos?.length ?? 0)} códigos de regalo creados. El detalle con nombre y apellido, los planes pagos y los códigos están en el sistema: <a className="pc-btn" href="https://sistema.devisebit.com/familia-mate">Abrir Familia Mate en el sistema</a></p></div>
 
       <Sec t="Webs · visitas y conversión" id="web" />
       <div className="pc-grid pc-g2">

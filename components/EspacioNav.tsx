@@ -99,6 +99,8 @@ function seccionesDe(espacio: Espacio, rol: string): Seccion[] {
         { t: "Catálogo", items: [
           { href: "/servicios", t: "Servicios", i: "paquete" },
           ...(edita ? [{ href: "/precios", t: "Precios", i: "etiqueta" }, { href: "/demos-admin", t: "Demos", i: "demo" }, { href: "/portal-admin", t: "Portal y accesos", i: "llave" }] : []),
+          // Productos propios: usuarios, pagos y códigos (pedido de Julio, 25/11/2026)
+          ...(gerente ? [{ href: "/familia-mate", t: "Familia Mate", i: "personas" }] : []),
         ] },
         { t: "Comunicación", items: edita ? [
           { href: "/email", t: "Envíos de email", i: "mail" },
