@@ -68,14 +68,16 @@ Categorías disponibles (id | tipo | nombre):
 ${cats}
 Personas: ${people || '—'}. Medios de pago: ${pagos || '—'}.
 Reglas:
-- Respondé SOLO un JSON: {"items":[{"tipo":"out"|"in","monto":number,"moneda":"ARS"|"USD","cat":"<id>","detalle":"texto corto","fecha":"YYYY-MM-DD","quien":"nombre o vacío","pago":"medio o vacío","cuotas":number}],"nota":"una línea en argentino si falta algo, o vacío"}
+- Respondé SOLO un JSON: {"items":[{"tipo":"out"|"in","monto":number,"moneda":"ARS"|"USD","cat":"<id>","detalle":"texto corto","fecha":"YYYY-MM-DD","quien":"nombre o vacío","pago":"medio o vacío","cuotas":number}],"nota":""}
 - "lucas" o "k" = miles (12 lucas = 12000). "palo" = millón. "verdes", "dólares", "USD" = moneda USD.
 - Elegí siempre el id de categoría más razonable de la lista. Gastos usan categorías de gasto; ingresos, de ingreso.
 - Fechas relativas ("ayer", "el lunes") → fecha concreta pasada. Si no dice, usá hoy.
 - "en 6 cuotas" → cuotas 6 (monto = total de la compra). Si no dice, cuotas 1.
 - "quien": solo si nombra a alguien de la lista o dice "yo" (dejá vacío). "pago": solo si lo dice ("con débito", "con la Visa" → el medio de la lista más parecido).
 - Ticket o factura: un solo item con el TOTAL y el comercio como detalle. Resumen de tarjeta: un item por consumo.
-- Nunca inventes montos. Si no hay ningún monto claro, devolvé items vacío y explicá en nota.`;
+- Nunca inventes montos. Si no hay ningún monto claro, devolvé items vacío y explicá en nota en una línea, en argentino.
+- "nota" va vacía siempre que haya al menos un item: no pidas datos que faltan (medio de pago, quién, detalle).
+- Electrodomésticos, muebles y arreglos de la casa van a la categoría de hogar/alquiler/varios más parecida.`;
   const content = [];
   if (image) content.push({ type: 'image_url', image_url: { url: image } });
   content.push({ type: 'text', text: text ? `Mensaje: ${text}` : 'Leé la imagen y cargá lo que corresponda.' });
