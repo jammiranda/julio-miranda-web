@@ -625,9 +625,15 @@ async function invite() {
   try {
     const { link } = await api('space?a=invite', { id: st.S.id });
     const txt = `Te invito a llevar las cuentas de “${st.S.name}” conmigo en MateCuentas: ${link}`;
-    const w = openModal('Invitar', `<p class="muted" style="margin:0 0 10px">Mandale este enlace. Cuando entre y cree su cuenta, se suma a este espacio. Si generás otro, el anterior deja de funcionar.</p>
+    const w = openModal('Invitar', `<form id="ivf" class="stack" style="margin-bottom:14px"><label class="f">Invitar por email (recomendado)<input class="in" type="email" name="email" placeholder="email de la persona" required></label><button class="btn block">Mandar invitación</button><div id="ive"></div>
+      <p class="muted" style="margin:0;font-size:.85rem">Le llega un mail con un botón. Entre como entre (con ese email, por el link o creando la cuenta después), queda adentro de este espacio.</p></form>
+      <p class="muted" style="margin:0 0 10px">O mandale este enlace por donde quieras:</p>
       <input class="in" readonly value="${esc(link)}" id="lk">
       <div style="display:grid;gap:8px;margin-top:12px"><a class="btn block" style="text-decoration:none;background:#25d366" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(txt)}">Enviar por WhatsApp</a><button class="btn ghost block" id="cp">Copiar enlace</button></div>`);
+    $('#ivf', w).onsubmit = async (ev) => { ev.preventDefault(); const em = ev.target.email.value; const b = $('#ivf button', w); b.disabled = true;
+      try { const r = await api('space?a=invitemail', { id: st.S.id, email: em }); $('#ive', w).innerHTML = `<div class="ok">${r.mailed ? 'Listo: le mandamos la invitación a ' + esc(em) + '.' : 'Quedó invitada/o: cuando entre con ' + esc(em) + ' se suma sola/o. (El mail no salió; pasale también el enlace.)'}</div>`; ev.target.reset(); }
+      catch (e) { $('#ive', w).innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+      b.disabled = false; };
     $('#cp', w).onclick = async () => { try { await navigator.clipboard.writeText(link); toast('Enlace copiado'); } catch (e) { $('#lk', w).select(); document.execCommand('copy'); toast('Enlace copiado'); } };
   } catch (e) { toast(e.message, 4000); }
 }

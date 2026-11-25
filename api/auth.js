@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import { sendMail, mailOn } from './_mail.js';
+import { joinPending } from './_invites.js';
 import {
   APP, readJ, writeJ, mutate, delJ, userPath, idxPath, spacePath, resetPath, normEmail, okEmail, hashPass, checkPass,
   setSession, clearSession, currentUser, publicUser, body, str, send, guard, fail, rid, sleep, sha,
@@ -13,23 +15,6 @@ async function spacesSummary(u) {
     }
   }
   return out;
-}
-
-// Los mails salen por el sistema de DEVISEBIT (que tiene los proveedores configurados); Resend directo como respaldo.
-export const mailOn = () => !!((process.env.FAMILIA_MAIL_URL && process.env.FAMILIA_MAIL_KEY) || process.env.RESEND_API_KEY);
-async function sendMail(to, subject, html) {
-  if (process.env.FAMILIA_MAIL_URL && process.env.FAMILIA_MAIL_KEY) {
-    const r = await fetch(process.env.FAMILIA_MAIL_URL, { method: 'POST', headers: { 'content-type': 'application/json', 'x-familia-key': process.env.FAMILIA_MAIL_KEY },
-      body: JSON.stringify({ app: 'matecuentas', email: to, asunto: subject, html }) }).catch(() => null);
-    if (r && r.ok) return true;
-  }
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return false;
-  const r = await fetch('https://api.resend.com/emails', {
-    method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.MAIL_FROM || `${APP.name} <no-reply@devisebit.com>`, to: [to], subject, html }),
-  });
-  return r.ok;
 }
 
 // Código de 6 números por email: sirve para entrar sin contraseña y para recuperar la cuenta.
@@ -73,7 +58,8 @@ export default guard(async (req, res) => {
   if (req.method === 'GET' && a === 'me') {
     const u = await currentUser(req);
     if (!u) return send(res, 401, { error: 'sesion' });
-    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
+    const u2 = await joinPending(u).catch(() => u);
+    return send(res, 200, { user: publicUser(u2), spaces: await spacesSummary(u2) });
   }
   if (req.method !== 'POST') return send(res, 405, { error: 'metodo' });
 
@@ -96,7 +82,8 @@ export default guard(async (req, res) => {
     catch (e) { if (/exists/i.test(String(e.message))) throw fail(409, 'Ya hay una cuenta con ese email. Probá ingresar.'); throw e; }
     await writeJ(idxPath(id), { email }, null, null);
     setSession(res, user);
-    return send(res, 200, { user: publicUser(user), spaces: [] });
+    const u2 = await joinPending(user).catch(() => user);
+    return send(res, 200, { user: publicUser(u2), spaces: await spacesSummary(u2) });
   }
 
   if (a === 'login') {
@@ -110,7 +97,8 @@ export default guard(async (req, res) => {
     }
     if (u.fails) await mutate(userPath(email), (d) => { d.fails = 0; d.lockUntil = 0; }).catch(() => {});
     setSession(res, u);
-    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
+    const u2 = await joinPending(u).catch(() => u);
+    return send(res, 200, { user: publicUser(u2), spaces: await spacesSummary(u2) });
   }
 
   if (a === 'logout') { clearSession(res); return send(res, 200, { ok: true }); }
@@ -155,7 +143,8 @@ export default guard(async (req, res) => {
     const { data: u } = await mutate(userPath(email), (d) => { d.fails = 0; d.lockUntil = 0; d.otpAt = Date.now(); });
     if (!u) throw fail(400, 'La cuenta ya no existe.');
     setSession(res, u);
-    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
+    const u2 = await joinPending(u).catch(() => u);
+    return send(res, 200, { user: publicUser(u2), spaces: await spacesSummary(u2) });
   }
 
   if (a === 'reset') {

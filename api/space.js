@@ -3,6 +3,8 @@ import {
   body, str, send, guard, fail, rid, APP,
 } from './_core.js';
 import { TEMPLATES } from './_tpl.js';
+import { addPending } from './_invites.js';
+import { sendMail } from './_mail.js';
 
 const COLS = {
   movs: ['fecha', 'tipo', 'cat', 'monto', 'moneda', 'usd', 'rate', 'quien', 'pago', 'detalle', 'grp', 'cuota', 'fijo', 'ts', 'by'],
@@ -177,6 +179,20 @@ export default guard(async (req, res) => {
     await mutate(spacePath(id), (s) => { s.invite = code; });
     if (old) await delJ(invPath(old));
     return send(res, 200, { link: APP.url + '/app#join=' + code });
+  }
+
+  // Invitar por email: le llega un mail y, entre como entre (link, código o cuenta nueva), queda adentro del espacio
+  if (a === 'invitemail') {
+    if (!isOwner) throw fail(403, 'Solo quien creó el espacio puede invitar.');
+    const email = String(b.email || '').trim().toLowerCase().slice(0, 160);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) throw fail(400, 'Revisá el email.');
+    let code = cur.invite;
+    if (!code) { code = rid(9); await writeJ(invPath(code), { space: id, by: me.name, ts: Date.now() }, null, null); await mutate(spacePath(id), (s) => { s.invite = code; }); }
+    await addPending(email, id, me.name);
+    const link = APP.url + '/app#join=' + code;
+    const html = `<!doctype html><html><body style="margin:0;background:#f3f1ea;padding:24px 12px;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#14231a"><table role="presentation" width="100%"><tr><td align="center"><table role="presentation" width="100%" style="max-width:460px;background:#fff;border-radius:22px;overflow:hidden"><tr><td style="background:#2f7d4f;padding:22px 24px"><img src="${APP.url}/icon-192.png" width="40" height="40" alt="" style="vertical-align:middle;border-radius:10px"><span style="font:800 22px Arial,sans-serif;color:#fff;vertical-align:middle;margin-left:10px">MateCuentas</span></td></tr><tr><td style="padding:26px 24px 8px"><p style="margin:0 0 8px;font-size:20px;font-weight:800">${me.name.replace(/[<>]/g, '')} te invitó a "${String(cur.name).replace(/[<>]/g, '')}"</p><p style="margin:0;color:#5b6a60;font-size:15px">Es el espacio donde llevan juntos las cuentas: cada uno carga lo suyo (por audio, foto del ticket o WhatsApp) y los dos ven lo mismo.</p></td></tr><tr><td style="padding:22px 24px" align="center"><a href="${link}" style="display:inline-block;background:#2f7d4f;color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 28px;border-radius:14px">Entrar a MateCuentas</a></td></tr><tr><td style="padding:0 24px 24px;color:#7a857e;font-size:13px">Entrás con este email (${email}): no hace falta contraseña, te mandamos un código. 🧉</td></tr></table></td></tr></table></body></html>`;
+    const mailed = await sendMail(email, `${me.name} te invitó a MateCuentas`, html).catch(() => false);
+    return send(res, 200, { ok: true, mailed, link });
   }
 
   if (a === 'linkcode') {
