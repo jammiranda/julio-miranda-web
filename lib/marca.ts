@@ -40,11 +40,11 @@ export const SOLUCIONES = [
 
 /** Producto → solución (landing) donde se ve con precio. */
 export const SOLUCION_DE_PRODUCTO: Record<string, (typeof SOLUCIONES)[number]["id"]> = {
-  clinicas: "sistemas", whatsapp: "whatsapp", crm: "sistemas", tableros: "sistemas",
+  clinicas: "sistemas", domiciliaria: "sistemas", whatsapp: "whatsapp", crm: "sistemas", tableros: "sistemas",
   app: "comunidad", academias: "comunidad", votacion: "comunidad", documental: "sistemas",
 }
 export const NOMBRE_PRODUCTO: Record<string, string> = {
-  clinicas: "Sistema para clínicas", whatsapp: "Asistente de WhatsApp con IA", crm: "CRM de afiliados y prestadores", tableros: "Tableros de control",
+  clinicas: "Sistema para clínicas", domiciliaria: "Salud Digital · Atención domiciliaria", whatsapp: "Asistente de WhatsApp con IA", crm: "CRM de afiliados y prestadores", tableros: "Tableros de control",
   app: "App y credencial digital", academias: "Academias online", votacion: "Votación y control de acceso", documental: "Gestor documental con firma digital",
 }
 

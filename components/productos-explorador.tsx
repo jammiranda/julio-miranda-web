@@ -16,7 +16,7 @@ export type ProductoFicha = {
   prueba: string
   planes?: string
   demo?: string
-  vista: "clinicas" | "whatsapp" | "crm" | "tableros" | "app" | "academias" | "votacion" | "documental"
+  vista: "domicilio" | "clinicas" | "whatsapp" | "crm" | "tableros" | "app" | "academias" | "votacion" | "documental"
 }
 
 const ventana = "rounded-2xl border border-[#262C37] bg-[#11151C] overflow-hidden shadow-[0_30px_80px_-40px_rgba(200,35,31,.55)]"
@@ -48,6 +48,25 @@ function Vista({ v }: { v: ProductoFicha["vista"] }) {
           <div className="grid grid-cols-3 gap-2 pt-3 mt-1 border-t border-white/10">
             {[["312", "consultas"], ["74%", "resueltas solas"], ["58", "turnos"]].map(([n, l]) => (
               <div key={l} className="rounded-lg bg-[#161A22] border border-[#262C37] p-2.5"><strong className="block font-tight text-xl">{n}</strong><span className="text-[11px] text-[#9AA1AD]">{l}</span></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  if (v === "domicilio")
+    return (
+      <div className={ventana}>
+        <Barra t="Visitas de hoy · Zona Norte" />
+        <div className="p-4 flex flex-col gap-2 text-white text-[13px]">
+          {[["09:00", "Gómez, Rosa", "Enfermería · curación", "ok", "Realizada"], ["10:30", "Sosa, Héctor", "Kinesiología motora", "ok", "Realizada"], ["12:00", "Luna, Marta", "Visita médica", "warn", "En camino"], ["15:00", "Díaz, Jorge", "Enfermería · signos vitales", "warn", "Programada"]].map(([h, p, t, c, l]) => (
+            <div key={h} className="rounded-lg bg-[#161A22] border border-[#262C37] px-3 py-2.5 flex items-center justify-between gap-3">
+              <span className="flex items-center gap-3 min-w-0"><span className="font-mono text-[#8A919C]">{h}</span><span className="min-w-0"><strong className="block truncate">{p}</strong><span className="block text-[12px] text-[#9AA1AD] truncate">{t}</span></span></span>
+              <Pill c={c as "ok" | "warn"} t={l} />
+            </div>
+          ))}
+          <div className="grid grid-cols-3 gap-2 pt-1">
+            {[["36", "pacientes"], ["390", "visitas del mes"], ["91%", "registradas"]].map(([n, l]) => (
+              <div key={l} className="rounded-lg bg-[#161A22] border border-[#262C37] p-2.5"><strong className="block font-tight text-lg">{n}</strong><span className="text-[11px] text-[#9AA1AD]">{l}</span></div>
             ))}
           </div>
         </div>

@@ -30,9 +30,9 @@ const DESTACADOS = [
   {
     img: "/images/case-salud-digital-panel.webp",
     tag: "Salud Digital · marca blanca",
-    title: "Salud Digital: el panel de gestión para salud",
-    reto: "Ordenar pacientes, agenda, profesionales, órdenes, historia clínica y facturación de una operación de salud que no para.",
-    hicimos: "Un sistema en producción todos los días que hoy ofrecemos con la marca de cada institución: clínicas, consultorios, centros de día, residencias y prestadores a domicilio.",
+    title: "Salud Digital · Atención domiciliaria",
+    reto: "Ordenar pacientes, órdenes, visitas, profesionales, historia clínica y facturación de una operación de salud en domicilio que no para.",
+    hicimos: "Un sistema en producción todos los días que hoy ofrecemos con la marca de cada prestador: internación domiciliaria, enfermería y kinesiología a domicilio, cuidados paliativos y cuidadores.",
     cifras: [["24/7", "en producción"], ["Tu marca", "por abono mensual"]],
   },
 ]
