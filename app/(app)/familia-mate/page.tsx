@@ -73,6 +73,22 @@ export default async function FamiliaMateSistema() {
         <p className="m-0 text-xs text-[#4A515C]">Para mandar novedades por email usá solo a quienes dicen "Sí". MateBot pide el email al registrarse; MateCuentas lo tiene siempre.</p>
       </section>
 
+      <section className="card flex flex-col gap-3" id="invitaciones">
+        <strong>Invitaciones · ¿entraron? ¿lo están usando?</strong>
+        {(() => {
+          const inv = ((mc?.invitaciones ?? []) as any[])
+          const codigos = (promo?.codigos ?? []).filter((c) => c.nota || c.canjes.length)
+          return (<>
+            <span className="text-sm text-[#4A515C]">MateCuentas: {inv.length} invitaciones · {inv.filter((x) => x.joinedAt).length} entraron · {inv.filter((x) => x.estado === "Lo está usando").length} lo están usando</span>
+            {inv.length ? <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-left"><th>Invitada/o</th><th>Espacio</th><th>Invitó</th><th>Enviada</th><th>Entró</th><th>Última carga</th><th>Estado</th></tr></thead>
+              <tbody>{inv.map((x, i) => <tr key={i} className="border-t border-[#E6E8EC]"><td>{x.email || "Por link"}</td><td>{x.spaceName || "—"}</td><td>{x.by || "—"}</td><td>{f(x.sentAt)}</td><td>{f(x.joinedAt)}</td><td>{f(x.ultimaCarga)}</td>
+                <td><b style={{ color: x.estado === "Lo está usando" ? "#1E8E3E" : x.joinedAt ? "#B26A00" : "#4A515C" }}>{x.estado}</b></td></tr>)}</tbody></table></div>
+              : <p className="m-0 text-sm">Todavía no hay invitaciones por email. Se registran desde MateCuentas → Invitar → "Invitar por email".</p>}
+            <span className="text-sm text-[#4A515C] mt-2">Códigos de regalo entregados: {codigos.filter((c) => c.canjes.length).length} usados de {promo?.codigos?.length ?? 0}. El detalle de quién usó cada uno está más abajo, en Códigos de regalo.</span>
+          </>)
+        })()}
+      </section>
+
       <section className="card flex flex-col gap-3">
         <strong>Planes pagos y regalados · {pagos.length}</strong>
         {!pagos.length ? <p className="m-0 text-sm">Nadie tiene un plan pago todavía.</p> : (
