@@ -15,6 +15,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(r, { headers: { "access-control-allow-origin": "*" } })
   }
   if (req.nextUrl.searchParams.get("estado") === "suscripciones") return NextResponse.json(await estadoSuscripciones().catch(() => ({ error: true })))
+  // MateBot Plus: avisamos a MateBot, que vuelve a consultar por el puente /api/matebot/mp (no se reenvía ningún dato)
+  if (id && process.env.MATEBOT_MP_KEY && ["subscription_preapproval", "preapproval", "subscription_authorized_payment", "authorized_payment"].includes(String(tipo))) {
+    await fetch("https://matebot.devisebit.com/api/mp", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-matebot-key": process.env.MATEBOT_MP_KEY },
+      body: JSON.stringify({ type: tipo, data: { id: String(id) } }),
+      signal: AbortSignal.timeout(8000),
+    }).catch(() => {})
+  }
   // Suscripciones (Web por Suscripción): altas, cancelaciones y cobros mensuales
   if (id && process.env.MP_ACCESS_TOKEN && (tipo === "subscription_preapproval" || tipo === "preapproval")) {
     await avisoSuscripcion(String(id)).catch((e) => console.error("mp suscripcion", e))
