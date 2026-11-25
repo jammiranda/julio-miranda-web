@@ -58,6 +58,17 @@ export const VIDEOS = [
 
 export const GRUPOS: GrupoMaterial[] = [
   {
+    t: "Familia Mate · reels y guías",
+    d: "Los reels “cómo funciona” (verticales, con música, para redes) y las guías rápidas en PDF de MateBot, MateCuentas, MateTurnos y MateEventos, más el reel de toda la familia. Son los mismos archivos que se ven en cada landing.",
+    items: [
+      { k: "mate-reel-familia", titulo: "Reel · Toda la familia Mate", detalle: "MP4 vertical · 23 s", url: "https://matebot.devisebit.com/reels/como-funciona-familia.mp4", tipo: "video" as const, marca: "devisebit" as const },
+      ...[["matebot", "MateBot"], ["matecuentas", "MateCuentas"], ["mateturnos", "MateTurnos"], ["mateeventos", "MateEventos"]].flatMap(([k, n]) => [
+        { k: `mate-reel-${k}`, titulo: `Reel · Cómo funciona ${n}`, detalle: "MP4 vertical · 22 s", url: `https://matebot.devisebit.com/reels/como-funciona-${k}.mp4`, tipo: "video" as const, marca: "devisebit" as const },
+        { k: `mate-guia-${k}`, titulo: `Guía rápida · ${n}`, detalle: "PDF · 2 páginas", url: `https://matebot.devisebit.com/guias/Guia-${n}.pdf`, tipo: "pdf" as const, marca: "devisebit" as const },
+      ]),
+    ],
+  },
+  {
     t: "Asesoría y consultoría",
     d: "Formatos y valores de la asesoría en tecnología e IA: horas, bolsas, abonos, plan anual y licencias. Con precios: para clientes interesados.",
     items: [{ k: "asesoria-pdf", titulo: "Asesoría y consultoría en tecnología e IA", detalle: "PDF · valores vigentes al 1/11/2026", url: PDF_ASESORIA, tipo: "pdf", marca: "devisebit" }],
