@@ -5,6 +5,15 @@ import { Footer } from "@/components/footer"
 import { publicados } from "@/lib/posts"
 
 export const revalidate = 3600
+
+// Enlaces dentro del texto de la nota: [texto](https://...)
+function conLinks(t: string) {
+  const partes = t.split(/(\[[^\]]+\]\(https?:\/\/[^)\s]+\))/g)
+  return partes.map((x, i) => {
+    const m = x.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/)
+    return m ? (<a key={i} href={m[2]} target="_blank" rel="noopener" className="font-semibold text-[#C8231F] underline hover:text-[#9E1A17]">{m[1]}</a>) : x
+  })
+}
 import NotaCta from "@/components/nota-cta"
 import { pageMeta, OG_IMAGE, SITE_URL, ORG_ID, breadcrumb } from "@/lib/seo"
 import { JsonLd } from "@/components/json-ld"
@@ -66,7 +75,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <div className="flex flex-col gap-5 text-lg leading-[1.75]">
             {p.body.map((t, i) => t.startsWith("## ")
               ? (<h2 key={i} className="m-0 mt-4 font-tight text-[26px] md:text-[30px] leading-tight font-extrabold">{t.slice(3)}</h2>)
-              : (<p key={i} className="m-0">{t}</p>))}
+              : (<p key={i} className="m-0">{conLinks(t)}</p>))}
           </div>
           {p.box && (
             <div className="mt-10 rounded-[20px] bg-[#0B0D12] text-white p-7">

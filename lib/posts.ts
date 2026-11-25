@@ -14,7 +14,7 @@ export const posts: Post[] = [
     "desc": "Empezó como un asistente que entendía audios. En pocos días sumó WhatsApp, fotos, familia y tres apps hermanas. Contamos cómo salió cada versión y qué aprendimos en el camino.",
     "body": [
       "## Empezar chico y publicar rápido",
-      "El 17 de noviembre publicamos MateBot: un asistente al que se le manda un audio y lo convierte en turnos, recordatorios, cumpleaños y listas. La primera versión funcionaba solo en Telegram y hacía pocas cosas. La decisión fue salir igual, con algo que ya resolviera un problema real, y dejar que el uso marcara lo que venía después.",
+      "El 17 de noviembre publicamos [MateBot](https://matebot.devisebit.com/?utm_source=blog&utm_medium=nota): un asistente al que se le manda un audio y lo convierte en turnos, recordatorios, cumpleaños y listas. La primera versión funcionaba solo en Telegram y hacía pocas cosas. La decisión fue salir igual, con algo que ya resolviera un problema real, y dejar que el uso marcara lo que venía después.",
       "## Versión a versión",
       "WhatsApp. La mayoría de la gente no quería abrir otra aplicación. Conectamos el mismo asistente al canal oficial de WhatsApp, y desde el 24 de noviembre tiene su número definitivo. Hoy es el mismo MateBot en los dos chats.",
       "Fotos y PDF. Un día después del lanzamiento, MateBot empezó a leer imágenes: la foto de una orden médica, una invitación o una lista escrita a mano se convierten en eventos y listas, igual que un audio.",
@@ -22,9 +22,9 @@ export const posts: Post[] = [
       "Familia. Cada integrante usa su propio chat y su número; comparten la lista del súper, los cumpleaños y lo que digan «para la familia». La invitación es un link que se reenvía y se acepta con un toque.",
       "Un plan pago opcional. El plan gratis quedó amplio y sin vencimiento. Para quien necesita más, sumamos MateBot Plus, con cobro por Mercado Pago.",
       "## Cuando un producto pide otro",
-      "Con el asistente en uso aparecieron pedidos que no eran de agenda. «¿Puedo anotarle lo que gasto?» fue el primero: así se conectó con MateCuentas, la app para ordenar los gastos de la casa, que acepta audios, fotos de tickets o mensajes enviados desde el mismo chat.",
-      "Después llegaron los negocios que querían que sus clientes reservaran solos, y nació MateTurnos: una página de reservas con recordatorios por WhatsApp, donde el cliente puede cambiar o cancelar su turno desde un link. Y para quienes organizan cumpleaños, casamientos o encuentros de trabajo, MateEventos: invitación online, confirmaciones, proveedores, plata, tareas y stock en un solo lugar.",
-      "Hoy las cuatro apps forman la Familia Mate. Comparten el ingreso por WhatsApp, usan inteligencia artificial para ahorrar carga manual y cada una se puede usar sola.",
+      "Con el asistente en uso aparecieron pedidos que no eran de agenda. «¿Puedo anotarle lo que gasto?» fue el primero: así se conectó con [MateCuentas](https://matecuentas.devisebit.com/?utm_source=blog&utm_medium=nota), la app para ordenar los gastos de la casa, que acepta audios, fotos de tickets o mensajes enviados desde el mismo chat.",
+      "Después llegaron los negocios que querían que sus clientes reservaran solos, y nació [MateTurnos](https://mateturnos.devisebit.com/?utm_source=blog&utm_medium=nota): una página de reservas con recordatorios por WhatsApp, donde el cliente puede cambiar o cancelar su turno desde un link. Y para quienes organizan cumpleaños, casamientos o encuentros de trabajo, [MateEventos](https://mateeventos.devisebit.com/?utm_source=blog&utm_medium=nota): invitación online, confirmaciones, proveedores, plata, tareas y stock en un solo lugar.",
+      "Hoy las cuatro apps forman la [Familia Mate](https://familiamate.devisebit.com/?utm_source=blog&utm_medium=nota). Comparten el ingreso por WhatsApp, usan inteligencia artificial para ahorrar carga manual y cada una se puede usar sola.",
       "## Lo que aprendimos",
       "Probar como lo haría un cliente. Varios errores no estaban en el código sino en el recorrido: un mensaje de WhatsApp que llegaba con símbolos raros, una pantalla que no se entendía. Hoy cada flujo se prueba completo, de punta a punta, antes de darlo por terminado.",
       "El diseño también es producto. Rehicimos identidades, tipografías y hasta el logo de la familia más de una vez. Que algo funcione no alcanza si no se lee bien o no transmite confianza.",
@@ -75,15 +75,16 @@ export const posts: Post[] = [
     "desc": "Anotar cada gasto es lo que hace fracasar a casi todos los presupuestos familiares. MateCuentas lo resuelve con un audio, la foto del ticket o un mensaje.",
     "body": [
       "## El problema no es el presupuesto, es cargarlo",
-      "Casi todos intentamos alguna vez llevar los gastos en una planilla. Suele durar pocas semanas: hay que acordarse, abrir el archivo y tipear cada compra. MateCuentas parte de otra idea: cargar un gasto tiene que llevar menos tiempo que pagarlo.",
+      "Casi todos intentamos alguna vez llevar los gastos en una planilla. Suele durar pocas semanas: hay que acordarse, abrir el archivo y tipear cada compra. [MateCuentas](https://matecuentas.devisebit.com/?utm_source=blog&utm_medium=nota) parte de otra idea: cargar un gasto tiene que llevar menos tiempo que pagarlo.",
       "## Tres formas de anotar",
-      "Por audio: «gasté doce mil en la verdulería» alcanza. Por foto: se saca una foto al ticket y la inteligencia artificial lee el comercio, el monto y la fecha. Por chat: quien usa MateBot puede anotar el gasto desde la misma conversación de WhatsApp o Telegram, sin abrir nada más.",
+      "Por audio: «gasté doce mil en la verdulería» alcanza. Por foto: se saca una foto al ticket y la inteligencia artificial lee el comercio, el monto y la fecha. Por chat: quien usa [MateBot](https://matebot.devisebit.com/?utm_source=blog&utm_medium=nota) puede anotar el gasto desde la misma conversación de WhatsApp o Telegram, sin abrir nada más.",
       "## Lo previsto al lado de lo gastado",
       "Cada categoría puede tener un monto previsto para el mes. En la pantalla de inicio se ve cuánto se lleva gastado, cuánto se había calculado y cuánto queda, o por cuánto se pasó. Sirve tanto para el supermercado como para la tarjeta o los gastos de los chicos.",
       "La app también contempla gastos fijos, cuotas, montos en dólares y una proyección de los meses siguientes, para saber con tiempo cómo viene el año.",
       "## Pensada para compartir",
       "Se puede usar en pareja o en familia: cada uno carga lo suyo y todos ven el mismo panorama. Y como a veces se abre con gente al lado, los totales se pueden ocultar con un toque, igual que en la app de un banco.",
       "Funciona desde el navegador y se puede instalar en la pantalla de inicio del celular para tenerla como una aplicación más.",
+      "Probala en [matecuentas.devisebit.com](https://matecuentas.devisebit.com/?utm_source=blog&utm_medium=nota). Si además querés ordenar la agenda, mirá [MateBot](https://matebot.devisebit.com/?utm_source=blog&utm_medium=nota); y la historia completa está en [cómo creció la Familia Mate](https://www.devisebit.com/novedades/familia-mate-como-crecio-version-a-version).",
       "Qué significa para tu empresa: la misma lógica vale para un negocio. Cuando cargar un dato cuesta un audio o una foto, la información aparece, y con información se decide mejor. Es el tipo de solución que desarrollamos en DEVISEBIT: tecnología que se adapta a cómo trabaja la gente y no al revés."
     ],
     "box": [
@@ -119,12 +120,13 @@ export const posts: Post[] = [
       "## El turno por mensaje tiene un costo",
       "Peluquerías, consultorios, estudios, talleres y profesionales independientes comparten la misma rutina: el cliente escribe, alguien revisa la agenda, propone un horario y espera la respuesta. Cada turno son varios mensajes, y muchos llegan fuera de hora.",
       "## Una página de reservas propia",
-      "MateTurnos le da a cada negocio un link para compartir en WhatsApp, Instagram o donde quiera. El cliente entra, elige el servicio, ve los horarios libres y reserva en un minuto. La agenda se arma con ayuda de inteligencia artificial: se describen los servicios y los días de atención, y queda lista.",
+      "[MateTurnos](https://mateturnos.devisebit.com/?utm_source=blog&utm_medium=nota) le da a cada negocio un link para compartir en WhatsApp, Instagram o donde quiera. El cliente entra, elige el servicio, ve los horarios libres y reserva en un minuto. La agenda se arma con ayuda de inteligencia artificial: se describen los servicios y los días de atención, y queda lista.",
       "## Recordatorios y cambios sin llamadas",
       "Al reservar, el cliente recibe la confirmación por WhatsApp con un link propio. Desde ahí puede cambiar el horario o cancelar, y el negocio se entera al instante. El turno liberado vuelve a quedar disponible para otra persona.",
       "## El panel del negocio",
       "Quien atiende ve los turnos del día, puede moverlos, cargar reservas tomadas por teléfono y marcar si cada cliente vino o no. Con el tiempo, el panel muestra la lista de clientes y los números que importan: cuántos turnos hubo, cuántas ausencias y cuántos cambios.",
       "Se usa desde el celular, se puede instalar en la pantalla de inicio y tiene un plan gratuito para empezar.",
+      "Armá tu agenda en [mateturnos.devisebit.com](https://mateturnos.devisebit.com/?utm_source=blog&utm_medium=nota). Conocé también el resto de la [Familia Mate](https://familiamate.devisebit.com/?utm_source=blog&utm_medium=nota) y la nota sobre [recordatorios de turnos por WhatsApp](https://www.devisebit.com/novedades/recordatorios-de-turnos-por-whatsapp).",
       "Qué significa para tu empresa: una agenda online es una persona menos pendiente del teléfono. Y cuando hace falta algo más específico, como varios profesionales, sucursales o integración con otros sistemas, en DEVISEBIT lo desarrollamos a medida sobre la misma base."
     ],
     "box": [
@@ -158,7 +160,7 @@ export const posts: Post[] = [
     "desc": "Un cumpleaños, un casamiento o un encuentro de empresa se organizan entre chats, planillas y notas sueltas. MateEventos junta todo: invitados, confirmaciones, proveedores, plata y stock.",
     "body": [
       "## Un evento son muchas listas a la vez",
-      "Quién viene y quién no contestó. Cuánto se le debe al salón. Qué falta comprar. Quién se ocupa de la música. La información existe, pero repartida entre conversaciones y papeles. MateEventos la reúne en un tablero.",
+      "Quién viene y quién no contestó. Cuánto se le debe al salón. Qué falta comprar. Quién se ocupa de la música. La información existe, pero repartida entre conversaciones y papeles. [MateEventos](https://mateeventos.devisebit.com/?utm_source=blog&utm_medium=nota) la reúne en un tablero.",
       "## Invitación online con seguimiento",
       "Cada evento tiene su invitación, que se envía por WhatsApp desde la propia cuenta. Puede ser personal: cada invitado recibe su link, la app registra si la abrió y guarda su confirmación. Así se sabe a quién conviene recordárselo sin revisar chat por chat.",
       "## Proveedores, plata y tareas",
@@ -166,6 +168,7 @@ export const posts: Post[] = [
       "## Stock que pasa de un evento a otro",
       "Quien organiza más de un evento suele reutilizar cosas: bebida que sobró, mesas, sillas, vajilla. MateEventos lleva un stock de la cuenta, compartido entre eventos, con el detalle de cada movimiento: qué entró, qué se usó en cada fecha, qué volvió y qué se perdió. Si un evento fue con catering y otro con bebida propia, queda registrado.",
       "La cuenta guarda además los contactos, para invitar a las mismas personas a un próximo evento sin volver a cargarlas. Hay un plan gratuito para empezar, opciones pagas y versiones a medida para salones y organizadores.",
+      "Creá tu primer evento en [mateeventos.devisebit.com](https://mateeventos.devisebit.com/?utm_source=blog&utm_medium=nota). Si tu negocio trabaja con reservas, mirá [MateTurnos](https://mateturnos.devisebit.com/?utm_source=blog&utm_medium=nota); las cuatro apps están en [familiamate.devisebit.com](https://familiamate.devisebit.com/?utm_source=blog&utm_medium=nota).",
       "Qué significa para tu empresa: para un salón, una productora o un área de eventos, la trazabilidad es lo que separa una planilla de un sistema. En DEVISEBIT adaptamos esta base a cada operación."
     ],
     "box": [
