@@ -9,7 +9,7 @@ const DUR: [number, string][] = [[30, "1 mes"], [90, "3 meses"], [180, "6 meses"
 const durTxt = (d: number) => (d >= 3650 ? "Sin límite" : DUR.find(([n]) => n === d)?.[1] ?? `${d} días`)
 const f = (d?: string | null) => (d ? new Date(d).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "short", year: "numeric" }) : "—")
 const link = (c: string) => `https://matebot.devisebit.com/codigo?c=${c}`
-const msj = (c: string, prod: string) => `¡Hola! Te regalo ${prod} 🎁 Entrá acá y se activa solo: ${link(c)} (tu código es ${c})`
+const msj = (c: string, prod: string) => `¡Hola! Te regalo ${prod}. Entrá acá y se activa solo: ${link(c)} (tu código es ${c})`
 const COLOR: Record<string, string> = { todos: "#0E1116", matebot: "#C8231F", cuentas: "#1F7A4D", turnos: "#0B5D6B", eventos: "#6D28D9" }
 const estado = (c: Codigo) => (c.usos >= c.usos_max ? ["Usado", "#F1F2F4", "#4A515C"] : c.usos ? ["En uso", "#FEF3C7", "#92400E"] : ["Libre", "#DCFCE7", "#166534"])
 
