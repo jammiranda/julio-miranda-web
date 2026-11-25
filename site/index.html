@@ -101,6 +101,7 @@ p.s{color:var(--muted);font-size:1.1rem;max-width:42rem;margin:0 0 30px}
 .mb{background:#08080a;color:#f4f4f5;border-radius:36px;margin:0 12px;position:relative;overflow:hidden}
 .mb::before{content:"";position:absolute;inset:0;background:radial-gradient(50% 50% at 80% 10%,rgba(227,6,19,.25),transparent 70%)}
 .mb .wrap{position:relative}
+.mb.mini{padding:48px 0;margin:0 12px 10px}.mb.mini h2.s{font-size:clamp(1.6rem,3.4vw,2.3rem)}.mb.mini .chat{max-width:400px;justify-self:center;width:100%}
 .mb .kicker{color:var(--red2)}.mb p.s{color:#b4b4bc}
 .mgrid{display:grid;gap:26px;align-items:center}
 @media(min-width:900px){.mgrid{grid-template-columns:1fr 1fr}}
@@ -198,7 +199,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
 <body>
 <nav class="top"><div class="wrap">
   <a class="logo" href="/"><img src="/icon.svg" alt=""><span>MateCuentas<small>familia Mate · by DEVISEBIT</small></span></a>
-  <div class="nl"><a href="#formas">Cómo se carga</a><a href="#matebot">MateBot</a><a href="#tablero">Tablero</a><a href="#instalar">Instalar</a><a href="#precios">Precios</a></div>
+  <div class="nl"><a href="#formas">Cómo se carga</a><a href="#tablero">Tablero</a><a href="#instalar">Instalar</a><a href="#precios">Precios</a></div>
   <a class="btn sm ghost" href="/app">Ingresar</a>
 </div></nav>
 
@@ -207,7 +208,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
     <span class="eyebrow"><img src="/matebot.svg" alt="">De la familia de MateBot · Gratis</span>
     <h1>Las cuentas de tu casa, <em>entre todos.</em></h1>
     <p class="lead">Como una ronda de mate: cada uno carga lo suyo y todos ven lo mismo. Contale tus gastos <b>por audio, con una foto del ticket o por WhatsApp</b> y MateCuentas los ordena solo.</p>
-    <div class="ctas"><a class="btn" href="/app#signup" data-acc="registro">Empezar gratis</a><a class="btn ghost" href="#matebot">🧉 Ver MateBot en acción</a></div>
+    <div class="ctas"><a class="btn" href="/app#signup" data-acc="registro">Empezar gratis</a><a class="btn ghost" href="#formas">Ver cómo se carga</a></div>
     <p class="fine">Sin tarjeta · Sin publicidad · En el celu y en la compu</p>
   </div>
   <div class="stage" id="hero3d" aria-label="MateCuentas, un mate verde con una moneda en la bombilla, rodeado de monedas" role="img">
@@ -229,29 +230,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
   </div>
 </div></section>
 
-<section id="matebot" class="mb" style="padding:70px 0"><div class="wrap mgrid">
-  <div>
-    <div class="kicker" data-reveal>Se mete por la ventana 🧉</div>
-    <h2 class="s" data-reveal>MateBot anota por vos en WhatsApp</h2>
-    <p class="s" data-reveal>El mismo MateBot que te ordena turnos y recordatorios ahora lleva las cuentas. Conectás tu chat una vez y después le mandás audios, fotos o mensajes. Él los anota en MateCuentas y te confirma al toque.</p>
-    <div class="window" data-reveal>
-      <div class="stage" id="win3d" aria-label="MateBot, un mate rojo, entrando por la ventana" role="img"><img class="flat" src="/matebot.svg" alt=""></div>
-      <div class="cross"></div><div class="sill"></div>
-    </div>
-  </div>
-  <div class="chat" data-reveal id="chat">
-    <div class="hd"><img src="/matebot.svg" alt=""><div><b>MateBot</b><small>en línea</small></div></div>
-    <div class="msgs">
-      <div class="m me" data-step><div class="audio">▶ <span class="abars"><i style="height:8px"></i><i style="height:14px"></i><i style="height:6px"></i><i style="height:16px"></i><i style="height:10px"></i><i style="height:12px"></i><i style="height:5px"></i><i style="height:14px"></i><i style="height:9px"></i><i style="height:15px"></i></span> 0:04</div></div>
-      <div class="m bot" data-step>🎙️ <i>“gasté 12 lucas en el súper con débito”</i></div>
-      <div class="m bot" data-step>✅ Anotado en <b>Casa</b>:<br>🛒 $ 12.000 en Súper · débito</div>
-      <div class="m me" data-step>📸 Foto · ticket farmacia</div>
-      <div class="m bot" data-step>✅ 💊 $ 8.430 en Salud · Farmacia del Pueblo</div>
-      <div class="m me" data-step>¿Cuánto gastamos en el súper este mes?</div>
-      <div class="m bot" data-step>Van <b>$ 486.300</b> de $ 600.000 🎯<br>Te quedan $ 113.700 hasta fin de mes.</div>
-    </div>
-  </div>
-</div></section>
+
 
 <section id="tablero"><div class="wrap">
   <div class="kicker" data-reveal>Tus datos, claros</div>
@@ -321,6 +300,27 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
     </div>
   </div>
   <p class="fine">Pago mensual en pesos con Mercado Pago. Cancelás cuando quieras desde la app y seguís con Pro hasta el final del mes pagado.</p>
+</div></section>
+
+<section id="matebot" class="mb mini"><div class="wrap mgrid">
+  <div>
+    <div class="kicker" data-reveal>Extra opcional 🧉</div>
+    <h2 class="s" data-reveal>¿Usás MateBot? También anota tus gastos</h2>
+    <p class="s" data-reveal>Si ya tenés MateBot en WhatsApp, conectalo una vez desde Ajustes y mandale audios, fotos o mensajes: los anota en MateCuentas y te confirma al toque. No hace falta para usar MateCuentas.</p>
+    <p data-reveal style="margin:0"><a class="btn sm ghost" style="color:#fff;border-color:rgba(255,255,255,.3)" href="https://matebot.devisebit.com" data-acc="matebot">Conocer MateBot</a></p>
+  </div>
+  <div class="chat" data-reveal id="chat">
+    <div class="hd"><img src="/matebot.svg" alt=""><div><b>MateBot</b><small>en línea</small></div></div>
+    <div class="msgs">
+      <div class="m me" data-step><div class="audio">▶ <span class="abars"><i style="height:8px"></i><i style="height:14px"></i><i style="height:6px"></i><i style="height:16px"></i><i style="height:10px"></i><i style="height:12px"></i><i style="height:5px"></i><i style="height:14px"></i><i style="height:9px"></i><i style="height:15px"></i></span> 0:04</div></div>
+      <div class="m bot" data-step>🎙️ <i>“gasté 12 lucas en el súper con débito”</i></div>
+      <div class="m bot" data-step>✅ Anotado en <b>Casa</b>:<br>🛒 $ 12.000 en Súper · débito</div>
+      <div class="m me" data-step>📸 Foto · ticket farmacia</div>
+      <div class="m bot" data-step>✅ 💊 $ 8.430 en Salud · Farmacia del Pueblo</div>
+      <div class="m me" data-step>¿Cuánto gastamos en el súper este mes?</div>
+      <div class="m bot" data-step>Van <b>$ 486.300</b> de $ 600.000 🎯<br>Te quedan $ 113.700 hasta fin de mes.</div>
+    </div>
+  </div>
 </div></section>
 
 <section><div class="wrap">
