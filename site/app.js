@@ -719,8 +719,8 @@ function filasAMovs(rows) {
     monto = Math.abs(monto);
     const cn = sinAcento(iC >= 0 ? r[iC] : '');
     const pool = tipo === 'in' ? ins : outs;
-    const cat = (cn && (pool.find((c) => sinAcento(c.name) === cn) || pool.find((c) => sinAcento(c.name).includes(cn) || cn.includes(sinAcento(c.name))))) || otros(tipo);
-    const m = { fecha, tipo, cat: cat ? cat.id : '', monto, detalle: (iD >= 0 ? r[iD] : '') || (iC >= 0 ? r[iC] : ''), quien: iQ >= 0 ? r[iQ] : '', pago: iP >= 0 ? r[iP] : '' };
+    const cat = cn ? (pool.find((c) => sinAcento(c.name) === cn) || pool.find((c) => sinAcento(c.name).includes(cn) || cn.includes(sinAcento(c.name)))) : otros(tipo);
+    const m = { fecha, tipo, cat: cat ? cat.id : '', catNueva: cat ? '' : String(r[iC]).trim().slice(0, 40), monto, detalle: (iD >= 0 ? r[iD] : '') || (iC >= 0 ? r[iC] : ''), quien: iQ >= 0 ? r[iQ] : '', pago: iP >= 0 ? r[iP] : '' };
     const u = iU >= 0 ? parseMonto(r[iU]) : NaN; if (Number.isFinite(u) && u) { m.usd = Math.abs(u); }
     movs.push(m);
   }
@@ -738,18 +738,23 @@ function importar() {
   const prev = (txt) => {
     const rows = parseTabla(txt); res = rows.length ? filasAMovs(rows) : null;
     const meses = res ? [...new Set(res.movs.map((m) => m.fecha.slice(0, 7)))].sort() : [];
-    $('#impR', w).innerHTML = !res ? '' : res.movs.length ? `<div class="ok">Encontramos <b>${res.movs.length}</b> movimientos${meses.length ? ` (${meses.map(mName).join(', ')})` : ''}: ${fmt(sum(res.movs.filter((m) => m.tipo === 'out')))} de gastos y ${fmt(sum(res.movs.filter((m) => m.tipo === 'in')))} de ingresos.${res.malos.length ? ` ${res.malos.length} filas sin fecha o monto quedan afuera.` : ''}</div>` : '<div class="err">No encontramos filas con fecha y monto. Revisá que la primera fila tenga los títulos de las columnas.</div>';
+    const nuevas = res ? [...new Set(res.movs.filter((m) => m.catNueva).map((m) => m.catNueva))] : [];
+    $('#impR', w).innerHTML = !res ? '' : res.movs.length ? `<div class="ok">Encontramos <b>${res.movs.length}</b> movimientos${meses.length ? ` (${meses.map(mName).join(', ')})` : ''}: ${fmt(sum(res.movs.filter((m) => m.tipo === 'out')))} de gastos y ${fmt(sum(res.movs.filter((m) => m.tipo === 'in')))} de ingresos.${nuevas.length ? ` Se suman ${nuevas.length} categorías nuevas: ${esc(nuevas.join(', '))}.` : ''}${res.malos.length ? ` ${res.malos.length} filas sin fecha o monto quedan afuera.` : ''}</div>` : '<div class="err">No encontramos filas con fecha y monto. Revisá que la primera fila tenga los títulos de las columnas.</div>';
     $('#impGo', w).disabled = !(res && res.movs.length);
   };
   $('#impT', w).oninput = (e) => prev(e.target.value);
   $('#impF', w).onchange = async (e) => { const f = e.target.files[0]; if (f) { const t = await f.text(); $('#impT', w).value = t.slice(0, 200000); prev(t); } };
   $('#impGo', w).onclick = async () => {
     const b = $('#impGo', w); b.disabled = true;
-    const ops = res.movs.map((m) => ({ col: 'movs', action: 'add', data: { ...m, ts: Date.now() } }));
+    // categorías que no existen: se crean con el mismo nombre
+    const nuevas = {};
+    for (const m of res.movs) if (m.catNueva) { const k = m.tipo + '|' + sinAcento(m.catNueva); if (!nuevas[k]) nuevas[k] = { id: 'c' + Math.random().toString(36).slice(2, 9), tipo: m.tipo, name: m.catNueva }; m.cat = nuevas[k].id; }
+    const catOps = Object.values(nuevas).map((c, i) => ({ col: 'cats', action: 'add', id: c.id, data: { tipo: c.tipo, name: c.name, emoji: c.tipo === 'in' ? '💰' : '🏷️', order: 100 + i } }));
+    const ops = [...catOps, ...res.movs.map(({ catNueva, ...m }) => ({ col: 'movs', action: 'add', data: { ...m, ts: Date.now() } }))];
     try {
       let s;
       for (let i = 0; i < ops.length; i += 100) { b.textContent = `Importando ${Math.min(i + 100, ops.length)} de ${ops.length}…`; s = await api('space?a=ops', { id: st.S.id, ops: ops.slice(i, i + 100) }); }
-      st.S = s; closeModal(); render(); toast(`✅ Importamos ${ops.length} movimientos`, 3500);
+      st.S = s; closeModal(); render(); toast(`✅ Importamos ${res.movs.length} movimientos`, 3500);
     } catch (e) { b.disabled = false; b.textContent = 'Importar'; $('#impR', w).innerHTML = `<div class="err">${esc(e.message)}</div>`; }
   };
 }
