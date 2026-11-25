@@ -1068,3 +1068,23 @@ document.addEventListener('visibilitychange', async () => {
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 boot();
+
+// Plata con puntos de miles mientras se escribe (2.000.000), en todos los campos de montos.
+// Respeta la coma para decimales (USD) y deja el cursor en el mismo lugar.
+document.addEventListener('input', (e) => {
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement) || el.name === 'code' || !(el.id === 'amt' || el.id === 'pv' || el.dataset.plan !== undefined || (el.classList.contains('num') && /numeric|decimal/.test(el.inputMode || '')))) return;
+  let v = el.value; const pos = el.selectionStart ?? v.length;
+  // en montos con decimales, un punto recién tipeado se toma como coma decimal (teclados en inglés)
+  if (e.data === '.' && el.inputMode === 'decimal' && pos > 0 && v[pos - 1] === '.') v = v.slice(0, pos - 1) + ',' + v.slice(pos);
+  const derecha = v.slice(pos).replace(/[^\d,]/g, '').length; // dígitos a la derecha del cursor
+  let [ent, dec] = v.replace(/[^\d,]/g, '').split(',');
+  ent = (ent || '').replace(/^0+(?=\d)/, '');
+  let nuevo = ent.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  if (dec !== undefined && el.inputMode === 'decimal') nuevo += ',' + dec.slice(0, 2);
+  if (nuevo === v) return;
+  el.value = nuevo;
+  let i = nuevo.length, n = 0;
+  while (i > 0 && n < derecha) { i--; if (/[\d,]/.test(nuevo[i])) n++; }
+  try { el.setSelectionRange(i, i); } catch (x) { /* nada */ }
+});
