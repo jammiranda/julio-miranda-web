@@ -46,6 +46,19 @@ export default guard(async (req, res) => {
     return send(res, 200, { email: u.email, plan: u.plan, proUntil: u.proUntil });
   }
 
+  if (a === 'purgeqa' && req.method === 'POST') {
+    // Borra solo las cuentas de prueba internas (emails qa-…@devisebit.com) y sus espacios.
+    const { delJ, idxPath, spacePath } = await import('./_core.js');
+    const out = [];
+    for (const p of await listPaths('u/')) {
+      const { data: u } = await readJ(p);
+      if (!u || !/^qa-[\w-]+@devisebit\.com$/.test(u.email)) continue;
+      for (const sid of u.spaces || []) { const { data: s } = await readJ(spacePath(sid)); if (s && s.owner === u.id) await delJ(spacePath(sid)); }
+      await delJ(idxPath(u.id)); await delJ(p); out.push(u.email);
+    }
+    return send(res, 200, { borradas: out.length });
+  }
+
   if (a === 'resetlink' && req.method === 'POST') {
     const link = await makeResetLink(normEmail(b.email));
     if (!link) throw fail(404, 'usuario');
