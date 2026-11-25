@@ -3,7 +3,7 @@ import {
   body, str, send, guard, fail, rid, APP,
 } from './_core.js';
 import { TEMPLATES } from './_tpl.js';
-import { addPending } from './_invites.js';
+import { addPending, logInvite, logJoin } from './_invites.js';
 import { sendMail } from './_mail.js';
 
 const COLS = {
@@ -122,6 +122,7 @@ export default guard(async (req, res) => {
     if (!s) throw fail(404, 'El espacio ya no existe.');
     if (full) throw fail(402, `Este espacio llegó al límite de ${APP.free.members} personas del plan gratis. Quien lo creó puede pasarse a Pro para sumar más.`);
     await mutate(userPath(me.email), (u) => { u.spaces = [...new Set([...(u.spaces || []), s.id])]; });
+    await logJoin(me.email, s.id, me.id);
     return send(res, 200, { id: s.id, name: s.name });
   }
 
@@ -192,6 +193,7 @@ export default guard(async (req, res) => {
     const link = APP.url + '/app#join=' + code;
     const html = `<!doctype html><html><body style="margin:0;background:#f3f1ea;padding:24px 12px;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#14231a"><table role="presentation" width="100%"><tr><td align="center"><table role="presentation" width="100%" style="max-width:460px;background:#fff;border-radius:22px;overflow:hidden"><tr><td style="background:#2f7d4f;padding:22px 24px"><img src="${APP.url}/icon-192.png" width="40" height="40" alt="" style="vertical-align:middle;border-radius:10px"><span style="font:800 22px Arial,sans-serif;color:#fff;vertical-align:middle;margin-left:10px">MateCuentas</span></td></tr><tr><td style="padding:26px 24px 8px"><p style="margin:0 0 8px;font-size:20px;font-weight:800">${me.name.replace(/[<>]/g, '')} te invitó a "${String(cur.name).replace(/[<>]/g, '')}"</p><p style="margin:0;color:#5b6a60;font-size:15px">Es el espacio donde llevan juntos las cuentas: cada uno carga lo suyo (por audio, foto del ticket o WhatsApp) y los dos ven lo mismo.</p></td></tr><tr><td style="padding:22px 24px" align="center"><a href="${link}" style="display:inline-block;background:#2f7d4f;color:#fff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 28px;border-radius:14px">Entrar a MateCuentas</a></td></tr><tr><td style="padding:0 24px 24px;color:#7a857e;font-size:13px">Entrás con este email (${email}): no hace falta contraseña, te mandamos un código. 🧉</td></tr></table></td></tr></table></body></html>`;
     const mailed = await sendMail(email, `${me.name} te invitó a MateCuentas`, html).catch(() => false);
+    await logInvite({ email, space: id, spaceName: cur.name, by: me.name, byEmail: me.email, sentAt: Date.now(), mailed: !!mailed, via: 'email' });
     return send(res, 200, { ok: true, mailed, link });
   }
 

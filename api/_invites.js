@@ -27,7 +27,7 @@ export async function joinPending(user) {
         s.settings.people = [...new Set([...(s.settings.people || []), user.name])];
         s.updatedAt = Date.now();
       });
-      if (s && s.members.some((m) => m.uid === user.id)) joined.push(s.id);
+      if (s && s.members.some((m) => m.uid === user.id)) { joined.push(s.id); await logJoin(user.email, s.id, user.id); }
     } catch (e) { /* espacio borrado */ }
   }
   await delJ(pinvPath(user.email));
@@ -35,3 +35,18 @@ export async function joinPending(user) {
   const { data: u } = await mutate(userPath(user.email), (d) => { d.spaces = [...new Set([...(d.spaces || []), ...joined])]; });
   return u || user;
 }
+
+// Registro de invitaciones para el sistema: a quién se invitó, si entró y si lo está usando
+const LOG = 'invlog.json';
+export async function logInvite(row) {
+  await mutate(LOG, (d) => { d.list = (d.list || []).filter((x) => !(x.email === row.email && x.space === row.space)); d.list.push(row); d.list = d.list.slice(-2000); }, { create: () => ({ list: [] }) }).catch(() => {});
+}
+export async function logJoin(email, space, uid) {
+  await mutate(LOG, (d) => {
+    d.list = d.list || [];
+    let r = d.list.find((x) => x.space === space && (x.email === email || (!x.email && x.link)));
+    if (!r) { r = { email, space, by: '', sentAt: null, via: 'link' }; d.list.push(r); }
+    r.email = r.email || email; r.joinedAt = r.joinedAt || Date.now(); r.uid = uid;
+  }, { create: () => ({ list: [] }) }).catch(() => {});
+}
+export async function readInviteLog() { const { data } = await readJ(LOG); return (data && data.list) || []; }

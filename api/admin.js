@@ -52,7 +52,16 @@ export default guard(async (req, res) => {
       const ai = rows.reduce((x, u) => x + (u.aiUse && u.aiUse.m === mk ? u.aiUse.n : 0), 0);
       const contactos = rows.map((u) => ({ nombre: u.name || '', email: u.email, alta: u.created || null, optin: !!(u.optin && u.optin.ok), phone: (u.optin && u.optin.phone) || '',
         pro: u.plan === 'pro' && (!u.proUntil || u.proUntil > now), proUntil: u.proUntil || null, viaCodigo: !!(u.grant && u.grant.codigo), mp: !!(u.sub && u.sub.status === 'authorized'), whatsapp: !!(u.bots && Object.keys(u.bots).length) })).sort((a, b) => (b.alta || 0) - (a.alta || 0));
+      // Invitaciones: enviada → entró → lo está usando (cargó algo en los últimos 7 días)
+      const { readInviteLog } = await import('./_invites.js');
+      const lastBy = {};
+      for (const p of sp) { const { data: s } = await readJ(p); if (!s) continue; for (const m of s.movs || []) if (m.by) lastBy[m.by + '|' + s.id] = Math.max(lastBy[m.by + '|' + s.id] || 0, Number(m.ts) || 0); }
+      const invitaciones = (await readInviteLog()).map((x) => {
+        const ult = x.uid ? lastBy[x.uid + '|' + x.space] || 0 : 0;
+        return { ...x, ultimaCarga: ult || null, estado: !x.joinedAt ? (x.mailed === false ? 'Mail no salió' : 'Invitada, todavía no entró') : ult > now - 7 * D ? 'Lo está usando' : 'Entró, sin cargas recientes' };
+      }).sort((a, b) => (b.sentAt || b.joinedAt || 0) - (a.sentAt || a.joinedAt || 0));
       return send(res, 200, {
+        invitaciones,
         contactos, region: process.env.VERCEL_REGION || null,
         users: rows.length, optin: rows.filter((u) => u.optin && u.optin.ok).length, pro, spaces: sp.length,
         altas7: rows.filter((u) => u.created > d7).length, altas30: rows.filter((u) => u.created > d30).length,
