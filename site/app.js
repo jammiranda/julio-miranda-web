@@ -335,8 +335,10 @@ function projection(n) {
 function vPlan() {
   const fi = (st.S.fijos || []).slice().sort((a, b) => (a.tipo === b.tipo ? (a.order ?? 0) - (b.order ?? 0) : a.tipo === 'in' ? -1 : 1));
   const loaded = new Set(monthMovs().map((x) => x.fijo).filter(Boolean));
-  const lim = isPro() ? 12 : 4;
+  const maxM = isPro() ? 12 : 3;
+  const lim = Math.min(st.projN || 3, maxM);
   const P = projection(lim);
+  const hayProj = (st.S.fijos || []).length || P.some((p) => p.cuT);
   const notas = (st.S.notas || []).slice().sort((a, b) => (a.done - b.done) || (b.order ?? 0) - (a.order ?? 0));
   return `<section class="view"><div class="two">
     <div class="card">
@@ -344,13 +346,15 @@ function vPlan() {
       ${fi.length ? fi.map((f) => { const c = catById(f.cat); const ok = loaded.has(f.id); return `<div class="li"><span class="emo">${esc(c.emoji)}</span><div class="t" data-fijo="${esc(f.id)}" style="cursor:pointer"><b>${esc(f.name)}</b><small>${f.tipo === 'in' ? 'Ingreso' : esc(c.name)}${f.pago ? ' · ' + esc(f.pago) : ''}${f.quien ? ' · ' + esc(f.quien) : ''}</small></div><b class="num ${f.tipo === 'in' ? 'pos' : ''}">${fmt(f.monto)}</b><button class="ib" data-load="${esc(f.id)}" title="${ok ? 'Ya cargado este mes' : 'Cargar al mes'}" ${ok ? 'disabled style="opacity:.5"' : ''}>${ok ? '✓' : '＋'}</button></div>`; }).join('') + `<div class="li"><div class="t"><b>Total fijo</b></div><b class="num">${fmt(sum(fi.filter((f) => f.tipo !== 'in')))} <span class="muted small">salen</span></b></div>` : `<div class="empty"><b>Sin fijos todavía</b>Alquiler, colegio, prepaga, internet… cargalos una vez y los pasás cada mes con un toque.</div>`}
     </div>
     <div class="card">
-      <div class="rowh"><div><h2>🔭 Proyección</h2><p class="sub">Próximos ${lim} meses: fijos + cuotas ya comprometidas.</p></div></div>
+      <div class="rowh"><div><h2>🔭 Proyección</h2><p class="sub">Lo que ya sabés que va a entrar y salir: tus fijos de cada mes más las cuotas que quedan por pagar.</p></div>
+      ${hayProj ? `<div class="seg" style="flex:none">${[3, 6, 12].map((n) => `<button type="button" class="${lim === n ? 'on' : ''}" data-projn="${n}">${n === 3 ? 'Trimestre' : n + ' meses'}</button>`).join('')}</div>` : ''}</div>
+      ${!hayProj ? `<div class="empty"><b>Todavía no hay nada para proyectar</b>Cargá tus gastos e ingresos fijos (o una compra en cuotas) y acá vas a ver mes a mes cuánto queda.<br><button class="chip" id="addFijo2" style="margin-top:10px">Armar mis fijos</button></div>` : `
       <div class="proj">${P.map((p) => `<div class="pm"><span class="m">${esc(mName(p.m, true))}</span><span class="d num">+${fmt(p.fIn)} fijos<br>−${fmt(p.fOut)} fijos${p.cuT ? ' · −' + fmt(p.cuT) + ' en ' + p.cuN + ' cuota' + (p.cuN > 1 ? 's' : '') : ''}</span><span class="s num ${p.s < 0 ? 'neg' : 'pos'}">${p.s < 0 ? '−' : ''}${fmt(Math.abs(p.s))}</span></div>`).join('')}
-      ${!isPro() ? '<button class="lock" data-up="proj"><span>✦</span><span>Ver 12 meses y sumar cuotas con Pro</span></button>' : ''}</div>
+      ${!isPro() ? '<button class="lock" data-up="proj"><span>✦</span><span>Ver 6 y 12 meses y sumar cuotas con Pro</span></button>' : ''}</div>`}
     </div></div>
     <div class="two">
     <div class="card">
-      <div class="rowh"><div><h2>🎯 Presupuesto por categoría</h2><p class="sub">Un tope mensual para cada gasto. Se ve en Inicio.</p></div></div>
+      <div class="rowh"><div><h2>🎯 Presupuesto por categoría</h2><p class="sub">Un tope mensual para cada gasto. Se ve en Inicio.</p></div><button class="chip" id="editCats2">✏️ Categorías</button></div>
       ${cats('out').map((c) => `<div class="li"><span class="emo">${esc(c.emoji)}</span><div class="t"><b>${esc(c.name)}</b></div><input class="in num" style="max-width:9.5rem;text-align:right;padding:8px 10px" inputmode="numeric" data-plan="${esc(c.id)}" value="${c.plan ? Math.round(c.plan).toLocaleString('es-AR') : ''}" placeholder="sin tope"></div>`).join('')}
     </div>
     <div class="card">
@@ -424,7 +428,10 @@ function bindView() {
   const im = $('#imp'); if (im) im.onclick = importar;
   const ex2 = M.querySelector('#exp2'); if (ex2) ex2.onclick = exportCsv;
   // plan
-  const af = $('#addFijo'); if (af) af.onclick = () => openFijo();
+  const af = $('#addFijo'); if (af) af.onclick = () => fijosMenu();
+  const af2 = $('#addFijo2'); if (af2) af2.onclick = () => fijosMenu();
+  $$('[data-projn]').forEach((b) => b.onclick = () => { const n = Number(b.dataset.projn); if (n > 3 && !isPro()) return upsell('proj'); st.projN = n; render(); });
+  const ec2 = $('#editCats2'); if (ec2) ec2.onclick = openCats;
   $$('[data-fijo]').forEach((b) => b.onclick = () => openFijo(b.dataset.fijo));
   $$('[data-load]').forEach((b) => b.onclick = () => {
     const f = st.S.fijos.find((x) => x.id === b.dataset.load); if (!f) return;
@@ -572,6 +579,37 @@ function openCat(cid) {
   const ah = $('#addHere', w); if (ah) ah.onclick = () => openMov(null, { cat: cid, tipo: 'out' });
 }
 
+// Fijos: cargar uno nuevo, elegir de lo ya cargado o armar la base sola con lo que se repite
+function fijosMenu() {
+  const ya = new Set((st.S.fijos || []).map((f) => sinAcento(f.name)));
+  const movs = (st.S.movs || []).filter((x) => !x.grp && !x.fijo);
+  // lo que se repite en 2 o más meses distintos (mismo detalle o misma categoría con monto parecido)
+  const grupos = {};
+  for (const x of movs) { const k = x.tipo + '|' + (sinAcento(x.detalle) || ('cat:' + x.cat)); (grupos[k] = grupos[k] || []).push(x); }
+  const repetidos = Object.values(grupos).map((L) => ({ L, meses: new Set(L.map((x) => x.fecha.slice(0, 7))).size })).filter((g) => g.meses >= 2)
+    .map(({ L }) => { const u = L.sort((a, b) => b.fecha.localeCompare(a.fecha))[0]; return { ...u, name: u.detalle || catById(u.cat).name }; })
+    .filter((x) => !ya.has(sinAcento(x.name))).slice(0, 40);
+  const recientes = movs.filter((x) => x.fecha >= addM(ym(today()), -1) + '-01').sort((a, b) => b.monto - a.monto).filter((x) => !ya.has(sinAcento(x.detalle || ''))).slice(0, 40);
+  const fila = (x, i, g) => `<label class="li" style="cursor:pointer"><input type="checkbox" data-${g}="${i}" ${g === 'r' ? 'checked' : ''}><span class="emo">${esc(catById(x.cat).emoji)}</span><div class="t"><b>${esc(x.detalle || catById(x.cat).name)}</b><small>${x.tipo === 'in' ? 'Ingreso' : esc(catById(x.cat).name)} · ${esc(dayLbl(x.fecha))}</small></div><b class="num ${x.tipo === 'in' ? 'pos' : ''}">${fmt(x.monto)}</b></label>`;
+  const w = openModal('📌 Fijos del mes', `<div class="stack">
+    <button class="btn block" id="fNuevo">＋ Cargar un fijo nuevo</button>
+    ${repetidos.length ? `<div class="grp">✨ Armá la base: esto se repite todos los meses</div><p class="muted" style="margin:0">Lo encontramos en tus movimientos de varios meses. Destildá lo que no sea fijo.</p>${repetidos.map((x, i) => fila(x, i, 'r')).join('')}<button class="btn block" id="fBase">Pasar los tildados a fijos</button>` : ''}
+    ${recientes.length ? `<div class="grp">O elegí de lo que ya cargaste</div>${recientes.map((x, i) => fila(x, i, 'c')).join('')}<button class="btn ghost block" id="fSel">Pasar los elegidos a fijos</button>` : (!repetidos.length ? '<p class="muted" style="margin:0">Cuando cargues movimientos de un par de meses, acá te vamos a sugerir los fijos solos.</p>' : '')}
+  </div>`);
+  const pasar = (L) => { if (!L.length) return toast('Elegí al menos uno'); const n0 = (st.S.fijos || []).length; closeModal(); ops(L.map((x, i) => ({ col: 'fijos', action: 'add', id: uid('f'), data: { tipo: x.tipo, name: (x.detalle || catById(x.cat).name).slice(0, 60), monto: x.monto, cat: x.cat, quien: x.quien || '', pago: x.pago || '', order: n0 + i } })), `${L.length} fijo${L.length > 1 ? 's' : ''} cargado${L.length > 1 ? 's' : ''}`); };
+  $('#fNuevo', w).onclick = () => { closeModal(); openFijo(); };
+  const b1 = $('#fBase', w); if (b1) b1.onclick = () => pasar(repetidos.filter((_, i) => $(`[data-r="${i}"]`, w).checked));
+  const b2 = $('#fSel', w); if (b2) b2.onclick = () => pasar(recientes.filter((_, i) => $(`[data-c="${i}"]`, w).checked));
+}
+
+const EMOJIS = '🛒🏠💡🎓🩺🚗💳🧹🎉👕🐾📦🍽️☕🍕🥩🍷⛽🚌✈️🏖️🎁🎂👶🧒💊🦷🏋️⚽🎮📱💻📺🌐📚✏️🧾🏦💸💰💼🧰🔧🌱🐶🐱💇💅🎬🎵🚲🛵🏍️🅿️🚕🧴🧻🧺🔑🏢📈🪙'.match(/\p{Extended_Pictographic}\uFE0F?/gu);
+function pickEmoji(actual, cb) {
+  const w = openModal('Elegí un emoji', `<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px">${EMOJIS.map((e) => `<button type="button" class="ib" data-e="${e}" style="font-size:1.4rem;width:100%;height:44px;${e === actual ? 'outline:2px solid var(--brand)' : ''}">${e}</button>`).join('')}</div>
+    <label class="f" style="margin-top:12px">O escribí otro<input class="in" id="eo" maxlength="4" placeholder="🙂" style="font-size:1.4rem;max-width:6rem"></label><button class="btn block" id="eok" style="margin-top:8px">Usar este</button>`);
+  $$('[data-e]', w).forEach((b) => b.onclick = () => { closeModal(); cb(b.dataset.e); });
+  $('#eok', w).onclick = () => { const v = $('#eo', w).value.trim(); if (v) { closeModal(); cb([...v].slice(0, 2).join('')); } };
+}
+
 function openFijo(id) {
   const f = id ? st.S.fijos.find((x) => x.id === id) : { tipo: 'out', name: '', monto: '', cat: (cats('out')[0] || {}).id, quien: '', pago: '' };
   const w = openModal(id ? 'Editar fijo' : 'Nuevo fijo', `<form id="ff" class="stack">
@@ -607,11 +645,11 @@ function openCats() {
     const sec = (tipo, t) => `<div class="grp">${t}</div>` + cats(tipo).map((c, i, A) => `<div class="li"><button class="ib" data-emo="${esc(c.id)}">${esc(c.emoji)}</button><div class="t"><input class="in" data-nm="${esc(c.id)}" value="${esc(c.name)}" maxlength="40" style="padding:8px 10px"></div><button class="ib" data-cu="${esc(c.id)}" ${i ? '' : 'disabled style="opacity:.3"'}>↑</button><button class="ib" data-cd="${esc(c.id)}" ${i < A.length - 1 ? '' : 'disabled style="opacity:.3"'}>↓</button><button class="ib del" data-dc="${esc(c.id)}">✕</button></div>`).join('') + `<button class="chip" data-nc="${tipo}" style="margin-top:8px">＋ Agregar</button>`;
     return sec('out', 'Gastos') + sec('in', 'Ingresos');
   };
-  const w = openModal('Categorías', '<div id="cl"></div>');
+  const w = openModal('Categorías', '<p class="muted" style="margin:0 0 10px">Tocá el emoji para cambiarlo, escribí encima para renombrar y usá ↑↓ para ordenar.</p><div id="cl"></div>');
   const paint = () => {
     $('#cl', w).innerHTML = draw();
     $$('[data-nm]', w).forEach((i) => i.onchange = () => i.value.trim() && ops([{ col: 'cats', action: 'upd', id: i.dataset.nm, data: { name: i.value.trim() } }]));
-    $$('[data-emo]', w).forEach((b) => b.onclick = () => { const v = window.prompt('Emoji para la categoría', b.textContent); if (v && v.trim()) { ops([{ col: 'cats', action: 'upd', id: b.dataset.emo, data: { emoji: [...v.trim()].slice(0, 2).join('') } }]); paint(); } });
+    $$('[data-emo]', w).forEach((b) => b.onclick = () => pickEmoji(b.textContent, (e) => { ops([{ col: 'cats', action: 'upd', id: b.dataset.emo, data: { emoji: e } }]); setTimeout(openCats, 50); }));
     const move = (id, k) => { const c = catById(id); const L = cats(c.tipo); const i = L.findIndex((x) => x.id === id); const j = i + k; if (j < 0 || j >= L.length) return; [L[i], L[j]] = [L[j], L[i]]; ops(L.map((x, n) => ({ col: 'cats', action: 'upd', id: x.id, data: { order: n } }))); paint(); };
     $$('[data-cu]', w).forEach((b) => b.onclick = () => move(b.dataset.cu, -1));
     $$('[data-cd]', w).forEach((b) => b.onclick = () => move(b.dataset.cd, 1));
