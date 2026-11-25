@@ -1,0 +1,147 @@
+import {
+  APP, readJ, writeJ, mutate, delJ, userPath, idxPath, spacePath, resetPath, normEmail, okEmail, hashPass, checkPass,
+  setSession, clearSession, currentUser, publicUser, body, str, send, guard, fail, rid, sleep,
+} from './_core.js';
+
+async function spacesSummary(u) {
+  const out = [];
+  for (const id of u.spaces || []) {
+    const { data } = await readJ(spacePath(id));
+    if (data && (data.members || []).some((m) => m.uid === u.id)) {
+      out.push({ id, name: data.name, tpl: data.tpl, owner: data.owner === u.id, members: data.members.length });
+    }
+  }
+  return out;
+}
+
+async function sendMail(to, subject, html) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return false;
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: process.env.MAIL_FROM || `${APP.name} <no-reply@devisebit.com>`, to: [to], subject, html }),
+  });
+  return r.ok;
+}
+
+export async function makeResetLink(email) {
+  const u = (await readJ(userPath(email))).data;
+  if (!u) return null;
+  const tok = rid(24);
+  await writeJ(resetPath(tok), { email: u.email, exp: Date.now() + 2 * 3600e3 }, null, null);
+  return APP.url + '/app#reset=' + tok;
+}
+
+export default guard(async (req, res) => {
+  const a = String(req.query.a || '');
+  const b = body(req);
+
+  if (req.method === 'GET' && a === 'me') {
+    const u = await currentUser(req);
+    if (!u) return send(res, 401, { error: 'sesion' });
+    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
+  }
+  if (req.method !== 'POST') return send(res, 405, { error: 'metodo' });
+
+  if (a === 'signup') {
+    const email = normEmail(b.email);
+    const name = str(b.name, 60);
+    const pass = String(b.pass || '');
+    if (!name) throw fail(400, 'Poné tu nombre.');
+    if (!okEmail(email)) throw fail(400, 'Revisá el email.');
+    if (pass.length < 8) throw fail(400, 'La contraseña tiene que tener al menos 8 caracteres.');
+    if (!b.terms) throw fail(400, 'Tenés que aceptar los términos y la política de privacidad.');
+    const phone = str(b.phone, 30).replace(/[^\d+ ]/g, '');
+    const id = 'u' + rid(8);
+    const user = {
+      id, email, name, pass: hashPass(pass), created: Date.now(), plan: 'free', sv: 0, spaces: [],
+      terms: { ok: true, ts: Date.now(), v: '2026-11' },
+      optin: { ok: !!b.optin, ts: Date.now(), phone: b.optin ? phone : '', src: str(b.src, 40) || 'web' },
+    };
+    try { await writeJ(userPath(email), user, null, 'create'); }
+    catch (e) { if (/exists/i.test(String(e.message))) throw fail(409, 'Ya hay una cuenta con ese email. Probá ingresar.'); throw e; }
+    await writeJ(idxPath(id), { email }, null, null);
+    setSession(res, user);
+    return send(res, 200, { user: publicUser(user), spaces: [] });
+  }
+
+  if (a === 'login') {
+    const email = normEmail(b.email);
+    const { data: u } = await readJ(userPath(email));
+    if (u && u.lockUntil && u.lockUntil > Date.now()) throw fail(429, 'Demasiados intentos. Probá de nuevo en unos minutos.');
+    if (!u || !checkPass(b.pass, u.pass)) {
+      await sleep(700);
+      if (u) await mutate(userPath(email), (d) => { d.fails = (d.fails || 0) + 1; if (d.fails >= 8) { d.lockUntil = Date.now() + 10 * 60e3; d.fails = 0; } }).catch(() => {});
+      throw fail(401, 'Email o contraseña incorrectos.');
+    }
+    if (u.fails) await mutate(userPath(email), (d) => { d.fails = 0; d.lockUntil = 0; }).catch(() => {});
+    setSession(res, u);
+    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
+  }
+
+  if (a === 'logout') { clearSession(res); return send(res, 200, { ok: true }); }
+
+  if (a === 'forgot') {
+    const email = normEmail(b.email);
+    const link = okEmail(email) ? await makeResetLink(email) : null;
+    let mailed = false;
+    if (link) {
+      mailed = await sendMail(email, `Recuperá tu contraseña de ${APP.name}`,
+        `<p>Hola,</p><p>Para elegir una contraseña nueva entrá acá (vale por 2 horas):</p><p><a href="${link}">${link}</a></p><p>Si no lo pediste, ignorá este mensaje.</p>`).catch(() => false);
+    }
+    await sleep(400);
+    return send(res, 200, { ok: true, mailed: !!process.env.RESEND_API_KEY });
+  }
+
+  if (a === 'reset') {
+    const tok = String(b.token || '');
+    const pass = String(b.pass || '');
+    if (pass.length < 8) throw fail(400, 'La contraseña tiene que tener al menos 8 caracteres.');
+    const { data: r } = await readJ(resetPath(tok));
+    if (!r || r.exp < Date.now()) throw fail(400, 'El enlace venció o ya se usó. Pedí uno nuevo.');
+    const { data: u } = await mutate(userPath(r.email), (d) => { d.pass = hashPass(pass); d.sv = (d.sv || 0) + 1; d.fails = 0; d.lockUntil = 0; });
+    await delJ(resetPath(tok));
+    if (!u) throw fail(400, 'La cuenta ya no existe.');
+    setSession(res, u);
+    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
+  }
+
+  // --- desde acá, con sesión ---
+  const me = await currentUser(req);
+  if (!me) return send(res, 401, { error: 'sesion' });
+
+  if (a === 'profile') {
+    const { data: u } = await mutate(userPath(me.email), (d) => {
+      if ('name' in b) d.name = str(b.name, 60) || d.name;
+      if ('optin' in b) d.optin = { ok: !!b.optin, ts: Date.now(), phone: b.optin ? str(b.phone, 30).replace(/[^\d+ ]/g, '') : '', src: (d.optin && d.optin.src) || 'web' };
+    });
+    return send(res, 200, { user: publicUser(u) });
+  }
+
+  if (a === 'password') {
+    if (!checkPass(b.old, me.pass)) throw fail(400, 'La contraseña actual no coincide.');
+    if (String(b.pass || '').length < 8) throw fail(400, 'La nueva tiene que tener al menos 8 caracteres.');
+    const { data: u } = await mutate(userPath(me.email), (d) => { d.pass = hashPass(b.pass); d.sv = (d.sv || 0) + 1; });
+    setSession(res, u);
+    return send(res, 200, { ok: true });
+  }
+
+  if (a === 'delete') {
+    if (!checkPass(b.pass, me.pass)) throw fail(400, 'La contraseña no coincide.');
+    for (const sid of me.spaces || []) {
+      let drop = false;
+      await mutate(spacePath(sid), (s) => {
+        s.members = (s.members || []).filter((m) => m.uid !== me.id);
+        if (!s.members.length) { drop = true; return false; }
+        if (s.owner === me.id) s.owner = s.members[0].uid;
+      }).catch(() => {});
+      if (drop) await delJ(spacePath(sid));
+    }
+    await delJ(idxPath(me.id));
+    await delJ(userPath(me.email));
+    clearSession(res);
+    return send(res, 200, { ok: true });
+  }
+
+  return send(res, 404, { error: 'accion' });
+});

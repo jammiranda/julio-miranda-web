@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MateCuentas — Las cuentas de tu casa, entre todos</title>
+<meta name="description" content="App gratis para llevar los gastos de la casa en familia o en pareja. Cargá por audio, foto del ticket o WhatsApp con MateBot. Tablero, cuotas y dólares. Hecha en Argentina por DEVISEBIT.">
+<meta name="theme-color" content="#f3f1e7">
+<link rel="canonical" href="https://matecuentas.devisebit.com/">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_AR">
+<meta property="og:title" content="MateCuentas — Las cuentas de tu casa, entre todos">
+<meta property="og:description" content="Gratis. Contale tus gastos por audio, foto o WhatsApp y MateCuentas los ordena. De la familia de MateBot, by DEVISEBIT.">
+<meta property="og:url" content="https://matecuentas.devisebit.com/">
+<meta property="og:image" content="https://matecuentas.devisebit.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MateCuentas","applicationCategory":"FinanceApplication","operatingSystem":"Web, iOS, Android","offers":[{"@type":"Offer","price":"0","priceCurrency":"ARS","name":"Gratis"},{"@type":"Offer","price":"3990","priceCurrency":"ARS","name":"Pro mensual"}],"publisher":{"@type":"Organization","name":"DEVISEBIT SRL","url":"https://devisebit.com"}}</script>
+<style>
+:root{--bg:#f3f1e7;--panel:#fffefa;--panel2:#ebe8da;--fg:#16201a;--muted:#5f6b62;--line:#dfdccb;--brand:#138a45;--brand2:#dcf2e4;--ink:#0f2418;--gold:#f2b42c;--red:#e30613;--red2:#ff3b47;--wa:#25d366;--pro:#6a4bd6;--probg:#ece6ff;
+--font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--disp:"Bricolage Grotesque","Plus Jakarta Sans",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1410;--panel:#152019;--panel2:#1c2a21;--fg:#eaf3ec;--muted:#97a89c;--line:#263629;--brand:#3fcf7c;--brand2:#173a25;--ink:#08110c;--pro:#a996ff;--probg:#2a2445;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.55;-webkit-text-size-adjust:100%;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:74rem;margin:0 auto;padding:0 20px}
+nav.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+nav.top .wrap{display:flex;align-items:center;gap:14px;height:66px}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:800;font-size:1.35rem;letter-spacing:-.03em;text-decoration:none;flex:1;min-width:0}
+.logo img{width:38px;height:38px}
+.logo small{font-family:var(--font);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin-top:-2px}
+.nl{display:none;gap:22px;font-weight:600;font-size:.95rem}
+.nl a{text-decoration:none;color:var(--muted)}.nl a:hover{color:var(--fg)}
+@media(min-width:860px){.nl{display:flex}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:14px 22px;font-weight:750;text-decoration:none;background:var(--brand);color:#fff;border:0;font-size:1rem;min-height:50px;white-space:nowrap;transition:transform .2s,box-shadow .2s;box-shadow:0 12px 28px rgba(19,138,69,.28)}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line);box-shadow:none}
+.btn.sm{min-height:40px;padding:9px 15px;font-size:.92rem;border-radius:11px;box-shadow:none}
+.btn.wa{background:var(--wa);color:#05361a;box-shadow:0 12px 28px rgba(37,211,102,.3)}
+.btn.red{background:var(--red);box-shadow:0 12px 28px rgba(227,6,19,.3)}
+.btn.pro{background:var(--pro);box-shadow:0 12px 28px rgba(106,75,214,.3)}
+/* hero */
+header.hero{position:relative;padding:22px 0 10px;overflow:hidden}
+header.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:120%;z-index:-1;background:radial-gradient(40% 45% at 75% 35%,rgba(63,207,124,.28),transparent 70%),radial-gradient(30% 35% at 15% 20%,rgba(242,180,44,.2),transparent 70%)}
+.hgrid{display:grid;gap:10px;align-items:center}
+@media(min-width:900px){.hgrid{grid-template-columns:1.05fr .95fr;gap:30px}header.hero{padding:50px 0 30px}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);font-weight:700;font-size:.82rem;padding:6px 12px 6px 6px;border-radius:999px}
+.eyebrow img{width:24px;height:24px}
+h1{font-family:var(--disp);font-size:clamp(2.6rem,7.2vw,4.7rem);letter-spacing:-.045em;line-height:.95;margin:18px 0 18px}
+h1 em{font-style:normal;color:var(--brand);position:relative;white-space:nowrap}
+h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.18em;background:var(--gold);opacity:.55;border-radius:4px;z-index:-1;transform-origin:left;animation:hl 1.2s .4s both cubic-bezier(.2,.8,.2,1)}
+@keyframes hl{from{transform:scaleX(0)}}
+.lead{font-size:1.15rem;color:var(--muted);max-width:34rem;margin:0 0 24px}
+.ctas{display:flex;flex-wrap:wrap;gap:10px}
+.fine{font-size:.85rem;color:var(--muted);margin-top:14px}
+.stage{position:relative;aspect-ratio:1/1;max-width:560px;width:100%;margin:0 auto}
+.stage canvas{width:100%!important;height:100%!important;display:block}
+.stage .flat{position:absolute;inset:18%;width:64%;opacity:1;transition:opacity .4s}
+.stage.live .flat{opacity:0}
+.float{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 13px;box-shadow:0 18px 40px rgba(20,50,30,.16);font-size:.82rem;font-weight:700;display:flex;gap:9px;align-items:center;animation:bob 5s ease-in-out infinite;pointer-events:none}
+.float i{font-style:normal;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--panel2)}
+.float b{display:block;font-size:.95rem}.float small{display:block;color:var(--muted);font-weight:600;font-size:.7rem}
+.f1{left:-2%;top:16%}.f2{right:-1%;top:44%;animation-delay:-1.6s}.f3{left:6%;bottom:8%;animation-delay:-3.2s}
+@keyframes bob{50%{transform:translateY(-12px) rotate(-1deg)}}
+.pos{color:var(--brand)}.neg{color:#b13d36}
+section{padding:64px 0}
+h2.s{font-family:var(--disp);font-size:clamp(2.1rem,4.8vw,3.3rem);letter-spacing:-.04em;line-height:1;margin:0 0 12px}
+p.s{color:var(--muted);font-size:1.1rem;max-width:42rem;margin:0 0 30px}
+.kicker{font-weight:800;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);margin-bottom:10px}
+/* 3 formas */
+.ways{display:grid;gap:14px}
+@media(min-width:820px){.ways{grid-template-columns:repeat(3,1fr)}}
+.way{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:22px;transform-style:preserve-3d;transition:transform .3s;will-change:transform}
+.way h3{margin:14px 0 6px;font-size:1.15rem}.way p{margin:0;color:var(--muted);font-size:.96rem}
+.demo{height:120px;border-radius:16px;background:var(--panel2);display:grid;place-items:center;position:relative;overflow:hidden}
+.wave{display:flex;gap:4px;align-items:center;height:60px}
+.wave i{width:6px;border-radius:3px;background:var(--brand);animation:wv 1s ease-in-out infinite}
+@keyframes wv{0%,100%{height:12px}50%{height:56px}}
+.ticket{width:110px;height:100px;background:#fff;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,.12);padding:10px;font-size:.6rem;color:#444;position:relative;font-family:ui-monospace,monospace;line-height:1.5}
+.ticket::after{content:"";position:absolute;left:-10px;right:-10px;height:3px;background:var(--brand);box-shadow:0 0 14px 4px rgba(63,207,124,.6);animation:scan 2.2s ease-in-out infinite}
+@keyframes scan{0%,100%{top:6px}50%{top:92px}}
+.bub{background:#dcf8c6;color:#16201a;border-radius:12px 12px 2px 12px;padding:8px 11px;font-size:.8rem;font-weight:600;position:absolute;right:16px;top:20px;animation:pop .5s both}
+.bub2{background:#fff;color:#16201a;border-radius:12px 12px 12px 2px;padding:8px 11px;font-size:.8rem;font-weight:600;position:absolute;left:16px;bottom:16px;animation:pop .5s 1s both}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+/* MateBot */
+.mb{background:#08080a;color:#f4f4f5;border-radius:36px;margin:0 12px;position:relative;overflow:hidden}
+.mb::before{content:"";position:absolute;inset:0;background:radial-gradient(50% 50% at 80% 10%,rgba(227,6,19,.25),transparent 70%)}
+.mb .wrap{position:relative}
+.mb .kicker{color:var(--red2)}.mb p.s{color:#b4b4bc}
+.mgrid{display:grid;gap:26px;align-items:center}
+@media(min-width:900px){.mgrid{grid-template-columns:1fr 1fr}}
+.window{position:relative;aspect-ratio:1/1;max-width:460px;width:100%;margin:0 auto;border-radius:28px;background:linear-gradient(180deg,#1c2236,#2b1c22);box-shadow:inset 0 0 0 10px #2a2a30,inset 0 0 0 12px #3a3a42,0 30px 60px rgba(0,0,0,.45);overflow:hidden}
+.window::before{content:"";position:absolute;inset:0;background:radial-gradient(40% 30% at 70% 25%,rgba(255,220,150,.25),transparent 70%),linear-gradient(transparent 60%,rgba(141,179,58,.25));z-index:0}
+.window .cross{position:absolute;inset:0;pointer-events:none;z-index:3;background:linear-gradient(90deg,transparent calc(50% - 5px),#2a2a30 calc(50% - 5px),#2a2a30 calc(50% + 5px),transparent calc(50% + 5px)),linear-gradient(transparent calc(55% - 5px),#2a2a30 calc(55% - 5px),#2a2a30 calc(55% + 5px),transparent calc(55% + 5px))}
+.window .sill{position:absolute;left:-4%;right:-4%;bottom:0;height:9%;background:linear-gradient(#3a3a42,#24242a);z-index:4}
+.window .stage{position:absolute;inset:0;max-width:none;z-index:2}
+.window .flat{inset:22%;width:56%}
+.chat{max-width:360px;margin:0 auto;background:#0b141a;border-radius:28px;padding:14px;box-shadow:0 30px 60px rgba(0,0,0,.4);border:1px solid #222}
+.chat .hd{display:flex;align-items:center;gap:10px;padding:4px 6px 12px;border-bottom:1px solid #1f2c33}
+.chat .hd img{width:34px;height:34px;border-radius:50%;background:#111}
+.chat .hd b{font-size:.95rem}.chat .hd small{display:block;color:#8696a0;font-size:.72rem}
+.msgs{display:grid;gap:8px;padding:12px 4px 4px;min-height:290px;align-content:start}
+.m{max-width:84%;padding:8px 11px;border-radius:12px;font-size:.86rem;line-height:1.4;transition:opacity .35s,transform .35s}
+.m.me{justify-self:end;background:#005c4b;border-top-right-radius:3px}
+.m.bot{justify-self:start;background:#202c33;border-top-left-radius:3px}
+.m.wait{opacity:0;transform:translateY(8px)}
+.audio{display:flex;align-items:center;gap:8px}.audio .bars{display:flex;gap:2px;align-items:center}.audio .bars i{width:3px;background:#8fd3b9;border-radius:2px}
+/* tablero */
+.dash{perspective:1400px}
+.dash .board{transform:rotateX(14deg) rotateY(-10deg);transform-style:preserve-3d;background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:0 50px 80px rgba(20,50,30,.18);transition:transform .6s;max-width:640px;margin:0 auto}
+.dash .board:hover{transform:rotateX(4deg) rotateY(-3deg)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.kp div{background:var(--panel2);border-radius:14px;padding:10px 12px}.kp span{display:block;font-size:.72rem;color:var(--muted);font-weight:700}.kp b{font-family:var(--disp);font-size:1.25rem}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 4px;border-bottom:1px solid var(--line)}
+.bars .g{flex:1;display:flex;gap:4px;align-items:flex-end;height:100%}
+.bars .g i{flex:1;border-radius:6px 6px 2px 2px;transform-origin:bottom;transform:scaleY(0);transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.bars .g i:first-child{background:var(--brand)}.bars .g i:last-child{background:#d9534f}
+.dash.in .bars .g i{transform:scaleY(1)}
+.mlabels{display:flex;gap:10px;padding:6px 4px 0;font-size:.72rem;color:var(--muted);font-weight:700}.mlabels span{flex:1;text-align:center}
+.ins{margin-top:14px;display:grid;gap:8px;font-size:.88rem}
+.ins div{display:flex;gap:8px;background:var(--panel2);padding:9px 12px;border-radius:12px}
+/* steps / prices / faq */
+.steps{display:grid;gap:14px}@media(min-width:800px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px}
+.step .n{font-family:var(--disp);font-size:2.4rem;color:var(--brand);font-weight:800;line-height:1}
+.step h3{margin:10px 0 6px;font-size:1.12rem}.step p{margin:0;color:var(--muted);font-size:.96rem}
+.prices{display:grid;gap:16px}@media(min-width:800px){.prices{grid-template-columns:1fr 1fr}}
+.pc{border-radius:28px;padding:26px;background:var(--panel);border:1.5px solid var(--line);display:flex;flex-direction:column}
+.pc.pro{border-color:color-mix(in srgb,var(--pro) 45%,transparent);background:linear-gradient(160deg,var(--probg),var(--panel) 60%)}
+.pc h3{margin:0;font-size:1.2rem}
+.pc .pr{font-family:var(--disp);font-size:2.7rem;font-weight:800;letter-spacing:-.04em;margin:8px 0 2px}
+.pc .pr small{font-family:var(--font);font-size:.95rem;color:var(--muted);font-weight:600;letter-spacing:0}
+.pc ul{list-style:none;padding:0;margin:18px 0 22px;display:grid;gap:10px;flex:1}
+.pc li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.97rem}
+.pc li::before{content:"✓";color:var(--brand);font-weight:800}.pc.pro li::before{color:var(--pro)}
+.badge{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--pro);color:#fff;padding:4px 9px;border-radius:7px;vertical-align:middle;margin-left:6px}
+.fam{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.fm{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;gap:12px;align-items:center}
+.fm img,.fm .ph{width:46px;height:46px;flex:none}
+.fm .ph{border-radius:14px;background:var(--panel2);display:grid;place-items:center;font-size:1.4rem}
+.fm b{display:block}.fm small{color:var(--muted);font-size:.84rem}
+.fm.soon{opacity:.7}
+.dvb{background:linear-gradient(135deg,#0b0b0d,#1d0a0c);color:#fff;border-radius:32px;padding:34px 26px;display:grid;gap:24px;align-items:center;position:relative;overflow:hidden}
+@media(min-width:820px){.dvb{grid-template-columns:auto 1fr;padding:44px}}
+.dvb p{color:#c8c8cf;margin:0 0 18px}
+.hex{width:150px;height:150px;margin:0 auto;perspective:700px}
+.hex .spin{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:spin 7s linear infinite}
+.hex img{position:absolute;inset:0;width:100%;height:100%;backface-visibility:visible;filter:drop-shadow(0 10px 30px rgba(227,6,19,.45))}
+.hex img:nth-child(2){transform:translateZ(-8px);filter:brightness(.4)}.hex img:nth-child(3){transform:translateZ(-4px);filter:brightness(.6)}
+@keyframes spin{to{transform:rotateY(360deg)}}
+details{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 20px;margin-bottom:10px}
+summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";color:var(--brand);font-size:1.3rem;line-height:1}details[open] summary::after{content:"–"}
+details p{margin:10px 0 0;color:var(--muted)}
+.final{background:var(--ink);color:#fff;border-radius:32px;padding:44px 26px;text-align:center;position:relative;overflow:hidden}
+.final::after{content:"";position:absolute;left:50%;top:-120px;transform:translateX(-50%);width:420px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(63,207,124,.4),transparent 70%)}
+.final>*{position:relative;z-index:1}
+.final h2{font-family:var(--disp);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:-.04em;line-height:1;margin:0 0 12px}
+.final p{color:rgba(255,255,255,.75);margin:0 0 24px}
+footer{padding:36px 0 50px;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center}
+footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap:10px;align-items:center}footer .by img{width:28px}
+[data-reveal]{transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.rv [data-reveal].pre{opacity:0;transform:translateY(40px)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <a class="logo" href="/"><img src="/icon.svg" alt=""><span>MateCuentas<small>familia Mate · by DEVISEBIT</small></span></a>
+  <div class="nl"><a href="#formas">Cómo se carga</a><a href="#matebot">MateBot</a><a href="#tablero">Tablero</a><a href="#precios">Precios</a></div>
+  <a class="btn sm ghost" href="/app">Ingresar</a>
+</div></nav>
+
+<header class="hero"><div class="wrap hgrid">
+  <div>
+    <span class="eyebrow"><img src="/matebot.svg" alt="">De la familia de MateBot · Gratis</span>
+    <h1>Las cuentas de tu casa, <em>entre todos.</em></h1>
+    <p class="lead">Como una ronda de mate: cada uno carga lo suyo y todos ven lo mismo. Contale tus gastos <b>por audio, con una foto del ticket o por WhatsApp</b> y MateCuentas los ordena solo.</p>
+    <div class="ctas"><a class="btn" href="/app#signup">Empezar gratis</a><a class="btn ghost" href="#matebot">🧉 Ver MateBot en acción</a></div>
+    <p class="fine">Sin tarjeta · Sin publicidad · En el celu y en la compu</p>
+  </div>
+  <div class="stage" id="hero3d" aria-label="MateCuentas, un mate verde con una moneda en la bombilla, rodeado de monedas" role="img">
+    <img class="flat" src="/icon.svg" alt="">
+    <div class="float f1"><i>🎙️</i><span><small>“gasté 12 lucas en el súper”</small><b class="neg">−$ 12.000 · Súper</b></span></div>
+    <div class="float f2"><i>💼</i><span><small>Julio · Sueldo</small><b class="pos">+$ 1.500.000</b></span></div>
+    <div class="float f3"><i>📸</i><span><small>Ticket leído</small><b>Farmacia $ 8.430</b></span></div>
+  </div>
+</div></header>
+
+<section id="formas"><div class="wrap">
+  <div class="kicker" data-reveal>La magia</div>
+  <h2 class="s" data-reveal>Cargar un gasto nunca fue tan fácil</h2>
+  <p class="s" data-reveal>Nada de planillas. Hablale, sacale una foto o mandale un mensaje: entiende “lucas”, “verdes”, cuotas y fechas.</p>
+  <div class="ways">
+    <div class="way tilt" data-reveal><div class="demo"><div class="wave">${'<i></i>'}</div></div><h3>🎙️ Por audio</h3><p>“Ayer pagué la luz, 42 mil, con débito”. Listo, anotado con fecha, categoría y medio de pago.</p></div>
+    <div class="way tilt" data-reveal><div class="demo"><div class="ticket">SUPER CHINO<br>Leche ........ 1.850<br>Yerba ....... 4.300<br>Pan ......... 2.280<br><b>TOTAL ..... 8.430</b></div></div><h3>📸 Con una foto</h3><p>Sacale foto al ticket, la factura o el resumen de la tarjeta y se carga solo.</p></div>
+    <div class="way tilt" data-reveal><div class="demo"><div class="bub">compré la heladera en 12 cuotas, 900 lucas</div><div class="bub2">✅ 12 cuotas de $ 75.000</div></div><h3>💬 Por WhatsApp</h3><p>Con MateBot, desde el chat que ya usás todo el día. Sin abrir ninguna app.</p></div>
+  </div>
+</div></section>
+
+<section id="matebot" class="mb" style="padding:70px 0"><div class="wrap mgrid">
+  <div>
+    <div class="kicker" data-reveal>Se mete por la ventana 🧉</div>
+    <h2 class="s" data-reveal>MateBot anota por vos en WhatsApp</h2>
+    <p class="s" data-reveal>El mismo MateBot que te ordena turnos y recordatorios ahora lleva las cuentas. Conectás tu chat una vez y después le mandás audios, fotos o mensajes. Él los anota en MateCuentas y te confirma al toque.</p>
+    <div class="window" data-reveal>
+      <div class="stage" id="win3d" aria-label="MateBot, un mate rojo, entrando por la ventana" role="img"><img class="flat" src="/matebot.svg" alt=""></div>
+      <div class="cross"></div><div class="sill"></div>
+    </div>
+  </div>
+  <div class="chat" data-reveal id="chat">
+    <div class="hd"><img src="/matebot.svg" alt=""><div><b>MateBot</b><small>en línea</small></div></div>
+    <div class="msgs">
+      <div class="m me" data-step><div class="audio">▶ <span class="bars"><i style="height:8px"></i><i style="height:14px"></i><i style="height:6px"></i><i style="height:16px"></i><i style="height:10px"></i><i style="height:12px"></i><i style="height:5px"></i><i style="height:14px"></i><i style="height:9px"></i><i style="height:15px"></i></span> 0:04</div></div>
+      <div class="m bot" data-step>🎙️ <i>“gasté 12 lucas en el súper con débito”</i></div>
+      <div class="m bot" data-step>✅ Anotado en <b>Casa</b>:<br>🛒 $ 12.000 en Súper · débito</div>
+      <div class="m me" data-step>📸 Foto · ticket farmacia</div>
+      <div class="m bot" data-step>✅ 💊 $ 8.430 en Salud · Farmacia del Pueblo</div>
+      <div class="m me" data-step>¿Cuánto gastamos en el súper este mes?</div>
+      <div class="m bot" data-step>Van <b>$ 486.300</b> de $ 600.000 🎯<br>Te quedan $ 113.700 hasta fin de mes.</div>
+    </div>
+  </div>
+</div></section>
+
+<section id="tablero"><div class="wrap">
+  <div class="kicker" data-reveal>Tus datos, claros</div>
+  <h2 class="s" data-reveal>Un tablero de control para tu casa</h2>
+  <p class="s" data-reveal>Mirá en qué se va la plata, quién gasta qué, cuánto ahorraste y cómo vienen los próximos meses. Con alertas cuando algo se dispara.</p>
+  <div class="dash" id="dash" data-reveal><div class="board">
+    <div class="kp"><div><span>Entró</span><b class="pos">$ 2,85 M</b></div><div><span>Salió</span><b>$ 2,24 M</b></div><div><span>Ahorro</span><b>21%</b></div></div>
+    <div class="bars">${'bars'}</div>
+    <div class="mlabels"><span>Jun</span><span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span><span>Nov</span></div>
+    <div class="ins"><div>🔮 A este ritmo cerrás el mes en <b>$ 2,4 M</b> de gastos.</div><div>📈 <b>Súper</b> subió 18% contra el mes pasado.</div><div>💳 Tenés <b>$ 675.000</b> en cuotas por pagar.</div></div>
+  </div></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2 class="s" data-reveal>Tres pasos y listo</h2>
+  <p class="s" data-reveal>Pensada para la vida real: el súper, el colegio, la prepaga, la tarjeta, los arreglos del auto.</p>
+  <div class="steps">
+    <div class="step" data-reveal><div class="n">1</div><h3>Creá tu espacio</h3><p>Para la casa, la pareja, vos solo, tu emprendimiento o un viaje. Te armamos las categorías.</p></div>
+    <div class="step" data-reveal><div class="n">2</div><h3>Sumá a los tuyos</h3><p>Mandá un enlace por WhatsApp. Cada uno carga desde su celu y todos ven lo mismo.</p></div>
+    <div class="step" data-reveal><div class="n">3</div><h3>Contale y mirá</h3><p>Hablale, sacale fotos o escribile a MateBot. MateCuentas ordena, proyecta y te avisa.</p></div>
+  </div>
+</div></section>
+
+<section id="precios"><div class="wrap">
+  <h2 class="s" data-reveal>Gratis para siempre. Pro si querés más.</h2>
+  <p class="s" data-reveal>Pro cuesta menos que un café por semana y te ahorra mucho más.</p>
+  <div class="prices">
+    <div class="pc" data-reveal>
+      <h3>Gratis</h3><div class="pr">$ 0<small> para siempre</small></div>
+      <ul><li>1 espacio compartido con hasta 2 personas</li><li><b>5 cargas mágicas por mes</b> (audio, foto o WhatsApp) para probar</li><li>Movimientos manuales ilimitados</li><li>Fijos, notas y presupuesto por categoría</li><li>Resumen del mes y proyección de 4 meses</li><li>Cotización del dólar a la vista</li></ul>
+      <a class="btn ghost" href="/app#signup">Crear cuenta gratis</a>
+    </div>
+    <div class="pc pro" data-reveal>
+      <h3>Pro <span class="badge">El más elegido</span></h3><div class="pr">$ 3.990<small> /mes</small></div>
+      <ul><li><b>Cargas mágicas ilimitadas</b>: audio, foto del ticket y WhatsApp con MateBot</li><li><b>Tablero de control</b>: evolución, categorías, personas, medios de pago y alertas</li><li>Compras en cuotas que se proyectan solas</li><li>Gastos en dólares con cotización automática</li><li>Espacios ilimitados, hasta 12 personas cada uno</li><li>Proyección de 12 meses y exportar a Excel</li></ul>
+      <a class="btn pro" href="/app#signup">Empezar y pasarme a Pro</a>
+    </div>
+  </div>
+  <p class="fine">Pago mensual en pesos con Mercado Pago. Cancelás cuando quieras desde la app y seguís con Pro hasta el final del mes pagado.</p>
+</div></section>
+
+<section><div class="wrap">
+  <div class="kicker" data-reveal>La familia Mate</div>
+  <h2 class="s" data-reveal>Apps que se ceban entre ellas</h2>
+  <p class="s" data-reveal>MateBot es el que une todo: un solo WhatsApp para tu agenda, tus cuentas y lo que viene.</p>
+  <div class="fam">
+    <div class="fm" data-reveal><img src="/matebot.svg" alt=""><div><b>MateBot</b><small>Tu asistente por WhatsApp y Telegram: turnos, recordatorios y listas.</small></div></div>
+    <div class="fm" data-reveal><img src="/icon.svg" alt=""><div><b>MateCuentas</b><small>Las cuentas de la casa, entre todos.</small></div></div>
+    <div class="fm soon" data-reveal><span class="ph">📅</span><div><b>MateTurnos</b><small>Próximamente · turnos para consultorios y comercios.</small></div></div>
+    <div class="fm soon" data-reveal><span class="ph">🧾</span><div><b>MateCaja</b><small>Próximamente · caja, ventas y stock para pymes.</small></div></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="dvb" data-reveal>
+    <div class="hex" aria-hidden="true"><div class="spin"><img src="/devisebit.png" alt=""><img src="/devisebit.png" alt=""><img src="/devisebit.png" alt=""></div></div>
+    <div>
+      <div class="kicker" style="color:#ff3b47">Hecho por DEVISEBIT</div>
+      <h2 class="s" style="color:#fff">¿Querés esta tecnología en tu empresa?</h2>
+      <p>MateCuentas y MateBot son nuestra carta de presentación. En DEVISEBIT llevamos inteligencia artificial, WhatsApp y tableros a consultorios, centros de salud, estudios y comercios: atención automática, turnos, cobranzas y datos para decidir.</p>
+      <a class="btn red" href="https://wa.me/5491173466490?text=Hola%20DEVISEBIT%2C%20vengo%20de%20MateCuentas">Hablemos por WhatsApp</a>
+    </div>
+  </div>
+</div></section>
+
+<section id="preguntas"><div class="wrap" style="max-width:48rem">
+  <h2 class="s" data-reveal>Preguntas frecuentes</h2>
+  <details><summary>¿Es realmente gratis?</summary><p>Sí. El plan gratis no vence ni tiene publicidad, e incluye 5 cargas mágicas por mes para que pruebes el audio, la foto y WhatsApp. Pro es opcional.</p></details>
+  <details><summary>¿Tengo que conectar mi banco o mi tarjeta?</summary><p>No. Vos le contás los gastos (o se los mandás a MateBot). No te pedimos claves de banco y nunca movemos plata.</p></details>
+  <details><summary>¿Qué pasa con mis audios y fotos?</summary><p>Se usan solo para entender el gasto y se descartan. Tus cuentas las ven únicamente las personas que vos invitás.</p></details>
+  <details><summary>¿Cómo conecto WhatsApp?</summary><p>En la app, Ajustes → Conectar WhatsApp. Te damos un código, se lo mandás a MateBot y listo.</p></details>
+  <details><summary>¿Necesito descargar algo?</summary><p>No. Funciona desde el navegador y la podés agregar a la pantalla de inicio como una app.</p></details>
+  <details><summary>¿Cómo cancelo Pro?</summary><p>Desde Ajustes, con un toque. Sin permanencia ni letra chica.</p></details>
+</div></section>
+
+<section><div class="wrap">
+  <div class="final" data-reveal><h2>Cebá la ronda de las cuentas 🧉</h2><p>Un minuto para empezar. Gratis, para siempre.</p><a class="btn" href="/app#signup">Crear mi cuenta</a></div>
+</div></section>
+
+<footer><div class="wrap">
+  <span class="by"><img src="/devisebit.png" alt="">MateCuentas es un producto de <b>DEVISEBIT SRL</b> · Buenos Aires</span>
+  <a href="/privacidad">Privacidad</a><a href="/terminos">Términos</a><a href="/app#baja">Botón de baja</a><a href="mailto:info@devisebit.com?subject=Arrepentimiento%20MateCuentas%20Pro">Botón de arrepentimiento</a><a href="https://matebot.devisebit.com">MateBot</a>
+</div></footer>
+
+<script>
+// barras y ondas generadas
+document.querySelectorAll('.wave').forEach(function(w){var h='';for(var i=0;i<14;i++)h+='<i style="animation-delay:'+(-i*0.09)+'s"></i>';w.innerHTML=h});
+(function(){var b=document.querySelector('.dash .bars');if(!b)return;var d=[[70,58],[74,66],[72,61],[80,70],[78,74],[86,68]],h='';d.forEach(function(x,i){h+='<div class="g"><i style="height:'+x[0]+'%;transition-delay:'+(i*0.08)+'s"></i><i style="height:'+x[1]+'%;transition-delay:'+(i*0.08+0.04)+'s"></i></div>'});b.innerHTML=h})();
+// aparición al hacer scroll
+(function(){var els=[].slice.call(document.querySelectorAll('[data-reveal]'));var vh=innerHeight;els.forEach(function(e){if(e.getBoundingClientRect().top>vh*.92)e.classList.add('pre')});document.documentElement.classList.add('rv');
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.remove('pre');if(e.target.id==='dash')e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});els.forEach(function(e){if(e.classList.contains('pre'))io.observe(e);else if(e.id==='dash')setTimeout(function(){e.classList.add('in')},300)})})();
+// chat de MateBot en loop
+(function(){var c=document.getElementById('chat');if(!c||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var st=[].slice.call(c.querySelectorAll('[data-step]'));var T=[];function play(){T.forEach(clearTimeout);T=[];st.forEach(function(s){s.classList.add('wait')});st.forEach(function(s,i){T.push(setTimeout(function(){s.classList.remove('wait')},500+i*1300))});T.push(setTimeout(play,500+st.length*1300+5000))}
+var o=new IntersectionObserver(function(e){if(e[0].isIntersecting){play();o.disconnect()}},{threshold:.3});o.observe(c)})();
+// tarjetas que se inclinan con el mouse
+document.querySelectorAll('.tilt').forEach(function(el){el.addEventListener('pointermove',function(e){var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.transform='perspective(800px) rotateY('+x*10+'deg) rotateX('+(-y*10)+'deg) translateY(-4px)'});el.addEventListener('pointerleave',function(){el.style.transform=''})});
+document.querySelectorAll('a[href="/app#signup"]').forEach(function(a){a.addEventListener('click',function(){try{sessionStorage.setItem('pu_signup','1')}catch(e){}})});
+if(location.search.indexOf('bye=1')>-1){var d=document.createElement('div');d.textContent='Tu cuenta fue borrada. ¡Gracias por haber usado MateCuentas!';d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f2418;color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;z-index:99';document.body.appendChild(d);setTimeout(function(){d.remove()},5000)}
+</script>
+<script type="module" src="/landing.js"></script>
+</body>
+</html>

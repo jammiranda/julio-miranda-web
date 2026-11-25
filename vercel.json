@@ -1,0 +1,83 @@
+{
+ "rewrites": [
+  {
+   "source": "/",
+   "destination": "/api/site?f=index.html"
+  },
+  {
+   "source": "/app",
+   "destination": "/api/site?f=app.html"
+  },
+  {
+   "source": "/terminos",
+   "destination": "/api/site?f=terminos.html"
+  },
+  {
+   "source": "/privacidad",
+   "destination": "/api/site?f=privacidad.html"
+  },
+  {
+   "source": "/:f(app\\.js|manifest\\.webmanifest|sw\\.js|icon-192\\.png|icon-512\\.png|apple-touch-icon\\.png|og\\.png|icon\\.svg|robots\\.txt|sitemap\\.xml|matebot\\.svg|devisebit\\.png|landing\\.js)",
+   "destination": "/api/site?f=:f"
+  }
+ ],
+ "headers": [
+  {
+   "source": "/(.*)",
+   "headers": [
+    {
+     "key": "X-Frame-Options",
+     "value": "DENY"
+    },
+    {
+     "key": "X-Content-Type-Options",
+     "value": "nosniff"
+    },
+    {
+     "key": "Referrer-Policy",
+     "value": "strict-origin-when-cross-origin"
+    },
+    {
+     "key": "Strict-Transport-Security",
+     "value": "max-age=31536000"
+    },
+    {
+     "key": "Permissions-Policy",
+     "value": "camera=(self), microphone=(self), geolocation=()"
+    }
+   ]
+  },
+  {
+   "source": "/sw.js",
+   "headers": [
+    {
+     "key": "Cache-Control",
+     "value": "no-cache"
+    },
+    {
+     "key": "Service-Worker-Allowed",
+     "value": "/"
+    }
+   ]
+  }
+ ],
+ "redirects": [
+  {
+   "source": "/:path(.*)",
+   "has": [
+    {
+     "type": "host",
+     "value": "puchero.devisebit.com"
+    }
+   ],
+   "destination": "https://matecuentas.devisebit.com/:path",
+   "permanent": true
+  }
+ ],
+ "crons": [
+  {
+   "path": "/api/cron",
+   "schedule": "17 9 * * *"
+  }
+ ]
+}
