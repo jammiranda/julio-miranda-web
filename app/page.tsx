@@ -9,6 +9,7 @@ import ProductosExplorador from "@/components/productos-explorador"
 import { PRODUCTOS } from "@/lib/productos-fichas"
 import CintaProyectos from "@/components/cinta-proyectos"
 import FraseGrande from "@/components/frase-grande"
+import RondaMate from "@/components/ronda-mate"
 
 const STATS = [
   { n: "17", c: 17, pre: "", l: "años de proyectos en producción" },
@@ -142,6 +143,11 @@ export default function HomePage() {
             </div>
             <ProductosExplorador productos={PRODUCTOS} />
           </div>
+        </section>
+
+        {/* Familia Mate: nuestras apps propias, pasándose el mate */}
+        <section id="familia-mate" className="bg-white">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-14 md:py-16"><RondaMate /></div>
         </section>
 
         {/* Casos */}
