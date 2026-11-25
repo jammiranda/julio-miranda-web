@@ -39,6 +39,14 @@ function clearHash() { history.replaceState(null, '', location.pathname); }
 
 // ---------- arranque ----------
 async function boot() {
+  // Link del mail con el código: entra directo
+  const en = hashArg('entrar');
+  if (en && en.includes('|')) {
+    const [email, code] = en.split('|');
+    try { const j = await api('auth?a=codelogin', { email, code }); st.me = j.user; st.spaces = j.spaces; clearHash(); await afterLogin(); return; }
+    catch (e) { clearHash(); otpEmail = ''; showAuth('forgot'); setTimeout(() => { const er = $('#aerr'); if (er) er.innerHTML = `<div class="err">${esc(e.message)} Pedí un código nuevo.</div>`; }, 50); return; }
+  }
+  const cg = hashArg('codigo'); if (cg) { try { sessionStorage.setItem('mc_codigo', cg); } catch (e) { /* nada */ } }
   try {
     const j = await api('auth?a=me');
     st.me = j.user; st.spaces = j.spaces;
@@ -46,6 +54,13 @@ async function boot() {
   } catch (e) { if (!st.me) showAuth(/signup/.test(location.hash) || sessionStorage.getItem('pu_signup') ? 'signup' : 'login'); }
 }
 async function afterLogin() {
+  let cod = null; try { cod = sessionStorage.getItem('mc_codigo'); } catch (e) { /* nada */ }
+  if (cod) {
+    try { sessionStorage.removeItem('mc_codigo'); } catch (e) { /* nada */ }
+    try { const j = await api('billing?a=codigo', { codigo: cod }); st.me = j.user; toast(`🎁 ¡Listo! MateCuentas Pro activado por ${j.dias >= 3000 ? 'tiempo ilimitado' : j.dias + ' días'}.`, 5000); }
+    catch (e) { toast(e.message, 5000); }
+    if (/codigo=/.test(location.hash)) clearHash();
+  }
   const join = hashArg('join');
   if (join) {
     try { const r = await api('space?a=join', { code: join }); toast('Te sumaste a “' + r.name + '”'); localStorage.setItem('pu_sid', r.id); await refreshMe(); }
@@ -90,6 +105,8 @@ async function showAuth(mode) {
     try { const p = await api('space?a=peek&code=' + encodeURIComponent(join)); banner = `<div class="invite-banner">👋 <b>${esc(p.by)}</b> te invitó a <b>“${esc(p.name)}”</b>. Creá tu cuenta gratis o ingresá para sumarte.</div>`; if (authMode === 'login' && !box.dataset.touched) authMode = 'signup'; }
     catch (e) { banner = `<div class="err" style="margin-top:16px">${esc(e.message)}</div>`; }
   }
+  let regalo = ''; try { regalo = sessionStorage.getItem('mc_codigo') || ''; } catch (e) { /* nada */ }
+  if (regalo) banner += `<div class="invite-banner">🎁 Entrá o creá tu cuenta y activamos tu código <b>${esc(regalo)}</b> solo.</div>`;
   const T = {
     login: ['Hola de nuevo', 'Ingresá para ver las cuentas de tu casa.'],
     signup: ['Creá tu cuenta', 'Gratis, sin tarjeta. En un minuto tenés tu espacio listo.'],
@@ -651,13 +668,8 @@ function upsell(why) {
     </ul>
     <button class="btn pro block" id="buy">Pasarme a Pro</button>
     <p class="hint" style="text-align:center;margin:10px 0 0">El pago es por Mercado Pago, en pesos. Lo gratis sigue siendo gratis para siempre.</p>
-    <form id="gift" style="display:flex;gap:8px;margin-top:14px"><input class="in" name="c" placeholder="🎁 ¿Tenés un código? ABCD-2345" aria-label="Código de regalo" style="text-transform:uppercase"><button class="btn ghost" style="flex:none">Aplicar</button></form>
+    <p style="text-align:center;margin:14px 0 0"><a class="linkbtn" href="https://matebot.devisebit.com/codigo">🎁 ¿Tenés un código de regalo? Activalo acá</a></p>
   </div>`);
-  $('#gift', w).onsubmit = async (ev) => {
-    ev.preventDefault(); const c = ev.target.c.value;
-    try { const j = await api('billing?a=codigo', { codigo: c }); st.me = j.user; closeModal(); toast(`🎁 ¡Listo! Tenés Pro gratis por ${j.dias} días.`, 4500); render(); }
-    catch (e) { toast(e.message, 4000); }
-  };
   $('#buy', w).onclick = async () => {
     const b = $('#buy', w); b.disabled = true; b.textContent = 'Abriendo Mercado Pago…';
     try { const { url } = await api('billing?a=checkout', {}); location.href = url; }

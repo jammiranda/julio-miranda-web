@@ -34,12 +34,29 @@ async function sendMail(to, subject, html) {
 
 // Código de 6 números por email: sirve para entrar sin contraseña y para recuperar la cuenta.
 const otpPath = (email) => 'otp/' + sha('otp:' + email) + '.json';
-const mailHtml = (code) => `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:480px;margin:auto;padding:24px;color:#16201a">
-  <p style="font-size:20px;font-weight:800;margin:0 0 6px">🧉 MateCuentas</p>
-  <p style="margin:0 0 18px;color:#555">Tu código para entrar:</p>
-  <p style="font-size:38px;font-weight:800;letter-spacing:10px;background:#eef7f0;border-radius:14px;padding:16px;text-align:center;margin:0 0 18px">${code}</p>
-  <p style="margin:0 0 6px;color:#555">Vence en 10 minutos. Si no lo pediste, ignorá este mail: nadie puede entrar sin el código.</p>
-  <p style="margin:18px 0 0;font-size:12px;color:#999">MateCuentas · un producto de DEVISEBIT</p></div>`;
+const mailHtml = (code, email) => {
+  const link = APP.url + '/app#entrar=' + encodeURIComponent(email + '|' + code);
+  const digits = code.split('').map((d) => `<td style="width:46px;height:58px;background:#ffffff;border:2px solid #cfe8d6;border-radius:12px;text-align:center;font:800 30px/58px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#14231a">${d}</td>`).join('<td style="width:6px"></td>');
+  return `<!doctype html><html><body style="margin:0;background:#f3f1ea;padding:24px 12px;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#14231a">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:460px;background:#ffffff;border-radius:22px;overflow:hidden">
+    <tr><td style="background:#2f7d4f;padding:22px 24px" align="left">
+      <img src="${APP.url}/icon-192.png" width="40" height="40" alt="" style="vertical-align:middle;border-radius:10px">
+      <span style="font:800 22px -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#fff;vertical-align:middle;margin-left:10px">MateCuentas</span>
+    </td></tr>
+    <tr><td style="padding:26px 24px 8px">
+      <p style="margin:0 0 6px;font-size:18px;font-weight:700">Tu código para entrar</p>
+      <p style="margin:0 0 18px;color:#5b6a60;font-size:15px">Escribilo en la pantalla de MateCuentas. Vence en 10 minutos.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>${digits}</tr></table>
+    </td></tr>
+    <tr><td style="padding:22px 24px 6px" align="center">
+      <a href="${link}" style="display:inline-block;background:#2f7d4f;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 28px;border-radius:14px">Entrar sin escribir el código</a>
+    </td></tr>
+    <tr><td style="padding:18px 24px 24px;color:#7a857e;font-size:13px">Si no lo pediste, ignorá este mail: nadie puede entrar sin el código. 🧉</td></tr>
+  </table>
+  <p style="color:#8b8f88;font-size:12px;margin:14px 0 0">MateCuentas · un producto de DEVISEBIT · Buenos Aires</p>
+  </td></tr></table></body></html>`;
+};
 
 export async function makeResetLink(email) {
   const u = (await readJ(userPath(email))).data;
@@ -119,7 +136,7 @@ export default guard(async (req, res) => {
     if (u) {
       const code = String(crypto.randomInt(0, 1e6)).padStart(6, '0');
       await writeJ(otpPath(email), { h: sha(email + ':' + code), exp: Date.now() + 10 * 60e3, tries: 0, sent: Date.now() }, null, null);
-      await sendMail(email, `${code} es tu código de MateCuentas`, mailHtml(code)).catch(() => false);
+      await sendMail(email, `${code} es tu código de MateCuentas`, mailHtml(code, email)).catch(() => false);
     } else await sleep(600);
     return send(res, 200, { ok: true, mailOn: mailOn() });
   }
