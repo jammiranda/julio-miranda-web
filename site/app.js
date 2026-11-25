@@ -297,7 +297,7 @@ function vMovs() {
   const days = {}; for (const x of L) (days[x.fecha] = days[x.fecha] || []).push(x);
   return `<section class="view">
     <div style="display:flex;gap:8px"><label class="search" style="flex:1"><input class="in" id="q" placeholder="Buscar en ${esc(mName(st.month))}" value="${esc(st.q)}" autocomplete="off"></label>
-    <button class="chip gray" id="exp" title="Exportar">⬇ Excel${isPro() ? '' : ' ✦'}</button></div>
+    <button class="chip gray" id="imp" title="Importar">⬆ Importar${isPro() ? '' : ' ✦'}</button><button class="chip gray" id="exp" title="Exportar">⬇ Excel${isPro() ? '' : ' ✦'}</button></div>
     <div class="card">${L.length ? Object.entries(days).map(([d, xs]) => `<div class="grp">${esc(dayLbl(d))} · <span class="num">${fmt(sum(xs.filter((x) => x.tipo === 'out')))}</span></div>` + xs.map(movRow).join('')).join('') : `<div class="empty"><b>${q ? 'Nada coincide' : 'Sin movimientos'}</b>${q ? 'Probá con otra palabra.' : 'Tocá + para cargar uno.'}</div>`}</div>
   </section>`;
 }
@@ -404,6 +404,7 @@ function bindView() {
   $$('[data-unbot]').forEach((b) => b.onclick = async () => { const [ch, id] = b.dataset.unbot.split('|'); await api('space?a=unlinkbot', { id: st.S.id, ch, botId: id }); await refreshMe(); render(); toast('Chat desconectado'); });
   const q = $('#q'); if (q) q.oninput = () => { st.q = q.value; render(); };
   const ex = $('#exp'); if (ex) ex.onclick = exportCsv;
+  const im = $('#imp'); if (im) im.onclick = importar;
   const ex2 = M.querySelector('#exp2'); if (ex2) ex2.onclick = exportCsv;
   // plan
   const af = $('#addFijo'); if (af) af.onclick = () => openFijo();
@@ -625,6 +626,7 @@ function deleteAccount() {
 
 // ---------- Pro ----------
 const UP_WHY = {
+  importar: 'Traé tus gastos de otra planilla, app o banco: pegás las filas de Excel o subís un CSV y quedan cargados.',
   cuotas: 'Cargá una compra en cuotas y MateCuentas la reparte sola en los meses que vienen.',
   usd: 'Cargá gastos en dólares: se convierten solos con la cotización del día.',
   espacios: 'Tené espacios separados: la casa, tu emprendimiento, un viaje…',
@@ -660,6 +662,83 @@ function upsell(why) {
     const b = $('#buy', w); b.disabled = true; b.textContent = 'Abriendo Mercado Pago…';
     try { const { url } = await api('billing?a=checkout', {}); location.href = url; }
     catch (e) { b.disabled = false; b.textContent = 'Pasarme a Pro'; $('.probox', w).insertAdjacentHTML('beforeend', `<div class="ok" style="margin-top:10px">${esc(e.message)} <a href="${CONTACT}">info@devisebit.com</a></div>`); }
+  };
+}
+
+// ---------- importar (Pro) ----------
+const sinAcento = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function parseFecha(v) {
+  v = String(v || '').trim();
+  let m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+  m = v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/); if (m) { const y = m[3].length === 2 ? '20' + m[3] : m[3]; return `${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`; }
+  return '';
+}
+function parseMonto(v) {
+  let t = String(v ?? '').replace(/[^\d,.-]/g, '');
+  if (!t) return NaN;
+  if (t.includes(',') && t.lastIndexOf(',') > t.lastIndexOf('.')) t = t.replace(/\./g, '').replace(',', '.'); // 1.234,56
+  else if ((t.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(t)) t = t.replace(/\./g, '').replace(',', ''); // 1.234.567
+  else t = t.replace(/,/g, '');
+  return Number(t);
+}
+function parseTabla(txt) {
+  const lines = txt.replace(/\r/g, '').split('\n').filter((l) => l.trim());
+  if (!lines.length) return [];
+  const sep = ['\t', ';', ','].map((c) => [c, lines[0].split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const split = (l) => { const out = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === sep && !q) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map((x) => x.trim()); };
+  return lines.map(split);
+}
+function filasAMovs(rows) {
+  const head = rows[0].map(sinAcento);
+  const col = (...ks) => head.findIndex((h) => ks.some((k) => h.includes(k)));
+  let iF = col('fecha', 'date', 'dia'), iT = col('tipo'), iC = col('categ', 'rubro'), iD = col('detalle', 'descrip', 'concepto', 'nombre', 'item'), iM = col('monto', 'importe', 'total', 'valor', 'precio', 'ars'), iQ = col('quien', 'persona', 'usuario'), iP = col('pago', 'medio', 'tarjeta', 'cuenta'), iU = col('usd', 'dolar');
+  let data = rows.slice(1);
+  if (iF < 0 && iM < 0) { data = rows; iF = 0; iD = 1; iM = rows[0].length - 1; } // sin encabezados: fecha, detalle, ..., monto
+  const outs = cats('out'), ins = cats('in');
+  const otros = (tipo) => (tipo === 'in' ? ins : outs).find((c) => /otro|varios/i.test(sinAcento(c.name))) || (tipo === 'in' ? ins : outs)[0];
+  const movs = [], malos = [];
+  const hayNeg = data.some((r) => parseMonto(r[iM]) < 0);
+  for (const r of data) {
+    const fecha = parseFecha(r[iF]); let monto = parseMonto(r[iM]);
+    if (!fecha || !Number.isFinite(monto) || !monto) { if (r.some((x) => x)) malos.push(r); continue; }
+    const tt = sinAcento(iT >= 0 ? r[iT] : '');
+    // sin columna de tipo: si hay montos negativos (resumen de banco), los positivos son ingresos; si no, todo es gasto
+    const tipo = /ingreso|entrada|cobro|^in$|credito|sueldo/.test(tt) ? 'in' : /gasto|egreso|salida|^out$|debito/.test(tt) ? 'out' : hayNeg ? (monto < 0 ? 'out' : 'in') : 'out';
+    monto = Math.abs(monto);
+    const cn = sinAcento(iC >= 0 ? r[iC] : '');
+    const pool = tipo === 'in' ? ins : outs;
+    const cat = (cn && (pool.find((c) => sinAcento(c.name) === cn) || pool.find((c) => sinAcento(c.name).includes(cn) || cn.includes(sinAcento(c.name))))) || otros(tipo);
+    const m = { fecha, tipo, cat: cat ? cat.id : '', monto, detalle: (iD >= 0 ? r[iD] : '') || (iC >= 0 ? r[iC] : ''), quien: iQ >= 0 ? r[iQ] : '', pago: iP >= 0 ? r[iP] : '' };
+    const u = iU >= 0 ? parseMonto(r[iU]) : NaN; if (Number.isFinite(u) && u) { m.usd = Math.abs(u); }
+    movs.push(m);
+  }
+  return { movs, malos };
+}
+function importar() {
+  if (!isPro()) return upsell('importar');
+  const w = openModal('⬆ Importar movimientos', `<div class="stack">
+    <p class="muted" style="margin:0">Traé tus gastos e ingresos de otra planilla, app o banco. Tiene que tener al menos <b>fecha</b> y <b>monto</b>; si tiene tipo (gasto/ingreso), categoría, detalle, quién y medio de pago, también se usan.</p>
+    <label class="f">Subí un archivo CSV<input class="in" type="file" id="impF" accept=".csv,.txt,.tsv,text/csv"></label>
+    <label class="f">…o copiá las celdas de tu Excel o Google Sheets y pegalas acá<textarea class="in" id="impT" rows="6" placeholder="Fecha	Detalle	Categoría	Monto"></textarea></label>
+    <div id="impR"></div>
+    <button class="btn block" id="impGo" disabled>Importar</button></div>`);
+  let res = null;
+  const prev = (txt) => {
+    const rows = parseTabla(txt); res = rows.length ? filasAMovs(rows) : null;
+    const meses = res ? [...new Set(res.movs.map((m) => m.fecha.slice(0, 7)))].sort() : [];
+    $('#impR', w).innerHTML = !res ? '' : res.movs.length ? `<div class="ok">Encontramos <b>${res.movs.length}</b> movimientos${meses.length ? ` (${meses.map(mName).join(', ')})` : ''}: ${fmt(sum(res.movs.filter((m) => m.tipo === 'out')))} de gastos y ${fmt(sum(res.movs.filter((m) => m.tipo === 'in')))} de ingresos.${res.malos.length ? ` ${res.malos.length} filas sin fecha o monto quedan afuera.` : ''}</div>` : '<div class="err">No encontramos filas con fecha y monto. Revisá que la primera fila tenga los títulos de las columnas.</div>';
+    $('#impGo', w).disabled = !(res && res.movs.length);
+  };
+  $('#impT', w).oninput = (e) => prev(e.target.value);
+  $('#impF', w).onchange = async (e) => { const f = e.target.files[0]; if (f) { const t = await f.text(); $('#impT', w).value = t.slice(0, 200000); prev(t); } };
+  $('#impGo', w).onclick = async () => {
+    const b = $('#impGo', w); b.disabled = true;
+    const ops = res.movs.map((m) => ({ col: 'movs', action: 'add', data: { ...m, ts: Date.now() } }));
+    try {
+      let s;
+      for (let i = 0; i < ops.length; i += 100) { b.textContent = `Importando ${Math.min(i + 100, ops.length)} de ${ops.length}…`; s = await api('space?a=ops', { id: st.S.id, ops: ops.slice(i, i + 100) }); }
+      st.S = s; closeModal(); render(); toast(`✅ Importamos ${ops.length} movimientos`, 3500);
+    } catch (e) { b.disabled = false; b.textContent = 'Importar'; $('#impR', w).innerHTML = `<div class="err">${esc(e.message)}</div>`; }
   };
 }
 
