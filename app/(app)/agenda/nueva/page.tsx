@@ -43,7 +43,7 @@ export default async function NuevaVisita({ searchParams }: { searchParams: { pa
         </label>
         <label className="lbl">Fecha *<input name="fecha" type="date" required defaultValue={searchParams.fecha ?? hoyISO()} className="inp" /></label>
         <label className="lbl">Estado<select name="estado" className="inp"><option value="programada">Programada</option><option value="realizada">Realizada</option></select></label>
-        <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" name="app_pami" /> Ya está registrada en la APP PAMI Prestadores</label>
+        <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" name="app_pami" /> Ya está registrada en la app del financiador</label>
       </div>
       <div className="card grid grid-cols-2 sm:grid-cols-4 gap-3">
         <h2 className="m-0 col-span-full text-base">Registro de la visita (si ya se realizó)</h2>

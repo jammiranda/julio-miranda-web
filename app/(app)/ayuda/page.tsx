@@ -19,7 +19,7 @@ const SECCIONES: Sec[] = [
   {
     id: "tablero", t: "Tablero de control", para: ["todos"], link: "/",
     pasos: [
-      "Muestra el mes elegido: padrón activo, visitas realizadas, facturación (solo gerencia) y porcentaje de visitas registradas en la APP PAMI.",
+      "Muestra el mes elegido: padrón activo, visitas realizadas, facturación (solo gerencia) y porcentaje de visitas registradas en la app del financiador.",
       "Cambiá el mes con el selector de arriba a la derecha.",
       "Revisá todos los días los avisos: OP vencidas, OP que vencen en 7 días y pacientes sin visita hace más de 7 días. Tocá un nombre para ir a su ficha.",
       "Cuando el mes se carga desde la planilla de Drive, el subtítulo lo indica.",
@@ -72,7 +72,7 @@ const SECCIONES: Sec[] = [
     pasos: [
       "Muestra las visitas del día; avanzá o retrocedé con los botones o elegí una fecha.",
       "*+ Programar o registrar visita*: paciente, profesional, tipo y fecha. Se puede repetir semanalmente.",
-      "Al registrar una visita realizada marcá si se cargó en la APP PAMI: lo que no se registra no se paga.",
+      "Al registrar una visita realizada marcá si se cargó en la app del financiador: lo que no se registra no se paga.",
     ],
   },
   {

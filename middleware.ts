@@ -3,7 +3,7 @@ const PUBLIC = ["/demo", "/login", "/primer-ingreso", "/activar", "/recuperar", 
 export function middleware(req: NextRequest) {
   const p = req.nextUrl.pathname
   if (PUBLIC.some((x) => p.startsWith(x))) return NextResponse.next()
-  if (!req.cookies.get("sp_sesion")) return NextResponse.redirect(new URL(process.env.DEMO === "1" ? "/demo" : "/login", req.url))
+  if (!req.cookies.get("sp_sesion")) return NextResponse.redirect(process.env.DEMO === "1" ? "https://www.devisebit.com/demos?d=salud-digital#pedir" : new URL("/login", req.url))
   return NextResponse.next()
 }
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] }

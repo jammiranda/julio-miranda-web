@@ -55,7 +55,7 @@ export default async function Cierre({ searchParams }: { searchParams: { p?: str
         </div>
       </div>
       {searchParams.ok && <p className="m-0 text-sm text-[#0B5E31]">Cierre guardado.</p>}
-      {tot.sinApp > 0 && <p className="m-0 text-sm text-rojo font-semibold">Hay {tot.sinApp} visitas realizadas sin marcar como registradas en la APP PAMI.</p>}
+      {tot.sinApp > 0 && <p className="m-0 text-sm text-rojo font-semibold">Hay {tot.sinApp} visitas realizadas sin marcar como registradas en la app del financiador.</p>}
       <div className="card p-0 overflow-x-auto">
         <table className="tbl">
           <thead><tr><th>#</th><th>Paciente</th><th>Mód.</th><th>Vence OP</th><th>Enf.</th><th>Kin.</th><th>Méd.</th><th>Otras</th><th>Equip.</th><th>Sin APP</th><th>Observación</th>{fin && <th className="text-right">Submód. $</th>}</tr></thead>
@@ -77,7 +77,7 @@ export default async function Cierre({ searchParams }: { searchParams: { p?: str
           <form action={guardarCierre} className="card grid grid-cols-1 sm:grid-cols-2 gap-3">
             <h2 className="m-0 col-span-full">Factura del mes <span className="chip bg-amber-50 text-amber-700">Solo gerencia</span></h2>
             <input type="hidden" name="p" value={p} />
-            <label className="lbl">Factura emitida a PAMI ($)<input name="factura_real" defaultValue={cierre?.factura_real ?? ""} inputMode="decimal" className="inp" /></label>
+            <label className="lbl">Factura emitida al financiador ($)<input name="factura_real" defaultValue={cierre?.factura_real ?? ""} inputMode="decimal" className="inp" /></label>
             <label className="lbl">Fecha de la factura<input name="fecha_factura" type="date" defaultValue={(cierre as any)?.fecha_factura ? new Date((cierre as any).fecha_factura).toISOString().slice(0, 10) : ""} className="inp" /></label>
             <label className="lbl col-span-full">Se cobra en<input name="cobra_en" defaultValue={cierre?.cobra_en ?? ""} placeholder="Si lo dejás vacío: mes siguiente a la factura, del 22 al 25" className="inp" /></label>
             <p className="m-0 col-span-full text-xs text-[#4F5C69]">Circuito: el último día hábil del mes se emite la factura y se cobra el mes siguiente, entre el 22 y el 25.</p>

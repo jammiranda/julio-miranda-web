@@ -135,7 +135,7 @@ export default async function Ficha({ params, searchParams }: { params: { id: st
         <h2 className="mt-0">Visitas</h2>
         <div className="overflow-x-auto">
           <table className="tbl">
-            <thead><tr><th>Fecha</th><th>Tipo</th><th>Profesional</th><th>Estado</th><th>APP PAMI</th><th>Signos</th><th>Evolución</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Tipo</th><th>Profesional</th><th>Estado</th><th>App financiador</th><th>Signos</th><th>Evolución</th></tr></thead>
             <tbody>
               {vis.map((v) => (
                 <tr key={v.id}>

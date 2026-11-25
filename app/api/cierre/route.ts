@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   if (!/^\d{4}-\d{2}$/.test(p)) return new NextResponse("Período inválido", { status: 400 })
   const { rows } = await datosMes(p)
   const fin = puede.verFinanzas(u)
-  const head = ["Paciente", "Localidad", "Modulo", "Vence OP", "Enfermeria", "Kinesiologia", "Medico", "Otras", "Equipos", "Sin APP PAMI", ...(fin ? ["Submodulos $"] : [])]
+  const head = ["Paciente", "Localidad", "Modulo", "Vence OP", "Enfermeria", "Kinesiologia", "Medico", "Otras", "Equipos", "Sin registro en app", ...(fin ? ["Submodulos $"] : [])]
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`
   const lines = [head, ...rows.map((r) => [r.apellido_nombre, r.localidad, r.modulo, r.fecha_vencimiento, r.enf, r.kin, r.med, r.otras, r.equipos, r.sin_app, ...(fin ? [r.sub] : [])])]
   await audit(u, "exportar_cierre", "cierre", p)

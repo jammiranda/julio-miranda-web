@@ -52,7 +52,7 @@ export default async function Agenda({ searchParams }: { searchParams: { d?: str
       <div className="flex flex-wrap gap-2 text-sm">
         <span className="chip bg-[#E3F2E8] text-[#0B5E31]">Realizadas: {tot.real}</span>
         <span className="chip bg-amber-50 text-amber-700">Programadas: {tot.prog}</span>
-        {tot.sinApp > 0 && <span className="chip bg-red-50 text-rojo">Sin registrar en APP PAMI: {tot.sinApp}</span>}
+        {tot.sinApp > 0 && <span className="chip bg-red-50 text-rojo">Sin registrar en la app del financiador: {tot.sinApp}</span>}
       </div>
       <div className="card p-0 overflow-x-auto">
         <table className="tbl">
@@ -67,7 +67,7 @@ export default async function Agenda({ searchParams }: { searchParams: { d?: str
                     <form action={marcar} className="flex flex-wrap items-center gap-2">
                       <input type="hidden" name="v" value={v.id} /><input type="hidden" name="d" value={d} />
                       <select name="estado" defaultValue={v.estado} className="inp py-1 w-auto"><option value="programada">Programada</option><option value="realizada">Realizada</option><option value="no_realizada">No realizada</option></select>
-                      <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="app" defaultChecked={v.app_pami} /> APP PAMI</label>
+                      <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="app" defaultChecked={v.app_pami} /> app del financiador</label>
                       <button className="btn-s py-1">OK</button>
                     </form>
                   ) : v.estado}
@@ -78,7 +78,7 @@ export default async function Agenda({ searchParams }: { searchParams: { d?: str
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-[#4F5C69] m-0">Recordatorio: cada visita realizada debe quedar registrada en la APP PAMI Prestadores; lo no registrado no se paga.</p>
+      <p className="text-xs text-[#4F5C69] m-0">Recordatorio: cada visita realizada debe quedar registrada en la app del financiador; lo no registrado no se paga.</p>
       <p className="text-xs text-[#4F5C69] m-0">Fecha mostrada: {fecha(d)}</p>
     </div>
   )

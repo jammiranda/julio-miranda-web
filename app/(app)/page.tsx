@@ -44,11 +44,11 @@ export default async function Tablero({ searchParams }: { searchParams: { p?: st
         <Kpi t="Padrón activo" v={r.padron} sub="pacientes con OP en el mes" />
         <Kpi t="Visitas realizadas" v={r.visitas} sub={`Enf. ${r.tot.enf} · Kin. ${r.tot.kin} · Méd. ${r.tot.med}`} />
         {fin ? (
-          <Kpi t={r.factura != null ? "Facturación PAMI" : "Facturación estimada"} v={pesos(r.factura ?? r.estimado)} sub={r.cobraEn ? `Se cobra en ${r.cobraEn}` : r.factura != null ? "Factura real cargada" : "Submódulos registrados"} />
+          <Kpi t={r.factura != null ? "Facturación del mes" : "Facturación estimada"} v={pesos(r.factura ?? r.estimado)} sub={r.cobraEn ? `Se cobra en ${r.cobraEn}` : r.factura != null ? "Factura real cargada" : "Submódulos registrados"} />
         ) : (
           <Kpi t="Hoy" v={`${r.hoyAgenda.real}/${r.hoyAgenda.prog + r.hoyAgenda.real}`} sub="visitas realizadas / del día" tono="gris" />
         )}
-        <Kpi t="Registro en APP PAMI" v={r.appPct == null ? "—" : `${r.appPct}%`} sub="lo no registrado no se paga" tono={r.appPct != null && r.appPct < 100 ? "rojo" : "verde"} />
+        <Kpi t="Registro en app del financiador" v={r.appPct == null ? "—" : `${r.appPct}%`} sub="lo no registrado no se paga" tono={r.appPct != null && r.appPct < 100 ? "rojo" : "verde"} />
       </div>
 
       {!basico && (
@@ -94,18 +94,6 @@ export default async function Tablero({ searchParams }: { searchParams: { p?: st
         </div>
       )}
 
-      {!basico && (
-        <div className="card">
-          <h2 className="mt-0">Punto 8 PAMI · controles del circuito</h2>
-          <ul className="m-0 pl-5 text-sm leading-relaxed text-[#33414F]">
-            <li><strong>48 h hábiles</strong> para activar la OP en el SII desde su emisión.</li>
-            <li><strong>Día 15 de N+1</strong>: límite para transmitir consumos en Efectores Web (meta interna: día 12).</li>
-            <li><strong>Último día hábil de N+2</strong>: se emite la factura con la liquidación de PAMI; se cobra el mes siguiente, entre el 22 y el 25.</li>
-            <li><strong>Código 230001</strong>: cargar la suspensión por internación de más de 24 h.</li>
-            <li>Visitas sin registro en la APP PAMI Prestadores <strong>no se pagan</strong>.</li>
-          </ul>
-        </div>
-      )}
     </div>
   )
 }

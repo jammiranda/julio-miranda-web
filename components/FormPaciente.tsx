@@ -6,7 +6,7 @@ export default function FormPaciente({ p }: { p?: any }) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       <label className="lbl sm:col-span-2">Apellido y nombre *<input name="apellido_nombre" required defaultValue={v("apellido_nombre")} className="inp" /></label>
       <label className="lbl">DNI<input name="dni" defaultValue={v("dni")} className="inp" inputMode="numeric" /></label>
-      <label className="lbl">Obra social<input name="obra_social" defaultValue={v("obra_social") || "PAMI"} className="inp" /></label>
+      <label className="lbl">Obra social<input name="obra_social" defaultValue={v("obra_social")} className="inp" /></label>
       <label className="lbl">N.º de afiliado<input name="nro_afiliado" defaultValue={v("nro_afiliado")} className="inp" /></label>
       <label className="lbl">Fecha de nacimiento<input name="fecha_nac" type="date" defaultValue={d("fecha_nac")} className="inp" /></label>
       <label className="lbl sm:col-span-2">Domicilio<input name="domicilio" defaultValue={v("domicilio")} className="inp" /></label>

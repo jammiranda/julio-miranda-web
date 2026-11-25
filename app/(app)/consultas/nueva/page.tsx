@@ -31,7 +31,7 @@ export default async function Nueva() {
         <label className="lbl">Responsable<input name="asignado" defaultValue={u.nombre} className="inp" /></label>
         <h2 className="m-0 col-span-full text-base pt-2 border-t border-[#E1E6E3]">Paciente</h2>
         <label className="lbl">Apellido y nombre<input name="paciente_nombre" className="inp" /></label>
-        <label className="lbl">Cobertura<input name="obra_social" defaultValue="PAMI" className="inp" /></label>
+        <label className="lbl">Cobertura<input name="obra_social" defaultValue="" className="inp" /></label>
         <label className="lbl">N.º de afiliado<input name="nro_afiliado" className="inp" /></label>
         <label className="lbl">Localidad<input name="localidad" list="locs" className="inp" /><datalist id="locs">{LOCALIDADES.map((l) => <option key={l} value={l} />)}</datalist></label>
         <label className="lbl">Motivo<select name="motivo" className="inp">{MOTIVOS.map((m) => <option key={m}>{m}</option>)}</select></label>

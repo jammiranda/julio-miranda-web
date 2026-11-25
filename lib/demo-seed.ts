@@ -7,8 +7,8 @@ type Exec = (text: string, params?: unknown[]) => Promise<unknown>
 const NOMBRES = ["María", "José", "Ana", "Carlos", "Rosa", "Luis", "Elena", "Jorge", "Marta", "Héctor", "Norma", "Raúl", "Silvia", "Oscar", "Graciela", "Hugo", "Teresa", "Alberto", "Beatriz", "Ricardo", "Susana", "Eduardo", "Alicia", "Roberto", "Mirta", "Juan", "Olga", "Pedro", "Nélida", "Ángel"]
 const APELLIDOS = ["Gómez", "Fernández", "López", "Martínez", "Pérez", "Sosa", "Romero", "Díaz", "Álvarez", "Torres", "Ruiz", "Ramírez", "Flores", "Acosta", "Benítez", "Medina", "Herrera", "Suárez", "Aguirre", "Giménez", "Molina", "Castro", "Ortiz", "Silva", "Núñez", "Rojas", "Luna", "Juárez", "Cabrera", "Ríos"]
 const ZONAS = ["Ciudad", "Zona Norte", "Zona Sur", "Zona Oeste", "Villa del Parque", "Barrio Jardín", "Los Álamos", "San Martín"]
-const DIAG = ["ACV con secuela motora", "EPOC reagudizado", "Fractura de cadera operada", "Insuficiencia cardíaca", "Úlcera por presión sacra", "Diabetes tipo 2 con pie diabético", "Parkinson avanzado", "Postquirúrgico abdominal", "Demencia moderada", "Neumonía en recuperación"]
-const OBRAS = ["PAMI", "PAMI", "PAMI", "IOMA", "OSDE", "Particular"]
+const DIAG = ["ACV con secuela motora", "EPOC reagudizado", "Fractura de cadera operada", "Insuficiencia cardíaca", "Úlcera por presión sacra", "Diabetes tipo 2 con pie diabético", "Parkinson avanzado", "Postquirúrgico abdominal", "Cuidados paliativos oncológicos", "Demencia moderada", "Neumonía en recuperación"]
+const OBRAS = ["PAMI", "PAMI", "IOMA", "OSDE", "Swiss Medical", "Galeno", "Particular"]
 const MODULOS = ["A1", "A2", "A3", "B", "C"]
 const PROFES: [string, string][] = [
   ["Lic. Carolina Vega", "enfermeria"], ["Lic. Pablo Herrera", "enfermeria"], ["Enf. Daniela Ríos", "enfermeria"], ["Enf. Marcos Luna", "enfermeria"],
@@ -33,6 +33,8 @@ export async function sembrarDemo(x: Exec) {
   await x("delete from usuarios")
   await x("insert into usuarios(id,usuario,nombre,rol) values (1,'administrador','Gerencia','gerente'),(2,'coordinacion','Laura · Coordinación','coordinacion'),(3,'consulta','Martín · Consulta','consulta')")
   await x("select setval(pg_get_serial_sequence('usuarios','id'), 3)")
+  // Sin clave real: nadie puede entrar por /login ni por /primer-ingreso (solo por /demo con el link personal)
+  await x("update usuarios set pass_hash='sin-clave-demo'")
 
   // Profesionales
   for (const [n, e] of PROFES) await x("insert into profesionales(nombre,especialidad,matricula,telefono,localidad) values ($1,$2,$3,$4,$5)", [n, e, "MP " + (1000 + Math.floor(r() * 9000)), "11 " + (4000 + Math.floor(r() * 5999)) + "-" + (1000 + Math.floor(r() * 8999)), pick(ZONAS)])
