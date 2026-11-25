@@ -29,11 +29,12 @@ async function mp(ruta: string, init?: RequestInit) {
 }
 
 // Productos de la familia Mate que cobran por este puente (todos viven en el proyecto de MateBot)
-const PREFIJOS = ["matebot:", "mateturnos:", "mateeventos:"]
+const PREFIJOS = ["matebot:", "mateturnos:", "mateeventos:", "mateeventos-org:"]
 const esMateBot = (p: any) => PREFIJOS.some((x) => String(p?.external_reference ?? "").startsWith(x))
 const SUSCRIPCION: Record<string, { reason: string; ref: string; back: string }> = {
   plus: { reason: "MateBot Plus", ref: "matebot", back: "https://matebot.devisebit.com/plus/gracias" },
   turnos: { reason: "MateTurnos Pro", ref: "mateturnos", back: "https://mateturnos.devisebit.com/app?pro=ok" },
+  eventos: { reason: "MateEventos Organizador", ref: "mateeventos-org", back: "https://mateeventos.devisebit.com/app?org=ok" },
 }
 const resumen = (p: any) => ({
   id: p.id, status: p.status, external_reference: p.external_reference, init_point: p.init_point,
