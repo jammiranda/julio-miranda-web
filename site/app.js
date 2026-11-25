@@ -245,6 +245,7 @@ const isPro = () => !!(st.S && st.S.pro);
 
 // ---------- render ----------
 function render() {
+  aplicarOculto();
   if (!st.S) return;
   $('#spaceName').textContent = st.S.name;
   $('#spaceSub').textContent = (isPro() ? 'Pro · ' : '') + (st.spaces.length > 1 ? 'Tocá para cambiar' : (st.S.members.length > 1 ? st.S.members.length + ' personas' : 'Solo vos'));
@@ -287,6 +288,8 @@ function vHome() {
   const outs = L.filter((x) => x.tipo === 'out'); const ins = L.filter((x) => x.tipo === 'in');
   const tOut = sum(outs), tIn = sum(ins), bal = tIn - tOut;
   const budget = cats('out').reduce((a, c) => a + (Number(c.plan) || 0), 0);
+  const conPlan = new Set(cats('out').filter((c) => Number(c.plan)).map((c) => c.id));
+  const tOutPlan = sum(outs.filter((x) => conPlan.has(x.cat)));
   const r = fxRate();
   const outRows = cats('out').map((c) => { const xs = outs.filter((x) => x.cat === c.id); return { c, xs, t: sum(xs) }; });
   const orphan = outs.filter((x) => !st.S.cats.some((c) => c.id === x.cat));
@@ -298,19 +301,19 @@ function vHome() {
   return `<section class="view">
     ${magicCard()}
     <div class="card hero">
-      <div class="lbl">Saldo de ${esc(mName(st.month))}</div>
+      <div class="lbl" style="display:flex;align-items:center;gap:8px">Saldo de ${esc(mName(st.month))}<button class="eye" id="eye" aria-label="${oculto() ? 'Mostrar montos' : 'Ocultar montos'}" title="${oculto() ? 'Mostrar montos' : 'Ocultar montos'}">${oculto() ? IC.eyeoff : IC.eye}</button></div>
       <div class="big num">${bal < 0 ? '−' : ''}${fmt(Math.abs(bal))}</div>
       <div class="kp num">
         <div><span>Entró</span><b>${fmtK(tIn)}</b></div>
         <div><span>Salió</span><b>${fmtK(tOut)}</b></div>
-        <div><span>${budget ? 'Presupuesto' : 'Movimientos'}</span><b>${budget ? Math.round(tOut / budget * 100) + '%' : L.length}</b></div>
+        <div><span>${budget ? 'Presupuesto' : 'Movimientos'}</span><b>${budget ? Math.round(tOutPlan / budget * 100) + '%' : L.length}</b></div>
       </div>
-      ${budget ? `<div class="prevline">previsto ${fmt(budget)} · ${tOut > budget ? 'te pasaste ' + fmt(tOut - budget) : 'te quedan ' + fmt(budget - tOut)}</div>` : ''}
+      ${budget ? `<div class="prevline num">previsto ${fmtK(budget)} · ${tOutPlan > budget ? 'te pasaste ' + fmtK(tOutPlan - budget) : 'te quedan ' + fmtK(budget - tOutPlan)}</div>` : ''}
     </div>
     ${r ? `<div class="fx num">💵 Dólar ${FX_LBL[st.S.settings.fx || 'blue']}: <b style="color:var(--fg)">${fmt(r)}</b> <span>· dolarapi.com</span></div>` : ''}
     <div class="two">
       <div class="card kind">
-        <div class="rowh"><div><h2>↓ Egresos</h2><p class="sub">Lo que salió, por categoría</p></div><span class="tag num">${outs.length}</span></div>
+        <div class="rowh"><div><h2>↓ Egresos</h2><p class="sub">Lo que salió, por categoría</p></div><button class="chip" id="editCatsH">✏️ Categorías</button></div>
         ${used.length ? used.map(catRowHtml).join('') : `<div class="empty"><b>Todavía no hay gastos este mes</b>Tocá + para cargar el primero.</div>`}
       </div>
       <div class="card kind in">
@@ -319,9 +322,32 @@ function vHome() {
       </div>
     </div>
     ${nextCuotas.length ? `<div class="card"><div class="rowh"><div><h2>💳 Cuotas del mes que viene</h2><p class="sub">${esc(mName(addM(st.month, 1)))}</p></div><b class="num">${fmt(sum(nextCuotas))}</b></div>${nextCuotas.slice(0, 6).map((x) => `<div class="li"><div class="t"><b>${esc(x.detalle || catById(x.cat).name)}</b><small>Cuota ${esc(x.cuota)}</small></div><b class="num">${fmt(x.monto)}</b></div>`).join('')}</div>` : ''}
+    ${instalada() || instalarOculto() ? '' : instalarCard()}
     ${!isPro() ? proTeaser() : ''}
   </section>`;
 }
+// Instalarla en el celular o la compu: anda mejor (pantalla completa, audio, foto y avisos). Se aconseja siempre.
+const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const instalarOculto = () => { try { return Number(localStorage.getItem('mc_inst_no') || 0) > Date.now(); } catch (e) { return false; } };
+let instEv = null; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); instEv = e; });
+const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+function instalarCard() {
+  return `<div class="card inst"><div class="instmock" aria-hidden="true">${miniInicio()}</div><div><h2>📲 Tenela en tu pantalla de inicio</h2><p class="sub">Funciona mejor: abre al toque, a pantalla completa, y el audio y la foto del ticket andan más rápido.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="instGo">Cómo instalarla</button><button class="chip" id="instNo">Ahora no</button></div></div></div>`;
+}
+// Una pantalla de inicio de ejemplo (íconos genéricos) con MateCuentas destacada
+function miniInicio() {
+  const c = ['#5b8def', '#f2b42c', '#e5484d', '#7c5cff', '#2bb3a3', '#ff8a3d', '#8a94a6', '#34c759'];
+  return `<div class="phone"><div class="ph-t">9:41</div><div class="ph-g">${c.map((x) => `<i style="background:${x}"></i>`).join('')}<b><img src="/icon-192.png" alt=""></b><i style="background:#c9ccd3"></i><i style="background:#0a84ff"></i><i style="background:#ff375f"></i></div><div class="ph-l">MateCuentas</div></div>`;
+}
+function openInstalar() {
+  if (instEv) { instEv.prompt(); instEv.userChoice.finally(() => { instEv = null; render(); }); return; }
+  const ios = esIOS();
+  const pasos = ios ? ['Abrí <b>matecuentas.devisebit.com</b> en <b>Safari</b>.', 'Tocá <b>Compartir</b> (el cuadrado con la flecha para arriba).', 'Elegí <b>Agregar a inicio</b> y después <b>Agregar</b>.', 'Listo: el mate verde queda entre tus apps.']
+    : /android/i.test(navigator.userAgent) ? ['Abrí <b>matecuentas.devisebit.com</b> en Chrome.', 'Tocá el menú <b>⋮</b> arriba a la derecha.', 'Elegí <b>Instalar app</b> (o <b>Agregar a pantalla principal</b>).', 'Listo: el mate verde queda entre tus apps.']
+      : ['En Chrome o Edge, tocá el ícono <b>Instalar</b> de la barra de direcciones (una pantallita con una flecha).', 'Confirmá con <b>Instalar</b>.', 'Se abre en su propia ventana y queda en el escritorio. En Mac con Safari: <b>Archivo → Agregar al Dock</b>.'];
+  openModal('📲 Instalar MateCuentas', `<div class="instmock big" aria-hidden="true">${miniInicio()}</div><ol class="isteps">${pasos.map((p) => `<li>${p}</li>`).join('')}</ol><p class="muted" style="margin:10px 0 0">Es la misma cuenta: lo que cargues desde el celular, la compu o MateBot aparece en todos lados.</p>`);
+}
+
 function proTeaser() {
   return `<button class="lock" data-up="ai"><span style="font-size:1.4rem">✦</span><span>Con <b>Pro</b>: cargas por audio y WhatsApp ilimitadas, tablero de datos, cuotas, dólares y varios espacios.</span></button>`;
 }
@@ -366,25 +392,27 @@ function vPlan() {
   const notas = (st.S.notas || []).slice().sort((a, b) => (a.done - b.done) || (b.order ?? 0) - (a.order ?? 0));
   return `<section class="view"><div class="two">
     <div class="card">
+      <div class="rowh"><div><h2>🏷️ Categorías y previsto</h2><p class="sub">Cuánto pensás gastar por mes en cada una. Lo ves chiquito al lado de lo gastado en Inicio.</p></div><button class="chip" id="editCats2">✏️ Categorías</button></div>
+      ${cats('out').map((c) => `<div class="li"><span class="emo">${esc(c.emoji)}</span><div class="t"><b>${esc(c.name)}</b></div><input class="in num" style="max-width:9.5rem;text-align:right;padding:8px 10px" inputmode="numeric" data-plan="${esc(c.id)}" value="${c.plan ? Math.round(c.plan).toLocaleString('es-AR') : ''}" placeholder="sin tope"></div>`).join('')}
+    </div>
+    <div class="card">
       <div class="rowh"><div><h2>📌 Fijos del mes</h2><p class="sub">Lo que se repite todos los meses. Tocá ＋ para pasarlo a ${esc(mName(st.month))}.</p></div><button class="chip" id="addFijo">Agregar</button></div>
       ${fi.length ? fi.map((f) => { const c = catById(f.cat); const ok = loaded.has(f.id); return `<div class="li"><span class="emo">${esc(c.emoji)}</span><div class="t" data-fijo="${esc(f.id)}" style="cursor:pointer"><b>${esc(f.name)}</b><small>${f.tipo === 'in' ? 'Ingreso' : esc(c.name)}${f.pago ? ' · ' + esc(f.pago) : ''}${f.quien ? ' · ' + esc(f.quien) : ''}</small></div><b class="num ${f.tipo === 'in' ? 'pos' : ''}">${fmt(f.monto)}</b><button class="ib" data-load="${esc(f.id)}" title="${ok ? 'Ya cargado este mes' : 'Cargar al mes'}" ${ok ? 'disabled style="opacity:.5"' : ''}>${ok ? '✓' : '＋'}</button></div>`; }).join('') + `<div class="li"><div class="t"><b>Total fijo</b></div><b class="num">${fmt(sum(fi.filter((f) => f.tipo !== 'in')))} <span class="muted small">salen</span></b></div>` : `<div class="empty"><b>Sin fijos todavía</b>Alquiler, colegio, prepaga, internet… cargalos una vez y los pasás cada mes con un toque.</div>`}
     </div>
+    </div>
+    <div class="two">
     <div class="card">
       <div class="rowh"><div><h2>🔭 Proyección</h2><p class="sub">Lo que ya sabés que va a entrar y salir: tus fijos de cada mes más las cuotas que quedan por pagar.</p></div>
       ${hayProj ? `<div class="seg" style="flex:none">${[3, 6, 12].map((n) => `<button type="button" class="${lim === n ? 'on' : ''}" data-projn="${n}">${n === 3 ? 'Trimestre' : n + ' meses'}</button>`).join('')}</div>` : ''}</div>
       ${!hayProj ? `<div class="empty"><b>Todavía no hay nada para proyectar</b>Cargá tus gastos e ingresos fijos (o una compra en cuotas) y acá vas a ver mes a mes cuánto queda.<br><button class="chip" id="addFijo2" style="margin-top:10px">Armar mis fijos</button></div>` : `
       <div class="proj">${P.map((p) => `<div class="pm"><span class="m">${esc(mName(p.m, true))}</span><span class="d num">+${fmt(p.fIn)} fijos<br>−${fmt(p.fOut)} fijos${p.cuT ? ' · −' + fmt(p.cuT) + ' en ' + p.cuN + ' cuota' + (p.cuN > 1 ? 's' : '') : ''}</span><span class="s num ${p.s < 0 ? 'neg' : 'pos'}">${p.s < 0 ? '−' : ''}${fmt(Math.abs(p.s))}</span></div>`).join('')}
       ${!isPro() ? '<button class="lock" data-up="proj"><span>✦</span><span>Ver 6 y 12 meses y sumar cuotas con Pro</span></button>' : ''}</div>`}
-    </div></div>
-    <div class="two">
-    <div class="card">
-      <div class="rowh"><div><h2>🎯 Presupuesto por categoría</h2><p class="sub">Un tope mensual para cada gasto. Se ve en Inicio.</p></div><button class="chip" id="editCats2">✏️ Categorías</button></div>
-      ${cats('out').map((c) => `<div class="li"><span class="emo">${esc(c.emoji)}</span><div class="t"><b>${esc(c.name)}</b></div><input class="in num" style="max-width:9.5rem;text-align:right;padding:8px 10px" inputmode="numeric" data-plan="${esc(c.id)}" value="${c.plan ? Math.round(c.plan).toLocaleString('es-AR') : ''}" placeholder="sin tope"></div>`).join('')}
     </div>
     <div class="card">
       <div class="rowh"><div><h2>📝 Notas</h2><p class="sub">Pendientes, ideas, lo que hay que acordar.</p></div><button class="chip" id="addNota">Agregar</button></div>
       ${notas.length ? notas.map((n) => `<div class="li"><button class="ib" data-done="${esc(n.id)}">${n.done ? '✓' : '○'}</button><div class="t" data-nota="${esc(n.id)}" style="cursor:pointer;${n.done ? 'opacity:.55;text-decoration:line-through' : ''}"><b>${esc(n.title || 'Nota')}</b>${n.text ? `<small>${esc(n.text.slice(0, 90))}</small>` : ''}</div></div>`).join('') : '<div class="empty">Nada anotado.</div>'}
-    </div></div>
+    </div>
+    </div>
   </section>`;
 }
 
@@ -404,6 +432,7 @@ function vMas() {
       <div class="seg" id="fxs">${Object.entries(FX_LBL).map(([k, v]) => `<button data-fx="${k}" class="${(S.settings.fx || 'blue') === k ? 'on' : ''}">${v}</button>`).join('')}</div>
       <h3>Categorías</h3>
       <button class="btn ghost block" id="editCats">Editar categorías</button>
+      ${instalada() ? '' : '<h3>En tu celular o tu compu</h3><button class="btn ghost block" id="instMas">📲 Instalar MateCuentas (funciona mejor)</button>'}
     </div>
     <div class="view">
       <div class="card">${planBox()}</div>
@@ -457,6 +486,10 @@ function bindView() {
   const af2 = $('#addFijo2'); if (af2) af2.onclick = () => fijosMenu();
   $$('[data-projn]').forEach((b) => b.onclick = () => { const n = Number(b.dataset.projn); if (n > 3 && !isPro()) return upsell('proj'); st.projN = n; render(); });
   const ec2 = $('#editCats2'); if (ec2) ec2.onclick = openCats;
+  const ech = $('#editCatsH'); if (ech) ech.onclick = openCats;
+  const ig = $('#instGo'); if (ig) ig.onclick = openInstalar;
+  const inn = $('#instNo'); if (inn) inn.onclick = () => { try { localStorage.setItem('mc_inst_no', String(Date.now() + 7 * 864e5)); } catch (e) { /* nada */ } render(); };
+  const ey = $('#eye'); if (ey) ey.onclick = () => { try { localStorage.setItem('mc_oculto', oculto() ? '0' : '1'); } catch (e) { /* nada */ } aplicarOculto(); render(); };
   $$('[data-fijo]').forEach((b) => b.onclick = () => openFijo(b.dataset.fijo));
   $$('[data-load]').forEach((b) => b.onclick = () => {
     const f = st.S.fijos.find((x) => x.id === b.dataset.load); if (!f) return;
@@ -478,6 +511,7 @@ function bindView() {
   on('addPg', () => prompt2('Medio de pago', '', (v) => ops([{ col: 'settings', action: 'set', data: { pagos: [...pagos(), v] } }])));
   $$('[data-fx]').forEach((b) => b.onclick = () => ops([{ col: 'settings', action: 'set', data: { fx: b.dataset.fx } }]));
   on('editCats', openCats);
+  const imas = $('#instMas'); if (imas) imas.onclick = openInstalar;
   $$('[data-open]').forEach((b) => b.onclick = () => { st.tab = 'home'; openSpace(b.dataset.open); });
   on('newSp', () => { if (st.me.plan !== 'pro' && st.spaces.filter((s) => s.owner).length >= 1) return upsell('espacios'); showOnboarding(true); });
   on('leave', () => confirm2(st.S.isOwner ? '¿Borrar “' + st.S.name + '”?' : '¿Salir de “' + st.S.name + '”?', st.S.isOwner ? 'Se borran todos sus movimientos para todos. No se puede deshacer.' : 'Vas a dejar de ver estas cuentas.', async () => {
@@ -546,8 +580,15 @@ function openMov(id, preset = {}) {
     $$('#tp button', w).forEach((b) => b.classList.toggle('on', b.dataset.v === d.tipo));
     const L = cats(d.tipo);
     if (!L.some((c) => c.id === d.cat)) d.cat = (L[0] || {}).id || '';
-    $('#cc', w).innerHTML = L.map((c) => `<button type="button" data-c="${esc(c.id)}" class="${c.id === d.cat ? 'on' : ''}">${esc(c.emoji)} ${esc(c.name)}</button>`).join('');
-    $$('#cc button', w).forEach((b) => b.onclick = () => { d.cat = b.dataset.c; $$('#cc button', w).forEach((y) => y.classList.toggle('on', y === b)); });
+    $('#cc', w).innerHTML = L.map((c) => `<button type="button" data-c="${esc(c.id)}" class="${c.id === d.cat ? 'on' : ''}">${esc(c.emoji)} ${esc(c.name)}</button>`).join('') + '<button type="button" class="nueva" id="ccNew">＋ Nueva</button>';
+    $$('#cc button[data-c]', w).forEach((b) => b.onclick = () => { d.cat = b.dataset.c; $$('#cc button[data-c]', w).forEach((y) => y.classList.toggle('on', y === b)); });
+    $('#ccNew', w).onclick = () => {
+      const name = window.prompt(d.tipo === 'in' ? 'Nombre de la categoría de ingreso' : 'Nombre de la categoría (ej: Mascotas, Auto, Salud)');
+      if (!name || !name.trim()) return;
+      const id = uid('c'); const nueva = { name: name.trim().slice(0, 40), emoji: d.tipo === 'in' ? '💰' : '🏷️', tipo: d.tipo, order: cats(d.tipo).length };
+      st.S.cats = [...(st.S.cats || []), { id, ...nueva }]; d.cat = id; paintTipo();
+      ops([{ col: 'cats', action: 'add', id, data: nueva }], `Categoría ${nueva.name} creada. El emoji lo cambiás en ✏️ Categorías.`);
+    };
     const cw = $('#cuW', w); if (cw) cw.classList.toggle('hidden', d.tipo === 'in');
   };
   const hint = () => {
@@ -850,7 +891,11 @@ function spaceSwitch() {
 }
 
 // ---------- carga mágica (texto, audio, foto) ----------
+const oculto = () => { try { return localStorage.getItem('mc_oculto') === '1'; } catch (e) { return false; } };
+const aplicarOculto = () => document.body.classList.toggle('oculto', oculto());
 const IC = {
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeoff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.5 0-10-7-10-7a18 18 0 0 1 4.1-4.9M9.9 5.2A9.6 9.6 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-2.2 3.2M14.1 14.2a3 3 0 0 1-4.2-4.2M2 2l20 20"/></svg>',
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>',
   cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -860,14 +905,16 @@ function magicCard() {
   const a = aiInfo(); const pro = st.me.plan === 'pro';
   return `<div class="card magic">
     <div class="t">✨ Contale a MateCuentas <small>${pro ? 'Pro · ilimitado' : `${a.left} de ${a.limit} gratis este mes`}</small></div>
-    <div class="mrow">
+    <div class="mrow mwide">
       <input id="mtext" placeholder="Ej: gasté 12 lucas en el súper" autocomplete="off" enterkeyhint="send">
-      <button class="mbtn" id="msend" aria-label="Cargar">${IC.send}</button>
-      <button class="mbtn mic" id="mmic" aria-label="Dictar un audio">${IC.mic}</button>
-      <button class="mbtn" id="mcam" aria-label="Foto del ticket">${IC.cam}</button>
+      <button class="msend" id="msend" aria-label="Cargar">${IC.send}</button>
+    </div>
+    <div class="mrow2">
+      <button class="mpill mic" id="mmic" aria-label="Dictar un audio">${IC.mic}<span>Hablar</span></button>
+      <button class="mpill" id="mcam" aria-label="Foto del ticket">${IC.cam}<span>Foto del ticket</span></button>
     </div>
     <input type="file" id="mfile" accept="image/*" capture="environment" hidden>
-    <div class="mhint">Hablá, escribí o sacale foto al ticket. También por WhatsApp con MateBot 🧉</div>
+    <div class="mhint">También por WhatsApp con MateBot 🧉</div>
   </div>`;
 }
 let rec = null;
@@ -887,13 +934,14 @@ async function toggleRec(btn) {
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch (e) { return toast('Necesito permiso para usar el micrófono'); }
   const type = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find((x) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(x)) || '';
   const r = new MediaRecorder(stream, type ? { mimeType: type } : undefined); const chunks = [];
-  rec = r; btn.classList.add('rec'); btn.innerHTML = '■';
+  const orig = btn.innerHTML;
+  rec = r; btn.classList.add('rec'); btn.innerHTML = btn.classList.contains('mpill') ? '■ <span>Terminar</span>' : '■';
   toast('Te escucho… tocá ■ para terminar', 2500);
   const stopAt = setTimeout(() => r.state === 'recording' && r.stop(), 60000);
   r.ondataavailable = (e) => e.data.size && chunks.push(e.data);
   r.onstop = async () => {
     clearTimeout(stopAt); stream.getTracks().forEach((x) => x.stop()); rec = null;
-    btn.classList.remove('rec'); btn.innerHTML = IC.mic;
+    btn.classList.remove('rec'); btn.innerHTML = orig;
     const blob = new Blob(chunks, { type: r.mimeType || 'audio/webm' });
     if (blob.size < 1500) return toast('Fue muy cortito. Mantené un poco más.');
     const b64 = await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1]); fr.readAsDataURL(blob); });
