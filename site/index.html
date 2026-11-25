@@ -138,8 +138,8 @@ p.s{color:var(--muted);font-size:1.1rem;max-width:42rem;margin:0 0 30px}
 .pc .pr{font-family:var(--disp);font-size:2.7rem;font-weight:800;letter-spacing:-.04em;margin:8px 0 2px}
 .pc .pr small{font-family:var(--font);font-size:.95rem;color:var(--muted);font-weight:600;letter-spacing:0}
 .pc ul{list-style:none;padding:0;margin:18px 0 22px;display:grid;gap:10px;flex:1}
-.pc li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.97rem}
-.pc li::before{content:"✓";color:var(--brand);font-weight:800}.pc.pro li::before{color:var(--pro)}
+.pc li{position:relative;padding-left:30px;font-size:.97rem;line-height:1.45}
+.pc li::before{content:"✓";position:absolute;left:2px;top:0;color:var(--brand);font-weight:800}.pc.pro li::before{color:var(--pro)}
 .badge{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--pro);color:#fff;padding:4px 9px;border-radius:7px;vertical-align:middle;margin-left:6px}
 .fam{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .fm{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;gap:12px;align-items:center}
