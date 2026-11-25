@@ -8,7 +8,7 @@ import { URL_SISTEMA } from "./brief"
  * Demos privadas: no son públicas. Se piden con email (web, bot o el equipo) y llegan por correo
  * con un link personal que vence. El autodiagnóstico de transformación digital sí es público.
  */
-export type DemoInfo = { slug: string; titulo: string; texto: string }
+export type DemoInfo = { slug: string; titulo: string; texto: string; externa?: string }
 export const DEMOS: DemoInfo[] = [
   { slug: "whatsapp", titulo: "Asistente de WhatsApp con IA", texto: "Chateá como si fueras un cliente y mirá cómo se llena el tablero." },
   { slug: "webs", titulo: "Páginas web con IA", texto: "Elegí rubro, nombre y color, y mirá tu web armada al instante." },
@@ -16,6 +16,7 @@ export const DEMOS: DemoInfo[] = [
   { slug: "padron", titulo: "Sistema de padrón", texto: "Afiliados, aportes y credencial digital, del lado del administrador y del afiliado." },
   { slug: "obras-sociales", titulo: "Sistema para obras sociales", texto: "Afiliados, órdenes, autorizaciones, prestadores y tablero de la conducción." },
   { slug: "academia", titulo: "Plataforma de cursos", texto: "Inscripción, aula, examen y certificado verificable." },
+  { slug: "salud-digital", titulo: "Salud Digital · Atención domiciliaria", texto: "El sistema completo en marca blanca: pacientes, órdenes, agenda de visitas, historia clínica, cierre mensual y tablero.", externa: "https://saluddigital.devisebit.com/demo" },
   { slug: "panel-de-contenido", titulo: "Panel de Contenido", texto: "Redes, web, competencia y publicaciones en un solo tablero." },
 ]
 export const demoInfo = (slug: string) => DEMOS.find((d) => d.slug === slug)

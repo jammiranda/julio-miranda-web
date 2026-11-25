@@ -52,11 +52,13 @@ export default async function MisDemos({ params }: { params: { token: string } }
             <p className="m-0 text-[15px] text-[var(--gris)]">{d.texto}</p>
             <div className="mt-auto flex flex-col gap-2 pt-2">
               <a href={`/demo/${params.token}/${d.slug}${q}`} className="btn-p text-center" style={{ background: acento }}>Probar la demo</a>
+              {!d.externa && <>
               <a href={`/demo/${params.token}/${d.slug}${q ? q + "&" : "?"}tour=1`} className="btn-s text-center">Recorrido guiado</a>
               <details className="rounded-xl border border-[var(--borde)]">
                 <summary className="cursor-pointer px-4 py-2.5 text-sm font-semibold text-center">▶ Ver el video (1 min)</summary>
                 <video src={videoDe(d.slug, blanca)} controls preload="none" playsInline className="w-full rounded-b-xl bg-black aspect-video" />
               </details>
+              </>}
             </div>
           </li>
         ))}

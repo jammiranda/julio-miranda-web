@@ -19,6 +19,12 @@ export async function GET(req: NextRequest, { params }: { params: { token: strin
   if (a.blanca && req.nextUrl.searchParams.get("marca") !== "blanca") {
     const u = req.nextUrl.clone(); u.searchParams.set("marca", "blanca"); return NextResponse.redirect(u)
   }
+  const info = demoInfo(slug)!
+  if (info.externa) {
+    await q("update demo_accesos set visitas=visitas+1, ultima=now(), vistas = jsonb_set(vistas, array[$2::text], to_jsonb(coalesce((vistas->>$2)::int,0)+1)) where id=$1", [a.id, slug])
+    if (a.visitas === 0) await notificar(["gerente", "coordinacion"], "👀 Abrieron una demo", `${a.nombre ?? a.email} abrió ${info.titulo}`, "/demos-admin").catch(() => {})
+    return NextResponse.redirect(`${info.externa}?t=${encodeURIComponent(params.token)}`)
+  }
   let html = await fs.readFile(path.join(process.cwd(), "private", "demos", `${slug}.html`), "utf8")
   html = html.replace(/<head>/i, '<head><meta name="robots" content="noindex,nofollow">')
   await q("update demo_accesos set visitas=visitas+1, ultima=now(), vistas = jsonb_set(vistas, array[$2::text], to_jsonb(coalesce((vistas->>$2)::int,0)+1)) where id=$1", [a.id, slug])
