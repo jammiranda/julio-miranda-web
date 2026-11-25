@@ -259,6 +259,29 @@ function render() {
   if (keep !== null) { const q = $('#q'); if (q) { q.focus(); q.setSelectionRange(keep, keep); } }
 }
 
+// Fila de categoría con lo previsto al lado, chico y con otra letra (como en el plan familiar):
+// "Chicos $2.000.000 · de $1.700.000 · Te pasaste $300.000", con barra y el desglose por detalle
+function catRowHtml(o) {
+  const plan = Number(o.c.plan) || 0, over = plan && o.t > plan, pct = plan ? Math.min(100, o.t / plan * 100) : 0;
+  const by = {}; for (const x of o.xs) { const k = (x.detalle || '').trim(); if (k) by[k] = (by[k] || 0) + x.monto; }
+  const brk = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${esc(k)} ${fmtK(v)}`).join(' · ');
+  const meta = plan ? (over ? `<span class="neg">Te pasaste ${fmt(o.t - plan)}</span>` : `<span class="pos">Quedan ${fmt(plan - o.t)}</span>`) : `${o.xs.length} mov.`;
+  return `<button class="row" data-cat="${esc(o.c.id)}"><span class="emo">${esc(o.c.emoji)}</span><span style="min-width:0"><div class="nm">${esc(o.c.name)}</div><div class="meta">${meta}${plan ? ` · ${o.xs.length} mov.` : ''}</div>${plan ? `<div class="bar"><i class="${over ? 'over' : ''}" style="width:${pct}%"></i></div>` : ''}${brk ? `<div class="brk">${brk}</div>` : ''}</span><span class="r num">${fmt(o.t)}${o.c.id !== '_' ? `<small class="prev" data-prev="${esc(o.c.id)}" title="Tocá para cambiar lo previsto">${plan ? 'de ' + fmt(plan) : '+ previsto'}</small>` : ''}</span></button>`;
+}
+
+// Cambiar lo previsto de una categoría sin salir de Inicio
+function editPrev(cid) {
+  const c = catById(cid); if (!c) return;
+  const w = openModal(`${esc(c.emoji)} Previsto para ${esc(c.name)}`, `<p class="muted" style="margin:0 0 12px">Cuánto pensás gastar por mes en ${esc(c.name)}. Lo vas a ver chiquito al lado de lo gastado, con lo que te queda o cuánto te pasaste.</p>
+    <input class="in num" id="pv" inputmode="numeric" style="font-size:1.4rem;text-align:right" placeholder="$ 0" value="${c.plan ? Math.round(c.plan).toLocaleString('es-AR') : ''}">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px"><button class="btn ghost" id="pvNo">Sin previsto</button><button class="btn" id="pvOk">Guardar</button></div>`);
+  const pv = $('#pv', w); setTimeout(() => pv.focus(), 50);
+  const save = (v) => { closeModal(); ops([{ col: 'cats', action: 'upd', id: cid, data: { plan: v || null } }], v ? `Previsto de ${c.name}: ${fmt(v)}` : 'Previsto quitado'); };
+  $('#pvOk', w).onclick = () => save(parseNum(pv.value));
+  $('#pvNo', w).onclick = () => save(null);
+  pv.onkeydown = (e) => { if (e.key === 'Enter') save(parseNum(pv.value)); };
+}
+
 function vHome() {
   const L = monthMovs();
   const outs = L.filter((x) => x.tipo === 'out'); const ins = L.filter((x) => x.tipo === 'in');
@@ -282,12 +305,13 @@ function vHome() {
         <div><span>Salió</span><b>${fmtK(tOut)}</b></div>
         <div><span>${budget ? 'Presupuesto' : 'Movimientos'}</span><b>${budget ? Math.round(tOut / budget * 100) + '%' : L.length}</b></div>
       </div>
+      ${budget ? `<div class="prevline">previsto ${fmt(budget)} · ${tOut > budget ? 'te pasaste ' + fmt(tOut - budget) : 'te quedan ' + fmt(budget - tOut)}</div>` : ''}
     </div>
     ${r ? `<div class="fx num">💵 Dólar ${FX_LBL[st.S.settings.fx || 'blue']}: <b style="color:var(--fg)">${fmt(r)}</b> <span>· dolarapi.com</span></div>` : ''}
     <div class="two">
       <div class="card kind">
         <div class="rowh"><div><h2>↓ Egresos</h2><p class="sub">Lo que salió, por categoría</p></div><span class="tag num">${outs.length}</span></div>
-        ${used.length ? used.map((o) => { const pct = o.c.plan ? Math.min(100, o.t / o.c.plan * 100) : 0; return `<button class="row" data-cat="${esc(o.c.id)}"><span class="emo">${esc(o.c.emoji)}</span><span style="min-width:0"><div class="nm">${esc(o.c.name)}</div><div class="meta">${o.xs.length} mov.${o.c.plan ? ' · de ' + fmt(o.c.plan) : ''}</div>${o.c.plan ? `<div class="bar"><i class="${o.t > o.c.plan ? 'over' : ''}" style="width:${pct}%"></i></div>` : ''}</span><span class="r num">${fmt(o.t)}${o.c.plan ? `<small class="${o.t > o.c.plan ? 'neg' : ''}">${o.t > o.c.plan ? 'pasado ' + fmt(o.t - o.c.plan) : 'quedan ' + fmt(o.c.plan - o.t)}</small>` : ''}</span></button>`; }).join('') : `<div class="empty"><b>Todavía no hay gastos este mes</b>Tocá + para cargar el primero.</div>`}
+        ${used.length ? used.map(catRowHtml).join('') : `<div class="empty"><b>Todavía no hay gastos este mes</b>Tocá + para cargar el primero.</div>`}
       </div>
       <div class="card kind in">
         <div class="rowh"><div><h2>↑ Ingresos</h2><p class="sub">Lo que entró, por persona</p></div><span class="tag num">${ins.length}</span></div>
@@ -417,6 +441,7 @@ function planBox() {
 function bindView() {
   const M = $('#main'); const $$ = (q) => [...M.querySelectorAll(q)];
   $$('[data-cat]').forEach((b) => b.onclick = () => openCat(b.dataset.cat));
+  $$('[data-prev]').forEach((b) => b.onclick = (e) => { e.stopPropagation(); editPrev(b.dataset.prev); });
   $$('[data-mov]').forEach((b) => b.onclick = () => openMov(b.dataset.mov));
   $$('[data-up]').forEach((b) => b.onclick = () => upsell(b.dataset.up));
   bindMagic(M);
@@ -572,11 +597,14 @@ function openCat(cid) {
   const c = cid === '_' ? { emoji: '•', name: 'Sin categoría' } : catById(cid);
   const xs = monthMovs().filter((x) => x.tipo === 'out' && (cid === '_' ? !st.S.cats.some((k) => k.id === x.cat) : x.cat === cid)).sort((a, b) => b.fecha.localeCompare(a.fecha));
   const by = {}; for (const x of xs) { const k = (x.detalle || '').trim() || c.name; (by[k] = by[k] || []).push(x); }
-  const w = openModal(`${esc(c.emoji)} ${esc(c.name)}`, `<div class="rowh"><span class="muted">${esc(mName(st.month))} · ${xs.length} mov.</span><b class="num" style="font-size:1.2rem">${fmt(sum(xs))}</b></div>
+  const plan = Number(c.plan) || 0, t = sum(xs);
+  const w = openModal(`${esc(c.emoji)} ${esc(c.name)}`, `<div class="rowh"><span class="muted">${esc(mName(st.month))} · ${xs.length} mov.</span><span style="text-align:right"><b class="num" style="font-size:1.2rem">${fmt(t)}</b>${cid !== '_' ? `<small class="prev" id="pvHere" style="display:block;cursor:pointer">${plan ? `de ${fmt(plan)} · ${t > plan ? 'te pasaste ' + fmt(t - plan) : 'quedan ' + fmt(plan - t)}` : '+ poner previsto'}</small>` : ''}</span></div>
+    ${plan ? `<div class="bar" style="margin:4px 0 10px"><i class="${t > plan ? 'over' : ''}" style="width:${Math.min(100, t / plan * 100)}%"></i></div>` : ''}
     ${xs.length ? Object.entries(by).sort((a, b) => sum(b[1]) - sum(a[1])).map(([k, L]) => (L.length > 1 ? `<div class="grp">${esc(k)} · <span class="num">${fmt(sum(L))}</span></div>` : '') + L.map(movRow).join('')).join('') : '<div class="empty">Sin gastos en esta categoría este mes.</div>'}
     ${cid !== '_' ? `<button class="btn soft block" id="addHere" style="margin-top:12px">＋ Cargar en ${esc(c.name)}</button>` : ''}`);
   $$('[data-mov]', w).forEach((b) => b.onclick = () => openMov(b.dataset.mov));
   const ah = $('#addHere', w); if (ah) ah.onclick = () => openMov(null, { cat: cid, tipo: 'out' });
+  const ph = $('#pvHere', w); if (ph) ph.onclick = () => { closeModal(); editPrev(cid); };
 }
 
 // Fijos: cargar uno nuevo, elegir de lo ya cargado o armar la base sola con lo que se repite

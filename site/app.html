@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Kalam:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f3f1e7;--panel:#fffefa;--panel2:#ebe8da;--fg:#16201a;--muted:#5f6b62;--line:#dfdccb;
@@ -121,6 +121,11 @@ main{max-width:62rem;margin:0 auto;padding:16px}
 .row .meta{font-size:.77rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row .r{text-align:right;font-weight:750;font-size:.95rem;white-space:nowrap}
 .row .r small{display:block;font-weight:500;color:var(--muted);font-size:.74rem}
+/* lo previsto: chico, con letra de anotación y otro color (como en el plan familiar) */
+.prev,.row .r small.prev{font-family:'Kalam',cursive;font-weight:400;font-size:.86rem;color:var(--warn);letter-spacing:.01em;cursor:pointer;text-decoration:underline dotted transparent;text-underline-offset:3px}
+.prev:hover{text-decoration-color:currentColor}
+.prevline{font-family:'Kalam',cursive;font-size:1rem;margin-top:10px;opacity:.92;color:var(--gold)}
+.row .brk{font-size:.72rem;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden;margin-top:6px}
 .bar i{display:block;height:100%;background:var(--brand);border-radius:3px}
 .bar i.over{background:var(--out)}
