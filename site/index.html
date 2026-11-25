@@ -126,6 +126,21 @@ p.s{color:var(--muted);font-size:1.1rem;max-width:42rem;margin:0 0 30px}
 .mlabels{display:flex;gap:10px;padding:6px 4px 0;font-size:.72rem;color:var(--muted);font-weight:700}.mlabels span{flex:1;text-align:center}
 .ins{margin-top:14px;display:grid;gap:8px;font-size:.88rem}
 .ins div{display:flex;gap:8px;background:var(--panel2);padding:9px 12px;border-radius:12px}
+.inst{display:grid;gap:18px}@media(min-width:900px){.inst{grid-template-columns:1fr 1.1fr;align-items:start}}
+.doors{display:grid;gap:12px}
+.door{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px 18px}
+.door i{font-style:normal;font-size:1.6rem;line-height:1}.door h3{margin:0 0 4px;font-size:1.05rem}.door p{margin:0;color:var(--muted);font-size:.95rem}
+.sync{margin-top:4px;display:flex;gap:10px;align-items:center;justify-content:center;padding:14px;border-radius:18px;background:var(--brand2);color:var(--fg);font-weight:700;font-size:.95rem;text-align:center}
+.ibox{background:var(--panel);border:1.5px solid var(--line);border-radius:26px;padding:22px}
+.ibox h3{margin:0 0 6px;font-size:1.2rem}.ibox>p{margin:0 0 14px;color:var(--muted)}
+.itabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.itabs button{font:inherit;font-weight:700;font-size:.9rem;border:1px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:999px;padding:9px 14px;min-height:40px;cursor:pointer}
+.itabs button[aria-selected=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.itabs button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.isteps{margin:0;padding-left:22px;display:grid;gap:8px}.isteps li{padding-left:4px}
+.isteps kbd{font:inherit;font-weight:800;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:1px 7px;white-space:nowrap}
+#instalarYa{width:100%;margin-bottom:6px}#instalarYa[hidden],.isteps[hidden]{display:none}
+.iok{display:none;margin-top:12px;padding:12px;border-radius:14px;background:var(--brand2);font-weight:700}
 /* steps / prices / faq */
 .steps{display:grid;gap:14px}@media(min-width:800px){.steps{grid-template-columns:repeat(3,1fr)}}
 .step{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px}
@@ -175,7 +190,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
 <body>
 <nav class="top"><div class="wrap">
   <a class="logo" href="/"><img src="/icon.svg" alt=""><span>MateCuentas<small>familia Mate · by DEVISEBIT</small></span></a>
-  <div class="nl"><a href="#formas">Cómo se carga</a><a href="#matebot">MateBot</a><a href="#tablero">Tablero</a><a href="#precios">Precios</a></div>
+  <div class="nl"><a href="#formas">Cómo se carga</a><a href="#matebot">MateBot</a><a href="#tablero">Tablero</a><a href="#instalar">Instalar</a><a href="#precios">Precios</a></div>
   <a class="btn sm ghost" href="/app">Ingresar</a>
 </div></nav>
 
@@ -252,6 +267,36 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
   </div>
 </div></section>
 
+<section id="instalar"><div class="wrap">
+  <div class="kicker" data-reveal>Desde cualquier lado</div>
+  <h2 class="s" data-reveal>Tenela como una app. Cargá desde donde estés.</h2>
+  <p class="s" data-reveal>No hace falta bajar nada de ninguna tienda: la instalás en el celu y en la compu con un toque. Cargues desde donde cargues, todo cae en el mismo lugar y lo ve toda tu casa.</p>
+  <div class="inst">
+    <div class="doors" data-reveal>
+      <div class="door"><i>📱</i><div><h3>En el celu, como una app</h3><p>Ícono en la pantalla de inicio, abre a pantalla completa. Ideal para el audio y la foto del ticket en el momento.</p></div></div>
+      <div class="door"><i>💻</i><div><h3>En la compu, en el escritorio</h3><p>Ventana propia y acceso directo. Para mirar el tablero tranquilo o cargar el resumen de la tarjeta.</p></div></div>
+      <div class="door"><i>💬</i><div><h3>Por WhatsApp, sin abrir nada</h3><p>Le mandás el gasto a MateBot como a un amigo y aparece en tu MateCuentas.</p></div></div>
+      <div class="sync">🔄 Lo que cargás en uno aparece al instante en los otros, y en los de tu familia.</div>
+    </div>
+    <div class="ibox" data-reveal>
+      <h3>Instalala en 10 segundos</h3>
+      <p>Elegí tu equipo y seguí los pasos.</p>
+      <button class="btn" id="instalarYa" hidden>⬇️ Instalar MateCuentas</button>
+      <div class="itabs" role="tablist">
+        <button role="tab" id="t-android" aria-selected="true" aria-controls="p-android">Android</button>
+        <button role="tab" id="t-iphone" aria-selected="false" aria-controls="p-iphone">iPhone</button>
+        <button role="tab" id="t-pc" aria-selected="false" aria-controls="p-pc">Compu</button>
+        <button role="tab" id="t-mac" aria-selected="false" aria-controls="p-mac">Mac</button>
+      </div>
+      <ol class="isteps" role="tabpanel" id="p-android"><li>Abrí <b>matecuentas.devisebit.com</b> en Chrome.</li><li>Tocá el menú <kbd>⋮</kbd> arriba a la derecha.</li><li>Elegí <kbd>Instalar app</kbd> (o <kbd>Agregar a pantalla principal</kbd>).</li><li>Listo: aparece el mate verde entre tus apps.</li></ol>
+      <ol class="isteps" role="tabpanel" id="p-iphone" hidden><li>Abrí <b>matecuentas.devisebit.com</b> en <b>Safari</b>.</li><li>Tocá el botón <kbd>Compartir</kbd> (el cuadrado con la flecha para arriba).</li><li>Bajá y elegí <kbd>Agregar a inicio</kbd>.</li><li>Tocá <kbd>Agregar</kbd> y queda en tu pantalla de inicio.</li></ol>
+      <ol class="isteps" role="tabpanel" id="p-pc" hidden><li>Abrí <b>matecuentas.devisebit.com</b> en Chrome o Edge.</li><li>En la barra de direcciones, tocá el ícono de <kbd>Instalar</kbd> (una pantallita con una flecha).</li><li>Confirmá con <kbd>Instalar</kbd>.</li><li>Se abre en su propia ventana y queda en el escritorio y en el menú Inicio.</li></ol>
+      <ol class="isteps" role="tabpanel" id="p-mac" hidden><li>Abrí <b>matecuentas.devisebit.com</b> en Safari.</li><li>En el menú <kbd>Archivo</kbd>, elegí <kbd>Agregar al Dock</kbd>.</li><li>Confirmá con <kbd>Agregar</kbd> y queda en el Dock como una app.</li></ol>
+      <div class="iok" id="iok">✅ ¡Listo! Buscá el mate verde en tus apps.</div>
+    </div>
+  </div>
+</div></section>
+
 <section id="precios"><div class="wrap">
   <h2 class="s" data-reveal>Gratis para siempre. Pro si querés más.</h2>
   <p class="s" data-reveal>Pro cuesta menos que un café por semana y te ahorra mucho más.</p>
@@ -300,7 +345,7 @@ footer a{text-decoration:none}footer .by{flex:1;min-width:15rem;display:flex;gap
   <details><summary>¿Tengo que conectar mi banco o mi tarjeta?</summary><p>No. Vos le contás los gastos (o se los mandás a MateBot). No te pedimos claves de banco y nunca movemos plata.</p></details>
   <details><summary>¿Qué pasa con mis audios y fotos?</summary><p>Se usan solo para entender el gasto y se descartan. Tus cuentas las ven únicamente las personas que vos invitás.</p></details>
   <details><summary>¿Cómo conecto WhatsApp?</summary><p>En la app, Ajustes → Conectar WhatsApp. Te damos un código, se lo mandás a MateBot y listo.</p></details>
-  <details><summary>¿Necesito descargar algo?</summary><p>No. Funciona desde el navegador y la podés agregar a la pantalla de inicio como una app.</p></details>
+  <details><summary>¿Necesito descargar algo?</summary><p>No hace falta ir a ninguna tienda. Funciona desde el navegador y la instalás como una app en el celu y en la compu: mirá los pasos en <a href="#instalar">Instalala</a>. También podés cargar por WhatsApp con MateBot, y todo queda en el mismo lugar.</p></details>
   <details><summary>¿Cómo cancelo Pro?</summary><p>Desde Ajustes, con un toque. Sin permanencia ni letra chica.</p></details>
 </div></section>
 
@@ -329,5 +374,19 @@ document.querySelectorAll('a[href="/app#signup"]').forEach(function(a){a.addEven
 if(location.search.indexOf('bye=1')>-1){var d=document.createElement('div');d.textContent='Tu cuenta fue borrada. ¡Gracias por haber usado MateCuentas!';d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f2418;color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;z-index:99';document.body.appendChild(d);setTimeout(function(){d.remove()},5000)}
 </script>
 <script type="module" src="/landing.js"></script>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.itabs [role=tab]'));
+  function pick(id){tabs.forEach(function(t){var on=t.id===id;t.setAttribute('aria-selected',on);document.getElementById(t.getAttribute('aria-controls')).hidden=!on})}
+  tabs.forEach(function(t,i){t.addEventListener('click',function(){pick(t.id)});t.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){var n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];n.focus();pick(n.id)}})});
+  var ua=navigator.userAgent;
+  pick(/iPhone|iPad|iPod/.test(ua)?'t-iphone':/Android/.test(ua)?'t-android':/Macintosh/.test(ua)&&!/Chrome|Edg/.test(ua)?'t-mac':/Windows|Macintosh|Linux|CrOS/.test(ua)?'t-pc':'t-android');
+  var ev=null,btn=document.getElementById('instalarYa'),ok=document.getElementById('iok');
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;btn.hidden=false});
+  btn.addEventListener('click',function(){if(!ev)return;ev.prompt();ev.userChoice.then(function(r){if(r.outcome==='accepted'){btn.hidden=true;ok.style.display='block'}ev=null}).catch(function(){})});
+  window.addEventListener('appinstalled',function(){btn.hidden=true;ok.style.display='block'});
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});
+})();
+</script>
 </body>
 </html>
