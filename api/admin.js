@@ -27,7 +27,7 @@ export default guard(async (req, res) => {
     for (const p of paths) { const { data: u } = await readJ(p); if (u) rows.push(u); }
     if (a === 'stats') {
       const pro = rows.filter((u) => u.plan === 'pro' && (!u.proUntil || u.proUntil > Date.now())).length;
-      // Solo números agregados: ningún dato personal ni montos
+      // Números agregados + lista de contactos (nombre, email, teléfono si lo dejó). Nunca montos ni movimientos.
       const D = 86400e3, now = Date.now(), d30 = now - 30 * D, d7 = now - 7 * D;
       const sp = (await listPaths('s/')).filter((p) => p.endsWith('.json'));
       let movs = 0, movs30 = 0, movs7 = 0, act30 = new Set(), act7 = new Set(), spAct30 = 0, members = 0;
@@ -50,7 +50,10 @@ export default guard(async (req, res) => {
       }
       const mk = new Date(now - 3 * 3600e3).toISOString().slice(0, 7);
       const ai = rows.reduce((x, u) => x + (u.aiUse && u.aiUse.m === mk ? u.aiUse.n : 0), 0);
+      const contactos = rows.map((u) => ({ nombre: u.name || '', email: u.email, alta: u.created || null, optin: !!(u.optin && u.optin.ok), phone: (u.optin && u.optin.phone) || '',
+        pro: u.plan === 'pro' && (!u.proUntil || u.proUntil > now), whatsapp: !!(u.bots && Object.keys(u.bots).length) })).sort((a, b) => (b.alta || 0) - (a.alta || 0));
       return send(res, 200, {
+        contactos, region: process.env.VERCEL_REGION || null,
         users: rows.length, optin: rows.filter((u) => u.optin && u.optin.ok).length, pro, spaces: sp.length,
         altas7: rows.filter((u) => u.created > d7).length, altas30: rows.filter((u) => u.created > d30).length,
         activos7: act7.size, activos30: act30.size, espaciosActivos30: spAct30, miembros: members,
