@@ -14,7 +14,7 @@
     // o 2 segundos después de terminar de cargar. Los eventos en cola se envían cuando llegan.
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () { dataLayer.push(arguments); };
-    gtag('js', new Date()); if (/^(www\.)?devisebit\.com$/.test(location.hostname)) { gtag('config', 'AW-10953063902'); gtag('config', 'G-DPH6T7Z06S'); gtag('config', 'AW-18556479684'); gtag('event', 'conversion', { send_to: 'AW-18556479684/XsupCIzwlbIdEMTRtZBF', value: 1.0, currency: 'ARS' }); }
+    gtag('js', new Date()); if (/^(www\.)?devisebit\.com$/.test(location.hostname)) { gtag('config', 'AW-10953063902'); gtag('config', 'G-DPH6T7Z06S'); }
     if (!window.fbq) { var n = window.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); }; if (!window._fbq) window._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; }
     fbq('init','1597635908717757');fbq('track','PageView');
     var cargada = false, avisos = ['pointerdown', 'touchstart', 'keydown', 'scroll'];
