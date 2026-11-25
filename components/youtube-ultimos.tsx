@@ -28,10 +28,11 @@ export default function YoutubeUltimos({ oscuro = true, titulo = "Lo último en 
             aria-label="Ver los últimos videos de DEVISEBIT en YouTube"
             className="group absolute inset-0 flex flex-col items-center justify-center gap-3 text-white text-[15px] font-bold bg-[radial-gradient(circle_at_75%_15%,#3a0d10,#0B0D12_62%)]"
           >
-            <span aria-hidden="true" className="flex items-center justify-center w-[68px] h-12 rounded-[14px] bg-[#CC0000] group-hover:scale-105 transition-transform">
+            <img src="https://i.ytimg.com/vi/Hou4qFpNC4k/hqdefault.jpg" alt="" width={480} height={360} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
+            <span aria-hidden="true" className="relative flex items-center justify-center w-[68px] h-12 rounded-[14px] bg-[#CC0000] group-hover:scale-105 transition-transform">
               <span className="block w-0 h-0 border-y-[10px] border-y-transparent border-l-[18px] border-l-white ml-1" />
             </span>
-            Ver los últimos videos
+            <span className="relative rounded-md bg-black/60 px-2.5 py-1">Ver los últimos videos</span>
           </a>
         )}
       </div>

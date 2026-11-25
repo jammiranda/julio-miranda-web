@@ -5,7 +5,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { JsonLd } from "@/components/json-ld"
 import TrabajosClient from "../../trabajos/TrabajosClient"
-import YoutubeUltimos from "@/components/youtube-ultimos"
+import YoutubeGaleria from "@/components/youtube-galeria"
 import { REDES_GESTIONADAS } from "@/lib/marca"
 import { CASOS, SECTORES } from "@/lib/casos-datos"
 import { SITE_URL, breadcrumb, pageMeta } from "@/lib/seo"
@@ -135,7 +135,7 @@ export default function CasosDeExitoPage() {
               <p className="m-0 text-[#C3C8D1] leading-relaxed">Publicamos resúmenes de cada proyecto en reels y shorts: el problema, lo que hicimos y el resultado, en menos de un minuto. Suscribite para ver los nuevos.</p>
               <a href="https://www.instagram.com/devisebit/reels/" target="_blank" rel="noopener noreferrer" className="self-start inline-flex items-center gap-2 rounded-xl border border-white/20 hover:border-[#FF6A63] px-4 py-2.5 text-sm font-bold"><Instagram size={18} aria-hidden="true" /> Reels en Instagram</a>
             </div>
-            <YoutubeUltimos titulo="Últimos videos y shorts" />
+            <YoutubeGaleria cantidad={4} columnas={2} />
           </div>
         </div>
       </section>

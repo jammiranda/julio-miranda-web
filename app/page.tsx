@@ -5,6 +5,8 @@ import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
 import EscaleraMadurez from "@/components/escalera-madurez"
 import { WHATSAPP } from "@/lib/marca"
+import ProductosExplorador from "@/components/productos-explorador"
+import { PRODUCTOS } from "@/lib/productos-fichas"
 import CintaProyectos from "@/components/cinta-proyectos"
 import FraseGrande from "@/components/frase-grande"
 
@@ -15,23 +17,10 @@ const STATS = [
   { n: "24/7", c: 0, pre: "", l: "soporte y monitoreo de sistemas" },
 ]
 
-const PRODUCTS = [
-  { title: "Sistema para clínicas", text: "Turnos, historia clínica, recetas y tablero." },
-  { title: "Asistente de WhatsApp con IA", text: "Atención 24 h con derivación a personas." },
-  { title: "CRM de afiliados y prestadores", text: "Padrón único, autorizaciones y trazabilidad." },
-  { title: "Tableros de control", text: "Indicadores al día con alertas." },
-  { title: "App y credencial digital", text: "Tu institución en el celular de cada afiliado." },
-  { title: "Academias online", text: "Cursos, pagos y certificados." },
-  { title: "Votación y control de acceso", text: "Elecciones sin papel y acceso con QR." },
-  { title: "Gestor documental con firma digital", text: "Documentos ordenados y firmados en línea." },
-]
-
-const PRODUCT_IDS = ["clinicas", "whatsapp", "crm", "tableros", "app", "academias", "votacion", "documental"]
-
 const CASES = [
   { img: "/images/case-tigre-new.webp", tag: "Gobierno municipal", title: "Municipio de Tigre · app Soy Tigre", text: "Más de 80.000 vecinos suscriptos. Desarrollo y soporte de la app municipal: más de 500 comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
   { img: "/images/case-comunidad-usl.webp", tag: "Comunidad y academia", title: "Comunidad USL · Academia", text: "Comunidad y academia online: cursos, inscripciones, beneficios y padrón en un solo panel. Más de 1.000 inscriptos en un año." },
-  { img: "/images/case-management-new.webp", tag: "Salud · marca blanca", title: "Sistema de internación domiciliaria", text: "Gestión completa de pacientes, prestaciones, profesionales y facturación, en producción todos los días. Ahora disponible con tu marca, por abono mensual." },
+  { img: "/images/case-salud-marca-blanca.webp", tag: "Sistemas de salud · marca blanca", title: "Internación domiciliaria, con tu marca", text: "Pacientes, visitas, profesionales, prestaciones y facturación en un solo sistema que ya funciona todos los días. Lo adaptamos a tu institución, por abono mensual." },
 ]
 
 const QUE_HACEMOS = [
@@ -80,7 +69,7 @@ export default function HomePage() {
           <div className="db-scan"><i /></div>
         </section>
 
-        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Marca blanca", "Internación domiciliaria"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
+        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Salud · marca blanca", "Internación domiciliaria"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
         <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
         {/* Qué hacemos: las mismas puertas de entrada que los anuncios de Google */}
         <section id="que-hacemos" className="bg-white">
@@ -141,26 +130,17 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Productos */}
-        <section id="productos" className="bg-white">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-wrap gap-12">
-            <div className="flex-[1_1_340px] min-w-0 flex flex-col gap-3.5">
-              <p className={kicker + " text-[#C8231F]"}>Productos</p>
-              <h2 className={h2}>Sistemas probados, listos para implementar.</h2>
-              <p className="m-0 text-lg leading-relaxed text-[#4A515C]">No empezamos de cero: adaptamos productos que ya funcionan en producción. Eso baja el plazo y el riesgo.</p>
-              <Link href="/productos" className="self-start rounded-xl bg-[#0B0D12] hover:bg-[#1B2029] px-[22px] py-[14px] font-bold text-white transition-colors">Ver todos los productos</Link>
+        {/* Productos: el mismo explorador de /productos */}
+        <section id="productos" aria-labelledby="t-productos" className="bg-[#0B0D12] text-white">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 flex flex-col gap-9">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="flex flex-col gap-2.5 max-w-[760px]">
+                <p className={kicker + " text-[#FF6A63]"}>Productos</p>
+                <h2 id="t-productos" className={h2}>Elegí un producto y miralo por dentro.</h2>
+              </div>
+              <Link href="/productos" className="inline-flex items-center min-h-11 font-bold text-[#FF8A85] hover:text-white">Todos los productos →</Link>
             </div>
-            <div className="db-tech flex-[999_1_560px] min-w-0 rounded-[24px] bg-[#0B0D12] p-4 md:p-6 grid sm:grid-cols-2 gap-3">
-              {PRODUCTS.map((p, i) => (
-                <Link key={p.title} href={"/productos#" + PRODUCT_IDS[i]} className="db-card group rounded-2xl border border-[#262C37] bg-[#161A22] p-5 flex gap-4 items-start text-white">
-                  <span className="shrink-0 w-11 h-11 rounded-xl bg-[#C8231F] font-tight font-extrabold flex items-center justify-center group-hover:scale-110 transition-transform">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="flex flex-col gap-1 min-w-0">
-                    <span className="font-tight text-lg font-bold leading-snug group-hover:text-[#FF6A63] transition-colors">{p.title}</span>
-                    <span className="text-[15px] leading-normal text-[#C3C8D1]">{p.text}</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
+            <ProductosExplorador productos={PRODUCTOS} />
           </div>
         </section>
 

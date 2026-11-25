@@ -164,7 +164,7 @@ export default function ProductosExplorador({ productos }: { productos: Producto
   const grupos = Array.from(new Set(productos.map((x) => x.grupo)))
   return (
     <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-10 items-start">
-      <div role="tablist" aria-label="Productos" aria-orientation="vertical" className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0">
+      <div role="tablist" aria-label="Productos" aria-orientation="vertical" className="flex flex-wrap lg:flex-nowrap lg:flex-col gap-2">
         {grupos.map((g) => (
           <div key={g} className="contents lg:flex lg:flex-col lg:gap-1.5">
             <span className="hidden lg:block mt-3 first:mt-0 mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#8A919C]">{g}</span>
@@ -177,10 +177,10 @@ export default function ProductosExplorador({ productos }: { productos: Producto
                   role="tab"
                   aria-selected={on}
                   aria-controls="ficha-producto"
-                  onClick={() => setSel(x.id)}
-                  className={`shrink-0 scroll-mt-28 text-left rounded-xl px-4 py-3 border transition-colors ${on ? "border-[#FF6A63] bg-[#1B1012] text-white" : "border-[#262C37] bg-[#11151C] text-[#C3C8D1] hover:border-[#3A404B] hover:text-white"}`}
+                  onClick={() => { setSel(x.id); if (window.innerWidth < 1024) requestAnimationFrame(() => document.getElementById("ficha-producto")?.scrollIntoView({ behavior: "smooth", block: "start" })) }}
+                  className={`scroll-mt-28 text-left rounded-xl px-3.5 py-2.5 lg:px-4 lg:py-3 border transition-colors ${on ? "border-[#FF6A63] bg-[#1B1012] text-white" : "border-[#262C37] bg-[#11151C] text-[#C3C8D1] hover:border-[#3A404B] hover:text-white"}`}
                 >
-                  <span className="block font-semibold text-[15px] whitespace-nowrap lg:whitespace-normal">{x.title}</span>
+                  <span className="block font-semibold text-[14px] lg:text-[15px]">{x.title}</span>
                 </button>
               )
             })}
@@ -188,7 +188,7 @@ export default function ProductosExplorador({ productos }: { productos: Producto
         ))}
       </div>
 
-      <div id="ficha-producto" role="tabpanel" aria-live="polite" className="grid xl:grid-cols-[1fr_1fr] gap-8 items-center rounded-[24px] border border-[#262C37] bg-[#0F1218] p-6 md:p-9 min-h-[460px]">
+      <div id="ficha-producto" role="tabpanel" aria-live="polite" className="scroll-mt-24 grid xl:grid-cols-[1fr_1fr] gap-8 items-center rounded-[24px] border border-[#262C37] bg-[#0F1218] p-5 md:p-9 lg:min-h-[460px]">
         <div key={p.id} className="db-rise flex flex-col gap-4">
           <span className="text-[12px] font-bold uppercase tracking-[0.18em] text-[#FF6A63]">{p.grupo}</span>
           <h3 className="m-0 font-tight text-[28px] md:text-[34px] leading-[1.1] font-extrabold text-white">{p.title}</h3>
