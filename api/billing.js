@@ -1,6 +1,6 @@
 // Membresía Pro con suscripciones de Mercado Pago, a través del puente de DEVISEBIT (sistema.devisebit.com),
 // que es el que tiene el token de la cuenta. MateCuentas nunca ve el token.
-import { APP, readJ, mutate, userPath, idxPath, currentUser, publicUser, send, guard, fail } from './_core.js';
+import { APP, readJ, mutate, userPath, idxPath, currentUser, publicUser, send, guard, fail, body } from './_core.js';
 
 const on = () => !!(process.env.MP_BRIDGE_URL && process.env.MP_BRIDGE_KEY);
 
@@ -46,6 +46,22 @@ export default guard(async (req, res) => {
   }
 
   if (req.method !== 'POST') return send(res, 405, { error: 'metodo' });
+
+  // Código de regalo (lo genera Julio desde el panel; se valida en MateBot, que lleva el registro de todos los códigos)
+  if (a === 'codigo') {
+    const b = body(req);
+    const url = process.env.PROMO_CLAIM_URL, key = process.env.PROMO_CLAIM_KEY;
+    if (!url || !key) throw fail(503, 'Los códigos se habilitan en breve.');
+    const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-promo-key': key }, body: JSON.stringify({ codigo: String(b.codigo || ''), producto: 'cuentas', usuario: me.id, quien: me.name || me.email }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw fail(400, j.error || 'No pudimos validar el código.');
+    const { data: u } = await mutate(userPath(me.email), (d) => {
+      const base = Math.max(Date.now(), d.plan === 'pro' && d.proUntil ? d.proUntil : 0);
+      if (d.plan === 'pro' && !d.proUntil) return; // ya paga: no hace falta
+      d.plan = 'pro'; d.proUntil = base + j.dias * 864e5; d.grant = { dias: j.dias, codigo: true, ts: Date.now() };
+    });
+    return send(res, 200, { user: publicUser(u), dias: j.dias });
+  }
 
   if (a === 'checkout') {
     if (!on()) throw fail(503, 'Los pagos se habilitan en breve. Escribinos y te activamos Pro a mano.');

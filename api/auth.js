@@ -1,6 +1,7 @@
+import crypto from 'crypto';
 import {
   APP, readJ, writeJ, mutate, delJ, userPath, idxPath, spacePath, resetPath, normEmail, okEmail, hashPass, checkPass,
-  setSession, clearSession, currentUser, publicUser, body, str, send, guard, fail, rid, sleep,
+  setSession, clearSession, currentUser, publicUser, body, str, send, guard, fail, rid, sleep, sha,
 } from './_core.js';
 
 async function spacesSummary(u) {
@@ -14,7 +15,14 @@ async function spacesSummary(u) {
   return out;
 }
 
+// Los mails salen por el sistema de DEVISEBIT (que tiene los proveedores configurados); Resend directo como respaldo.
+export const mailOn = () => !!((process.env.FAMILIA_MAIL_URL && process.env.FAMILIA_MAIL_KEY) || process.env.RESEND_API_KEY);
 async function sendMail(to, subject, html) {
+  if (process.env.FAMILIA_MAIL_URL && process.env.FAMILIA_MAIL_KEY) {
+    const r = await fetch(process.env.FAMILIA_MAIL_URL, { method: 'POST', headers: { 'content-type': 'application/json', 'x-familia-key': process.env.FAMILIA_MAIL_KEY },
+      body: JSON.stringify({ app: 'matecuentas', email: to, asunto: subject, html }) }).catch(() => null);
+    if (r && r.ok) return true;
+  }
   const key = process.env.RESEND_API_KEY;
   if (!key) return false;
   const r = await fetch('https://api.resend.com/emails', {
@@ -23,6 +31,15 @@ async function sendMail(to, subject, html) {
   });
   return r.ok;
 }
+
+// Código de 6 números por email: sirve para entrar sin contraseña y para recuperar la cuenta.
+const otpPath = (email) => 'otp/' + sha('otp:' + email) + '.json';
+const mailHtml = (code) => `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:480px;margin:auto;padding:24px;color:#16201a">
+  <p style="font-size:20px;font-weight:800;margin:0 0 6px">🧉 MateCuentas</p>
+  <p style="margin:0 0 18px;color:#555">Tu código para entrar:</p>
+  <p style="font-size:38px;font-weight:800;letter-spacing:10px;background:#eef7f0;border-radius:14px;padding:16px;text-align:center;margin:0 0 18px">${code}</p>
+  <p style="margin:0 0 6px;color:#555">Vence en 10 minutos. Si no lo pediste, ignorá este mail: nadie puede entrar sin el código.</p>
+  <p style="margin:18px 0 0;font-size:12px;color:#999">MateCuentas · un producto de DEVISEBIT</p></div>`;
 
 export async function makeResetLink(email) {
   const u = (await readJ(userPath(email))).data;
@@ -90,7 +107,38 @@ export default guard(async (req, res) => {
         `<p>Hola,</p><p>Para elegir una contraseña nueva entrá acá (vale por 2 horas):</p><p><a href="${link}">${link}</a></p><p>Si no lo pediste, ignorá este mensaje.</p>`).catch(() => false);
     }
     await sleep(400);
-    return send(res, 200, { ok: true, mailed: !!process.env.RESEND_API_KEY });
+    return send(res, 200, { ok: true, mailed: mailOn() });
+  }
+
+  if (a === 'code') {
+    const email = normEmail(b.email);
+    if (!okEmail(email)) throw fail(400, 'Revisá el email.');
+    const { data: u } = await readJ(userPath(email));
+    const { data: prev } = await readJ(otpPath(email));
+    if (prev && prev.sent && Date.now() - prev.sent < 30e3) throw fail(429, 'Ya te mandamos un código. Esperá unos segundos para pedir otro.');
+    if (u) {
+      const code = String(crypto.randomInt(0, 1e6)).padStart(6, '0');
+      await writeJ(otpPath(email), { h: sha(email + ':' + code), exp: Date.now() + 10 * 60e3, tries: 0, sent: Date.now() }, null, null);
+      await sendMail(email, `${code} es tu código de MateCuentas`, mailHtml(code)).catch(() => false);
+    } else await sleep(600);
+    return send(res, 200, { ok: true, mailOn: mailOn() });
+  }
+
+  if (a === 'codelogin') {
+    const email = normEmail(b.email);
+    const code = String(b.code || '').replace(/\D/g, '');
+    const { data: o } = await readJ(otpPath(email));
+    if (!o || o.exp < Date.now() || o.tries >= 5) { await sleep(500); throw fail(400, 'El código venció. Pedí uno nuevo.'); }
+    if (o.h !== sha(email + ':' + code)) {
+      await mutate(otpPath(email), (d) => { d.tries = (d.tries || 0) + 1; }).catch(() => {});
+      await sleep(600);
+      throw fail(400, o.tries >= 4 ? 'Demasiados intentos. Pedí un código nuevo.' : 'Ese código no es correcto. Revisalo.');
+    }
+    await delJ(otpPath(email));
+    const { data: u } = await mutate(userPath(email), (d) => { d.fails = 0; d.lockUntil = 0; d.otpAt = Date.now(); });
+    if (!u) throw fail(400, 'La cuenta ya no existe.');
+    setSession(res, u);
+    return send(res, 200, { user: publicUser(u), spaces: await spacesSummary(u) });
   }
 
   if (a === 'reset') {
@@ -119,7 +167,8 @@ export default guard(async (req, res) => {
   }
 
   if (a === 'password') {
-    if (!checkPass(b.old, me.pass)) throw fail(400, 'La contraseña actual no coincide.');
+    const viaCodigo = me.otpAt && Date.now() - me.otpAt < 30 * 60e3; // entró recién con código por email
+    if (!viaCodigo && !checkPass(b.old, me.pass)) throw fail(400, 'La contraseña actual no coincide.');
     if (String(b.pass || '').length < 8) throw fail(400, 'La nueva tiene que tener al menos 8 caracteres.');
     const { data: u } = await mutate(userPath(me.email), (d) => { d.pass = hashPass(b.pass); d.sv = (d.sv || 0) + 1; });
     setSession(res, u);

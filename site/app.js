@@ -78,6 +78,7 @@ function fxRate() { const t = (st.S && st.S.settings && st.S.settings.fx) || 'bl
 
 // ---------- auth ----------
 let authMode = 'login';
+let otpEmail = '';
 async function showAuth(mode) {
   if (mode) authMode = mode;
   if (hashArg('reset')) authMode = 'reset';
@@ -92,7 +93,7 @@ async function showAuth(mode) {
   const T = {
     login: ['Hola de nuevo', 'Ingresá para ver las cuentas de tu casa.'],
     signup: ['Creá tu cuenta', 'Gratis, sin tarjeta. En un minuto tenés tu espacio listo.'],
-    forgot: ['Recuperar contraseña', 'Te mandamos un enlace para elegir una nueva.'],
+    forgot: ['Entrar con un código', 'Te mandamos un código de 6 números a tu email. Sin contraseña.'],
     reset: ['Elegí una contraseña nueva', 'Mínimo 8 caracteres.'],
   }[authMode];
   let f = '';
@@ -109,10 +110,15 @@ async function showAuth(mode) {
     <label class="f">Email<input class="in" name="email" type="email" autocomplete="email" required></label>
     <label class="f">Contraseña<input class="in" name="pass" type="password" autocomplete="current-password" required></label>
     <button class="btn block">Ingresar</button>
+    <button type="button" class="btn ghost block" data-m="forgot">✉️ Entrar con un código por email</button>
     <div style="display:flex;justify-content:space-between"><button type="button" class="linkbtn" data-m="signup">Crear cuenta</button><button type="button" class="linkbtn" data-m="forgot">Olvidé mi contraseña</button></div>`;
-  else if (authMode === 'forgot') f = `
+  else if (authMode === 'forgot') f = otpEmail ? `
+    <p class="muted" style="margin:0">Lo mandamos a <b>${esc(otpEmail)}</b>. Revisá también spam o promociones.</p>
+    <label class="f">Código<input class="in" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" required style="font-size:1.6rem;letter-spacing:.4em;text-align:center"></label>
+    <button class="btn block">Entrar</button>
+    <div style="display:flex;justify-content:space-between"><button type="button" class="linkbtn" id="otpOtro">Usar otro email</button><button type="button" class="linkbtn" id="otpRe">Mandar de nuevo</button></div>` : `
     <label class="f">Email<input class="in" name="email" type="email" autocomplete="email" required></label>
-    <button class="btn block">Enviarme el enlace</button>
+    <button class="btn block">Mandarme el código</button>
     <button type="button" class="linkbtn" data-m="login">Volver</button>`;
   else f = `
     <label class="f">Contraseña nueva<input class="in" name="pass" type="password" autocomplete="new-password" minlength="8" required></label>
@@ -124,14 +130,19 @@ async function showAuth(mode) {
     <form class="stack" id="af" novalidate>${f}<div id="aerr"></div></form>
     <p class="legal">Un producto de <b>DEVISEBIT</b> · <a href="/privacidad">Privacidad</a> · <a href="/terminos">Términos</a></p></div>`;
   $$('[data-m]', box).forEach((b) => b.onclick = () => { box.dataset.touched = 1; showAuth(b.dataset.m); });
+  if ($('#otpOtro')) $('#otpOtro').onclick = () => { otpEmail = ''; showAuth('forgot'); };
+  if ($('#otpRe')) $('#otpRe').onclick = async () => { try { await api('auth?a=code', { email: otpEmail }); $('#aerr').innerHTML = '<div class="ok">Listo, te mandamos otro código.</div>'; } catch (e) { $('#aerr').innerHTML = `<div class="err">${esc(e.message)}</div>`; } };
+  const ci = $('input[name=code]'); if (ci) { ci.focus(); ci.oninput = () => { ci.value = ci.value.replace(/\D/g, '').slice(0, 6); if (ci.value.length === 6) $('#af').requestSubmit(); }; }
   const oi = $('#optin'); if (oi) oi.onchange = () => $('#phoneWrap').classList.toggle('hidden', !oi.checked);
   $('#af').onsubmit = async (ev) => {
     ev.preventDefault();
     const fd = Object.fromEntries(new FormData(ev.target)); const btn = $('button.btn', ev.target); const er = $('#aerr');
     er.innerHTML = ''; btn.disabled = true;
     try {
-      if (authMode === 'forgot') { const r = await api('auth?a=forgot', { email: fd.email }); er.innerHTML = r.mailed ? '<div class="ok">Si el email está registrado, te llegó un enlace. Revisá también el spam.</div>' : `<div class="ok">Recibimos el pedido. Escribinos a <a href="${CONTACT}">info@devisebit.com</a> desde ese email y te mandamos el enlace.</div>`; btn.disabled = false; return; }
       let j;
+      if (authMode === 'forgot' && !otpEmail) { await api('auth?a=code', { email: fd.email }); otpEmail = fd.email.trim().toLowerCase(); return showAuth('forgot'); }
+      if (authMode === 'forgot') { j = await api('auth?a=codelogin', { email: otpEmail, code: fd.code }); otpEmail = ''; }
+      else
       if (authMode === 'signup') {
         if (!fd.terms) throw new Error('Para seguir, aceptá los términos y la política de privacidad.');
         j = await api('auth?a=signup', { name: fd.name, email: fd.email, pass: fd.pass, terms: true, optin: !!fd.optin, phone: fd.phone || '', src: hashArg('join') ? 'invitacion' : 'web' });
@@ -638,7 +649,13 @@ function upsell(why) {
     </ul>
     <button class="btn pro block" id="buy">Pasarme a Pro</button>
     <p class="hint" style="text-align:center;margin:10px 0 0">El pago es por Mercado Pago, en pesos. Lo gratis sigue siendo gratis para siempre.</p>
+    <form id="gift" style="display:flex;gap:8px;margin-top:14px"><input class="in" name="c" placeholder="🎁 ¿Tenés un código? ABCD-2345" aria-label="Código de regalo" style="text-transform:uppercase"><button class="btn ghost" style="flex:none">Aplicar</button></form>
   </div>`);
+  $('#gift', w).onsubmit = async (ev) => {
+    ev.preventDefault(); const c = ev.target.c.value;
+    try { const j = await api('billing?a=codigo', { codigo: c }); st.me = j.user; closeModal(); toast(`🎁 ¡Listo! Tenés Pro gratis por ${j.dias} días.`, 4500); render(); }
+    catch (e) { toast(e.message, 4000); }
+  };
   $('#buy', w).onclick = async () => {
     const b = $('#buy', w); b.disabled = true; b.textContent = 'Abriendo Mercado Pago…';
     try { const { url } = await api('billing?a=checkout', {}); location.href = url; }
