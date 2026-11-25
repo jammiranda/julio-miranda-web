@@ -180,7 +180,7 @@ export const TEXTO = {
       ["¿Me financian el kit?", "No financiamos nosotros. Te ayudamos a identificar y tramitar las líneas de cofinanciamiento que te correspondan, y a veces acordamos un plan de pagos."],
     ],
     cierreH: "¿Revisamos tu caso, sin cargo?",
-    cierreP: "La primera reunión es gratuita, después del autodiagnóstico. Te decimos qué kit conviene y qué financiamiento podría aplicar.",
+    cierreP: "La primera reunión es gratuita y la agendás cuando quieras. Te decimos qué kit conviene y qué financiamiento podría aplicar.",
     wa: "WhatsApp",
     diagHref: "/diagnostico",
     guiaHref: "/kit-4-0",

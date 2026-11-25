@@ -8,14 +8,13 @@ import DbHero from "@/components/db-hero"
 
 export const metadata = pageMeta(
   "Alianzas estratégicas · DEVISEBIT",
-  "Trabajamos con socios especialistas en gestión, ciberseguridad y business intelligence para ofrecer un servicio integral.",
+  "Trabajamos con socios especialistas en gestión de proyectos y ciberseguridad para ofrecer un servicio integral.",
   "/alianzas-estrategicas",
 )
 
 const PARTNERS = [
   { name: "TSGroup", area: "Transformación digital y gestión", d: "Sumamos nuestra agilidad tecnológica a su experiencia en la gestión de proyectos a gran escala.", suma: ["Gestión de proyectos grandes", "Equipos para el sector público", "Implementación por etapas"], logo: "/images/tsg-logo.png", url: "https://tsgroup.com.ar/" },
   { name: "HighTech", area: "Ciberseguridad y arquitecturas", d: "Su especialización en ciberseguridad y cloud nos permite desarrollar proyectos seguros desde el diseño.", suma: ["Seguridad desde el diseño", "Arquitecturas en la nube", "Auditorías y buenas prácticas"], logo: "/images/hightech-logo.png", url: "https://hightech.ar/" },
-  { name: "pmIT", area: "Tableros de control y BI", d: "Su experiencia en business intelligence nos permite construir tableros que convierten datos en decisiones.", suma: ["Business intelligence", "Tableros de gestión", "Datos para decidir"], logo: "/images/pmit-logo.png", url: "https://pmit.com.ar/" },
 ]
 
 export default function AlianzasPage() {

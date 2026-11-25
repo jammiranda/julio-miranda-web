@@ -18,7 +18,7 @@ const T = {
     none: "No encontramos una coincidencia exacta: mirá todo lo que hacemos o escribinos.",
     all: "Ver todos los servicios",
     allHref: "/#productos",
-    contact: "/#contacto",
+    contact: "/contacto",
     badge: "Sugerencia",
   },
   en: {

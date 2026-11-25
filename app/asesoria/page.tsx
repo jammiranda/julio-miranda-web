@@ -85,7 +85,7 @@ const PREGUNTAS = [
 ]
 
 const EMPEZAR = [
-  { n: "01", t: "Primera reunión gratuita", d: "Hacé el autodiagnóstico gratis y, con tu resultado, pedí la reunión de 30 minutos sin costo." },
+  { n: "01", t: "Primera reunión gratuita", d: "Elegí día y horario y charlamos 30 minutos sin costo. Si querés, antes hacé el autodiagnóstico gratis." },
   { n: "02", t: "Propuesta por escrito", d: "Formato, horas, responsable y valor." },
   { n: "03", t: "Alta en tu portal", d: "Desde ahí ves las horas, los informes y los pagos." },
 ]
@@ -164,7 +164,7 @@ export default function AsesoriaPage() {
             </ol>
             <div className="rounded-2xl border border-[#C8231F]/60 bg-[#C8231F]/10 p-5 md:p-6 flex flex-col gap-1.5">
               <strong className="text-sm uppercase tracking-[0.14em] text-[#FF6A63]">Primera reunión sin costo</strong>
-              <p className="m-0 text-[16px] leading-relaxed text-[#E6E8EC]">La primera reunión es gratuita y dura 30 minutos. Para aprovecharla, antes hacés el autodiagnóstico de madurez digital (10 minutos, gratis): así llegamos con tus datos a la reunión y vamos directo a lo que necesitás decidir.</p>
+              <p className="m-0 text-[16px] leading-relaxed text-[#E6E8EC]">La primera reunión es gratuita y dura 30 minutos: elegís el día y el horario. Si querés aprovecharla más, antes podés hacer el autodiagnóstico de madurez digital (10 minutos, gratis) y llegamos con tus datos.</p>
             </div>
           </div>
         </section>

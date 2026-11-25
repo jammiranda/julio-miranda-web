@@ -44,6 +44,8 @@ export const ORGANIZACION = {
     "https://www.instagram.com/devisebit",
     "https://www.linkedin.com/company/devisebit",
     "https://www.youtube.com/@devisebitsrl",
+    "https://www.facebook.com/devisebitok",
+    "https://www.tiktok.com/@devisebit",
   ],
   contactPoint: [{ "@type": "ContactPoint", contactType: "ventas", telephone: "+54 9 11 7346-6490", email: "info@devisebit.com", availableLanguage: ["es", "en"], areaServed: "AR" }],
 }

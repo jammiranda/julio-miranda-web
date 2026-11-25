@@ -52,12 +52,15 @@ export default function ProductosPage() {
             <div className="flex items-center gap-5">
               <img src="https://matebot.devisebit.com/matebot.svg" alt="" width={64} height={64} />
               <div>
-                <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Nuevo · Gratis</p>
-                <h2 className="m-0 font-tight text-2xl md:text-[28px] font-extrabold">MateBot: tu agenda por audio</h2>
-                <p className="m-0 mt-1 text-[#C3C8D1]">Le hablás como a un amigo y te ordena turnos, recordatorios y listas. En Telegram, muy pronto en WhatsApp.</p>
+                <p className="m-0 text-sm font-bold uppercase tracking-[0.16em] text-[#FF6A63]">Familia Mate · apps gratis de DEVISEBIT</p>
+                <h2 className="m-0 font-tight text-2xl md:text-[28px] font-extrabold">MateBot y MateCuentas</h2>
+                <p className="m-0 mt-1 text-[#C3C8D1] max-w-[640px]"><strong className="text-white">MateBot</strong> te ordena turnos, recordatorios y listas con un audio, en Telegram y WhatsApp. <strong className="text-white">MateCuentas</strong> lleva los gastos de la casa: cargás por audio, foto del ticket o desde MateBot.</p>
               </div>
             </div>
-            <a href="https://matebot.devisebit.com" className="shrink-0 rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Probalo gratis →</a>
+            <div className="shrink-0 flex flex-wrap gap-2.5">
+              <a href="https://matebot.devisebit.com" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-5 py-3 font-bold text-white transition-colors">Probar MateBot →</a>
+              <a href="https://matecuentas.devisebit.com" className="rounded-xl border-2 border-white/25 hover:border-[#FF6A63] px-5 py-[10px] font-bold text-white transition-colors">Probar MateCuentas →</a>
+            </div>
           </div>
         </section>
 

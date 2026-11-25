@@ -3,6 +3,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { JsonLd } from "@/components/json-ld"
 import MapaProyectos from "@/components/mapa-proyectos"
+import Lanzamientos from "@/components/lanzamientos"
+import YoutubeUltimos from "@/components/youtube-ultimos"
 import { CASOS, SECTORES } from "@/lib/casos-datos"
 import { SITE_URL, breadcrumb } from "@/lib/seo"
 
@@ -60,6 +62,28 @@ export default function CasosDeExitoPage() {
                 ))}
               </ul>
             </details>
+          </div>
+        </section>
+
+        <section id="lanzamientos" aria-labelledby="t-lanz" className="scroll-mt-[72px] bg-[#0B0D12] text-white border-t border-white/10">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-14 flex flex-col gap-6">
+            <div className="flex flex-col gap-2.5 max-w-[780px]">
+              <p className={kicker}>Lanzamientos recientes</p>
+              <h2 id="t-lanz" className="m-0 font-tight text-[30px] md:text-[40px] leading-[1.1] font-extrabold">Productos propios, en producción.</h2>
+              <p className="m-0 text-lg leading-relaxed text-[#C3C8D1]">Lo que construimos y pusimos a funcionar en las últimas semanas, con nuestro propio método de trabajo con IA. Son la mejor muestra de cómo trabajamos.</p>
+            </div>
+            <Lanzamientos oscuro />
+          </div>
+        </section>
+
+        <section aria-labelledby="t-videos" className="bg-[#0B0D12] text-white border-t border-white/10">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-14 grid lg:grid-cols-[1fr_1.1fr] gap-8 items-center">
+            <div className="flex flex-col gap-3">
+              <p className={kicker}>En video</p>
+              <h2 id="t-videos" className="m-0 font-tight text-[28px] md:text-[36px] leading-[1.12] font-extrabold">Mirá cómo funcionan.</h2>
+              <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Videos y shorts de nuestro canal de YouTube: casos, productos y guías.</p>
+            </div>
+            <YoutubeUltimos titulo="Lo último en YouTube" />
           </div>
         </section>
 

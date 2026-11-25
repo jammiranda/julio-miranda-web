@@ -6,6 +6,8 @@
 // ── Redes y canales oficiales (van en todas las páginas) ──
 export const REDES = [
   { id: "instagram", nombre: "Instagram", usuario: "@devisebit", href: "https://www.instagram.com/devisebit" },
+  { id: "facebook", nombre: "Facebook", usuario: "DEVISEBIT", href: "https://www.facebook.com/devisebitok" },
+  { id: "tiktok", nombre: "TikTok", usuario: "@devisebit", href: "https://www.tiktok.com/@devisebit" },
   { id: "linkedin", nombre: "LinkedIn", usuario: "DEVISEBIT", href: "https://www.linkedin.com/company/devisebit" },
   { id: "youtube", nombre: "YouTube", usuario: "Academia DEVISEBIT", href: "https://www.youtube.com/@devisebitsrl" },
   { id: "blog", nombre: "Blog", usuario: "Novedades", href: "https://www.devisebit.com/novedades" },

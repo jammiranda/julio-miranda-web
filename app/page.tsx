@@ -3,10 +3,9 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbContactForm from "@/components/db-contact-form"
 import Redes from "@/components/redes"
-import Integracion from "@/components/integracion"
 import EscaleraMadurez from "@/components/escalera-madurez"
-import { SOLUCIONES, WHATSAPP, ACADEMIA } from "@/lib/marca"
-import YoutubeUltimos from "@/components/youtube-ultimos"
+import { WHATSAPP } from "@/lib/marca"
+import Lanzamientos from "@/components/lanzamientos"
 import CintaProyectos from "@/components/cinta-proyectos"
 import FraseGrande from "@/components/frase-grande"
 
@@ -36,16 +35,14 @@ const CASES = [
   { img: "/images/case-academia-new.webp", tag: "Gobierno y educación", title: "GCBA · Academia BA Emprende", text: "Oferta académica online para emprendedores de la Ciudad: WordPress y Moodle unificados con un solo ingreso y conexión al CRM." },
 ]
 
-const STEPS = [
-  { n: "01", t: "Relevamiento", d: "Entendemos el problema antes de escribir una línea de código." },
-  { n: "02", t: "Propuesta cerrada", d: "Alcance, fecha de entrega y precio fijo, por escrito." },
-  { n: "03", t: "Entregas cortas", d: "Cada dos semanas ves avances y los probás con tu equipo." },
-  { n: "04", t: "Soporte y mejora", d: "Acompañamos la operación y sumamos mejoras continuas." },
+const QUE_HACEMOS = [
+  { tag: "Páginas web", title: "Tu web, lista para vender", text: "Por suscripción para negocios chicos o a medida para pymes y empresas.", href: "/webs" },
+  { tag: "WhatsApp con IA", title: "Un asistente que atiende 24 h", text: "Responde, califica y da turnos por WhatsApp, y deriva a una persona.", href: "/whatsapp" },
+  { tag: "Sistemas", title: "CRM, turnos y tableros", text: "Partimos de módulos probados: menos costo y menos tiempo.", href: "/sistemas" },
+  { tag: "Redes y anuncios", title: "Redes y pauta, resueltas", text: "Reels, placas, historias y campañas en Meta y Google.", href: "/redes" },
+  { tag: "Asesoría en tecnología e IA", title: "Un consultor tecnológico, por horas o por mes", text: "La primera reunión es sin costo. Después, horas sueltas, bolsas o abono.", href: "/asesoria" },
+  { tag: "Gremios y comunidades", title: "Academia, padrón y obra social", text: "Plataformas con tu marca para gremios, asociaciones y obras sociales.", href: "/comunidad" },
 ]
-
-const SECTORS = ["Salud", "Gobierno", "Universidades", "Gremios y obras sociales", "Mutuales", "Medios", "Educación", "Empresas"]
-
-
 
 const kicker = "m-0 text-sm font-bold uppercase tracking-[0.16em]"
 const h2 = "m-0 font-tight text-[34px] md:text-[44px] leading-[1.1] font-extrabold"
@@ -86,6 +83,31 @@ export default function HomePage() {
 
         <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Academia", "GCBA · BA Emprende"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
         <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
+        {/* Qué hacemos: las mismas puertas de entrada que los anuncios de Google */}
+        <section id="que-hacemos" className="bg-white">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 flex flex-col gap-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="flex flex-col gap-2.5 max-w-[760px]">
+                <p className={kicker + " text-[#C8231F]"}>Qué hacemos</p>
+                <h2 className={h2}>Elegí por dónde empezar.</h2>
+              </div>
+              <Link href="/servicios" className="inline-flex items-center min-h-11 font-bold text-[#C8231F] hover:text-[#9E1A17]">Todos los servicios →</Link>
+            </div>
+            <ul className="m-0 p-0 list-none grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {QUE_HACEMOS.map((x) => (
+                <li key={x.href}>
+                  <Link href={x.href} className="db-card group h-full rounded-2xl border border-[#E2E5EA] bg-[#F5F6F8] hover:border-[#C8231F] p-6 flex flex-col gap-2 text-[#0E1116] transition-colors">
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#C8231F]">{x.tag}</span>
+                    <strong className="font-tight text-xl leading-snug">{x.title}</strong>
+                    <span className="text-[15px] leading-relaxed text-[#4A515C]">{x.text}</span>
+                    <span className="mt-auto pt-2 font-bold text-[#C8231F] group-hover:translate-x-0.5 transition-transform">Ver más →</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         {/* Transformación digital (destacado, claro para cortar el ritmo oscuro) */}
         <section id="transformacion" className="relative overflow-hidden bg-[#FFF4F2]">
           <div aria-hidden="true" className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#C8231F]/10 blur-3xl pointer-events-none" />
@@ -118,37 +140,6 @@ export default function HomePage() {
                 ))}
               </ol>
             </div>
-          </div>
-        </section>
-
-        {/* Integración (la clave de la venta) */}
-        <Integracion lang="es" />
-
-        {/* Web por Suscripción: la entrada para negocios chicos */}
-        <section id="web-suscripcion" className="bg-[#F5F6F8]">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-16 md:py-20 grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-10 lg:gap-14 items-center">
-            <div className="flex flex-col gap-4">
-              <p className={kicker + " text-[#C8231F]"}>Web por Suscripción</p>
-              <h2 className={h2}>¿Tu negocio todavía no tiene web? <span className="text-[#C8231F]">$27.900 por mes.</span></h2>
-              <p className="m-0 text-lg leading-relaxed text-[#4A515C] max-w-[560px]">Elegís un modelo según tu rubro y en 48 horas está publicada, con dominio .com, WhatsApp, formulario y asistente. Los textos los escribimos nosotros.</p>
-              <ul className="m-0 p-0 list-none flex flex-wrap gap-2">
-                {["Sin costo de armado", "Sin permanencia", "Lista en 48 horas", "11 modelos"].map((x) => (
-                  <li key={x} className="rounded-full border border-[#D9DDE3] bg-white px-3.5 py-1.5 text-[14px] font-semibold text-[#0B0D12]">{x}</li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <a href="https://tuweb.devisebit.com/?utm_source=devisebit&utm_medium=web&utm_campaign=inicio" className="rounded-xl bg-[#C8231F] hover:bg-[#9E1A17] px-6 py-4 font-bold text-[17px] text-white transition-colors">Ver modelos y contratar</a>
-                <a href="/webs" className="rounded-xl border-2 border-[#0B0D12] hover:bg-[#0B0D12] hover:text-white px-[22px] py-[14px] font-bold text-[17px] text-[#0B0D12] transition-colors">Webs a medida</a>
-              </div>
-            </div>
-            <a href="https://tuweb.devisebit.com/?utm_source=devisebit&utm_medium=web&utm_campaign=inicio" aria-label="Ver los modelos de Web por Suscripción" className="group grid grid-cols-2 gap-3">
-              {[["la-esquina", "Gastronomía"], ["barberia-norte", "Barberías y estética"], ["centro-medico-los-olivos", "Salud"], ["electricidad-rivas", "Oficios"]].map(([s, r]) => (
-                <span key={s} className="block rounded-2xl overflow-hidden border border-[#D9DDE3] bg-white shadow-[0_14px_40px_-22px_rgba(11,13,18,.45)] transition-transform group-hover:-translate-y-0.5 motion-reduce:transform-none">
-                  <img src={`/images/landings/suscripcion-${s}.jpg`} alt={`Modelo de web para ${r.toLowerCase()}`} width={1000} height={671} loading="lazy" decoding="async" className="block w-full h-auto" />
-                  <span className="block px-3.5 py-2.5 text-[14px] font-bold text-[#0B0D12]">{r}</span>
-                </span>
-              ))}
-            </a>
           </div>
         </section>
 
@@ -199,61 +190,12 @@ export default function HomePage() {
                 </Link>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Desarrollo */}
-        <section id="desarrollo" className="db-tech bg-[#0B0D12] text-white">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 flex flex-col gap-9">
-            <div className="flex flex-col gap-2.5 max-w-[760px]">
-              <p className={kicker + " text-[#FF6A63]"}>Desarrollo a medida</p>
-              <h2 className={h2}>De la idea a producción, en cuatro pasos claros.</h2>
-            </div>
-            <ol className="list-none m-0 p-0 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {STEPS.map((s) => (
-                <li key={s.n} className="db-card rounded-2xl border border-[#262C37] bg-[#161A22] p-6 flex flex-col gap-2.5">
-                  <span className="font-tight text-[32px] font-extrabold text-[#FF6A63]">{s.n}</span>
-                  <strong className="text-[19px]">{s.t}</strong>
-                  <span className="text-[#C3C8D1] leading-normal">{s.d}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* Sectores */}
-        <section className="bg-[#F5F6F8] overflow-hidden">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 pt-16 pb-6">
-            <h2 className="m-0 font-tight text-[28px] md:text-[32px] font-extrabold">Sectores donde trabajamos</h2>
-          </div>
-          <div className="db-marquee pb-16" aria-label={SECTORS.join(", ")}>
-            <div className="db-marquee-track" aria-hidden="true">
-              {[...SECTORS, ...SECTORS, ...SECTORS, ...SECTORS].map((s, i) => (
-                <span key={i} className="shrink-0 rounded-full border border-[#E2E5EA] bg-white px-6 py-3.5 font-semibold text-lg">{s}</span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Academia DEVISEBIT */}
-        <section id="academia" className="bg-white">
-          <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-20">
-            <div className="db-tech rounded-[20px] bg-[#0B0D12] text-white p-7 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-8 lg:gap-12 items-center">
-              <div className="flex flex-col gap-4">
-                <p className={kicker + " text-[#FF6A63]"}>Academia DEVISEBIT</p>
-                <h2 className="m-0 font-tight text-[30px] md:text-[40px] leading-[1.12] font-extrabold">Cursos de tecnología e IA aplicada, con certificado.</h2>
-                <p className="m-0 text-[17px] leading-relaxed text-[#C3C8D1]">Para equipos de salud, gestión y administración. También armamos la academia online de tu organización.</p>
-                <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <li><a href={ACADEMIA.kit} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Kit IA para pymes</strong><span className="text-[13px] text-[#C3C8D1]">50 prompts y 10 automatizaciones paso a paso. Próximamente</span></a></li>
-                  <li><a href={ACADEMIA.guias} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Guías gratis</strong><span className="text-[13px] text-[#C3C8D1]">Automatizaciones, CRM, ciberseguridad y más</span></a></li>
-                  <li><a href={ACADEMIA.cursos} target="_blank" rel="noopener noreferrer" className="h-full flex flex-col gap-1 rounded-xl border border-white/15 hover:border-[#FF6A63] p-3.5 transition-colors"><strong className="text-[15px]">Cursos</strong><span className="text-[13px] text-[#C3C8D1]">Con clases en vivo y certificado verificable</span></a></li>
-                </ul>
-                <div className="flex flex-wrap gap-2.5 pt-1">
-                  <a href={ACADEMIA.url} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-[#FF6A63] hover:bg-[#ff8a85] px-[22px] py-[12px] font-extrabold text-[#0B0D12] transition-colors">Entrar a la Academia →</a>
-                  <a href="/transformacion-digital" className="rounded-xl border-2 border-white/20 hover:border-[#FF6A63] px-[22px] py-[10px] font-bold transition-colors">Capacitación para empresas</a>
-                </div>
+            <div className="flex flex-col gap-4 pt-6">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <h3 className="m-0 font-tight text-[24px] md:text-[28px] font-extrabold">Recién lanzado, hecho por nosotros</h3>
+                <Link href="/casos-de-exito#lanzamientos" className="inline-flex items-center min-h-11 font-bold text-[#C8231F] hover:text-[#9E1A17]">Ver todos los lanzamientos →</Link>
               </div>
-              <YoutubeUltimos titulo="Lo último en YouTube: videos y shorts" />
+              <Lanzamientos max={3} />
             </div>
           </div>
         </section>
