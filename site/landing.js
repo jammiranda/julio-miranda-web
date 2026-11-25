@@ -93,7 +93,7 @@ function hero(el) {
 
 // ---------- MateBot entrando por la ventana ----------
 function window3d(el) {
-  const { renderer, scene, camera, isVisible } = stage(el, 6.6);
+  const { renderer, scene, camera, isVisible } = stage(el, 8.2);
   scene.add(new THREE.AmbientLight(0xffffff, 0.75));
   const key = new THREE.DirectionalLight(0xffffff, 3); key.position.set(-2.5, 3, 4); scene.add(key);
   const rim = new THREE.DirectionalLight(0xff2a36, 3.2); rim.position.set(3, 1.5, -3); scene.add(rim);
