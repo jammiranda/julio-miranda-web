@@ -141,6 +141,12 @@ async function asegurar() {
     await q("insert into db_precios_hist(producto,campo,antes,despues,motivo,usuario) values ('Landing Express','activo','sí','no','La reemplaza Web por Suscripción','Sistema')")
     await q("update db_precios set incluye=replace(incluye,'y todo lo de Landing Express','diseño único con IA, botón de WhatsApp, formulario y SEO básico') where producto='Web PyME'")
   }
+  // 25/11/2026: promo de fin de año de Web PyME (la misma de devisebit.com/web-pyme). Solo si el precio sigue en el de lista.
+  if (await one("select 1 from db_precios where producto='Web PyME' and precio=349000")) {
+    await q("update db_precios set precio=299000, condicion=$1, link='https://www.devisebit.com/web-pyme', actualizado=now() where producto='Web PyME' and precio=349000",
+      ["Promo hasta el 31/12: $299.000 con los 3 primeros meses de abono incluidos (precio de lista $349.000) · lista en 5 días hábiles · abono Esencial, mínimo 6 meses"])
+    await q("insert into db_precios_hist(producto,campo,antes,despues,motivo,usuario) values ('Web PyME','precio','349000','299000','Promo de fin de año, igual que la landing /web-pyme','Sistema')")
+  }
   // 28/10: el taller pasa a "básico hasta 5 personas" y el diagnóstico a cotizar (solo si nadie los editó desde el sistema)
   await q("update db_precios set precio=290000, condicion=$1 where producto='Taller de Transformación Digital' and precio=390000", ["Taller básico: una jornada de 3 horas · hasta 5 personas · virtual o presencial (CABA y GBA). Para equipos más grandes, a cotizar"])
   await q("update db_precios set precio=null, condicion='A cotizar según el tamaño de la organización' where producto='Diagnóstico y hoja de ruta' and precio=890000")
