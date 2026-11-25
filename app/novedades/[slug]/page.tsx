@@ -2,7 +2,9 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { posts } from "@/lib/posts"
+import { publicados } from "@/lib/posts"
+
+export const revalidate = 3600
 import NotaCta from "@/components/nota-cta"
 import { pageMeta, OG_IMAGE, SITE_URL, ORG_ID, breadcrumb } from "@/lib/seo"
 import { JsonLd } from "@/components/json-ld"
@@ -10,12 +12,12 @@ import { JsonLd } from "@/components/json-ld"
 const NUM: Record<number, string> = { 2: "Dos", 3: "Tres", 4: "Cuatro", 5: "Cinco", 6: "Seis" }
 
 export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }))
+  return publicados().map((p) => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const p = posts.find((x) => x.slug === slug)
+  const p = publicados().find((x) => x.slug === slug)
   if (!p) return {}
   const desc = p.seoDesc ?? p.desc
   return pageMeta(`${p.seoTitle ?? p.title} · DEVISEBIT`, desc, `/novedades/${p.slug}`, {
@@ -25,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const p = posts.find((x) => x.slug === slug)
+  const p = publicados().find((x) => x.slug === slug)
   if (!p) notFound()
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">

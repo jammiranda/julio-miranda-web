@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next"
-import { posts } from "@/lib/posts"
+import { publicados } from "@/lib/posts"
+
+export const revalidate = 3600
 import { SITE_URL } from "@/lib/seo"
 import { PARES } from "@/lib/rutas"
 
@@ -20,6 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       return { url: SITE_URL + p, priority, ...(en ? { alternates: { languages: { "es-AR": SITE_URL + p, en: SITE_URL + en } } } : {}) }
     }),
     ...PARES.map(([es, en]) => ({ url: SITE_URL + en, priority: es === "/" ? 0.9 : 0.8, alternates: { languages: { "es-AR": SITE_URL + es, en: SITE_URL + en } } })),
-    ...posts.map((p) => ({ url: `${SITE_URL}/novedades/${p.slug}`, lastModified: new Date(p.date), priority: 0.6 })),
+    ...publicados().map((p) => ({ url: `${SITE_URL}/novedades/${p.slug}`, lastModified: new Date(p.date), priority: 0.6 })),
   ]
 }

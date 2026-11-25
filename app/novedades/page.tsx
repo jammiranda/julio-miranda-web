@@ -4,7 +4,9 @@ import { pageMeta, breadcrumb } from "@/lib/seo"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import DbHero from "@/components/db-hero"
-import { posts } from "@/lib/posts"
+import { publicados } from "@/lib/posts"
+
+export const revalidate = 3600
 
 export const metadata = pageMeta(
   "Novedades y guías de software, IA y WhatsApp · DEVISEBIT",
@@ -13,7 +15,7 @@ export const metadata = pageMeta(
 )
 
 export default function NovedadesPage() {
-  const list = [...posts].sort((a, b) => (a.date < b.date ? 1 : -1))
+  const list = [...publicados()].sort((a, b) => (a.date < b.date ? 1 : -1))
   const [first, ...rest] = list
   return (
     <div className="min-h-screen bg-white text-[#0E1116]">
