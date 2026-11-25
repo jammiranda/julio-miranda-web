@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 23/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (525 cambios publicados desde el 17 de octubre).
+Última actualización: 24/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (527 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,7 +12,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.13.0** | 23/11/2026 | Nota nueva en Novedades sobre accesibilidad web en 2026: errores más comunes y qué exige la ley |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.14.0** | 24/11/2026 | En la página de Asesoría, el bloque «Quién te atiende» presenta a Julio Miranda como consultor tecnológico |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad, /web-pyme | **1.6.0** | 23/11/2026 | Landing nueva /web-pyme con la promo Web PyME $299.000 y 3 meses de abono incluidos, para los anuncios de Google |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.14.0** | 19/11/2026 | En WhatsApp Business se puede mandar una prueba de las plantillas aprobadas a cualquier teléfono |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.10.0** | 23/11/2026 | Bit conoce la promo Web PyME $299.000 con 3 meses de abono y un solo precio por tipo de web |
@@ -20,7 +20,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
 | Panel de Contenido | panel.devisebit.com | **2.4.0** | 17/11/2026 | Carga a mano de las publicaciones del LinkedIn de Julio y estadísticas de Web por Suscripción |
 | Oficina | oficina.devisebit.com | **1.1.0** | 07/11/2026 | Las tareas programadas ya pueden leer y actualizar el registro de Prospección |
-| Sitio personal de Julio | julio.devisebit.com | **1.5.0** | 12/11/2026 | Se sumaron los básicos: mapa del sitio, página de «no encontrado» y selector de idioma en celular |
+| Sitio personal de Julio | julio.devisebit.com | **1.6.0** | 24/11/2026 | El inicio presenta a Julio como consultor tecnológico y suma un botón a la Asesoría (en español e inglés) |
 
 **Cómo leerlo:** "publicado" quiere decir que el cambio está en la rama que se despliega sola. La fecha es la del último cambio de esa versión.
 
@@ -31,7 +31,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 101 | 15 |
+| Sitio web DEVISEBIT | 102 | 16 |
 | Landings de anuncios | 20 | 9 (3 de ellas con cambios compartidos con el sitio) |
 | Sistema (CRM y gestión) | 195 | 28 |
 | Bot de WhatsApp (Bit) | 24 | 11 (1 de ellas con cambios compartidos con el Sistema) |
@@ -39,10 +39,10 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 | Portal de clientes y alumnos | 14 | 4 |
 | Panel de Contenido | 48 | 10 |
 | Oficina | 20 | 2 |
-| Sitio personal de Julio | 63 | 6 |
-| **Total** | **525** | **92** |
+| Sitio personal de Julio | 64 | 7 |
+| **Total** | **527** | **94** |
 
-Los 525 se reparten así: 121 en el código del sitio web (101 + 20), 341 en el código del Sistema (195 + 24 + 40 + 14 + 48 + 20) y 63 en el sitio personal.
+Los 527 se reparten así: 122 en el código del sitio web (102 + 20), 341 en el código del Sistema (195 + 24 + 40 + 14 + 48 + 20) y 64 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-101 cambios · 15 versiones · versión actual **1.13.0**
+102 cambios · 16 versiones · versión actual **1.14.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.14.0** | 24/11/2026 | • En la página de Asesoría, el bloque «Quién te atiende» presenta a Julio Miranda como consultor tecnológico | Novedad | `ac4b584..ac4b584` (1) |
 | **1.13.0** | 23/11/2026 | • Nota nueva en Novedades: «Accesibilidad web en 2026, errores más comunes y qué exige la ley»<br>• Placa para compartir la nota en redes, en la biblioteca de contenidos (cambio del sitio personal: `2557bfb`) | Novedad | `dccbc8b..dccbc8b` (1) |
 | **1.12.0** | 18/11/2026 | • Tres guías nuevas en Novedades: bot de Telegram para empresas, cómo pasar audios de WhatsApp a texto, y recordatorios de turnos por WhatsApp<br>• Lanzamiento de MateBot, el asistente personal por audio: nota en Novedades y aviso en la página de Productos<br>• Biblioteca de contenidos: seis reels con voz, la serie de MateBot y un carrusel de 5 placas por cada guía nueva<br>• En el inicio, el menú y el pie aparece Web por Suscripción (cambio compartido con las Landings: `bc6b793`)<br>• Las visitas que llegan de TikTok y YouTube se cuentan como redes, y el mensaje de WhatsApp dice de qué página vinieron | Novedad | `b03a5f7..bab519b` (5) |
 | **1.11.0** | 16/11/2026 | • Nota nueva en Novedades: «Gobierno digital: la atención ciudadana con inteligencia artificial ya es política pública»<br>• Cuenta cómo la Ciudad y la Provincia de Buenos Aires ya atienden a los vecinos con IA por WhatsApp, qué normas lo respaldan y qué lecciones le sirven a cualquier organismo | Novedad | `14efa7a..14efa7a` (1) |
@@ -216,12 +217,13 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.9 Sitio personal de Julio — julio.devisebit.com
 
-63 cambios · 6 versiones · versión actual **1.5.0**
+64 cambios · 7 versiones · versión actual **1.6.0**
 
 En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un cliente), y también imágenes para redes de DEVISEBIT. Esos cambios están contados acá porque comparten historial, pero no tienen versión propia.
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.6.0** | 24/11/2026 | • El inicio presenta a Julio como consultor tecnológico<br>• Botón nuevo que lleva a la Asesoría de DEVISEBIT, en español y en inglés | Novedad | `9b4c30e..9b4c30e` (1) |
 | **1.5.0** | 12/11/2026 | • LinkedIn en la sección de contacto y en el pie; el CV online se enlaza desde el inicio<br>• El CV se imprime en dos hojas limpias<br>• Datos alineados en todo el sitio: 17 años de trayectoria, 7 sectores, roles vigentes<br>• Mejor en celular y para Google: sin desplazamiento lateral, mejor contraste, mapa del sitio y página de «no encontrado» | Mejora | `fd3e2a9..7bab8d6` (19) |
 | **1.4.0** | 09/11/2026 | • Versión en inglés del perfil, la historia y el portfolio, con selector de idioma y CV en inglés<br>• Textos al día (proyectos de software e IA) | Novedad | `37b4a92..6752bf0` (2) |
 | **1.3.0** | 02/11/2026 | • CV de gestión en PDF, con link directo<br>• El bloque «Hoy» ya no se limita a salud | Novedad | `8fd15a4..6e2c194` (3) |
@@ -335,5 +337,5 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 | Rama | Último cambio incluido |
 |---|---|
 | `devisebit-sistema` | `2c7468b` |
-| `devisebit-web` | `8f9c5ab` |
-| `main` | `2557bfb` |
+| `devisebit-web` | `ac4b584` |
+| `main` | `9b4c30e` |
