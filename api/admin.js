@@ -51,7 +51,7 @@ export default guard(async (req, res) => {
       const mk = new Date(now - 3 * 3600e3).toISOString().slice(0, 7);
       const ai = rows.reduce((x, u) => x + (u.aiUse && u.aiUse.m === mk ? u.aiUse.n : 0), 0);
       const contactos = rows.map((u) => ({ nombre: u.name || '', email: u.email, alta: u.created || null, optin: !!(u.optin && u.optin.ok), phone: (u.optin && u.optin.phone) || '',
-        pro: u.plan === 'pro' && (!u.proUntil || u.proUntil > now), whatsapp: !!(u.bots && Object.keys(u.bots).length) })).sort((a, b) => (b.alta || 0) - (a.alta || 0));
+        pro: u.plan === 'pro' && (!u.proUntil || u.proUntil > now), proUntil: u.proUntil || null, viaCodigo: !!(u.grant && u.grant.codigo), mp: !!(u.sub && u.sub.status === 'authorized'), whatsapp: !!(u.bots && Object.keys(u.bots).length) })).sort((a, b) => (b.alta || 0) - (a.alta || 0));
       return send(res, 200, {
         contactos, region: process.env.VERCEL_REGION || null,
         users: rows.length, optin: rows.filter((u) => u.optin && u.optin.ok).length, pro, spaces: sp.length,
