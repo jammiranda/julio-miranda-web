@@ -20,7 +20,7 @@ const STATS = [
 const CASES = [
   { img: "/images/case-tigre-new.webp", tag: "Gobierno municipal", title: "Municipio de Tigre · app Soy Tigre", text: "Más de 80.000 vecinos suscriptos. Desarrollo y soporte de la app municipal: más de 500 comercios adheridos y alta de las tarjetas Soy Tigre y Soy Tigre Joven." },
   { img: "/images/case-comunidad-usl.webp", tag: "Comunidad y academia", title: "Comunidad USL · Academia", text: "Comunidad y academia online: cursos, inscripciones, beneficios y padrón en un solo panel. Más de 1.000 inscriptos en un año." },
-  { img: "/images/case-salud-marca-blanca.webp", tag: "Sistemas de salud · marca blanca", title: "Internación domiciliaria, con tu marca", text: "Pacientes, visitas, profesionales, prestaciones y facturación en un solo sistema que ya funciona todos los días. Lo adaptamos a tu institución, por abono mensual." },
+  { img: "/images/case-salud-digital-panel.webp", tag: "Salud Digital · marca blanca", title: "Salud Digital, con tu marca", text: "Para clínicas, consultorios, centros de día, residencias y prestadores a domicilio: pacientes, agenda, profesionales, órdenes, historia clínica y facturación en un solo panel." },
 ]
 
 const QUE_HACEMOS = [
@@ -69,7 +69,7 @@ export default function HomePage() {
           <div className="db-scan"><i /></div>
         </section>
 
-        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Salud · marca blanca", "Internación domiciliaria"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
+        <CintaProyectos etiqueta="En producción" items={[["Academia", "Comunidad USL"], ["App", "Soy Tigre · Municipio de Tigre"], ["Salud", "Salud Digital · marca blanca"], ["Salud", "Sistema para clínicas"], ["IA", "Asistente de WhatsApp"], ["Gremios", "Padrón y obra social"], ["Firma", "Gestor documental"], ["Datos", "Tableros de control"]]} />
         <FraseGrande kicker="Por qué DEVISEBIT" texto="¿Por qué armar piezas sueltas si todo puede funcionar [junto]? Un solo equipo construye tu sistema, lo conecta con lo que ya usás y automatiza lo que hoy hacés a mano. Vos tenés un solo interlocutor." />
         {/* Qué hacemos: las mismas puertas de entrada que los anuncios de Google */}
         <section id="que-hacemos" className="bg-white">

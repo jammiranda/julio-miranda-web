@@ -28,11 +28,11 @@ const DESTACADOS = [
     cifras: [["+1.000", "inscriptos en un año"], ["1", "panel para todo"]],
   },
   {
-    img: "/images/case-salud-marca-blanca.webp",
-    tag: "Salud · marca blanca",
-    title: "Sistemas de salud · internación domiciliaria",
-    reto: "Ordenar pacientes, visitas, profesionales, prestaciones y facturación de una operación que no para.",
-    hicimos: "Un sistema de gestión en producción todos los días, que hoy ofrecemos con la marca de cada institución, por abono mensual.",
+    img: "/images/case-salud-digital-panel.webp",
+    tag: "Salud Digital · marca blanca",
+    title: "Salud Digital: el panel de gestión para salud",
+    reto: "Ordenar pacientes, agenda, profesionales, órdenes, historia clínica y facturación de una operación de salud que no para.",
+    hicimos: "Un sistema en producción todos los días que hoy ofrecemos con la marca de cada institución: clínicas, consultorios, centros de día, residencias y prestadores a domicilio.",
     cifras: [["24/7", "en producción"], ["Tu marca", "por abono mensual"]],
   },
 ]
