@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="MateCuentas">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34c46e"/><stop offset="1" stop-color="#0d6b37"/></linearGradient>
-    <linearGradient id="m" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9d9d9"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#9a9a9a"/></linearGradient>
-    <radialGradient id="c" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffe58a"/><stop offset=".6" stop-color="#f5b82e"/><stop offset="1" stop-color="#c98a0c"/></radialGradient>
+    <linearGradient id="mcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34c46e"/><stop offset="1" stop-color="#0d6b37"/></linearGradient>
+    <linearGradient id="mcm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9d9d9"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#9a9a9a"/></linearGradient>
+    <radialGradient id="mcc" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffe58a"/><stop offset=".6" stop-color="#f5b82e"/><stop offset="1" stop-color="#c98a0c"/></radialGradient>
   </defs>
-  <rect x="116" y="30" width="9" height="66" rx="4.5" fill="url(#m)" transform="rotate(22 120 63)"/>
-  <circle cx="142" cy="28" r="22" fill="url(#c)" stroke="#fff" stroke-width="4"/>
+  <rect x="116" y="30" width="9" height="66" rx="4.5" fill="url(#mcm)" transform="rotate(22 120 63)"/>
+  <circle cx="142" cy="28" r="22" fill="url(#mcc)" stroke="#fff" stroke-width="4"/>
   <text x="142" y="37" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="26" fill="#7a5200">$</text>
   <ellipse cx="100" cy="72" rx="44" ry="11" fill="#6d8f1f"/>
-  <path d="M56 72 C52 90 34 108 36 136 C38 168 66 188 100 188 C134 188 162 168 164 136 C166 108 148 90 144 72 Z" fill="url(#g)"/>
+  <path d="M56 72 C52 90 34 108 36 136 C38 168 66 188 100 188 C134 188 162 168 164 136 C166 108 148 90 144 72 Z" fill="url(#mcg)"/>
   <rect x="52" y="64" width="96" height="14" rx="7" fill="#123322"/>
   <rect x="74" y="120" width="16" height="26" rx="8" fill="#fff"/>
   <rect x="110" y="120" width="16" height="26" rx="8" fill="#fff"/>

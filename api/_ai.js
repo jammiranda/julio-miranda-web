@@ -7,7 +7,15 @@ function token(req) {
   return process.env.AI_GATEWAY_API_KEY || (req && req.headers['x-vercel-oidc-token']) || process.env.VERCEL_OIDC_TOKEN || '';
 }
 
+const PROXY = () => process.env.AI_PROXY_URL;
+async function proxy(body) {
+  const r = await fetch(PROXY(), { method: 'POST', headers: { 'content-type': 'application/json', 'x-bot-key': process.env.BOT_KEY }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error('proxy ' + r.status);
+  return (await r.json()).text || '';
+}
+
 export async function transcribe(req, b64, mediaType) {
+  if (PROXY()) return String(await proxy({ op: 'transcribe', audio: b64, mime: mediaType })).trim();
   const r = await fetch(GW + '/v4/ai/transcription-model', {
     method: 'POST',
     headers: {
@@ -22,6 +30,15 @@ export async function transcribe(req, b64, mediaType) {
 }
 
 async function chat(req, messages, maxTokens = 900) {
+  if (PROXY()) {
+    const sys = messages[0].content; const u = messages[1].content;
+    const content = (Array.isArray(u) ? u : [{ type: 'text', text: String(u) }]).map((c) => {
+      if (c.type !== 'image_url') return { type: 'text', text: c.text };
+      const m = c.image_url.url.match(/^data:(image\/[a-z]+);base64,(.*)$/);
+      return { type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } };
+    });
+    return proxy({ op: 'chat', system: sys, content, max_tokens: maxTokens });
+  }
   const r = await fetch(GW + '/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + token(req), 'Content-Type': 'application/json' },
