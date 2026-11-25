@@ -6,9 +6,11 @@ const SITE = ['index.html', 'app.html', 'app.js', 'terminos.html', 'privacidad.h
 const csv = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
 export default guard(async (req, res) => {
   const key = process.env.ADMIN_KEY;
+  const pub = process.env.PUBLISH_KEY; // solo sirve para publicar archivos del sitio (a=put)
   const given = req.headers['x-admin'] || req.query.key;
-  if (!key || !same(given, key)) { await sleep(800); return send(res, 401, { error: 'no' }); }
   const a = String(req.query.a || '');
+  const ok = (key && same(given, key)) || (pub && a === 'put' && same(given, pub));
+  if (!ok) { await sleep(800); return send(res, 401, { error: 'no' }); }
   const b = body(req);
 
   if (a === 'put' && req.method === 'POST') {
