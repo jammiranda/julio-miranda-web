@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 24/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (527 cambios publicados desde el 17 de octubre).
+Última actualización: 25/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (571 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,37 +12,37 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.14.0** | 24/11/2026 | En la página de Asesoría, el bloque «Quién te atiende» presenta a Julio Miranda como consultor tecnológico |
-| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad, /web-pyme | **1.6.0** | 23/11/2026 | Landing nueva /web-pyme con la promo Web PyME $299.000 y 3 meses de abono incluidos, para los anuncios de Google |
-| Sistema (CRM y gestión) | sistema.devisebit.com | **3.14.0** | 19/11/2026 | En WhatsApp Business se puede mandar una prueba de las plantillas aprobadas a cualquier teléfono |
-| Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.10.0** | 23/11/2026 | Bit conoce la promo Web PyME $299.000 con 3 meses de abono y un solo precio por tipo de web |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.15.0** | 25/11/2026 | Revisión general: inicio más corto, Productos y Casos de éxito rediseñados, y nueva presentación «Conocé DEVISEBIT v3» con la Familia Mate |
+| Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad, /web-pyme | **1.7.0** | 25/11/2026 | /webs muestra la promo de fin de año de Web PyME ($299.000 con 3 meses de abono incluidos) |
+| Sistema (CRM y gestión) | sistema.devisebit.com | **3.15.0** | 25/11/2026 | La Familia Mate entra al Sistema: usuarios, planes pagos y códigos de regalo con seguimiento, y cobros por Mercado Pago |
+| Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.11.0** | 25/11/2026 | Bit conoce la promo de fin de año de Web PyME y sabe que el autodiagnóstico es opcional |
 | Academia | academia.devisebit.com | **2.2.1** | 12/11/2026 | En la portada, desde el celular, los adornos ya no tapan el formulario de suscripción |
 | Portal de clientes y alumnos | portal.devisebit.com | **1.2.1** | 12/11/2026 | Las próximas reuniones del inicio muestran la fecha igual que la pantalla Reuniones |
-| Panel de Contenido | panel.devisebit.com | **2.4.0** | 17/11/2026 | Carga a mano de las publicaciones del LinkedIn de Julio y estadísticas de Web por Suscripción |
+| Panel de Contenido | panel.devisebit.com | **2.5.0** | 25/11/2026 | Sección nueva «Familia Mate» con el uso de las apps, visitas, embudos y SEO |
 | Oficina | oficina.devisebit.com | **1.1.0** | 07/11/2026 | Las tareas programadas ya pueden leer y actualizar el registro de Prospección |
-| Sitio personal de Julio | julio.devisebit.com | **1.6.0** | 24/11/2026 | El inicio presenta a Julio como consultor tecnológico y suma un botón a la Asesoría (en español e inglés) |
+| Sitio personal de Julio | julio.devisebit.com | **1.7.0** | 25/11/2026 | CV único y portada de LinkedIn con el posicionamiento de consultor tecnológico; casos EFFI SOLUTIONS y Familia Mate |
 
 **Cómo leerlo:** "publicado" quiere decir que el cambio está en la rama que se despliega sola. La fecha es la del último cambio de esa versión.
 
 **Dos aclaraciones sobre cómo se separó:**
 
-- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 20 cambios propios (del 12/11 al 23/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
+- **Landings de anuncios.** Viven en el mismo código que el sitio web. Solo tienen 21 cambios propios (del 12/11 al 25/11). Sus versiones 1.0.0 a 1.2.0 salen de cambios compartidos con el sitio, y por eso esos cambios se cuentan una sola vez, en el sitio.
 - **Bot, Academia, Portal, Panel y Oficina** viven en el mismo código que el Sistema. Cada cambio se contó una sola vez, en el producto al que apunta su título. Cuando un cambio tocó dos productos, se anota en el otro como "compartido".
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 102 | 16 |
-| Landings de anuncios | 20 | 9 (3 de ellas con cambios compartidos con el sitio) |
-| Sistema (CRM y gestión) | 195 | 28 |
-| Bot de WhatsApp (Bit) | 24 | 11 (1 de ellas con cambios compartidos con el Sistema) |
+| Sitio web DEVISEBIT | 117 | 17 |
+| Landings de anuncios | 21 | 10 (3 de ellas con cambios compartidos con el sitio) |
+| Sistema (CRM y gestión) | 211 | 29 |
+| Bot de WhatsApp (Bit) | 26 | 12 (1 de ellas con cambios compartidos con el Sistema) |
 | Academia | 40 | 7 |
 | Portal de clientes y alumnos | 14 | 4 |
-| Panel de Contenido | 48 | 10 |
+| Panel de Contenido | 51 | 11 |
 | Oficina | 20 | 2 |
-| Sitio personal de Julio | 64 | 7 |
-| **Total** | **527** | **94** |
+| Sitio personal de Julio | 71 | 8 |
+| **Total** | **571** | **100** |
 
-Los 527 se reparten así: 122 en el código del sitio web (102 + 20), 341 en el código del Sistema (195 + 24 + 40 + 14 + 48 + 20) y 64 en el sitio personal.
+Los 571 se reparten así: 138 en el código del sitio web (117 + 21), 362 en el código del Sistema (211 + 26 + 40 + 14 + 51 + 20) y 71 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-102 cambios · 16 versiones · versión actual **1.14.0**
+117 cambios · 17 versiones · versión actual **1.15.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.15.0** | 25/11/2026 | • Inicio más corto y ordenado; Qué hacemos suma las landings de anuncios y aparece «Recién lanzado» con la Familia Mate y los productos propios<br>• Productos rediseñado: explorador con vista previa por producto, con pymes y Familia Mate; suma Salud Digital · Atención domiciliaria (con su demo) y Sistema para clínicas<br>• Casos de éxito rediseñado (destacados, redes gestionadas, más proyectos y videos con miniatura real); entra el sistema de internación domiciliaria en marca blanca<br>• Nueva presentación «Conocé DEVISEBIT v3»: webs por suscripción o a medida, consultor tecnológico, 12 productos propios y redes con TikTok y Facebook<br>• En Novedades, nota de cómo creció la Familia Mate y notas programadas de MateCuentas, MateTurnos y MateEventos, con enlaces dentro del texto<br>• La agenda ya no pide el autodiagnóstico en los textos; sale la UBA de los casos y de Alianzas; la medición queda solo en devisebit.com | Novedad | `0e54d1c..16b5791` (15) |
 | **1.14.0** | 24/11/2026 | • En la página de Asesoría, el bloque «Quién te atiende» presenta a Julio Miranda como consultor tecnológico | Novedad | `ac4b584..ac4b584` (1) |
 | **1.13.0** | 23/11/2026 | • Nota nueva en Novedades: «Accesibilidad web en 2026, errores más comunes y qué exige la ley»<br>• Placa para compartir la nota en redes, en la biblioteca de contenidos (cambio del sitio personal: `2557bfb`) | Novedad | `dccbc8b..dccbc8b` (1) |
 | **1.12.0** | 18/11/2026 | • Tres guías nuevas en Novedades: bot de Telegram para empresas, cómo pasar audios de WhatsApp a texto, y recordatorios de turnos por WhatsApp<br>• Lanzamiento de MateBot, el asistente personal por audio: nota en Novedades y aviso en la página de Productos<br>• Biblioteca de contenidos: seis reels con voz, la serie de MateBot y un carrusel de 5 placas por cada guía nueva<br>• En el inicio, el menú y el pie aparece Web por Suscripción (cambio compartido con las Landings: `bc6b793`)<br>• Las visitas que llegan de TikTok y YouTube se cuentan como redes, y el mensaje de WhatsApp dice de qué página vinieron | Novedad | `b03a5f7..bab519b` (5) |
@@ -95,10 +96,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.2 Landings de anuncios — /webs, /redes, /whatsapp, /sistemas, /comunidad
 
-20 cambios propios · 9 versiones · versión actual **1.6.0**
+21 cambios propios · 10 versiones · versión actual **1.7.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.7.0** | 25/11/2026 | • /webs muestra la promo de fin de año de Web PyME ($299.000 con 3 meses de abono incluidos), igual que /web-pyme | Mejora | `84d4c4a..84d4c4a` (1) |
 | **1.6.0** | 23/11/2026 | • Landing nueva /web-pyme para los anuncios de Google: promo Web PyME a $299.000 con 3 meses de abono incluidos | Novedad | `8f9c5ab..8f9c5ab` (1) |
 | **1.5.0** | 18/11/2026 | • /webs cambia de oferta: la principal pasa a ser Web por Suscripción (pago mensual, sin costo de armado) y sale Landing Express<br>• El folleto de páginas web, su versión marca blanca y el paquete de folletos quedan al día con la oferta nueva, igual que la imagen que se ve al compartir el link<br>• A quien llega desde un anuncio de Google, el botón principal de /webs pasa a ser WhatsApp | Novedad | `bc6b793..0f10db2` (3) |
 | **1.4.2** | 15/11/2026 | • El botón vuelve a abrir WhatsApp directo: el recuadro previo (tipo de negocio y email) queda apagado, porque con él, aun siendo opcional, no entró ninguna consulta<br>• La conversión vuelve a contarse al tocar el botón<br>• Títulos y descripciones de /webs, /whatsapp y /sistemas con las palabras que la gente busca en Google («diseño de páginas web», «chatbot de WhatsApp», «software a medida»); lo que se ve en la página no cambia | Mejora | `3cdd4cd..cea9ca4` (2) |
@@ -111,10 +113,11 @@ Nota: en las versiones 1.1.0, 1.2.0 y 1.4.0 hay cambios que solo fueron archivos
 
 ### 3.3 Sistema (CRM y gestión) — sistema.devisebit.com
 
-195 cambios · 28 versiones · versión actual **3.14.0**
+211 cambios · 29 versiones · versión actual **3.15.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **3.15.0** | 25/11/2026 | • Familia Mate dentro del Sistema: usuarios, emails, planes pagos y códigos de regalo con seguimiento de quién los usó<br>• Códigos de regalo: se crean con duración clara, se copian o se mandan por WhatsApp, con filtros y nota editable<br>• Invitaciones con estado (enviada, entró, lo está usando)<br>• Cobros de las apps de la familia Mate por Mercado Pago (MateBot, MateCuentas, MateTurnos y MateEventos) y envío de mails de la familia<br>• Agenda: el autodiagnóstico pasa a ser opcional; cualquiera elige día y horario<br>• Demo nueva: Salud Digital · Atención domiciliaria, con link personal<br>• Material: grupo Familia Mate con los reels y las guías PDF; logo DEVISEBIT 3D girando; el contador de visitas suma familiamate.devisebit.com<br>• Arreglo urgente: un error en el texto de la agenda cortaba una actualización interna y daba error en el sistema | Novedad | `a7021bd..e89957b` (16) |
 | **3.14.0** | 19/11/2026 | • WhatsApp Business: formulario nuevo «Probar una plantilla», que manda una plantilla aprobada desde el número de DEVISEBIT al teléfono que se elija<br>• Si se dejan campos vacíos, se usa el texto de ejemplo de la plantilla<br>• Solo lo puede usar gerencia y cada prueba queda anotada en la auditoría | Novedad | `d483332..d483332` (1) |
 | **3.13.0** | 18/11/2026 | • Prospección pasa a llamarse **Acercamientos** y se ordena por lo que hay que hacer: Hoy, Para decidir, Próximos días, Esperando respuesta, Hecho hoy y Todos; suma un Tablero por etapas y una pantalla «De a uno»<br>• Todo se resuelve con un clic y queda en la historia (Sí/No, Enviado, Respondió, Reunión, Ganado, Descartar); también se pueden marcar varios contactos y aplicar la acción a todos<br>• Tope de 20 mensajes nuevos por día, repartidos en días hábiles; al marcar «Enviado», el seguimiento pasa solo a 7 días<br>• Desde la ficha se manda un email personal, se abre WhatsApp con el mensaje ya escrito o se envía la plantilla «retomar consulta» por el número de DEVISEBIT<br>• Tarjetas más limpias, búsqueda en LinkedIn cuando falta el perfil y vista aparte para los contactos incompletos; los mensajes sin enviar ya no proponen reunión de entrada; se cargaron 14 contactos nuevos de Latinoamérica<br>• Consultas: links propios de formulario y agenda para copiar, botón «Recuperar esta consulta» y pantalla nueva «Modelos de mensaje» para editar y agregar modelos<br>• Web por Suscripción: el Sistema registra altas, cancelaciones y cobros rechazados de Mercado Pago, avisa, y manda solo el correo de bienvenida; entra en la lista de precios y sale Landing Express<br>• Envíos de email: salen por varios servicios, cada uno con su cupo diario, y si uno falla siguen por otro; los clics de los filtros de seguridad ya no se cuentan como personas<br>• Piezas para redes muestra la biblioteca de devisebit.com al día, sin duplicados | Novedad | `2640c3e..9cff9dd` (28) |
 | **3.12.0** | 14/11/2026 | • Material: grupo nuevo «Reels animados · noviembre 2026»<br>• Seis videos verticales con animación, uno de la marca y uno por producto, sin precios<br>• Se pueden ver, copiar el link y compartir<br>• No traen música ni voz: el audio se suma al publicar | Novedad | `23a2ec3..23a2ec3` (1) |
@@ -148,10 +151,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.4 Bot de WhatsApp (Bit)
 
-24 cambios propios · 11 versiones · versión actual **1.10.0**
+26 cambios propios · 12 versiones · versión actual **1.11.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.11.0** | 25/11/2026 | • Bit y la lista de precios ya conocen la promo de fin de año de Web PyME: $299.000 con 3 meses de abono incluidos<br>• Bit también explica que el autodiagnóstico es opcional para pedir turno (cambio compartido con el Sistema: `088b6b7`) | Mejora | `06c4aa6..8eee408` (2) |
 | **1.10.0** | 23/11/2026 | • Bit conoce la promo Web PyME: $299.000 con 3 meses de abono incluidos y un solo precio por tipo de web | Mejora | `2c7468b` (1) |
 | **1.9.0** | 18/11/2026 | • Cuando alguien pide el folleto de páginas web, Bit avisa que ya trae los precios<br>• Ofrece la Web por Suscripción como primera opción de página web y ya no ofrece Landing Express (cambio del 17/11, compartido con el Sistema: `cc91048`)<br>• Si la persona ya tiene una reunión confirmada, no le reserva otra ni le dice que el horario se ocupó (cambio del 17/11, compartido con el Sistema: `73384d5`) | Mejora | `73c1fe7` (1) |
 | **1.8.0** | 13/11/2026 | • Bit reconoce las consultas que llegan desde el paso previo de las landings: guarda el email en la consulta y no vuelve a preguntar el rubro ni a pedir el email | Mejora | `48da03b` (1) |
@@ -191,10 +195,11 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.7 Panel de Contenido — panel.devisebit.com
 
-48 cambios · 10 versiones · versión actual **2.4.0**
+51 cambios · 11 versiones · versión actual **2.5.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **2.5.0** | 25/11/2026 | • Sección nueva «Familia Mate»: uso de MateBot y MateCuentas, visitas, embudos y SEO<br>• Suma contactos con email, MateTurnos, MateEventos, códigos de regalo y dónde están los servidores<br>• Los códigos se explican: quién lo usó, estado y si es para una o varias personas | Novedad | `e343d97..3375b11` (3) |
 | **2.4.0** | 17/11/2026 | • LinkedIn: las publicaciones del perfil de Julio se pueden cargar a mano (link, fecha, impresiones y seguidores)<br>• También se pueden cargar desde Chrome con la sesión del Sistema ya abierta<br>• Web: estadísticas de Web por Suscripción (suscripciones, visitas y clics), y el sitio nuevo aparece en la lista | Novedad | `3df1086..8d7f43b` (3) |
 | **2.3.0** | 13/11/2026 | • **Interacción en redes** (pestaña nueva, también desde tablero.devisebit.com/interaccion): comentarios publicados por día y por red, avance de la meta del mes, presentaciones en grupos de Facebook (visibles y en aprobación), cuentas seguidas, seguidores de LinkedIn de Julio, Instagram y Facebook, y el embudo hasta las consultas<br>• Se carga sola: la tarea de comentarios informa cada corrida al panel; se cargó todo lo hecho del 02/11 al 13/11 (66 comentarios, 10 presentaciones en grupos)<br>• En el Tablero diario, acceso directo a la pestaña<br>• **Control mensual** (sección nueva, solo para Dirección): la infografía y el PDF de cada corte del mes, con el historial de cortes y aviso por Telegram<br>• TikTok se carga solo: videos y sus números desde Buffer, y seguidores y totales diarios desde Metricool<br>• Anuncios: las cuentas de Google se ven por separado, con el estado de cada una; una campaña con fecha de fin pasada figura «Terminada»; si falla Meta, lo dice claro y se sincroniza al abrir<br>• Interacción en redes: una cuenta o un grupo ya no se cuenta dos veces, y los resultados se muestran como indicadores sueltos | Novedad | `b7cd301..a7a30c4` (9) |
 | **2.2.0** | 13/11/2026 | • **Tablero diario** (solo para Julio): el informe de la mañana (8:27) y el de cierre (18:57) con semáforo, decisiones para tildar, notas del día y días anteriores; tiene dirección propia (tablero.devisebit.com) y avisa por Telegram cuando sale<br>• En el menú, «Tablero diario» queda justo debajo de «Inicio»<br>• **Pantalla nueva de TikTok:** se cargan a mano los seguidores, los me gusta y los videos (con formulario o planilla), y quedan en el mismo historial que las demás redes<br>• En Inicio, tarjeta de TikTok (sin números hasta que se carguen) e indicador opcional de seguidores<br>• TikTok aparece como una cuenta más en Análisis, y Publicaciones aclara de dónde salen sus datos | Novedad | `c4d22bc..9952dff` (6) |
@@ -217,12 +222,13 @@ Nota: en este producto están contados 3 cambios que fueron solo republicaciones
 
 ### 3.9 Sitio personal de Julio — julio.devisebit.com
 
-64 cambios · 7 versiones · versión actual **1.6.0**
+71 cambios · 8 versiones · versión actual **1.7.0**
 
 En este mismo código vive, en una carpeta aparte, el sitio de San Patricio (un cliente), y también imágenes para redes de DEVISEBIT. Esos cambios están contados acá porque comparten historial, pero no tienen versión propia.
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.7.0** | 25/11/2026 | • Nuevo CV único con posicionamiento de consultor tecnológico y de negocios digitales (sitio y CV en inglés alineados)<br>• Portada de LinkedIn nueva con ese posicionamiento<br>• Casos: EFFI SOLUTIONS y Familia Mate se presentan como trabajos de DEVISEBIT | Novedad | `ceab053..381969e` (7) |
 | **1.6.0** | 24/11/2026 | • El inicio presenta a Julio como consultor tecnológico<br>• Botón nuevo que lleva a la Asesoría de DEVISEBIT, en español y en inglés | Novedad | `9b4c30e..9b4c30e` (1) |
 | **1.5.0** | 12/11/2026 | • LinkedIn en la sección de contacto y en el pie; el CV online se enlaza desde el inicio<br>• El CV se imprime en dos hojas limpias<br>• Datos alineados en todo el sitio: 17 años de trayectoria, 7 sectores, roles vigentes<br>• Mejor en celular y para Google: sin desplazamiento lateral, mejor contraste, mapa del sitio y página de «no encontrado» | Mejora | `fd3e2a9..7bab8d6` (19) |
 | **1.4.0** | 09/11/2026 | • Versión en inglés del perfil, la historia y el portfolio, con selector de idioma y CV en inglés<br>• Textos al día (proyectos de software e IA) | Novedad | `37b4a92..6752bf0` (2) |
@@ -336,6 +342,6 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 
 | Rama | Último cambio incluido |
 |---|---|
-| `devisebit-sistema` | `2c7468b` |
-| `devisebit-web` | `ac4b584` |
-| `main` | `9b4c30e` |
+| `devisebit-sistema` | `e89957b` |
+| `devisebit-web` | `16b5791` |
+| `main` | `381969e` |
