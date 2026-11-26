@@ -9,6 +9,38 @@ export const SECTORES_EN = [
 
 export const CASOS_EN = [
   {
+    id: 10,
+    sector: "empresas",
+    category: "AI Agents, Sales and Management System",
+    title: "EFFI SOLUTIONS · a team of AI agents selling health plans",
+    client: "EFFI SOLUTIONS (Argentina)",
+    industry: "Health coverage sales",
+    challenge:
+      "Selling health coverage nationwide without a large call center: answering instantly, quoting correctly for each person's situation and not losing any inquiry between the first message and enrollment.",
+    service:
+      "Website with a 30-second quote and the official provider directory with a map. Five AI agents, each with its own area: sales, calls, enrollment, after-sales and companies. Assisted enrollment with two photos of the paperwork. Management panel with funnel, commissions, email campaigns and statistics.",
+    achievements:
+      "End-to-end operation with traceability: every action by every agent is logged with date and time, and the source of each inquiry is known. Anything that can't be resolved goes to a person. The image shows sample data.",
+    image: "/images/case-effi-solutions.webp",
+    technologies: ["AI agents", "WhatsApp", "CRM", "Online quoting", "Dashboards"],
+  },
+  {
+    id: 11,
+    sector: "empresas",
+    category: "Own AI product",
+    title: "Familia Mate · four apps born from a bot",
+    client: "DEVISEBIT's own product",
+    industry: "AI apps for people and businesses",
+    challenge:
+      "Organizing schedule, expenses, appointments and events without installing or learning anything new: from the phone and over WhatsApp.",
+    service:
+      "MateBot (schedule by voice note), MateCuentas (household expenses by voice or receipt photo), MateTurnos (online booking with WhatsApp reminders) and MateEventos (invitations, RSVPs, suppliers and stock). Released version by version, based on what users asked for.",
+    achievements:
+      "Four connected apps, with a free plan to get started. The same method we use in client projects: ship small and test every journey as a customer.",
+    image: "/images/case-familia-mate.webp",
+    technologies: ["Generative AI", "WhatsApp", "Speech to text", "Web app"],
+  },
+  {
     id: 5,
     sector: "gobierno",
     category: "Technology Development and IT Project Management",

@@ -9,6 +9,38 @@ export const SECTORES = [
 
 export const CASOS = [
   {
+    id: 10,
+    sector: "empresas",
+    category: "Agentes de IA, Ventas y Sistema de Gestión",
+    title: "EFFI SOLUTIONS · un equipo de agentes de IA que vende planes de salud",
+    client: "EFFI SOLUTIONS (Argentina)",
+    industry: "Comercialización de cobertura de salud",
+    challenge:
+      "Vender cobertura de salud en todo el país sin un call center grande: responder al instante, cotizar bien según la situación de cada persona y no perder ninguna consulta entre el primer mensaje y el alta.",
+    service:
+      "Web con cotizador en 30 segundos y cartilla oficial con mapa. Cinco agentes de IA, cada uno con su área: ventas, llamadas, altas, posventa y empresas. Alta asistida con dos fotos de la documentación. Panel de gestión con embudo, comisiones, campañas de email y estadísticas.",
+    achievements:
+      "Operación de punta a punta con trazabilidad: cada acción de cada agente queda registrada con fecha y hora, y se sabe de dónde llegó cada consulta. Si algo no se puede resolver, pasa a una persona. La imagen muestra datos de ejemplo.",
+    image: "/images/case-effi-solutions.webp",
+    technologies: ["Agentes de IA", "WhatsApp", "CRM", "Cotizador online", "Tableros"],
+  },
+  {
+    id: 11,
+    sector: "empresas",
+    category: "Producto propio con IA",
+    title: "Familia Mate · cuatro apps que nacieron de un bot",
+    client: "Producto propio de DEVISEBIT",
+    industry: "Apps con IA para personas y negocios",
+    challenge:
+      "Ordenar la agenda, las cuentas, los turnos y los eventos sin instalar ni aprender nada nuevo: desde el celular y por WhatsApp.",
+    service:
+      "MateBot (agenda por audio), MateCuentas (gastos de la casa con audio o foto del ticket), MateTurnos (reservas online con recordatorio por WhatsApp) y MateEventos (invitación, confirmaciones, proveedores y stock). Publicadas versión a versión, según lo que pedían los usuarios.",
+    achievements:
+      "Cuatro apps conectadas entre sí, con plan gratuito para empezar. El mismo método que usamos en los proyectos de clientes: publicar chico y probar cada recorrido como cliente.",
+    image: "/images/case-familia-mate.webp",
+    technologies: ["IA generativa", "WhatsApp", "Audio a texto", "Web app"],
+  },
+  {
     id: 5,
     sector: "gobierno",
     category: "Desarrollo Tecnológico y Gestión de Proyecto IT",
