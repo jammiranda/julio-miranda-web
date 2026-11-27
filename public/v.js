@@ -73,7 +73,7 @@
     "tuweb.devisebit.com": { s: "tuweb", r: "^/(preguntas(\\.html)?)?$", um: 68 }
   }
   // Interruptor general: en false el chat no aparece en ningún sitio (solo con ?_chat= para probar)
-  var ACTIVO = false
+  var ACTIVO = true
   function cargarChat() {
     try {
       var c = ACTIVO ? CHAT[location.hostname] : null
