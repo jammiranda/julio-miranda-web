@@ -32,9 +32,9 @@ async function mp(ruta: string, init?: RequestInit) {
 const PREFIJOS = ["matebot:", "mateturnos:", "mateeventos:", "mateeventos-org:"]
 const esMateBot = (p: any) => PREFIJOS.some((x) => String(p?.external_reference ?? "").startsWith(x))
 const SUSCRIPCION: Record<string, { reason: string; ref: string; back: string }> = {
-  plus: { reason: "MateBot Plus", ref: "matebot", back: "https://matebot.devisebit.com/plus/gracias" },
-  turnos: { reason: "MateTurnos Pro", ref: "mateturnos", back: "https://mateturnos.devisebit.com/app?pro=ok" },
-  eventos: { reason: "MateEventos Organizador", ref: "mateeventos-org", back: "https://mateeventos.devisebit.com/app?org=ok" },
+  plus: { reason: "MateBot Plus", ref: "matebot", back: "https://matebot.devisebit.com/api/mp/volver?ir=plus" },
+  turnos: { reason: "MateTurnos Pro", ref: "mateturnos", back: "https://matebot.devisebit.com/api/mp/volver?ir=turnos" },
+  eventos: { reason: "MateEventos Organizador", ref: "mateeventos-org", back: "https://matebot.devisebit.com/api/mp/volver?ir=org" },
 }
 const resumen = (p: any) => ({
   id: p.id, status: p.status, external_reference: p.external_reference, init_point: p.init_point,
@@ -70,7 +70,12 @@ export async function POST(req: NextRequest) {
 
   if (b.accion === "ver" && b.id) {
     const r = await mp(`/preapproval/${encodeURIComponent(String(b.id))}`)
-    if (!r.ok || !esMateBot(r.j)) return NextResponse.json({ error: "no encontrada" }, { status: 404 })
+    if (!r.ok) {
+      console.error("puente matebot ver", r.status, r.j?.message)
+      // 404 solo si MP dice que no existe; cualquier otro error se informa como tal para reintentar
+      return NextResponse.json({ error: r.j?.message || `mp ${r.status}` }, { status: r.status === 404 ? 404 : 502 })
+    }
+    if (!esMateBot(r.j)) return NextResponse.json({ error: "no es de la familia Mate" }, { status: 404 })
     return NextResponse.json(resumen(r.j))
   }
 
@@ -92,7 +97,7 @@ export async function POST(req: NextRequest) {
         items: [{ id: `mateeventos-${evento}`, title: `MateEventos Pro · ${String(b.titulo || "Evento").slice(0, 60)}`, quantity: 1, unit_price: monto, currency_id: "ARS" }],
         external_reference: `mateeventos:${evento}`,
         ...(b.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(b.email)) ? { payer: { email: String(b.email) } } : {}),
-        back_urls: { success: "https://mateeventos.devisebit.com/app?pro=ok", pending: "https://mateeventos.devisebit.com/app?pro=pendiente", failure: "https://mateeventos.devisebit.com/app?pro=error" },
+        back_urls: { success: "https://matebot.devisebit.com/api/mp/volver?ir=evento", pending: "https://matebot.devisebit.com/api/mp/volver?ir=evento_pendiente", failure: "https://matebot.devisebit.com/api/mp/volver?ir=evento_error" },
         auto_return: "approved",
         notification_url: "https://sistema.devisebit.com/api/academia/mp",
         statement_descriptor: "MATEEVENTOS",
@@ -100,6 +105,14 @@ export async function POST(req: NextRequest) {
     })
     if (!r.ok) return NextResponse.json({ error: r.j?.message || `mp ${r.status}` }, { status: 502 })
     return NextResponse.json({ id: r.j.id, init_point: r.j.init_point })
+  }
+
+  if (b.accion === "pago_evento" && Number(b.evento)) {
+    const ref = `mateeventos:${Number(b.evento)}`
+    const r = await mp(`/v1/payments/search?external_reference=${encodeURIComponent(ref)}&status=approved&sort=date_created&criteria=desc&limit=1`)
+    const p = r.ok ? r.j?.results?.[0] : null
+    if (!p) return NextResponse.json({ error: "sin pago" }, { status: 404 })
+    return NextResponse.json({ id: p.id, status: p.status, external_reference: p.external_reference, monto: p.transaction_amount })
   }
 
   if (b.accion === "pago" && b.id) {
