@@ -179,7 +179,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
   const mats = materialesPara(lineaDe(c.motivo, c.mensaje))
   const links = await linksConsulta(c.id)
   const listaModelos = await modelos()
-  const canalChat = String(c.chat_id ?? "").startsWith("ig:") ? "Instagram" : "WhatsApp"
+  const esWeb = String(c.chat_id ?? "").startsWith("web:")
+  const canalChat = String(c.chat_id ?? "").startsWith("ig:") ? "Instagram" : esWeb ? "el chat web" : "WhatsApp"
   const otras = c.telefono ? await q<any>("select id, creado, estado, motivo from consultas where telefono=$1 and id<>$2 and empresa=$3 order by creado desc limit 10", [c.telefono, id, c.empresa]) : []
   return (
     <div className="flex flex-col gap-4">
@@ -208,7 +209,7 @@ export default async function Consulta({ params, searchParams }: { params: { id:
           {chat ? (
             <section className="card flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="m-0">Conversación de {String(waId).startsWith("ig:") ? "Instagram" : "WhatsApp"}</h2>
+                <h2 className="m-0">Conversación {esWeb ? "del chat de la web" : `de ${String(waId).startsWith("ig:") ? "Instagram" : "WhatsApp"}`}</h2>
                 {ed && (
                   <form action={bot} className="flex items-center gap-2 text-sm">
                     <input type="hidden" name="id" value={c.id} /><input type="hidden" name="a" value={botPausado ? "activar" : "pausar"} />
@@ -241,8 +242,8 @@ export default async function Consulta({ params, searchParams }: { params: { id:
               {ed && (ventana ? (
                 <form action={responder} className="flex flex-col gap-2">
                   <input type="hidden" name="id" value={c.id} />
-                  <textarea name="texto" rows={3} required aria-label="Respuesta al cliente" className="inp" placeholder="Escribí la respuesta: sale por el mismo canal y el bot queda en pausa en este chat" />
-                  <div><button className="btn-p">Enviar{String(waId).startsWith("ig:") ? " por Instagram" : " por WhatsApp"}</button></div>
+                  <textarea name="texto" rows={3} required aria-label="Respuesta al cliente" className="inp" placeholder={esWeb ? "Escribí la respuesta: aparece en el chat de la web si la persona sigue en la página (si ya se fue, escribile al email o WhatsApp que dejó). El bot queda en pausa en este chat" : "Escribí la respuesta: sale por el mismo canal y el bot queda en pausa en este chat"} />
+                  <div><button className="btn-p">Enviar{String(waId).startsWith("ig:") ? " por Instagram" : esWeb ? " al chat web" : " por WhatsApp"}</button></div>
                 </form>
               ) : (
                 <p className="m-0 text-xs text-[#4A515C]">Pasaron más de 24 h desde el último mensaje del cliente: WhatsApp solo permite responder con una plantilla aprobada. Usá el botón de WhatsApp de la derecha.</p>

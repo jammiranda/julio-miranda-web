@@ -9,6 +9,7 @@ import { notificar } from "./push"
 import { desdeTexto, limpiarRef, type Origen } from "./origen"
 import { catalogo, linkBrief } from "./brief"
 import { sugerencias, reservar, deLocal, linkAgenda } from "./agenda"
+import { contextoWeb, unirChatWeb, telefonoEnTexto, type Canal, type DatosWeb } from "./chat-web"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
 type Estado = { paso?: number | null; datos?: Record<string, string>; noEntendi?: number; tema?: string; recurso?: string | null }
@@ -265,12 +266,14 @@ async function tomarTurno(e: Empresa, waId: string) {
  * Procesa un mensaje entrante: guarda, actualiza el CRM y responde (salvo que una persona haya tomado el chat).
  * Lo primero es guardar el mensaje; `opc.transcribir` (audios) corre después, con el mensaje, el chat y la consulta ya guardados.
  */
-export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: "whatsapp" | "instagram" = "whatsapp", origen: Origen | null = null, opc: { transcribir?: () => Promise<string | null> } = {}) {
-  const og = origen ?? desdeTexto(texto) ?? { fuente: canal === "instagram" ? "Instagram directo" : "WhatsApp directo" }
+export async function procesar(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, metaId: string, canal: Canal = "whatsapp", origen: Origen | null = null, opc: { transcribir?: () => Promise<string | null>; web?: DatosWeb } = {}) {
+  const og = origen ?? desdeTexto(texto) ?? { fuente: canal === "instagram" ? "Instagram directo" : canal === "web" ? "Web directa" : "WhatsApp directo" }
   texto = limpiarRef(texto)
+  // Viene del chat de la web y sigue por WhatsApp: se une a esa conversación (misma consulta e historial) para no hacerle repetir nada
+  if (canal === "whatsapp") texto = await unirChatWeb(e, waId, texto).catch((err) => { console.error("bot: unir chat web", err); return texto })
   const roles = ["gerente", "coordinacion"]
   const marca = "DEVISEBIT"
-  const red = canal === "instagram" ? "Instagram" : "WhatsApp"
+  const red = canal === "instagram" ? "Instagram" : canal === "web" ? "el chat de la web" : "WhatsApp"
   // El guardado es a la vez el control de reintentos de Meta: si el mensaje ya está, no se inserta y se corta acá
   let mid: string
   try {
@@ -338,7 +341,7 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
   }
 
   if (nueva) {
-    await notificar(roles, `💬 Nueva consulta por ${red} · ${marca}`, `${perfil ?? (canal === "whatsapp" ? "+" + waId : "Instagram")}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
+    await notificar(roles, `💬 Nueva consulta por ${red} · ${marca}`, `${perfil ?? (canal === "whatsapp" ? "+" + waId : canal === "web" ? `Visitante de ${opc.web?.sitio ?? "la web"}` : "Instagram")}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
   } else {
     await q("update consultas set actualizado=now() where id=$1", [cid])
     if (origen) await q("update consultas set fuente=$1, campania=coalesce($2,campania), origen_detalle=coalesce($3,origen_detalle) where id=$4 and coalesce(fuente,'') not in ('Google Ads','Meta Ads')", [og.fuente, og.campania ?? null, og.detalle ? JSON.stringify(og.detalle) : null, cid])
@@ -346,7 +349,7 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
 
   const conTurno = await tomarTurno(e, waId)
   try {
-    await responder(e, waId, perfil, texto, tipo, mid, canal, cid!, chat, anterior !== null && nueva)
+    await responder(e, waId, perfil, texto, tipo, mid, canal, cid!, chat, anterior !== null && nueva, opc.web)
   } finally {
     if (conTurno) await q("update wa_chats set turno_hasta=null where empresa=$1 and wa_id=$2", [e, waId]).catch(() => {})
   }
@@ -355,10 +358,10 @@ export async function procesar(e: Empresa, waId: string, perfil: string | null, 
 type ChatBot = { consulta_id: number | null; bot_pausado_hasta: string | null; pausa_motivo: string | null; estado: Estado | null; ultimo_entrante: string | null }
 
 /** Segunda mitad de procesar(): decide si responde el bot y manda la respuesta. Corre con el turno del chat tomado. */
-async function responder(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, mid: string, canal: "whatsapp" | "instagram", cid: number, chat0: ChatBot | null, reinicio: boolean) {
+async function responder(e: Empresa, waId: string, perfil: string | null, texto: string | null, tipo: string, mid: string, canal: Canal, cid: number, chat0: ChatBot | null, reinicio: boolean, web?: DatosWeb) {
   const roles = ["gerente", "coordinacion"]
   const marca = "DEVISEBIT"
-  const red = canal === "instagram" ? "Instagram" : "WhatsApp"
+  const red = canal === "instagram" ? "Instagram" : canal === "web" ? "el chat de la web" : "WhatsApp"
   // Estado del chat leído con el turno tomado (otra corrida pudo cambiarlo mientras se esperaba). `visto`: una respuesta de la IA ya incluyó este mensaje.
   const vivo = await one<ChatBot & { visto: boolean; primero: boolean }>(
     `select c.consulta_id, c.bot_pausado_hasta, c.pausa_motivo, c.estado, c.ultimo_entrante,
@@ -441,7 +444,7 @@ async function responder(e: Empresa, waId: string, perfil: string | null, texto:
     const agenda = tok ? linkAgenda(tok) : null
     const libres = await sugerencias(8).catch(() => [])
     const yaReunion = await one<{ inicio: Date }>("select inicio from db_reuniones where consulta_id=$1 and estado='confirmada' and inicio > now() order by inicio limit 1", [cid])
-    const quienEs = perfil ? `CONTEXTO DEL CANAL: la persona escribe por ${canal === "instagram" ? "Instagram" : "WhatsApp"} y su nombre de perfil es "${perfil}". Podés saludarla por su primer nombre si parece un nombre real (no un alias o el nombre de un negocio), pero confirmá el nombre completo antes de usarlo en "datos".\n` : ""
+    const quienEs = canal === "web" ? contextoWeb(web) : perfil ? `CONTEXTO DEL CANAL: la persona escribe por ${canal === "instagram" ? "Instagram" : "WhatsApp"} y su nombre de perfil es "${perfil}". Podés saludarla por su primer nombre si parece un nombre real (no un alias o el nombre de un negocio), pero confirmá el nombre completo antes de usarlo en "datos".\n` : ""
     const ahora = new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })
     const ctx = `FECHA Y HORA ACTUAL EN ARGENTINA: ${ahora}. Usala para saber si el equipo está en horario; si la persona dice otro día, guiate por esta fecha.\n${quienEs}CATÁLOGO CON RANGOS DE REFERENCIA, PLAZOS Y LINKS (solo estos números):
 ${cat.map((s) => `- ${s.nombre}${s.rango ? `: ${s.rango}` : ""}${s.plazo ? ` · plazo típico ${s.plazo}` : ""}${s.link ? ` · ${s.link}` : ""}`).join("\n")}
@@ -492,12 +495,18 @@ ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; c
       res.respuestas = [mail ? `Mmm, ese email no parece válido (${mail}). ¿Me lo pasás de nuevo así te mando la demo?` : "¡Genial! ¿A qué email te mando la demo? Te llega un link personal para probarla."]
     }
   }
+  if (canal === "web") {
+    // En la web no tenemos el número: si lo dejó (lo marca la IA o se lee del texto), queda en la consulta
+    const tel = telefonoEnTexto(v("telefono")) ?? telefonoEnTexto(texto)
+    if (tel) await q("update consultas set telefono=coalesce(telefono,$1) where id=$2", [tel, cid]).catch((err) => console.error("bot: teléfono del chat web sin guardar", err))
+    if (!v("email") && mailEnTexto) { const val = await validarEmail(mailEnTexto).catch(() => null); if (val?.ok) d.email = val.email }
+  }
   await q(
     `update consultas set nombre=coalesce($1,nombre), motivo=coalesce($2,motivo), organizacion=coalesce($3,organizacion),
        email=coalesce($4,email), necesita_humano=necesita_humano or $5, actualizado=now() where id=$6`,
     [v("nombre"), v("motivo"), v("organizacion"), v("email"), res.derivar, cid],
   )
-  await alCRM(cid, canal).catch(() => {})
+  await alCRM(cid, canal === "web" ? "webchat" : canal).catch(() => {})
   await q("update wa_chats set estado=$1 where empresa=$2 and wa_id=$3", [JSON.stringify(res.estado ?? {}), e, waId])
   if (res.derivar) {
     const quien = v("nombre") ?? perfil ?? "Cliente"
@@ -550,7 +559,7 @@ export async function alCRM(cid: number, canal: string) {
   } else {
     await q(
       "insert into db_contactos(nombre,organizacion,email,telefono,etapa,origen,notas,consulta_id,proximo,proximo_fecha,fuente,campania,clase) values ($1,$2,$3,$4,'nuevo',$5,$6,$7,'Responder y coordinar reunión',(now() at time zone 'America/Argentina/Buenos_Aires')::date,$8,$9,'oportunidad') on conflict (lower(email)) where email is not null do update set consulta_id=coalesce(db_contactos.consulta_id,excluded.consulta_id), clase=coalesce(db_contactos.clase,'oportunidad'), etapa=case when db_contactos.etapa='base' then 'nuevo' else db_contactos.etapa end, fuente=coalesce(db_contactos.fuente,excluded.fuente), actualizado=now()",
-      [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : canal === "web" ? "Web (formulario)" : "WhatsApp (bot)", notas || null, cid, k.fuente, k.campania],
+      [k.nombre, k.organizacion, k.email, k.telefono, canal === "instagram" ? "Instagram (bot)" : canal === "webchat" ? "Web (chat con Bit)" : canal === "web" ? "Web (formulario)" : "WhatsApp (bot)", notas || null, cid, k.fuente, k.campania],
     )
   }
 }

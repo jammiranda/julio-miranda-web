@@ -59,7 +59,7 @@ export async function reenganchar() {
     `select c.empresa, c.wa_id, c.nombre, k.mensaje, k.motivo, k.email,
             (select m.texto from wa_mensajes m where m.empresa=c.empresa and m.wa_id=c.wa_id and m.autor='cliente' order by m.creado desc, m.id desc limit 1) ultimo_cliente
        from wa_chats c join consultas k on k.id=c.consulta_id
-      where c.wa_id not like 'ig:%'
+      where c.wa_id not like 'ig:%' and c.wa_id not like 'web:%'
         and c.ultimo_entrante between now() - interval '${VENTANA_H} hours' and now() - interval '${ESPERA_MIN} minutes'
         and (c.bot_pausado_hasta is null or c.bot_pausado_hasta < now())
         and k.estado not in ('convertida','descartada')
