@@ -74,22 +74,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(resumen(r.j))
   }
 
-  // Diagnóstico temporal: qué fuentes de movimientos de la cuenta responde Mercado Pago (para la carga automática de gastos).
-  if (b.accion === "diag") {
+  // Gastos de la cuenta (pagos hechos como pagador) desde una fecha, para la carga automática en MateCuentas.
+  // Devuelve solo lo necesario para anotar cada gasto: id, fecha, descripción, monto, medio y cuotas.
+  if (b.accion === "movimientos") {
+    const desde = String(b.desde || "")
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(desde)) return NextResponse.json({ error: "desde inválido" }, { status: 400 })
     const me = await mp("/users/me")
-    const id = me.j?.id
-    const pay = await mp(`/v1/payments/search?payer.id=${id}&sort=date_created&criteria=desc&limit=8`)
-    const mov = await mp(`/mercadopago_account/movements/search?limit=8&sort=date_created&criteria=desc`)
-    const rel = await mp(`/v1/account/release_report/list`)
-    const set = await mp(`/v1/account/settlement_report/list`)
-    const corta = (x: any) => (Array.isArray(x) ? x.slice(0, 4) : x)
-    return NextResponse.json({
-      me: { status: me.status, id, nickname: me.j?.nickname },
-      pagosComoPagador: { status: pay.status, total: pay.j?.paging?.total, muestra: (pay.j?.results ?? []).map((p: any) => ({ id: p.id, fecha: p.date_created, desc: p.description, monto: p.transaction_amount, estado: p.status, tipo: p.payment_type_id, op: p.operation_type, collector: p.collector_id })), error: pay.ok ? undefined : pay.j },
-      movimientos: { status: mov.status, total: mov.j?.paging?.total, muestra: corta(mov.j?.results ?? mov.j) },
-      releaseList: { status: rel.status, muestra: corta(rel.j) },
-      settlementList: { status: set.status, muestra: corta(set.j) },
-    })
+    if (!me.ok || !me.j?.id) return NextResponse.json({ error: "mp sin cuenta" }, { status: 502 })
+    const out: any[] = []
+    const fin = new Date().toISOString()
+    for (let offset = 0; offset < 1000; offset += 100) {
+      const qs = new URLSearchParams({
+        "payer.id": String(me.j.id), range: "date_created", begin_date: `${desde}T00:00:00.000-03:00`, end_date: fin,
+        sort: "date_created", criteria: "asc", limit: "100", offset: String(offset),
+      })
+      const r = await mp(`/v1/payments/search?${qs}`)
+      if (!r.ok) return NextResponse.json({ error: r.j?.message || `mp ${r.status}` }, { status: 502 })
+      const res: any[] = r.j?.results ?? []
+      for (const p of res) {
+        if (!["approved", "authorized"].includes(p.status)) continue
+        if (p.collector_id && String(p.collector_id) === String(me.j.id)) continue
+        out.push({
+          id: String(p.id), creado: p.date_created, detalle: String(p.description || p.statement_descriptor || "").slice(0, 120),
+          monto: Number(p.transaction_amount) || 0, moneda: p.currency_id, tipo: p.payment_type_id, cuotas: p.installments || 1,
+        })
+      }
+      if (res.length < 100) break
+    }
+    return NextResponse.json({ movimientos: out })
   }
 
   return NextResponse.json({ error: "acción desconocida" }, { status: 400 })
