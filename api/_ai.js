@@ -34,8 +34,8 @@ async function chat(req, messages, maxTokens = 900) {
     const sys = messages[0].content; const u = messages[1].content;
     const content = (Array.isArray(u) ? u : [{ type: 'text', text: String(u) }]).map((c) => {
       if (c.type !== 'image_url') return { type: 'text', text: c.text };
-      const m = c.image_url.url.match(/^data:(image\/[a-z]+);base64,(.*)$/);
-      return { type: 'image', source: { type: 'base64', media_type: m[1], data: m[2] } };
+      const m = c.image_url.url.match(/^data:(image\/[a-z]+|application\/pdf);base64,(.*)$/);
+      return { type: m[1] === 'application/pdf' ? 'document' : 'image', source: { type: 'base64', media_type: m[1], data: m[2] } };
     });
     return proxy({ op: 'chat', system: sys, content, max_tokens: maxTokens });
   }
@@ -80,7 +80,7 @@ Reglas:
 - Electrodomésticos, muebles y arreglos de la casa van a la categoría de hogar/alquiler/varios más parecida.`;
   const content = [];
   if (image) content.push({ type: 'image_url', image_url: { url: image } });
-  content.push({ type: 'text', text: text ? `Mensaje: ${text}` : 'Leé la imagen y cargá lo que corresponda.' });
+  content.push({ type: 'text', text: text ? `Mensaje: ${text}` : 'Leé la imagen o el PDF y cargá lo que corresponda.' });
   const out = await chat(req, [{ role: 'system', content: sys }, { role: 'user', content }], 1500);
   const j = firstJson(out) || { items: [], nota: 'No pude entenderlo, probá de nuevo con el monto y en qué fue.' };
   const ids = new Set((space.cats || []).map((c) => c.id));

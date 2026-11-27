@@ -12,9 +12,9 @@ export default guard(async (req, res) => {
   const { data: space } = await readJ(spacePath(id));
   if (!space || !space.members.some((m) => m.uid === me.id)) throw fail(404, 'No encontramos ese espacio.');
   let text = String(b.text || '').slice(0, 2000).trim();
-  const image = typeof b.image === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(b.image) ? b.image : null;
+  const image = typeof b.image === 'string' && /^data:(image\/(jpeg|png|webp)|application\/pdf);base64,/.test(b.image) ? b.image : null;
   const audio = typeof b.audio === 'string' ? b.audio : null;
-  if (!text && !image && !audio) throw fail(400, 'Contame qué gastaste, mandá un audio o una foto.');
+  if (!text && !image && !audio) throw fail(400, 'Contame qué gastaste, mandá un audio, una foto o un PDF.');
   if ((image && image.length > 4.2e6) || (audio && audio.length > 4.2e6)) throw fail(413, 'El archivo es muy pesado. Probá con uno más corto o una foto más liviana.');
   if (!(await takeAi(me))) throw fail(402, 'Usaste tus cargas mágicas gratis de este mes. Con Pro son ilimitadas.');
   try {

@@ -911,9 +911,9 @@ function magicCard() {
     </div>
     <div class="mrow2">
       <button class="mpill mic" id="mmic" aria-label="Dictar un audio">${IC.mic}<span>Hablar</span></button>
-      <button class="mpill" id="mcam" aria-label="Foto del ticket">${IC.cam}<span>Foto del ticket</span></button>
+      <button class="mpill" id="mcam" aria-label="Foto o PDF del ticket">${IC.cam}<span>Foto o PDF</span></button>
     </div>
-    <input type="file" id="mfile" accept="image/*" capture="environment" hidden>
+    <input type="file" id="mfile" accept="image/*,application/pdf,.pdf" hidden>
     <div class="mhint">También por WhatsApp con MateBot 🧉</div>
   </div>`;
 }
@@ -924,7 +924,15 @@ function bindMagic(M) {
   t.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
   M.querySelector('#msend').onclick = go;
   M.querySelector('#mcam').onclick = () => M.querySelector('#mfile').click();
-  M.querySelector('#mfile').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; try { magic({ image: await shrink(f) }); } catch (x) { toast('No pude leer esa imagen'); } };
+  M.querySelector('#mfile').onchange = async (e) => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) {
+      if (f.size > 3 * 1024 * 1024) return toast('El PDF es muy pesado (máximo 3 MB). Probá con una foto del ticket.', 4000);
+      const url = await new Promise((ok, ko) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).replace(/^data:[^;]*;/, 'data:application/pdf;')); fr.onerror = ko; fr.readAsDataURL(f); });
+      return magic({ image: url, pdf: true });
+    }
+    try { magic({ image: await shrink(f) }); } catch (x) { toast('No pude leer esa imagen. Probá con otra foto o un PDF.'); }
+  };
   M.querySelector('#mmic').onclick = () => toggleRec(M.querySelector('#mmic'));
 }
 async function toggleRec(btn) {
@@ -959,9 +967,9 @@ function shrink(file) {
 async function magic(input) {
   const a = aiInfo();
   if (st.me.plan !== 'pro' && a.left <= 0) return upsell('ai');
-  const w = openModal('✨ Entendiendo…', `<div class="thinking"><div class="spin"></div><span>${input.audio ? 'Escuchando tu audio…' : input.image ? 'Leyendo la foto…' : 'Leyendo lo que escribiste…'}</span></div>`);
+  const w = openModal('✨ Entendiendo…', `<div class="thinking"><div class="spin"></div><span>${input.audio ? 'Escuchando tu audio…' : input.pdf ? 'Leyendo el PDF…' : input.image ? 'Leyendo la foto…' : 'Leyendo lo que escribiste…'}</span></div>`);
   try {
-    const r = await api('ai', { id: st.S.id, ...input });
+    const { pdf, ...body } = input; const r = await api('ai', { id: st.S.id, ...body });
     if (st.me) st.me.ai = r.ai;
     if (!$('#modals').contains(w)) return;
     if (!r.items.length) { closeModal(); return toast(r.nota || 'No encontré un monto. Probá de nuevo.', 4000); }
