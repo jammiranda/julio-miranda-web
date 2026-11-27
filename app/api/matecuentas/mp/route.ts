@@ -74,5 +74,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(resumen(r.j))
   }
 
+  // Diagnóstico temporal: qué fuentes de movimientos de la cuenta responde Mercado Pago (para la carga automática de gastos).
+  if (b.accion === "diag") {
+    const me = await mp("/users/me")
+    const id = me.j?.id
+    const pay = await mp(`/v1/payments/search?payer.id=${id}&sort=date_created&criteria=desc&limit=8`)
+    const mov = await mp(`/mercadopago_account/movements/search?limit=8&sort=date_created&criteria=desc`)
+    const rel = await mp(`/v1/account/release_report/list`)
+    const set = await mp(`/v1/account/settlement_report/list`)
+    const corta = (x: any) => (Array.isArray(x) ? x.slice(0, 4) : x)
+    return NextResponse.json({
+      me: { status: me.status, id, nickname: me.j?.nickname },
+      pagosComoPagador: { status: pay.status, total: pay.j?.paging?.total, muestra: (pay.j?.results ?? []).map((p: any) => ({ id: p.id, fecha: p.date_created, desc: p.description, monto: p.transaction_amount, estado: p.status, tipo: p.payment_type_id, op: p.operation_type, collector: p.collector_id })), error: pay.ok ? undefined : pay.j },
+      movimientos: { status: mov.status, total: mov.j?.paging?.total, muestra: corta(mov.j?.results ?? mov.j) },
+      releaseList: { status: rel.status, muestra: corta(rel.j) },
+      settlementList: { status: set.status, muestra: corta(set.j) },
+    })
+  }
+
   return NextResponse.json({ error: "acción desconocida" }, { status: 400 })
 }
