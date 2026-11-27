@@ -9,6 +9,7 @@ import { notificar } from "./push"
 import { desdeTexto, limpiarRef, type Origen } from "./origen"
 import { catalogo, linkBrief } from "./brief"
 import { sugerencias, reservar, deLocal, linkAgenda } from "./agenda"
+import { avisarConHilo } from "./telegram"
 import { contextoWeb, unirChatWeb, telefonoEnTexto, type Canal, type DatosWeb } from "./chat-web"
 
 /** Estado de la conversación guardado por chat (wa_chats.estado). */
@@ -241,10 +242,10 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, 
 
 /** Chat web cuando la IA no responde: no se improvisa. Se pide el email (o WhatsApp) y el equipo sigue la conversación. */
 function respaldoWeb(mail: string | null, est: Estado): Resultado {
-  if (mail) return { respuestas: [`Gracias, ya lo anoté. Una persona del equipo te escribe a ${mail} con la respuesta. Si preferís algo más rápido, tocá *Seguir por WhatsApp* acá abajo.`], datos: { email: mail }, derivar: true, area: "coordinacion", estado: est }
+  if (mail) return { respuestas: [`Gracias, ya lo anoté. Una persona del equipo te escribe a ${mail} con la respuesta. Si preferís algo más rápido, tocá *Seguir por WhatsApp*, arriba de este chat.`], datos: { email: mail }, derivar: true, area: "coordinacion", estado: est }
   const ya = (est.noEntendi ?? 0) > 0
   return {
-    respuestas: [ya ? "Lo dejo anotado para el equipo. Si me pasás un email te respondemos por ahí; si no, podés seguir por *WhatsApp* con el botón de acá abajo." : "Recibí tu consulta. En este momento no puedo responderte al detalle por acá, así que te contesta una persona del equipo. ¿A qué email te escribimos?"],
+    respuestas: [ya ? "Lo dejo anotado para el equipo. Si me pasás un email te respondemos por ahí; si no, podés seguir por *WhatsApp* con el botón de arriba." : "Recibí tu consulta. En este momento no puedo responderte al detalle por acá, así que te contesta una persona del equipo. ¿A qué email te escribimos?"],
     datos: {}, derivar: true, area: "coordinacion", estado: { ...est, noEntendi: (est.noEntendi ?? 0) + 1 },
   }
 }
@@ -397,6 +398,14 @@ async function responder(e: Empresa, waId: string, perfil: string | null, texto:
   }
   if (pausado) {
     await q("update consultas set necesita_humano=true where id=$1", [cid])
+    if (canal === "web") {
+      // Chat web con una persona del equipo: el aviso va con hilo, para contestar desde Telegram respondiendo el mensaje
+      const k = await one<{ nombre: string | null }>("select nombre from consultas where id=$1", [cid]).catch(() => null)
+      const tg = await avisarConHilo(waId, { titulo: `💬 ${k?.nombre ?? "Visitante"} escribió en el chat web`, cuerpo: texto ?? "(archivo)", url: `/consultas/${cid}` })
+      if (!tg.ok) console.error("chat web: aviso de Telegram sin salir", tg.error)
+      await notificar(roles, `✉️ Te respondieron en ${red} · ${marca}`, `${k?.nombre ?? "Visitante"}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`, { sinTelegram: tg.ok })
+      return
+    }
     await notificar(roles, `✉️ Te respondieron en ${red} · ${marca}`, `${perfil ?? "Cliente"}: ${texto ?? "(archivo)"}`, `/consultas/${cid}`)
     return
   }

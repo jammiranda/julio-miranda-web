@@ -3,6 +3,7 @@ import { q, one } from "@/lib/db"
 import { procesar } from "@/lib/bot"
 import { desdeUtm } from "@/lib/origen"
 import { codigoChat, sitioValido, SITIOS } from "@/lib/chat-web"
+import { pedirHumano } from "@/lib/chat-humano"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -50,7 +51,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const b = await req.json().catch(() => ({}))
   const sid = String(b.sid ?? "")
-  const texto = t(b.texto, 1200)
+  const pideHumano = b.accion === "humano"
+  const texto = pideHumano ? "Quiero hablar con una persona" : t(b.texto, 1200)
   if (!SID.test(sid) || !texto) return json(req, { ok: false, error: "datos" }, 400)
   if (b.website) return json(req, { ok: true, mensajes: [] }) // trampa para robots
   const sitio = sitioValido(b.sitio)
@@ -79,12 +81,18 @@ export async function POST(req: NextRequest) {
   const antes = (await one<{ id: string | null }>("select max(id) id from wa_mensajes where empresa=$1 and wa_id=$2", [E, waId]))?.id ?? "0"
   const metaId = `web_${sid}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
   try {
-    await procesar(E, waId, null, texto, "text", metaId, "web", og, { web: { sitio, pagina } })
+    if (pideHumano) {
+      // Un pedido cada 5 minutos por conversación: un segundo toque no vuelve a avisar, solo confirma
+      const reciente = await one("select 1 from wa_mensajes where empresa=$1 and wa_id=$2 and autor='cliente' and texto=$3 and creado > now() - interval '5 minutes'", [E, waId, texto])
+      if (reciente) return json(req, { ok: true, mensajes: [], humano: true, lead: false, codigo: codigoChat(sid), aviso: "El equipo ya está avisado. En cuanto alguien se suma, te escribe por acá." })
+      await pedirHumano(E, waId, { sitio, pagina }, og)
+    } else await procesar(E, waId, null, texto, "text", metaId, "web", og, { web: { sitio, pagina } })
   } catch (err) {
     console.error("chat web", err)
     return json(req, { ok: false, error: "interno", aviso: "Se me cortó la conexión un segundo. ¿Me lo mandás de nuevo? Si no, seguimos por WhatsApp.", wa }, 500)
   }
   const nuevos = await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and id > $3 and autor <> 'cliente' and coalesce(texto,'') not like '[no enviado:%' order by id", [E, waId, antes])
+  const enEspera = !!(await one("select 1 from wa_chats where empresa=$1 and wa_id=$2 and pausa_motivo='equipo' and bot_pausado_hasta > now()", [E, waId]))
   const k = await one<{ id: number; email: string | null; telefono: string | null; utm_source: string | null }>("select id, email, telefono, utm_source from consultas where chat_id=$1 order by id desc limit 1", [waId])
   // Los utm_* de la visita quedan también en sus columnas (los informes de origen los leen de ahí)
   if (k && !k.utm_source && (og.utm_source || og.gclid)) await q("update consultas set utm_source=$1, utm_medium=$2, utm_campaign=$3, gclid=$4 where id=$5", [og.utm_source ?? null, og.utm_medium ?? null, og.utm_campaign ?? null, og.gclid ?? null, k.id]).catch(() => {})
@@ -94,8 +102,10 @@ export async function POST(req: NextRequest) {
     // Dejó un dato de contacto: el widget lo cuenta como conversión (una sola vez)
     lead: !!(k?.email || k?.telefono),
     email: !!k?.email,
+    // Una persona del equipo tiene (o está por tomar) el chat: Bit está en pausa
+    humano: enEspera,
     codigo: codigoChat(sid),
     // El bot no respondió (una persona del equipo tomó el chat, o está configurado para no responder en horario)
-    aviso: nuevos.length ? null : "Recibimos tu mensaje. Una persona del equipo te responde por acá en un rato; si preferís, seguí por WhatsApp.",
+    aviso: nuevos.length || enEspera ? null : "Recibimos tu mensaje. Una persona del equipo te responde por acá en un rato; si preferís, seguí por WhatsApp.",
   })
 }

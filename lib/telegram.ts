@@ -65,6 +65,41 @@ export async function enviarTelegram(a: AvisoTg): Promise<{ ok: boolean; enviado
   }
 }
 
+/**
+ * Aviso de una conversación que espera a una persona. Guarda a qué conversación corresponde cada mensaje enviado (tg_hilos):
+ * si Julio le RESPONDE a ese mensaje en Telegram, el texto sale hacia la persona (lo resuelve el webhook).
+ * Sale aunque los avisos generales estén desactivados: hay alguien esperando. No lanza.
+ */
+export async function avisarConHilo(waId: string, a: AvisoTg): Promise<{ ok: boolean; enviados: number; error?: string }> {
+  try {
+    if (!tokenBot()) { await anotar(false, "sin bot"); return { ok: false, enviados: 0, error: "sin bot" } }
+    const chats = await chatsDestino()
+    if (!chats.length) { await anotar(false, "sin chat vinculado"); return { ok: false, enviados: 0, error: "sin chat vinculado" } }
+    const link = a.url ? (a.url.startsWith("http") ? a.url : BASE() + a.url) : ""
+    const texto = [`<b>${esc(a.titulo).slice(0, 200)}</b>`, a.cuerpo ? esc(a.cuerpo).slice(0, 1400) : "", "↩️ <i>Respondé a este mensaje y tu texto le llega a la persona. Respondé /bit para que Bit retome.</i>", link ? `<a href="${esc(link)}">Abrir la conversación</a>` : ""].filter(Boolean).join("\n\n")
+    let enviados = 0, error: string | undefined
+    for (const chat of chats) {
+      let r = await llamar("sendMessage", { chat_id: chat, text: texto, parse_mode: "HTML", disable_web_page_preview: true })
+      // Un reintento: este aviso no puede perderse por un corte de un segundo
+      if (!r.ok) { await new Promise((x) => setTimeout(x, 700)); r = await llamar("sendMessage", { chat_id: chat, text: texto, parse_mode: "HTML", disable_web_page_preview: true }) }
+      if (r.ok) {
+        enviados++
+        const mid = Number((r.result as any)?.message_id)
+        if (mid) await q("insert into tg_hilos(chat_id,message_id,wa_id) values ($1,$2,$3) on conflict do nothing", [String(chat), mid, waId]).catch((e) => console.error("telegram: hilo sin guardar", e))
+      } else error = r.error
+    }
+    await anotar(enviados > 0, error)
+    if (Math.random() < 0.05) await q("delete from tg_hilos where creado < now() - interval '14 days'").catch(() => {})
+    return { ok: enviados > 0, enviados, error }
+  } catch (e: any) {
+    return { ok: false, enviados: 0, error: String(e?.message ?? e).slice(0, 120) }
+  }
+}
+/** Conversación a la que pertenece un aviso (para responderlo desde Telegram). */
+export async function hiloDe(chatId: string | number, messageId: number): Promise<string | null> {
+  return (await one<{ wa_id: string }>("select wa_id from tg_hilos where chat_id=$1 and message_id=$2", [String(chatId), messageId]).catch(() => null))?.wa_id ?? null
+}
+
 /** Evita repetir el mismo aviso (por ejemplo, el mismo correo) dentro de una ventana. */
 export async function primeraVez(clave: string, minutos = 1440): Promise<boolean> {
   const r = await q<{ clave: string }>(

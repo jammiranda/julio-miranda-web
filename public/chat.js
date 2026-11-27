@@ -79,6 +79,17 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .cab div{flex:1;min-width:0}\
 .x{width:40px;height:40px;border-radius:50%;color:#fff;font-size:24px;line-height:1;flex:none}\
 .x:hover{background:rgba(255,255,255,.12)}\
+.acc{display:flex;gap:8px;padding:8px 10px;background:#fff;border-bottom:1px solid #E3E5EA}\
+.acc a,.acc button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;border-radius:11px;font-size:13.5px;font-weight:700;text-decoration:none;text-align:center;line-height:1.15;padding:6px 8px}\
+.acc a{background:#E9F8EF;color:#0B6B37;border:1px solid #BFE8CF}\
+.acc a:hover{background:#DDF3E6}\
+.acc button{background:#0E1116;color:#fff;border:1px solid #0E1116}\
+.acc button:hover{background:#262C37}\
+.acc button[disabled]{background:#F1F2F5;color:#4A515C;border-color:#E3E5EA;cursor:default}\
+.acc a:focus-visible,.acc button:focus-visible{outline:3px solid #FF6A63;outline-offset:2px}\
+.espera{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#FFF6E5;border-bottom:1px solid #F3E2BD;font-size:12.5px;color:#6B4B00;font-weight:600}\
+.espera i{width:8px;height:8px;border-radius:50%;background:#E0A100;animation:pun 1.2s infinite ease-in-out;flex:none}\
+.espera.ok{background:#E9F8EF;border-color:#BFE8CF;color:#0B6B37}.espera.ok i{background:#2FBF71;animation:none}\
 .msjs{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}\
 .m{max-width:86%;padding:9px 12px;border-radius:16px;font-size:15px;line-height:1.42;white-space:pre-wrap;overflow-wrap:anywhere}\
 .m.b{align-self:flex-start;background:#fff;border:1px solid #E3E5EA;border-bottom-left-radius:5px}\
@@ -100,7 +111,7 @@ textarea{flex:1;border:1px solid #D5D8DE;border-radius:14px;padding:10px 12px;fo
 textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
 .env{width:44px;height:44px;border-radius:50%;background:#C8231F;color:#fff;display:grid;place-items:center;flex:none}\
 .env[disabled]{opacity:.45;cursor:default}\
-.pie{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px calc(8px + env(safe-area-inset-bottom,0px));background:#fff;font-size:12px;color:#4A515C}\
+.pie{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:7px 12px calc(8px + env(safe-area-inset-bottom,0px));background:#fff;font-size:12px;color:#4A515C}\
 .pie a{color:#4A515C;text-decoration:underline}\
 .pie a.wa{display:inline-flex;align-items:center;gap:6px;color:#0B7A3E;font-weight:700;text-decoration:none;font-size:13px;padding:6px 2px}\
 .pie a.wa:hover{text-decoration:underline}\
@@ -144,12 +155,17 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
   var env = el("button", "env"); env.type = "submit"; env.setAttribute("aria-label", "Enviar"); env.disabled = true
   env.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
   caja.appendChild(ta); caja.appendChild(env)
-  var pie = el("div", "pie"); var wa = el("a", "wa"); wa.target = "_blank"; wa.rel = "noopener noreferrer"
+  var pie = el("div", "pie"); var acc = el("div", "acc"); var wa = el("a"); wa.target = "_blank"; wa.rel = "noopener noreferrer"
   wa.innerHTML = '<svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.3.6 4.5 1.8 6.4L3 29l7.2-1.9c1.8 1 3.8 1.5 5.8 1.5 7 0 12.7-5.7 12.7-12.6S23 3 16 3zm5.9 15.3c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.7 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>'
   wa.appendChild(document.createTextNode("Seguir por WhatsApp"))
   var priv = el("a", null, "Privacidad"); priv.href = "https://www.devisebit.com/privacidad"; priv.target = "_blank"; priv.rel = "noopener"
-  pie.appendChild(wa); pie.appendChild(priv)
-  panel.appendChild(cab); panel.appendChild(msjs); panel.appendChild(caja); panel.appendChild(pie)
+  var hum = el("button"); hum.type = "button"
+  hum.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>'
+  hum.appendChild(document.createTextNode("Hablar con una persona"))
+  acc.appendChild(wa); acc.appendChild(hum)
+  var espera = el("div", "espera oculto"); espera.setAttribute("role", "status"); espera.appendChild(el("i")); var esperaT = el("span"); espera.appendChild(esperaT)
+  pie.appendChild(priv)
+  panel.appendChild(cab); panel.appendChild(acc); panel.appendChild(espera); panel.appendChild(msjs); panel.appendChild(caja); panel.appendChild(pie)
   raiz.appendChild(gancho); raiz.appendChild(boton); raiz.appendChild(panel)
 
   function linkWa() {
@@ -224,10 +240,40 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
       burbuja(m.autor, m.texto, m.nombre); hubo = true
       // Bit pidió el email: se le deja el casillero a mano, justo debajo
       if (m.autor === "bot" && PIDE_MAIL.test(m.texto || "")) pideAhora = true
+      if (m.autor === "equipo") estado("con", m.nombre)
     })
     if (hubo) { persistir(); if (!abierto) punto.className = "punto nuevo" }
     return hubo
   }
+  // Hablar con una persona: Bit queda en pausa, el equipo recibe el aviso y contesta en este mismo chat
+  var avisoDemora = null
+  function estado(cual, nombre) {
+    if (cual === "espera") { espera.className = "espera"; esperaT.textContent = "Avisamos al equipo. Una persona se suma a este chat…"; hum.disabled = true; est.humano = Date.now() }
+    else if (cual === "con") { espera.className = "espera ok"; esperaT.textContent = (nombre || "Una persona") + ", del equipo de DEVISEBIT, está en el chat"; hum.disabled = true; est.humano = Date.now(); if (avisoDemora) { clearTimeout(avisoDemora); avisoDemora = null } }
+    else { espera.className = "espera oculto"; hum.disabled = false; est.humano = 0 }
+    persistir()
+  }
+  function pedirPersona() {
+    if (enviando || hum.disabled) return
+    enviando = true; hum.disabled = true
+    if (ops) { ops.remove(); ops = null }
+    quitarMail(); burbuja("cliente", "Quiero hablar con una persona"); escribiendo(true)
+    est.n = (est.n || 0) + 1; ultimaActividad = Date.now(); persistir(); medir("chat_pide_persona", { sitio: SITIO })
+    api("POST", { sid: est.sid, accion: "humano", sitio: SITIO, pagina: location.pathname.slice(0, 160), o: ORIGEN }).then(function (j) {
+      escribiendo(false)
+      if (j && j.codigo) est.codigo = j.codigo
+      if (j && j.ok) {
+        estado("espera"); recibir(j.mensajes); if (j.aviso) aviso(j.aviso)
+        if (!est.email && pideAhora) pedirMail()
+        // Si nadie llegó a sumarse, no se la deja esperando sin salida
+        if (avisoDemora) clearTimeout(avisoDemora)
+        avisoDemora = setTimeout(function () { if (espera.className === "espera") aviso("Todavía no pudieron sumarse. Si no querés esperar, dejá tu email acá y te escriben, o seguí por WhatsApp con el botón de arriba.") }, 4 * 60e3)
+      } else { hum.disabled = false; aviso((j && j.aviso) || "No pude avisarle al equipo. Probá de nuevo o seguí por WhatsApp.") }
+      linkWa(); reprogramar()
+    }).catch(function () { escribiendo(false); hum.disabled = false; aviso("No pude avisarle al equipo. Revisá tu conexión o seguí por WhatsApp.") }).then(function () { enviando = false; env.disabled = !ta.value.trim() })
+  }
+  hum.addEventListener("click", pedirPersona)
+  function reprogramar() { if (reloj) { clearInterval(reloj); reloj = null } vigilar() }
   function api(metodo, cuerpo, qs) {
     return fetch(BASE + "/api/chat" + (qs || ""), metodo === "POST" ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) } : { method: "GET" }).then(function (r) { return r.json().catch(function () { return { ok: false } }) })
   }
@@ -241,6 +287,7 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
         burbuja("bot", T.hola)
         j.mensajes.forEach(function (m) { burbuja(m.autor, m.texto, m.nombre); if (m.id > est.ultimo) est.ultimo = m.id })
         if (j.codigo) est.codigo = j.codigo
+        if (est.humano && Date.now() - est.humano < 30 * 60e3) { var ue = null; j.mensajes.forEach(function (m) { if (m.autor === "equipo") ue = m }); estado(ue ? "con" : "espera", ue && ue.nombre) } else est.humano = 0
         persistir(); linkWa(); ultimaActividad = Date.now(); vigilar()
       } else saludo()
     }).catch(function () { saludo() })
@@ -262,6 +309,8 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
         recibir(j.mensajes)
         if (j.aviso) aviso(j.aviso)
         if (j.email) est.email = true
+        if (j.humano && espera.className === "espera oculto") estado("espera")
+        if (!j.humano && est.humano && espera.className !== "espera oculto") estado("no")
         if (j.lead && !est.lead) { est.lead = true; medir("generate_lead", { method: "chat_web", sitio: SITIO }) }
         // El casillero aparece cuando Bit pide el email; si a los 3 intercambios todavía no lo pidió, se ofrece una vez
         if (!est.email && (pideAhora || (est.n >= 3 && !est.mailVisto))) pedirMail()
@@ -278,7 +327,7 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
       if (!est.n || Date.now() - ultimaActividad > 20 * 60e3) { clearInterval(reloj); reloj = null; return }
       if (document.hidden || enviando) return
       api("GET", null, "?sid=" + est.sid + "&desde=" + (est.ultimo || 0)).then(function (j) { if (j && j.ok) recibir(j.mensajes) }).catch(function () {})
-    }, abierto ? 6000 : 15000)
+    }, est.humano ? 3000 : abierto ? 6000 : 15000)
   }
   function alto() { ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight + 2) + "px" }
 

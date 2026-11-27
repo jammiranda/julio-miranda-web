@@ -234,6 +234,7 @@ create table if not exists avisos_estado (
 );
 create table if not exists avisos_email (clave text primary key, enviado timestamptz not null default now());
 create table if not exists avisos_telegram (clave text primary key, enviado timestamptz not null default now());
+create table if not exists tg_hilos (chat_id text not null, message_id bigint not null, wa_id text not null, creado timestamptz not null default now(), primary key (chat_id, message_id));
 create table if not exists informe_diario (
   dia date not null, edicion text not null check (edicion in ('manana','cierre')),
   semaforo text not null default 'verde', resumen text not null default '', secciones jsonb not null default '[]'::jsonb,
