@@ -43,6 +43,8 @@ export default function AcademiaLayout({ children }: { children: React.ReactNode
       </Cabecera>
       <div id="contenido" tabIndex={-1} className="flex-1 outline-none">{children}</div>
       <Script src="https://sistema.devisebit.com/v.js" strategy="afterInteractive" />
+      {/* Chat de Bit (mismo bot de WhatsApp): solo en las páginas públicas, no en el espacio del alumno ni del autor */}
+      <Script src="/chat.js" data-sitio="academia" data-rutas="^/(?:academia/?)?(?!mi-cuenta|autor|certificado|descarga|gracias)" strategy="lazyOnload" />
       <Pie />
     </div>
   )

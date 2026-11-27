@@ -53,6 +53,8 @@ async function enviarIG(e: Empresa, igsid: string, texto: string) {
 /** Envía texto por el canal del chat: "ig:<id>" es Instagram; si no, WhatsApp Cloud API. */
 export async function enviarTexto(e: Empresa, to: string, texto: string) {
   if (to.startsWith("ig:")) return enviarIG(e, to.slice(3), texto)
+  // Chat web (widget de los sitios): no hay nada que enviar, el mensaje queda guardado y el widget lo lee de /api/chat
+  if (to.startsWith("web:")) return { ok: true, id: undefined as string | undefined }
   const { phoneId, token } = cuenta(e)
   if (!phoneId || !token) return { ok: false, error: "WhatsApp no configurado" }
   const r = await fetch(`https://graph.facebook.com/${process.env.WA_GRAPH_VERSION ?? "v23.0"}/${phoneId}/messages`, {
