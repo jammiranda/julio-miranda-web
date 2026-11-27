@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
     mensajes: salida(nuevos),
     // Dejó un dato de contacto: el widget lo cuenta como conversión (una sola vez)
     lead: !!(k?.email || k?.telefono),
+    email: !!k?.email,
     codigo: codigoChat(sid),
     // El bot no respondió (una persona del equipo tomó el chat, o está configurado para no responder en horario)
     aviso: nuevos.length ? null : "Recibimos tu mensaje. Una persona del equipo te responde por acá en un rato; si preferís, seguí por WhatsApp.",

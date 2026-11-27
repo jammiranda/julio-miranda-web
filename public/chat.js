@@ -104,6 +104,15 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
 .pie a{color:#4A515C;text-decoration:underline}\
 .pie a.wa{display:inline-flex;align-items:center;gap:6px;color:#0B7A3E;font-weight:700;text-decoration:none;font-size:13px;padding:6px 2px}\
 .pie a.wa:hover{text-decoration:underline}\
+.mail{align-self:stretch;background:#fff;border:1px solid #E3E5EA;border-left:3px solid #C8231F;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}\
+.mail label{font-size:13.5px;font-weight:700;line-height:1.3}\
+.mail div{display:flex;gap:6px}\
+.mail input{flex:1;min-width:0;border:1px solid #D5D8DE;border-radius:10px;padding:9px 10px;font:inherit;font-size:16px;color:#0E1116;outline:none}\
+.mail input:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
+.mail .ok{background:#C8231F;color:#fff;border-radius:10px;padding:0 14px;font-weight:700;font-size:14px;min-height:42px}\
+.mail .no{align-self:flex-start;font-size:12.5px;color:#4A515C;text-decoration:underline;padding:2px 0}\
+.mail .err{font-size:12.5px;color:#9E1A17}\
+.mail .ok:focus-visible,.mail .no:focus-visible{outline:3px solid #FF6A63;outline-offset:2px}\
 .oculto{display:none!important}\
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}"
 
@@ -177,19 +186,44 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
     T.ops.forEach(function (o) { var b = el("button", "op", o); b.type = "button"; b.addEventListener("click", function () { mandar(o) }); ops.appendChild(b) })
     msjs.appendChild(ops)
   }
+  // Casillero de email: aparece debajo del mensaje donde Bit lo pide (o tras unos intercambios), una sola vez y con «Ahora no».
+  // Nunca bloquea el chat: la persona puede seguir escribiendo sin completarlo.
+  var mail = null
+  function quitarMail() { if (mail) { mail.remove(); mail = null } }
+  function pedirMail() {
+    if (mail || est.email || est.mailNo || est.mailVisto >= 2) return
+    est.mailVisto = (est.mailVisto || 0) + 1; persistir()
+    mail = el("form", "mail"); mail.noValidate = true
+    var lb = el("label", null, "¿A qué email te lo mando?"); var fila = el("div"); var inp = el("input"); inp.type = "email"; inp.placeholder = "tu@email.com"; inp.autocomplete = "email"; inp.inputMode = "email"; inp.id = "dbmail"; lb.htmlFor = "dbmail"; inp.maxLength = 160
+    var ok = el("button", "ok", "Enviar"); ok.type = "submit"; fila.appendChild(inp); fila.appendChild(ok)
+    var err = el("span", "err oculto", "Revisá el email: parece que le falta algo."); err.setAttribute("role", "alert")
+    var no = el("button", "no", "Ahora no, sigo chateando"); no.type = "button"
+    mail.appendChild(lb); mail.appendChild(fila); mail.appendChild(err); mail.appendChild(no)
+    mail.addEventListener("submit", function (e) {
+      e.preventDefault()
+      var v = inp.value.trim()
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v)) { err.classList.remove("oculto"); inp.focus(); return }
+      quitarMail(); medir("chat_email", { sitio: SITIO }); mandar("Mi email es " + v)
+    })
+    no.addEventListener("click", function () { est.mailNo = true; persistir(); quitarMail(); medir("chat_email_ahora_no", { sitio: SITIO }); try { ta.focus() } catch (e) {} })
+    msjs.appendChild(mail); abajo()
+  }
+  var PIDE_MAIL = /\b(e-?mail|mail|correo)\b[^?]{0,140}\?/i
   var tip = null
   function escribiendo(si) {
     if (si && !tip) { tip = el("div", "tip"); tip.appendChild(el("i")); tip.appendChild(el("i")); tip.appendChild(el("i")); var s = el("span", "sr", "Bit está escribiendo"); tip.appendChild(s); msjs.appendChild(tip); abajo() }
     if (!si && tip) { tip.remove(); tip = null }
   }
 
-  var abierto = false, cargado = false, enviando = false, ultimaActividad = 0, reloj = null
+  var abierto = false, cargado = false, enviando = false, ultimaActividad = 0, reloj = null, pideAhora = false
   function recibir(lista) {
     var hubo = false
     ;(lista || []).forEach(function (m) {
       if (m.id && m.id <= est.ultimo) return
       if (m.id) est.ultimo = m.id
       burbuja(m.autor, m.texto, m.nombre); hubo = true
+      // Bit pidió el email: se le deja el casillero a mano, justo debajo
+      if (m.autor === "bot" && PIDE_MAIL.test(m.texto || "")) pideAhora = true
     })
     if (hubo) { persistir(); if (!abierto) punto.className = "punto nuevo" }
     return hubo
@@ -216,6 +250,7 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
     if (!texto || enviando) return
     enviando = true; env.disabled = true
     if (ops) { ops.remove(); ops = null }
+    quitarMail(); pideAhora = false
     burbuja("cliente", texto); ta.value = ""; alto(); escribiendo(true)
     if (!est.n) medir("chat_inicio", { sitio: SITIO })
     est.n = (est.n || 0) + 1; persistir()
@@ -226,7 +261,10 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
       if (j && j.ok) {
         recibir(j.mensajes)
         if (j.aviso) aviso(j.aviso)
+        if (j.email) est.email = true
         if (j.lead && !est.lead) { est.lead = true; medir("generate_lead", { method: "chat_web", sitio: SITIO }) }
+        // El casillero aparece cuando Bit pide el email; si a los 3 intercambios todavía no lo pidió, se ofrece una vez
+        if (!est.email && (pideAhora || (est.n >= 3 && !est.mailVisto))) pedirMail()
       } else aviso((j && j.aviso) || "No pude enviar tu mensaje. Probá de nuevo o seguí por WhatsApp.")
       persistir(); linkWa(); vigilar()
     }).catch(function () {
