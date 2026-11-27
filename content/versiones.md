@@ -1,6 +1,6 @@
 # Versiones del ecosistema DEVISEBIT
 
-Última actualización: 25/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (571 cambios publicados desde el 17 de octubre).
+Última actualización: 26/11/2026 · Para Julio Miranda · Fuente: el historial de cambios guardado en GitHub (572 cambios publicados desde el 17 de octubre).
 
 **Inicio del ecosistema nuevo: 23/10/2026.** Es la fecha del primer cambio guardado del Sistema; la web nueva quedó guardada el 28/10/2026 (ya publicada desde el 27/10). Las estadísticas del ecosistema se cuentan desde el 23/10/2026.
 
@@ -12,7 +12,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Dirección web | Versión actual | Fecha | Qué fue lo último |
 |---|---|---|---|---|
-| Sitio web DEVISEBIT | www.devisebit.com | **1.15.0** | 25/11/2026 | Revisión general: inicio más corto, Productos y Casos de éxito rediseñados, y nueva presentación «Conocé DEVISEBIT v3» con la Familia Mate |
+| Sitio web DEVISEBIT | www.devisebit.com | **1.16.0** | 26/11/2026 | Dos casos de éxito nuevos en la web, EFFI SOLUTIONS y Familia Mate, en español y en inglés |
 | Landings de anuncios | www.devisebit.com/webs, /redes, /whatsapp, /sistemas, /comunidad, /web-pyme | **1.7.0** | 25/11/2026 | /webs muestra la promo de fin de año de Web PyME ($299.000 con 3 meses de abono incluidos) |
 | Sistema (CRM y gestión) | sistema.devisebit.com | **3.15.0** | 25/11/2026 | La Familia Mate entra al Sistema: usuarios, planes pagos y códigos de regalo con seguimiento, y cobros por Mercado Pago |
 | Bot de WhatsApp (Bit) | Atiende por WhatsApp; se maneja desde el Sistema | **1.11.0** | 25/11/2026 | Bit conoce la promo de fin de año de Web PyME y sabe que el autodiagnóstico es opcional |
@@ -31,7 +31,7 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 
 | Producto | Cambios propios | Versiones |
 |---|---|---|
-| Sitio web DEVISEBIT | 117 | 17 |
+| Sitio web DEVISEBIT | 118 | 18 |
 | Landings de anuncios | 21 | 10 (3 de ellas con cambios compartidos con el sitio) |
 | Sistema (CRM y gestión) | 211 | 29 |
 | Bot de WhatsApp (Bit) | 26 | 12 (1 de ellas con cambios compartidos con el Sistema) |
@@ -40,9 +40,9 @@ Este documento responde una sola pregunta: **en qué versión está cada cosa y 
 | Panel de Contenido | 51 | 11 |
 | Oficina | 20 | 2 |
 | Sitio personal de Julio | 71 | 8 |
-| **Total** | **571** | **100** |
+| **Total** | **572** | **101** |
 
-Los 571 se reparten así: 138 en el código del sitio web (117 + 21), 362 en el código del Sistema (211 + 26 + 40 + 14 + 51 + 20) y 71 en el sitio personal.
+Los 572 se reparten así: 139 en el código del sitio web (118 + 21), 362 en el código del Sistema (211 + 26 + 40 + 14 + 51 + 20) y 71 en el sitio personal.
 
 ---
 
@@ -70,10 +70,11 @@ Cada producto tiene su propio número, con tres partes: **MAYOR.MENOR.CORRECCIÓ
 
 ### 3.1 Sitio web DEVISEBIT — www.devisebit.com
 
-117 cambios · 17 versiones · versión actual **1.15.0**
+118 cambios · 18 versiones · versión actual **1.16.0**
 
 | Versión | Fecha | Qué cambió para quien lo usa | Tipo | Rastro |
 |---|---|---|---|---|
+| **1.16.0** | 26/11/2026 | • Dos casos de éxito nuevos en la web: EFFI SOLUTIONS y Familia Mate, con su imagen, en español y en inglés | Novedad | `ff95b4e..ff95b4e` (1) |
 | **1.15.0** | 25/11/2026 | • Inicio más corto y ordenado; Qué hacemos suma las landings de anuncios y aparece «Recién lanzado» con la Familia Mate y los productos propios<br>• Productos rediseñado: explorador con vista previa por producto, con pymes y Familia Mate; suma Salud Digital · Atención domiciliaria (con su demo) y Sistema para clínicas<br>• Casos de éxito rediseñado (destacados, redes gestionadas, más proyectos y videos con miniatura real); entra el sistema de internación domiciliaria en marca blanca<br>• Nueva presentación «Conocé DEVISEBIT v3»: webs por suscripción o a medida, consultor tecnológico, 12 productos propios y redes con TikTok y Facebook<br>• En Novedades, nota de cómo creció la Familia Mate y notas programadas de MateCuentas, MateTurnos y MateEventos, con enlaces dentro del texto<br>• La agenda ya no pide el autodiagnóstico en los textos; sale la UBA de los casos y de Alianzas; la medición queda solo en devisebit.com | Novedad | `0e54d1c..16b5791` (15) |
 | **1.14.0** | 24/11/2026 | • En la página de Asesoría, el bloque «Quién te atiende» presenta a Julio Miranda como consultor tecnológico | Novedad | `ac4b584..ac4b584` (1) |
 | **1.13.0** | 23/11/2026 | • Nota nueva en Novedades: «Accesibilidad web en 2026, errores más comunes y qué exige la ley»<br>• Placa para compartir la nota en redes, en la biblioteca de contenidos (cambio del sitio personal: `2557bfb`) | Novedad | `dccbc8b..dccbc8b` (1) |
@@ -343,5 +344,5 @@ Lo usa la actualización diaria para saber desde dónde seguir. Los cambios que 
 | Rama | Último cambio incluido |
 |---|---|
 | `devisebit-sistema` | `e89957b` |
-| `devisebit-web` | `16b5791` |
+| `devisebit-web` | `ff95b4e` |
 | `main` | `381969e` |
