@@ -79,7 +79,7 @@
       var c = ACTIVO ? CHAT[location.hostname] : null
       // Para probarlo en una vista previa o en local: agregar ?_chat=devisebit (o el sitio que sea) a la dirección
       var prueba = /[?&]_chat=([a-z]+)/.exec(location.search)
-      if (prueba) c = { s: prueba[1] }
+      if (prueba) { var real = CHAT[location.hostname] || {}; c = { s: prueba[1], r: null, u: real.u, um: real.um } }
       if (!c || window.__dbChat || document.querySelector('script[src*="/chat.js"]')) return
       var s = document.createElement("script")
       var base = "https://sistema.devisebit.com"

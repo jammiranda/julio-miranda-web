@@ -239,6 +239,16 @@ export function sinIA(e: Empresa, texto: string, primero: boolean, est: Estado, 
   return { respuestas: [`Perdón, no llegué a entenderte 🙏 Elegí una opción escribiendo el número:\n${menuCorto}${n >= 2 ? "\n\nO contame con tus palabras qué necesitás y te ayudo." : ""}`], datos: d, derivar: false, estado: { ...est, datos: d, noEntendi: n } }
 }
 
+/** Chat web cuando la IA no responde: no se improvisa. Se pide el email (o WhatsApp) y el equipo sigue la conversación. */
+function respaldoWeb(mail: string | null, est: Estado): Resultado {
+  if (mail) return { respuestas: [`Gracias, ya lo anoté. Una persona del equipo te escribe a ${mail} con la respuesta. Si preferís algo más rápido, tocá *Seguir por WhatsApp* acá abajo.`], datos: { email: mail }, derivar: true, area: "coordinacion", estado: est }
+  const ya = (est.noEntendi ?? 0) > 0
+  return {
+    respuestas: [ya ? "Lo dejo anotado para el equipo. Si me pasás un email te respondemos por ahí; si no, podés seguir por *WhatsApp* con el botón de acá abajo." : "Recibí tu consulta. En este momento no puedo responderte al detalle por acá, así que te contesta una persona del equipo. ¿A qué email te escribimos?"],
+    datos: {}, derivar: true, area: "coordinacion", estado: { ...est, noEntendi: (est.noEntendi ?? 0) + 1 },
+  }
+}
+
 const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 /**
@@ -454,7 +464,8 @@ ${ya?.brief_en ? "Esta persona YA completó el brief: no se lo pidas de nuevo; c
     const ia = await conIA(e, conversacion, ctx)
     // Los mensajes que la IA leyó y contesta en esta respuesta (los audios todavía sin transcribir no cuentan)
     if (ia) atendidos = [...new Set([mid, ...hist.filter((m) => m.id && esPendiente(m) && !(m.tipo === "audio" && !m.texto)).map((m) => String(m.id))])]
-    res = ia ?? sinIA(e, texto ?? "", primero, est, brief, agenda)
+    // Sin IA (clave vencida, corte del proveedor): en WhatsApp sigue el menú guiado; en la web, que no tiene menú, se toma el contacto y se avisa al equipo
+    res = ia ?? (canal === "web" ? respaldoWeb(mailEnTexto, est) : sinIA(e, texto ?? "", primero, est, brief, agenda))
     // Arreglo 17/11 (caso Fungigesell): si la persona YA tiene reunión confirmada, nunca se reserva otra ni se contesta
     // "ese horario se acaba de ocupar" (pasaba con mensajes como "Ok" o "ya quedó agendada": la IA repetía el horario,
     // el turno ya era de ella y la reserva fallaba, o se creaba un segundo turno con dos recordatorios).
