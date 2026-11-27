@@ -102,7 +102,7 @@ export default function Footer({ lang = "es" }: { lang?: "es" | "en" } = {}) {
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 justify-between text-xs text-[#8A919C]">
-          <span className="inline-flex items-center">{en ? "© 2026 DEVISEBIT SRL · Made in Argentina" : "© 2026 DEVISEBIT SRL · Hecho en Argentina"}</span>
+          <span className="inline-flex items-center">{en ? "© 2026 DEVISEBIT SRL · CUIT 30-71770834-9 · Made in Argentina" : "© 2026 DEVISEBIT SRL · CUIT 30-71770834-9 · Hecho en Argentina"}</span>
           <Link href="/privacidad" className={"inline-flex items-center min-h-11 " + link} {...(en ? { hrefLang: "es" } : {})}>{en ? "Privacy policy (Spanish)" : "Política de privacidad"}</Link>
         </div>
       </div>

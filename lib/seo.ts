@@ -35,6 +35,7 @@ export const ORGANIZACION = {
   image: `${SITE_URL}/og.png`,
   description: "Software, apps e inteligencia artificial para salud, gobierno, universidades, gremios y empresas. Sistemas en producción desde 2009.",
   foundingDate: "2009",
+  taxID: "30-71770834-9",
   email: "info@devisebit.com",
   telephone: "+54 9 11 7346-6490",
   address: { "@type": "PostalAddress", addressLocality: "Buenos Aires", addressCountry: "AR" },
