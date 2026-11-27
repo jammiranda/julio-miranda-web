@@ -34,7 +34,15 @@ export function OPTIONS(req: NextRequest) {
 }
 
 type Msj = { id: string; autor: string; texto: string | null; autor_nombre: string | null; creado: string }
-const salida = (m: Msj[]) => m.map((x) => ({ id: Number(x.id), autor: x.autor, texto: x.texto ?? "", nombre: x.autor === "equipo" ? (x.autor_nombre ?? "Equipo DEVISEBIT").split(" ")[0] : x.autor === "bot" ? "Bit" : null, t: x.creado }))
+/** Nombre con el que firma el equipo en el chat web (config chat_nombre_equipo). En Conversaciones queda el autor real de cada mensaje. */
+let alias: { v: string; t: number } | null = null
+async function nombreEquipo() {
+  if (alias && Date.now() - alias.t < 60e3) return alias.v
+  const v = (await one<{ valor: string }>("select valor from config where clave='chat_nombre_equipo'").catch(() => null))?.valor?.trim() || "Bárbara"
+  alias = { v, t: Date.now() }
+  return v
+}
+const salidaCon = (eq: string) => (m: Msj[]) => m.map((x) => ({ id: Number(x.id), autor: x.autor, texto: x.texto ?? "", nombre: x.autor === "equipo" ? eq : x.autor === "bot" ? "Bit" : null, t: x.creado }))
 
 export async function GET(req: NextRequest) {
   const sid = req.nextUrl.searchParams.get("sid") ?? ""
@@ -45,7 +53,7 @@ export async function GET(req: NextRequest) {
   const filas = desde
     ? await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and id > $3 and autor <> 'cliente' and coalesce(texto,'') not like '[no enviado:%' order by id limit 20", [E, waId, desde])
     : (await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '7 days' order by id desc limit 40", [E, waId])).reverse()
-  return json(req, { ok: true, mensajes: salida(filas), codigo: codigoChat(sid) })
+  return json(req, { ok: true, mensajes: salidaCon(await nombreEquipo())(filas), codigo: codigoChat(sid) })
 }
 
 export async function POST(req: NextRequest) {
@@ -98,7 +106,7 @@ export async function POST(req: NextRequest) {
   if (k && !k.utm_source && (og.utm_source || og.gclid)) await q("update consultas set utm_source=$1, utm_medium=$2, utm_campaign=$3, gclid=$4 where id=$5", [og.utm_source ?? null, og.utm_medium ?? null, og.utm_campaign ?? null, og.gclid ?? null, k.id]).catch(() => {})
   return json(req, {
     ok: true,
-    mensajes: salida(nuevos),
+    mensajes: salidaCon(await nombreEquipo())(nuevos),
     // Dejó un dato de contacto: el widget lo cuenta como conversión (una sola vez)
     lead: !!(k?.email || k?.telefono),
     email: !!k?.email,

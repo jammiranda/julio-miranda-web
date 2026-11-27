@@ -80,13 +80,15 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .x{width:40px;height:40px;border-radius:50%;color:#fff;font-size:24px;line-height:1;flex:none}\
 .x:hover{background:rgba(255,255,255,.12)}\
 .acc{display:flex;gap:8px;padding:8px 10px;background:#fff;border-bottom:1px solid #E3E5EA}\
-.acc a,.acc button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;border-radius:11px;font-size:13.5px;font-weight:700;text-decoration:none;text-align:center;line-height:1.15;padding:6px 8px}\
+.acc a,.acc button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;text-align:center;line-height:1.15;padding:6px 8px}\
 .acc a{background:#E9F8EF;color:#0B6B37;border:1px solid #BFE8CF}\
 .acc a:hover{background:#DDF3E6}\
 .acc button{background:#0E1116;color:#fff;border:1px solid #0E1116}\
 .acc button:hover{background:#262C37}\
 .acc button[disabled]{background:#F1F2F5;color:#4A515C;border-color:#E3E5EA;cursor:default}\
 .acc a:focus-visible,.acc button:focus-visible{outline:3px solid #FF6A63;outline-offset:2px}\
+.corto{display:none}\
+@media (max-width:420px){.largo{display:none}.corto{display:inline}.acc{padding:6px 8px;gap:6px}}\
 .espera{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#FFF6E5;border-bottom:1px solid #F3E2BD;font-size:12.5px;color:#6B4B00;font-weight:600}\
 .espera i{width:8px;height:8px;border-radius:50%;background:#E0A100;animation:pun 1.2s infinite ease-in-out;flex:none}\
 .espera.ok{background:#E9F8EF;border-color:#BFE8CF;color:#0B6B37}.espera.ok i{background:#2FBF71;animation:none}\
@@ -136,7 +138,7 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
   var sube = Number(dato("sube") || 0), subeM = dato("sube-movil") == null ? sube : Number(dato("sube-movil") || 0)
   function ubicar() { host.style.setProperty("--sube", (window.innerWidth <= 640 ? subeM : sube) + "px") }
   ubicar(); window.addEventListener("resize", ubicar)
-  var LOGO = BASE + "/wa-perfil.jpg"
+  var LOGO = BASE + "/marca/bit-avatar.png" // Bit v3, el mismo personaje de los reels (dibujado con material/bit/bit-v3/bit3.js)
 
   // Botón flotante + globo de invitación
   var boton = el("button", "boton"); boton.type = "button"; boton.setAttribute("aria-label", "Abrir el chat con Bit, el asistente con IA de DEVISEBIT"); boton.setAttribute("aria-haspopup", "dialog")
@@ -157,11 +159,12 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
   caja.appendChild(ta); caja.appendChild(env)
   var pie = el("div", "pie"); var acc = el("div", "acc"); var wa = el("a"); wa.target = "_blank"; wa.rel = "noopener noreferrer"
   wa.innerHTML = '<svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.3.6 4.5 1.8 6.4L3 29l7.2-1.9c1.8 1 3.8 1.5 5.8 1.5 7 0 12.7-5.7 12.7-12.6S23 3 16 3zm5.9 15.3c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.7 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>'
-  wa.appendChild(document.createTextNode("Seguir por WhatsApp"))
+  wa.appendChild(el("span", "largo", "Seguir por WhatsApp")); wa.appendChild(el("span", "corto", "WhatsApp"))
+  hum.setAttribute("aria-label", "Hablar con una persona del equipo"); wa.setAttribute("aria-label", "Seguir esta conversación por WhatsApp")
   var priv = el("a", null, "Privacidad"); priv.href = "https://www.devisebit.com/privacidad"; priv.target = "_blank"; priv.rel = "noopener"
   var hum = el("button"); hum.type = "button"
   hum.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>'
-  hum.appendChild(document.createTextNode("Hablar con una persona"))
+  hum.appendChild(el("span", "largo", "Hablar con una persona")); hum.appendChild(el("span", "corto", "Una persona"))
   acc.appendChild(wa); acc.appendChild(hum)
   var espera = el("div", "espera oculto"); espera.setAttribute("role", "status"); espera.appendChild(el("i")); var esperaT = el("span"); espera.appendChild(esperaT)
   pie.appendChild(priv)
@@ -357,8 +360,13 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
   function mostrar() {
     var ok = rutaOk()
     host.style.display = ok ? "" : "none"
+    botonSitio(!ok); if (ok) setTimeout(function () { botonSitio(false) }, 800)
     if (!ok && abierto) cerrar()
   }
+  // Un solo botón flotante: el chat ya ofrece «Seguir por WhatsApp», así que el botón verde propio del sitio se oculta
+  // (solo en las páginas donde aparece el chat; si el chat no carga, el botón del sitio sigue ahí)
+  var WA_SITIO = ".wa-flot,[data-wa-flotante]"
+  function botonSitio(ver) { try { var l = document.querySelectorAll(WA_SITIO); for (var i = 0; i < l.length; i++) l[i].style.display = ver ? "" : "none" } catch (e) {} }
   function montar() {
     if (!document.body || host.parentNode) return
     document.body.appendChild(host); mostrar()
