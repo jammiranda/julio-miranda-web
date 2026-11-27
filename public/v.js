@@ -72,9 +72,11 @@
     "familiamate.devisebit.com": { s: "familiamate", r: "^/$" },
     "tuweb.devisebit.com": { s: "tuweb", r: "^/(preguntas(\\.html)?)?$", um: 68 }
   }
+  // Interruptor general: en false el chat no aparece en ningún sitio (solo con ?_chat= para probar)
+  var ACTIVO = false
   function cargarChat() {
     try {
-      var c = CHAT[location.hostname]
+      var c = ACTIVO ? CHAT[location.hostname] : null
       // Para probarlo en una vista previa o en local: agregar ?_chat=devisebit (o el sitio que sea) a la dirección
       var prueba = /[?&]_chat=([a-z]+)/.exec(location.search)
       if (prueba) c = { s: prueba[1] }

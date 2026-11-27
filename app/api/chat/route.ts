@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   const waId = "web:" + sid
   // Sin `desde` es la reapertura del chat: vuelve la conversación completa (últimos 40). Con `desde`, solo lo nuevo que no escribió la persona.
   const filas = desde
-    ? await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and id > $3 and autor <> 'cliente' and texto not like '[no enviado:%' order by id limit 20", [E, waId, desde])
+    ? await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and id > $3 and autor <> 'cliente' and coalesce(texto,'') not like '[no enviado:%' order by id limit 20", [E, waId, desde])
     : (await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and creado > now() - interval '7 days' order by id desc limit 40", [E, waId])).reverse()
   return json(req, { ok: true, mensajes: salida(filas), codigo: codigoChat(sid) })
 }
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     console.error("chat web", err)
     return json(req, { ok: false, error: "interno", aviso: "Se me cortó la conexión un segundo. ¿Me lo mandás de nuevo? Si no, seguimos por WhatsApp.", wa }, 500)
   }
-  const nuevos = await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and id > $3 and autor <> 'cliente' and texto not like '[no enviado:%' order by id", [E, waId, antes])
+  const nuevos = await q<Msj>("select id, autor, texto, autor_nombre, creado from wa_mensajes where empresa=$1 and wa_id=$2 and id > $3 and autor <> 'cliente' and coalesce(texto,'') not like '[no enviado:%' order by id", [E, waId, antes])
   const k = await one<{ id: number; email: string | null; telefono: string | null; utm_source: string | null }>("select id, email, telefono, utm_source from consultas where chat_id=$1 order by id desc limit 1", [waId])
   // Los utm_* de la visita quedan también en sus columnas (los informes de origen los leen de ahí)
   if (k && !k.utm_source && (og.utm_source || og.gclid)) await q("update consultas set utm_source=$1, utm_medium=$2, utm_campaign=$3, gclid=$4 where id=$5", [og.utm_source ?? null, og.utm_medium ?? null, og.utm_campaign ?? null, og.gclid ?? null, k.id]).catch(() => {})

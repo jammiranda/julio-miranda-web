@@ -100,18 +100,18 @@ export async function unirChatWeb(e: Empresa, waId: string, texto: string | null
   if (!primera) return limpio
   await q(
     `insert into wa_mensajes(empresa,wa_id,autor,texto,tipo,autor_nombre,creado,atendido_en)
-     select empresa, $3, autor, texto, tipo, case when autor='bot' then 'Bit (chat web)' else autor_nombre end, creado, coalesce(atendido_en, now())
-       from wa_mensajes where empresa=$1 and wa_id=$2 order by creado, id`,
+     select empresa, $3::text, autor, texto, tipo, case when autor='bot' then 'Bit (chat web)' else autor_nombre end, creado, coalesce(atendido_en, now())
+       from wa_mensajes where empresa=$1::text and wa_id=$2::text order by creado, id`,
     [e, web.wa_id, waId],
   )
   if (web.consulta_id) {
     await q(
-      `insert into wa_chats(empresa,wa_id,consulta_id,ultimo_entrante) values ($1,$2,$3,now())
+      `insert into wa_chats(empresa,wa_id,consulta_id,ultimo_entrante) values ($1::text,$2::text,$3::int,now())
        on conflict (empresa,wa_id) do update set consulta_id=excluded.consulta_id, actualizado=now()`,
       [e, waId, web.consulta_id],
     )
     // La consulta pasa a seguirse por WhatsApp: desde Conversaciones se responde al celular
-    await q("update consultas set chat_id=$1, telefono=coalesce(telefono,$2), actualizado=now() where id=$3", [waId, "+" + waId, web.consulta_id])
+    await q("update consultas set chat_id=$1::text, telefono=coalesce(telefono,$2::text), actualizado=now() where id=$3::int", [waId, "+" + waId, web.consulta_id])
     await q("update wa_chats set consulta_id=null where empresa=$1 and wa_id=$2", [e, web.wa_id])
   }
   return limpio
