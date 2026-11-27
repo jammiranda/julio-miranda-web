@@ -1,7 +1,8 @@
 /* Chat web de Bit · DEVISEBIT. Un solo archivo para todos los sitios del ecosistema:
    <script src="https://sistema.devisebit.com/chat.js" defer></script>
+   Lo carga /v.js (ahí está la lista de sitios y páginas donde aparece). También se puede poner a mano con la etiqueta de arriba.
    Opcionales en la etiqueta: data-sitio (devisebit, academia, matebot, matecuentas, mateturnos, mateeventos, familiamate, tuweb),
-   data-rutas (expresión regular de las rutas donde se muestra), data-sube (píxeles para subirlo si hay otro botón flotante).
+   data-rutas (expresión regular de las rutas donde se muestra), data-sube y data-sube-movil (píxeles para subirlo si hay otro botón flotante).
    Habla con /api/chat del sistema: la conversación queda en Conversaciones, con su origen y los datos que deje la persona. */
 (function () {
   "use strict"
@@ -111,7 +112,10 @@ textarea:focus{border-color:#C8231F;box-shadow:0 0 0 3px rgba(200,35,31,.16)}\
   var host = el("div"); host.id = "devisebit-chat"
   var raiz = host.attachShadow ? host.attachShadow({ mode: "open" }) : host
   var st = el("style"); st.textContent = CSS; raiz.appendChild(st)
-  var sube = Number(dato("sube") || 0); if (sube) host.style.setProperty("--sube", sube + "px")
+  // Si el sitio ya tiene otro botón flotante abajo a la derecha, el de Bit va más arriba (puede ser distinto en celular)
+  var sube = Number(dato("sube") || 0), subeM = dato("sube-movil") == null ? sube : Number(dato("sube-movil") || 0)
+  function ubicar() { host.style.setProperty("--sube", (window.innerWidth <= 640 ? subeM : sube) + "px") }
+  ubicar(); window.addEventListener("resize", ubicar)
   var LOGO = BASE + "/wa-perfil.jpg"
 
   // Botón flotante + globo de invitación
